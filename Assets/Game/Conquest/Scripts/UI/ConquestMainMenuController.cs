@@ -232,7 +232,7 @@ namespace Game.Conquest.UI
                 // Enumerating interfaces allocates, so resolve the join address once per lobby visit.
                 bool hosting = NetworkManager.Singleton != null && NetworkManager.Singleton.IsServer;
                 m_LobbyJoinAddressLine = hosting && ConquestSessionManager.Instance != null
-                    ? $"\nPLAYERS JOIN AT:{ConquestSessionManager.GetHostAddressSummary(ConquestSessionManager.Instance.connectPort)}"
+                    ? $"\nPLAYERS JOIN AT: {ConquestSessionManager.GetHostAddressSummary(ConquestSessionManager.Instance.connectPort)}"
                     : "";
                 UpdateLobbyDisplay();
             }
