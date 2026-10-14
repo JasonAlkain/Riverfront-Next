@@ -27,9 +27,16 @@ namespace Game.Conquest.Networking
         public bool enableBotFilling = true;
         public BotDifficulty botDifficulty = BotDifficulty.Normal;
         public bool isSoloMode = false;
-        public string lastJoinCode = "";
         public string connectAddress = "127.0.0.1";
-        public ushort connectPort = 7777;
+        public ushort connectPort = DefaultPort;
+        [Tooltip("Port a listen-server host binds to.")]
+        public ushort hostPort = DefaultPort;
+
+        [Header("Client Connection")]
+        [Tooltip("How long a client keeps trying to reach a server before giving up.")]
+        [SerializeField] private float clientConnectTimeoutSeconds = 10f;
+
+        public const ushort DefaultPort = 7777;
 
         [Header("Services Status")]
         private bool m_ServicesInitialized = false;
@@ -160,7 +167,7 @@ namespace Game.Conquest.Networking
             botDifficulty = difficulty;
 
             // Solo stays on loopback; set explicitly because the transport persists between sessions.
-            EnsureNetworkManagerConfigured("127.0.0.1", 7777, "127.0.0.1");
+            EnsureNetworkManagerConfigured("127.0.0.1", DefaultPort, "127.0.0.1");
 
             if (NetworkManager.Singleton != null)
             {
@@ -187,10 +194,9 @@ namespace Game.Conquest.Networking
             targetTeamSize = teamSize;
             enableBotFilling = botFill;
             botDifficulty = diff;
-            lastJoinCode = $"{UnityEngine.Random.Range(1000, 9999)}-CQ";
 
             // Listen on all interfaces so LAN players can reach the host (loopback-only refuses them).
-            EnsureNetworkManagerConfigured("127.0.0.1", connectPort, AnyListenAddress);
+            EnsureNetworkManagerConfigured("127.0.0.1", hostPort, AnyListenAddress);
 
             if (NetworkManager.Singleton != null)
             {
@@ -202,7 +208,7 @@ namespace Game.Conquest.Networking
                 bool success = NetworkManager.Singleton.StartHost();
                 if (success)
                 {
-                    m_StatusMessage = $"Hosting on {GetHostAddressSummary(connectPort)}";
+                    m_StatusMessage = $"Hosting on {GetHostAddressSummary(hostPort)}";
                     Debug.Log($"[ConquestSessionManager] {m_StatusMessage}");
                     OnStatusChanged?.Invoke(m_StatusMessage);
                     return true;
@@ -218,9 +224,10 @@ namespace Game.Conquest.Networking
         {
             isSoloMode = false;
             connectAddress = string.IsNullOrEmpty(address) ? "127.0.0.1" : address;
-            connectPort = port > 0 ? port : (ushort)7777;
+            connectPort = port > 0 ? port : DefaultPort;
 
             EnsureNetworkManagerConfigured(connectAddress, connectPort);
+            ApplyClientConnectTimeout();
 
             if (NetworkManager.Singleton != null)
             {
@@ -274,6 +281,15 @@ namespace Game.Conquest.Networking
                     transport.ConnectionData.ServerListenAddress = listenAddress ?? "";
                 }
             }
+        }
+
+        // UTP's default is 60 attempts x 1 s, which leaves a player staring at "Connecting..." for a minute.
+        private void ApplyClientConnectTimeout()
+        {
+            var transport = NetworkManager.Singleton != null ? NetworkManager.Singleton.GetComponent<UnityTransport>() : null;
+            if (transport == null) return;
+            int perAttemptMs = Mathf.Max(250, transport.ConnectTimeoutMS);
+            transport.MaxConnectAttempts = Mathf.Max(1, Mathf.CeilToInt(clientConnectTimeoutSeconds * 1000f / perAttemptMs));
         }
 
         /// <summary>Human-readable "ip:port" list of this machine's LAN IPv4 addresses, for players to type in.</summary>
