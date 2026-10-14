@@ -112,8 +112,15 @@ namespace Game.Conquest.Lobby
                     enableBotFilling.Value = ConquestSessionManager.Instance.enableBotFilling;
                     botDifficulty.Value = ConquestSessionManager.Instance.botDifficulty;
 
-                    var map = mapRegistry != null ? mapRegistry.GetMapById(ConquestSessionManager.Instance.selectedMapId) : null;
-                    selectedMapScene.Value = map != null ? map.sceneName : "ConquestLargeBattlefield";
+                    // Prefer the registry entry for the chosen id; fall back to the scene name the host picked.
+                    var session = ConquestSessionManager.Instance;
+                    var map = mapRegistry != null ? mapRegistry.GetMapById(session.selectedMapId) : null;
+                    if (map != null && map.mapId.Equals(session.selectedMapId, StringComparison.OrdinalIgnoreCase))
+                        selectedMapScene.Value = map.sceneName;
+                    else if (!string.IsNullOrEmpty(session.selectedMapScene))
+                        selectedMapScene.Value = session.selectedMapScene;
+                    else if (map != null)
+                        selectedMapScene.Value = map.sceneName;
                 }
 
                 NetworkManager.Singleton.OnClientConnectedCallback += HandleClientConnected;

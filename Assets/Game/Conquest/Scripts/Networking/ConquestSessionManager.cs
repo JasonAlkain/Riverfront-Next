@@ -16,7 +16,8 @@ namespace Game.Conquest.Networking
 
         [Header("Active Session Configuration")]
         public string sessionName = "Conquest Session";
-        public string selectedMapId = "battlefront_large";
+        public string selectedMapId = "the_frontline";
+        public string selectedMapScene = "ConquestLargeBattlefield";
         public int maxHumanPlayers = 16;
         public int reinforcementTickets = 150;
         public int targetTeamSize = 8;
@@ -120,9 +121,12 @@ namespace Game.Conquest.Networking
             }
         }
 
-        public bool StartHostGame(string mapSceneName, string sessName, int maxPlayers, int tickets, int teamSize, bool botFill, BotDifficulty diff)
+        public bool StartHostGame(string mapId, string mapSceneName, string sessName, int maxPlayers, int tickets, int teamSize, bool botFill, BotDifficulty diff)
         {
             isSoloMode = false;
+            // Must be stored before StartHost(): the lobby reads these in OnNetworkSpawn.
+            selectedMapId = mapId;
+            selectedMapScene = mapSceneName;
             sessionName = sessName;
             maxHumanPlayers = maxPlayers;
             reinforcementTickets = tickets;

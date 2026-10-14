@@ -957,10 +957,11 @@ namespace Game.Conquest.UI
             var maps = mapRegistry != null ? mapRegistry.RegisteredMaps : null;
             var map = maps != null && maps.Count > 0 ? maps[m_SelectedMapIndex] : null;
             string sceneName = map != null ? map.sceneName : "ConquestLargeBattlefield";
+            string mapId = map != null ? map.mapId : "the_frontline";
             string sName = m_HostNameInput != null ? m_HostNameInput.text : m_HostSessionName;
 
             bool success = ConquestSessionManager.Instance != null && ConquestSessionManager.Instance.StartHostGame(
-                sceneName, sName, m_HostMaxPlayers, m_HostTickets, m_HostTeamSize, m_HostBotFilling, (BotDifficulty)m_HostBotDifficultyIndex);
+                mapId, sceneName, sName, m_HostMaxPlayers, m_HostTickets, m_HostTeamSize, m_HostBotFilling, (BotDifficulty)m_HostBotDifficultyIndex);
 
             if (success)
             {
@@ -980,7 +981,10 @@ namespace Game.Conquest.UI
                 if (m_LobbyHeaderText != null) m_LobbyHeaderText.text = $"LOBBY: {lobby.sessionName.Value.ToString().ToUpper()}";
                 if (m_LobbySubHeaderText != null)
                 {
-                    m_LobbySubHeaderText.text = $"MAP: {lobby.selectedMapScene.Value} | TICKETS: {lobby.reinforcementTickets.Value} | BOTS: {lobby.targetTeamSize.Value}/team ({lobby.botDifficulty.Value})";
+                    string sceneName = lobby.selectedMapScene.Value.ToString();
+                    var mapData = mapRegistry != null ? mapRegistry.GetMapBySceneName(sceneName) : null;
+                    string mapLabel = mapData != null && mapData.sceneName == sceneName ? mapData.displayName : sceneName;
+                    m_LobbySubHeaderText.text = $"MAP: {mapLabel} | TICKETS: {lobby.reinforcementTickets.Value} | BOTS: {lobby.targetTeamSize.Value}/team ({lobby.botDifficulty.Value})";
                 }
 
                 string redList = "";

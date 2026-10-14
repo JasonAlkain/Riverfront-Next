@@ -493,7 +493,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Game.Conquest::Game.Conquest.Lobby.ConquestLobbyManager
   ShowTopMostFoldoutHeaderGroup: 1
-  mapRegistry: {fileID: 0}
+  mapRegistry: {fileID: 11400000, guid: f47404bcd7af0d246a20b79ec95e19ac, type: 2}
   sessionName:
     UpdateTraits:
       MinSecondsBetweenUpdates: 0
