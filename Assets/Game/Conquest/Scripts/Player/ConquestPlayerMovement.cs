@@ -49,6 +49,7 @@ namespace Game.Conquest.Player
         private Vector3 m_Velocity;
         private float m_Pitch;
         private bool m_CursorLocked = true;
+        private bool m_LocalViewActive = false;
 
         public Camera PlayerCamera => playerCamera;
         public Transform CameraPivot => cameraPivot;
@@ -69,15 +70,10 @@ namespace Game.Conquest.Player
 
             if (IsOwner && !isBot)
             {
-                if (playerCamera != null)
-                {
-                    playerCamera.enabled = true;
-                }
-                if (audioListener != null)
-                {
-                    audioListener.enabled = true;
-                }
-                SetCursorLock(true);
+                // The player object is spawned as soon as host/client starts, which is still in the
+                // MainMenu lobby. Only take over camera, AudioListener and cursor once a match is running;
+                // Update() activates the view when the match manager appears.
+                SetLocalViewActive(IsMatchActive());
 
                 ApplySettings(Game.Conquest.Settings.ConquestSettingsManager.Instance?.CurrentSettings);
                 if (Game.Conquest.Settings.ConquestSettingsManager.Instance != null)
@@ -134,6 +130,11 @@ namespace Game.Conquest.Player
         {
             if (isBot) return;
             if (!IsOwner) return;
+
+            if (!m_LocalViewActive && IsMatchActive())
+            {
+                SetLocalViewActive(true);
+            }
 
             // Do not move or apply gravity before match is active or during scene transition
             if (Game.Conquest.Gameplay.ConquestMatchManager.Instance == null || 
@@ -208,8 +209,23 @@ namespace Game.Conquest.Player
             }
         }
 
+        private static bool IsMatchActive()
+        {
+            return Game.Conquest.Gameplay.ConquestMatchManager.Instance != null;
+        }
+
+        private void SetLocalViewActive(bool active)
+        {
+            m_LocalViewActive = active;
+            if (playerCamera != null) playerCamera.enabled = active;
+            if (audioListener != null) audioListener.enabled = active;
+            SetCursorLock(active);
+        }
+
         public void SetCursorLock(bool locked)
         {
+            // Never lock the cursor over menu UI (e.g. the lobby, where the player object already exists).
+            if (locked && !IsMatchActive()) locked = false;
             m_CursorLocked = locked;
             Cursor.lockState = locked ? CursorLockMode.Locked : CursorLockMode.None;
             Cursor.visible = !locked;
