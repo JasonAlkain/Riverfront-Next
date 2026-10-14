@@ -1,0 +1,24 @@
+{
+    "name": "MultiplayerFPS.Template",
+    "rootNamespace": "",
+    "references": [
+        "Unity.Entities",
+        "Unity.Entities.Hybrid",
+        "Unity.Mathematics",
+        "Unity.Collections",
+        "Unity.Burst",
+        "Unity.InputSystem",
+        "Unity.RenderPipelines.Universal.Runtime"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": true,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": false,
+    "defineConstraints": [
+        "NETCODE_ENTITIES_AVAILABLE"
+    ],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
