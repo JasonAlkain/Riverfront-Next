@@ -131,6 +131,11 @@ namespace Game.Conquest.UI
         private TextMeshProUGUI m_BlueTeamListText;
         private GameObject m_LobbyHostControls;
         private string m_LobbyJoinAddressLine = "";
+        private TMP_InputField m_LobbyNameInput;
+        private bool m_LobbyNameSent = false;
+
+        private const string PlayerNamePrefsKey = "Conquest.PlayerName";
+        private static readonly string[] k_ClassNames = { "Assault", "Heavy", "Engineer", "Recon" };
 
         // Settings Dynamic UI
         private Slider m_SetMasterSlider;
@@ -234,6 +239,7 @@ namespace Game.Conquest.UI
                 m_LobbyJoinAddressLine = hosting && ConquestSessionManager.Instance != null
                     ? $"\nPLAYERS JOIN AT: {ConquestSessionManager.GetHostAddressSummary(ConquestSessionManager.Instance.connectPort)}"
                     : "";
+                m_LobbyNameSent = false;
                 UpdateLobbyDisplay();
             }
         }
@@ -645,6 +651,21 @@ namespace Game.Conquest.UI
             CreateTMP(blueBox, "BLUE TEAM", 18, Color.white, TextAlignmentOptions.Center, FontStyles.Bold, 24);
             m_BlueTeamListText = CreateTMP(blueBox, "• Waiting for players...", 14, Color.white, TextAlignmentOptions.Left, FontStyles.Normal, 180);
 
+            // Player name row
+            GameObject nameRow = new GameObject("NameRow");
+            nameRow.transform.SetParent(panel.transform, false);
+            var nLayout = nameRow.AddComponent<HorizontalLayoutGroup>();
+            nLayout.spacing = 10;
+            nLayout.childControlWidth = true;
+            nLayout.childControlHeight = true;
+            nameRow.AddComponent<LayoutElement>().preferredHeight = 38;
+
+            m_LobbyNameInput = CreateInputField(nameRow, LoadSavedPlayerName(), 38);
+            m_LobbyNameInput.characterLimit = ConquestSessionManager.MaxPlayerNameLength;
+            m_LobbyNameInput.GetComponent<LayoutElement>().flexibleWidth = 3f;
+            CreateButton(nameRow, "SET NAME", new Color(0.25f, 0.35f, 0.5f), 38, SubmitLobbyName)
+                .GetComponent<LayoutElement>().flexibleWidth = 1f;
+
             // Player controls row
             GameObject ctrlRow = new GameObject("CtrlRow");
             ctrlRow.transform.SetParent(panel.transform, false);
@@ -985,6 +1006,14 @@ namespace Game.Conquest.UI
 
             if (m_LobbyHostControls != null) m_LobbyHostControls.SetActive(isHost);
 
+            // Send the saved name once the lobby object has spawned on this peer.
+            if (!m_LobbyNameSent && lobby != null && lobby.IsSpawned)
+            {
+                m_LobbyNameSent = true;
+                string saved = LoadSavedPlayerName();
+                if (!string.IsNullOrEmpty(saved)) lobby.SetNameServerRpc(saved);
+            }
+
             if (lobby != null)
             {
                 if (m_LobbyHeaderText != null) m_LobbyHeaderText.text = $"LOBBY: {lobby.sessionName.Value.ToString().ToUpper()}";
@@ -1006,7 +1035,8 @@ namespace Game.Conquest.UI
                         var p = lobby.lobbyPlayers[i];
                         string readyStr = p.isReady ? "<color=green>[READY]</color>" : "<color=yellow>[WAITING]</color>";
                         string hostTag = p.isHost ? " (Host)" : "";
-                        string line = $"• {p.playerName}{hostTag} - Class {p.classIndex} {readyStr}\n";
+                        string className = p.classIndex >= 0 && p.classIndex < k_ClassNames.Length ? k_ClassNames[p.classIndex] : $"Class {p.classIndex}";
+                        string line = $"• {p.playerName}{hostTag} - {className} {readyStr}\n";
 
                         if (p.team == Team.Red) redList += line;
                         else if (p.team == Team.Blue) blueList += line;
@@ -1016,6 +1046,24 @@ namespace Game.Conquest.UI
                 if (m_RedTeamListText != null) m_RedTeamListText.text = string.IsNullOrEmpty(redList) ? "No players" : redList;
                 if (m_BlueTeamListText != null) m_BlueTeamListText.text = string.IsNullOrEmpty(blueList) ? "No players" : blueList;
             }
+        }
+
+        private static string LoadSavedPlayerName()
+        {
+            return ConquestSessionManager.SanitizePlayerName(PlayerPrefs.GetString(PlayerNamePrefsKey, ""));
+        }
+
+        private void SubmitLobbyName()
+        {
+            string clean = ConquestSessionManager.SanitizePlayerName(m_LobbyNameInput != null ? m_LobbyNameInput.text : "");
+            if (string.IsNullOrEmpty(clean)) return;
+
+            PlayerPrefs.SetString(PlayerNamePrefsKey, clean);
+            PlayerPrefs.Save();
+            if (m_LobbyNameInput != null) m_LobbyNameInput.text = clean;
+
+            var lobby = ConquestLobbyManager.Instance;
+            if (lobby != null && lobby.IsSpawned) lobby.SetNameServerRpc(clean);
         }
 
         private void CycleLobbyMap()

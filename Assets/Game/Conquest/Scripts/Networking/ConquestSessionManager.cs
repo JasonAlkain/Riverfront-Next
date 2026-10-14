@@ -40,6 +40,54 @@ namespace Game.Conquest.Networking
 
         public event Action<string> OnStatusChanged;
 
+        /// <summary>Lobby choices committed by the server when the match starts.</summary>
+        public struct PlayerAssignment
+        {
+            public Team team;
+            public int classIndex;
+            public string playerName;
+        }
+
+        // Server-side only. Lives here (DontDestroyOnLoad) because the lobby manager is a
+        // MainMenu scene object and is destroyed when the map loads.
+        private readonly Dictionary<ulong, PlayerAssignment> m_PlayerAssignments = new Dictionary<ulong, PlayerAssignment>();
+
+        public const int MaxPlayerNameLength = 24;
+
+        public void SetPlayerAssignment(ulong clientId, PlayerAssignment assignment)
+        {
+            m_PlayerAssignments[clientId] = assignment;
+        }
+
+        public bool TryGetPlayerAssignment(ulong clientId, out PlayerAssignment assignment)
+        {
+            return m_PlayerAssignments.TryGetValue(clientId, out assignment);
+        }
+
+        public void ClearPlayerAssignments()
+        {
+            m_PlayerAssignments.Clear();
+        }
+
+        /// <summary>Trims, strips rich-text brackets and limits length. Returns empty if nothing usable remains.</summary>
+        public static string SanitizePlayerName(string raw)
+        {
+            if (string.IsNullOrWhiteSpace(raw)) return string.Empty;
+            var sb = new System.Text.StringBuilder(raw.Length);
+            foreach (char c in raw.Trim())
+            {
+                if (c == '<' || c == '>' || char.IsControl(c) || char.IsSurrogate(c)) continue;
+                sb.Append(c);
+                if (sb.Length >= MaxPlayerNameLength) break;
+            }
+            // Names are replicated as FixedString64Bytes (61 UTF-8 bytes max); assigning more throws.
+            while (sb.Length > 0 && System.Text.Encoding.UTF8.GetByteCount(sb.ToString()) > 60)
+            {
+                sb.Length--;
+            }
+            return sb.ToString().Trim();
+        }
+
         private void Awake()
         {
             if (Instance != null && Instance != this)
@@ -104,6 +152,7 @@ namespace Game.Conquest.Networking
         public void StartSoloGame(string mapSceneName, int tickets = 150, int botsPerTeam = 4, BotDifficulty difficulty = BotDifficulty.Normal)
         {
             isSoloMode = true;
+            ClearPlayerAssignments();
             sessionName = "Solo Practice";
             reinforcementTickets = tickets;
             targetTeamSize = botsPerTeam;
@@ -128,6 +177,7 @@ namespace Game.Conquest.Networking
         public bool StartHostGame(string mapId, string mapSceneName, string sessName, int maxPlayers, int tickets, int teamSize, bool botFill, BotDifficulty diff)
         {
             isSoloMode = false;
+            ClearPlayerAssignments();
             // Must be stored before StartHost(): the lobby reads these in OnNetworkSpawn.
             selectedMapId = mapId;
             selectedMapScene = mapSceneName;
@@ -197,6 +247,7 @@ namespace Game.Conquest.Networking
         {
             m_StatusMessage = "Leaving session...";
             OnStatusChanged?.Invoke(m_StatusMessage);
+            ClearPlayerAssignments();
 
             if (NetworkManager.Singleton != null && (NetworkManager.Singleton.IsClient || NetworkManager.Singleton.IsServer))
             {

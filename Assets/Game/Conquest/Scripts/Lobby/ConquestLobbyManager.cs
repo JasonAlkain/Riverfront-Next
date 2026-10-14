@@ -245,6 +245,25 @@ namespace Game.Conquest.Lobby
             }
         }
 
+        [Rpc(SendTo.Server)]
+        public void SetNameServerRpc(string requestedName, RpcParams rpcParams = default)
+        {
+            string clean = ConquestSessionManager.SanitizePlayerName(requestedName);
+            if (string.IsNullOrEmpty(clean)) return;
+
+            ulong sender = rpcParams.Receive.SenderClientId;
+            for (int i = 0; i < lobbyPlayers.Count; i++)
+            {
+                if (lobbyPlayers[i].clientId == sender)
+                {
+                    var p = lobbyPlayers[i];
+                    p.playerName = clean;
+                    lobbyPlayers[i] = p;
+                    break;
+                }
+            }
+        }
+
         // Host controls
         [Rpc(SendTo.Server)]
         public void SetMapSceneServerRpc(string sceneName, RpcParams rpcParams = default)
@@ -285,6 +304,20 @@ namespace Game.Conquest.Lobby
                 ConquestSessionManager.Instance.targetTeamSize = targetTeamSize.Value;
                 ConquestSessionManager.Instance.enableBotFilling = enableBotFilling.Value;
                 ConquestSessionManager.Instance.botDifficulty = botDifficulty.Value;
+
+                // Persist each player's lobby choices; ConquestNetworkManager applies them when the
+                // player registers in the map scene (this lobby object is destroyed by the load).
+                ConquestSessionManager.Instance.ClearPlayerAssignments();
+                for (int i = 0; i < lobbyPlayers.Count; i++)
+                {
+                    var p = lobbyPlayers[i];
+                    ConquestSessionManager.Instance.SetPlayerAssignment(p.clientId, new ConquestSessionManager.PlayerAssignment
+                    {
+                        team = p.team,
+                        classIndex = p.classIndex,
+                        playerName = p.playerName.ToString()
+                    });
+                }
             }
 
             string mapScene = selectedMapScene.Value.ToString();

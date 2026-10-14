@@ -109,13 +109,28 @@ namespace Game.Conquest.Networking
             {
                 m_ConnectedPlayers.Add(player);
 
-                // Balance team: assign to team with fewer players
-                Team assignedTeam = (m_RedCount <= m_BlueCount) ? Team.Red : Team.Blue;
+                // Use the lobby's choices when the player came through the lobby; otherwise
+                // (solo host, late joiner) auto-balance onto the smaller team.
+                Team assignedTeam;
+                string assignedName = $"Player_{player.OwnerClientId}";
+                int assignedClass = 0;
+                var session = ConquestSessionManager.Instance;
+                if (session != null && session.TryGetPlayerAssignment(player.OwnerClientId, out var assignment)
+                    && (assignment.team == Team.Red || assignment.team == Team.Blue))
+                {
+                    assignedTeam = assignment.team;
+                    assignedClass = assignment.classIndex;
+                    if (!string.IsNullOrEmpty(assignment.playerName)) assignedName = assignment.playerName;
+                }
+                else
+                {
+                    assignedTeam = (m_RedCount <= m_BlueCount) ? Team.Red : Team.Blue;
+                }
+
                 if (assignedTeam == Team.Red) m_RedCount++;
                 else m_BlueCount++;
 
-                player.playerTeam.Value = assignedTeam;
-                player.playerName.Value = $"Player_{player.OwnerClientId}";
+                player.ServerApplyIdentity(assignedTeam, assignedName, assignedClass);
 
                 // Position at spawn point
                 if (GetSpawnPointForTeam(assignedTeam, out Vector3 spawnPos, out Quaternion spawnRot))
