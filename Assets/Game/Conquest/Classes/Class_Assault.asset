@@ -1,0 +1,38 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0d909567a0b3f454186760bdc9c42fcc, type: 3}
+  m_Name: Class_Assault
+  m_EditorClassIdentifier: Game.Conquest::Game.Conquest.Classes.ConquestClassData
+  classType: 0
+  className: Assault
+  description: General-purpose front-line infantry armed with a rapid-fire blaster rifle. Highly adaptable at medium range.
+  classAccentColor: {r: 0.8, g: 0.3, b: 0.1, a: 1}
+  maxHealth: 100
+  walkSpeed: 6
+  sprintSpeed: 10
+  weaponName: DC-15S Blaster Rifle
+  damagePerShot: 22
+  fireRate: 0.14
+  maxRange: 110
+  bulletsPerShot: 1
+  spreadAngle: 0.6
+  magazineCapacity: 32
+  reloadDuration: 1.6
+  isAutomatic: 1
+  hasZoom: 0
+  zoomFOV: 40
+  hasSupportStation: 0
+  fireSound: {fileID: 8300000, guid: 91029d45834352841bff710a0184160c, type: 3}
+  reloadSound: {fileID: 8300000, guid: a0936af7d29105f4180ab1a879dc0f94, type: 3}
+  firePitchMin: 0.97
+  firePitchMax: 1.03
+  fireVolume: 0.42

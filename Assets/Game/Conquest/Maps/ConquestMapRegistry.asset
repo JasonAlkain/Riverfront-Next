@@ -1,0 +1,19 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c08f340be5c704d4bb9285e5d75e2f47, type: 3}
+  m_Name: ConquestMapRegistry
+  m_EditorClassIdentifier: Game.Conquest::Game.Conquest.Maps.ConquestMapRegistry
+  registeredMaps:
+  - {fileID: 11400000, guid: 47be14b529b7c994cb7fc0eed8d74ac5, type: 2}
+  - {fileID: 11400000, guid: cf1fb7b97cae31f4da5aff1547550bbe, type: 2}
+  - {fileID: 11400000, guid: 23e01bbad0b04e247ab6cfc0fd753cdb, type: 2}
+  - {fileID: 11400000, guid: 60b25ec5094272248898d298fcd4b093, type: 2}

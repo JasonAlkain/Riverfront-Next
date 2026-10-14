@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9296f1aaf02dfa74ebf7e5189778e180, type: 3}
+  m_Name: Map_CanyonOutpost
+  m_EditorClassIdentifier: Game.Conquest::Game.Conquest.Maps.ConquestMapData
+  mapId: canyon_outpost
+  displayName: Canyon Outpost
+  description: A rugged desert canyon outpost with vertical cliff paths, rocky bottlenecks, and a high-ground fortress command post.
+  sceneName: Conquest_CanyonOutpost
+  previewImage: {fileID: 0}
+  themeColor: {r: 0.9, g: 0.7, b: 0.2, a: 1}
+  recommendedPlayers: 12
+  commandPostsCount: 5
+  availableGameModes:
+  - Conquest
+  defaultTickets: 200
+  defaultBotsPerTeam: 6

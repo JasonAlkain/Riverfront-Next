@@ -1,0 +1,38 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0d909567a0b3f454186760bdc9c42fcc, type: 3}
+  m_Name: Class_Recon
+  m_EditorClassIdentifier: Game.Conquest::Game.Conquest.Classes.ConquestClassData
+  classType: 3
+  className: Recon
+  description: Long-range sharpshooter armed with a high-powered precision blaster rifle. High mobility but light armor.
+  classAccentColor: {r: 0.3, g: 0.7, b: 1, a: 1}
+  maxHealth: 80
+  walkSpeed: 6.8
+  sprintSpeed: 11
+  weaponName: Valken-38X Sniper
+  damagePerShot: 85
+  fireRate: 0.85
+  maxRange: 200
+  bulletsPerShot: 1
+  spreadAngle: 0.05
+  magazineCapacity: 5
+  reloadDuration: 2.2
+  isAutomatic: 0
+  hasZoom: 1
+  zoomFOV: 35
+  hasSupportStation: 0
+  fireSound: {fileID: 8300000, guid: c51d7ed470b9a0946bca31e4dff1d0bf, type: 3}
+  reloadSound: {fileID: 8300000, guid: 9a683371da5e46349b42f101433665e0, type: 3}
+  firePitchMin: 1.05
+  firePitchMax: 1.12
+  fireVolume: 0.46

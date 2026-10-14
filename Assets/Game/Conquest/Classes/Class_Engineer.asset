@@ -1,0 +1,38 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0d909567a0b3f454186760bdc9c42fcc, type: 3}
+  m_Name: Class_Engineer
+  m_EditorClassIdentifier: Game.Conquest::Game.Conquest.Classes.ConquestClassData
+  classType: 2
+  className: Engineer
+  description: Close-quarters combat & support combatant equipped with a scatter blaster and deployable supply/healing stations.
+  classAccentColor: {r: 0.2, g: 0.8, b: 0.4, a: 1}
+  maxHealth: 90
+  walkSpeed: 5.8
+  sprintSpeed: 9.5
+  weaponName: Scatter Blaster
+  damagePerShot: 12
+  fireRate: 0.65
+  maxRange: 40
+  bulletsPerShot: 8
+  spreadAngle: 3.5
+  magazineCapacity: 8
+  reloadDuration: 2
+  isAutomatic: 0
+  hasZoom: 0
+  zoomFOV: 40
+  hasSupportStation: 1
+  fireSound: {fileID: 8300000, guid: 9222a2605864b0a49b72f1c97089a22e, type: 3}
+  reloadSound: {fileID: 8300000, guid: 2208026e40f14d1439e3aea40cd566c6, type: 3}
+  firePitchMin: 0.95
+  firePitchMax: 1.05
+  fireVolume: 0.45
