@@ -21,15 +21,15 @@ MonoBehaviour:
   m_OverrideGlobalSceneList: 1
   m_Scenes:
   - m_enabled: 1
-    m_path: Assets/Scenes/ServerScene.unity
+    m_path: Assets/Templates/MultiplayerFPS/Scenes/ServerScene.unity
   - m_enabled: 1
-    m_path: Assets/Scenes/Persistents.unity
+    m_path: Assets/Templates/MultiplayerFPS/Scenes/Persistents.unity
   - m_enabled: 1
-    m_path: Assets/Scenes/GameResourcesSubScene.unity
+    m_path: Assets/Templates/MultiplayerFPS/Scenes/GameResourcesSubScene.unity
   - m_enabled: 1
-    m_path: Assets/Scenes/GameScene.unity
+    m_path: Assets/Templates/MultiplayerFPS/Scenes/GameScene.unity
   - m_enabled: 1
-    m_path: Assets/Scenes/SpawnPointsSubScene.unity
+    m_path: Assets/Templates/MultiplayerFPS/Scenes/SpawnPointsSubScene.unity
   m_HasScriptingDefines: 0
   m_ScriptingDefines: []
   m_PlayerSettingsYaml:
@@ -294,7 +294,7 @@ MonoBehaviour:
     - line: '|   shaderPrecisionModel: 0'
     - line: '|   clonedFromGUID: 3c72c65a16f0acb438eed22b8b16c24a'
     - line: '|   templatePackageId: com.unity.template.urp-blank@17.0.14'
-    - line: '|   templateDefaultScene: Assets/Scenes/MainMenu.unity'
+    - line: '|   templateDefaultScene: Assets/Templates/MultiplayerFPS/Scenes/MainMenu.unity'
     - line: '|   useCustomMainManifest: 0'
     - line: '|   useCustomLauncherManifest: 0'
     - line: '|   useCustomMainGradleTemplate: 0'
