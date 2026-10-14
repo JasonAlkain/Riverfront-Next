@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Net;
 using System.Net.NetworkInformation;
 using System.Net.Sockets;
-using System.Threading.Tasks;
 using Unity.Netcode;
 using Unity.Netcode.Transports.UTP;
 using UnityEngine;
@@ -38,11 +37,8 @@ namespace Game.Conquest.Networking
 
         public const ushort DefaultPort = 7777;
 
-        [Header("Services Status")]
-        private bool m_ServicesInitialized = false;
-        private string m_StatusMessage = "Ready";
+        private string m_StatusMessage = "Ready (LAN / Direct IP)";
 
-        public bool ServicesInitialized => m_ServicesInitialized;
         public string StatusMessage => m_StatusMessage;
 
         public event Action<string> OnStatusChanged;
@@ -206,56 +202,6 @@ namespace Game.Conquest.Networking
             }
             Instance = this;
             DontDestroyOnLoad(gameObject);
-        }
-
-        private Task<bool> m_InitTask;
-
-        private void Start()
-        {
-            _ = InitializeServicesAsync();
-        }
-
-        public Task<bool> InitializeServicesAsync()
-        {
-            if (m_ServicesInitialized) return Task.FromResult(true);
-            if (m_InitTask != null && !m_InitTask.IsCompleted) return m_InitTask;
-
-            m_InitTask = InternalInitializeAsync();
-            return m_InitTask;
-        }
-
-        private async Task<bool> InternalInitializeAsync()
-        {
-            try
-            {
-                m_StatusMessage = "Initializing Gaming Services...";
-                OnStatusChanged?.Invoke(m_StatusMessage);
-
-                // Initialize Unity Services Core
-                if (Unity.Services.Core.UnityServices.State == Unity.Services.Core.ServicesInitializationState.Uninitialized)
-                {
-                    await Unity.Services.Core.UnityServices.InitializeAsync();
-                }
-
-                // Initialize Authentication if not already signed in
-                if (!Unity.Services.Authentication.AuthenticationService.Instance.IsSignedIn)
-                {
-                    await Unity.Services.Authentication.AuthenticationService.Instance.SignInAnonymouslyAsync();
-                }
-
-                m_ServicesInitialized = true;
-                m_StatusMessage = "Online Services Ready";
-                OnStatusChanged?.Invoke(m_StatusMessage);
-                return true;
-            }
-            catch (Exception ex)
-            {
-                Debug.Log($"[ConquestSessionManager] Online Services: {ex.Message}. LAN / Direct Connect available.");
-                m_ServicesInitialized = false;
-                m_StatusMessage = "Local / LAN Mode (Direct Connect)";
-                OnStatusChanged?.Invoke(m_StatusMessage);
-                return false;
-            }
         }
 
         public void StartSoloGame(string mapSceneName, int tickets = 150, int botsPerTeam = 4, BotDifficulty difficulty = BotDifficulty.Normal)
