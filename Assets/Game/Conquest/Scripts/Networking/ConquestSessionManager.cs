@@ -95,6 +95,108 @@ namespace Game.Conquest.Networking
             return sb.ToString().Trim();
         }
 
+        // ---------- Connection approval ----------
+
+        /// <summary>Bump when the network protocol changes incompatibly (RPCs, NetworkVariables, prefab list).</summary>
+        public const string ProtocolVersion = "1";
+        public static string BuildVersion => $"{Application.version}/p{ProtocolVersion}";
+
+        private const string PayloadTag = "RF";
+        private const string PlayerNamePrefsKey = "Conquest.PlayerName";
+
+        [Header("Connection Approval")]
+        [Tooltip("When false the server refuses new connections (e.g. a match that does not allow late joiners).")]
+        public bool acceptingJoins = true;
+
+        // Server-side: names supplied in each client's connection payload, keyed by client id.
+        private readonly Dictionary<ulong, string> m_ApprovedNames = new Dictionary<ulong, string>();
+
+        public static string LoadLocalPlayerName()
+        {
+            return SanitizePlayerName(PlayerPrefs.GetString(PlayerNamePrefsKey, ""));
+        }
+
+        public static void SaveLocalPlayerName(string name)
+        {
+            PlayerPrefs.SetString(PlayerNamePrefsKey, SanitizePlayerName(name));
+            PlayerPrefs.Save();
+        }
+
+        public bool TryGetApprovedName(ulong clientId, out string playerName)
+        {
+            return m_ApprovedNames.TryGetValue(clientId, out playerName) && !string.IsNullOrEmpty(playerName);
+        }
+
+        /// <summary>
+        /// Enables approval on the NetworkManager and sets this peer's outgoing payload. Must run before
+        /// StartHost/StartServer/StartClient. The payload is a plain string so a Steam auth ticket can
+        /// later be added as another field without changing the approval seam.
+        /// </summary>
+        private void ConfigureConnectionApproval(NetworkManager nm)
+        {
+            m_ApprovedNames.Clear();
+            nm.NetworkConfig.ConnectionApproval = true;
+            nm.ConnectionApprovalCallback = HandleConnectionApproval;
+            string payload = $"{PayloadTag}|{BuildVersion}|{LoadLocalPlayerName()}";
+            nm.NetworkConfig.ConnectionData = System.Text.Encoding.UTF8.GetBytes(payload);
+        }
+
+        private void HandleConnectionApproval(NetworkManager.ConnectionApprovalRequest request, NetworkManager.ConnectionApprovalResponse response)
+        {
+            // Keep existing behaviour: NGO spawns the configured player prefab for approved clients.
+            response.CreatePlayerObject = true;
+            response.Pending = false;
+
+            string version = "";
+            string requestedName = "";
+            if (request.Payload != null && request.Payload.Length > 0 && request.Payload.Length <= 256)
+            {
+                string[] parts = System.Text.Encoding.UTF8.GetString(request.Payload).Split(new[] { '|' }, 3);
+                if (parts.Length >= 2 && parts[0] == PayloadTag) version = parts[1];
+                if (parts.Length == 3) requestedName = parts[2];
+            }
+
+            var nm = NetworkManager.Singleton;
+            bool isLocalHostClient = nm != null && request.ClientNetworkId == NetworkManager.ServerClientId;
+
+            if (!isLocalHostClient)
+            {
+                if (version != BuildVersion)
+                {
+                    Reject(response, request.ClientNetworkId, string.IsNullOrEmpty(version)
+                        ? "Version mismatch: the server did not recognise your game version."
+                        : $"Version mismatch: server is {BuildVersion}, you have {version}.");
+                    return;
+                }
+
+                if (!acceptingJoins)
+                {
+                    Reject(response, request.ClientNetworkId, "This server is not accepting new players right now.");
+                    return;
+                }
+
+                // ConnectedClientsIds includes the host's own client on a listen server.
+                int humans = nm != null ? nm.ConnectedClientsIds.Count : 0;
+                if (humans >= Mathf.Max(1, maxHumanPlayers))
+                {
+                    Reject(response, request.ClientNetworkId, $"Server full ({maxHumanPlayers}/{maxHumanPlayers} players).");
+                    return;
+                }
+            }
+
+            string clean = SanitizePlayerName(requestedName);
+            if (!string.IsNullOrEmpty(clean)) m_ApprovedNames[request.ClientNetworkId] = clean;
+            response.Approved = true;
+        }
+
+        private static void Reject(NetworkManager.ConnectionApprovalResponse response, ulong clientId, string reason)
+        {
+            Debug.Log($"[ConquestSessionManager] Rejected client {clientId}: {reason}");
+            response.Approved = false;
+            response.CreatePlayerObject = false;
+            response.Reason = reason;
+        }
+
         private void Awake()
         {
             if (Instance != null && Instance != this)
@@ -176,6 +278,7 @@ namespace Game.Conquest.Networking
                     NetworkManager.Singleton.Shutdown();
                 }
 
+                ConfigureConnectionApproval(NetworkManager.Singleton);
                 NetworkManager.Singleton.StartHost();
                 ConquestSceneTransitionManager.Instance?.TransitionToMap(mapSceneName, true);
             }
@@ -205,6 +308,7 @@ namespace Game.Conquest.Networking
                     NetworkManager.Singleton.Shutdown();
                 }
 
+                ConfigureConnectionApproval(NetworkManager.Singleton);
                 bool success = NetworkManager.Singleton.StartHost();
                 if (success)
                 {
@@ -236,6 +340,7 @@ namespace Game.Conquest.Networking
                     NetworkManager.Singleton.Shutdown();
                 }
 
+                ConfigureConnectionApproval(NetworkManager.Singleton);
                 bool success = NetworkManager.Singleton.StartClient();
                 if (success)
                 {

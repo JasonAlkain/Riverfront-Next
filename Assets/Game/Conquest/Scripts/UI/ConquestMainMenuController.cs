@@ -145,7 +145,6 @@ namespace Game.Conquest.UI
         private TMP_InputField m_LobbyNameInput;
         private bool m_LobbyNameSent = false;
 
-        private const string PlayerNamePrefsKey = "Conquest.PlayerName";
         private static readonly string[] k_ClassNames = { "Assault", "Heavy", "Engineer", "Recon" };
 
         // Settings Dynamic UI
@@ -1227,7 +1226,7 @@ namespace Game.Conquest.UI
 
         private static string LoadSavedPlayerName()
         {
-            return ConquestSessionManager.SanitizePlayerName(PlayerPrefs.GetString(PlayerNamePrefsKey, ""));
+            return ConquestSessionManager.LoadLocalPlayerName();
         }
 
         private void SubmitLobbyName()
@@ -1235,8 +1234,7 @@ namespace Game.Conquest.UI
             string clean = ConquestSessionManager.SanitizePlayerName(m_LobbyNameInput != null ? m_LobbyNameInput.text : "");
             if (string.IsNullOrEmpty(clean)) return;
 
-            PlayerPrefs.SetString(PlayerNamePrefsKey, clean);
-            PlayerPrefs.Save();
+            ConquestSessionManager.SaveLocalPlayerName(clean);
             if (m_LobbyNameInput != null) m_LobbyNameInput.text = clean;
 
             var lobby = ConquestLobbyManager.Instance;

@@ -183,10 +183,17 @@ namespace Game.Conquest.Lobby
 
             Team assignedTeam = redCount <= blueCount ? Team.Red : Team.Blue;
 
+            // Name from the connection payload (already sanitised during approval), if any.
+            string name = isHost ? "Host" : $"Player_{clientId}";
+            if (ConquestSessionManager.Instance != null && ConquestSessionManager.Instance.TryGetApprovedName(clientId, out var approvedName))
+            {
+                name = approvedName;
+            }
+
             LobbyPlayerState state = new LobbyPlayerState
             {
                 clientId = clientId,
-                playerName = isHost ? "Host" : $"Player_{clientId}",
+                playerName = name,
                 team = assignedTeam,
                 classIndex = 0, // Assault
                 isReady = isHost, // Host is ready by default
