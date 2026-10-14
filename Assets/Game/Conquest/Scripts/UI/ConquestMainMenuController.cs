@@ -130,6 +130,7 @@ namespace Game.Conquest.UI
         private TextMeshProUGUI m_RedTeamListText;
         private TextMeshProUGUI m_BlueTeamListText;
         private GameObject m_LobbyHostControls;
+        private string m_LobbyJoinAddressLine = "";
 
         // Settings Dynamic UI
         private Slider m_SetMasterSlider;
@@ -226,7 +227,15 @@ namespace Game.Conquest.UI
             if (newState == MenuState.PlaySolo) UpdateSoloDisplay();
             if (newState == MenuState.HostGame) UpdateHostDisplay();
             if (newState == MenuState.Settings) LoadSettingsIntoUI();
-            if (newState == MenuState.Lobby) UpdateLobbyDisplay();
+            if (newState == MenuState.Lobby)
+            {
+                // Enumerating interfaces allocates, so resolve the join address once per lobby visit.
+                bool hosting = NetworkManager.Singleton != null && NetworkManager.Singleton.IsServer;
+                m_LobbyJoinAddressLine = hosting && ConquestSessionManager.Instance != null
+                    ? $"\nPLAYERS JOIN AT:{ConquestSessionManager.GetHostAddressSummary(ConquestSessionManager.Instance.connectPort)}"
+                    : "";
+                UpdateLobbyDisplay();
+            }
         }
 
         private void BuildMenuCanvas()
@@ -603,7 +612,7 @@ namespace Game.Conquest.UI
             vLayout.childControlHeight = false;
 
             m_LobbyHeaderText = CreateTMP(panel, "PRE-MATCH LOBBY", 26, new Color(0.35f, 0.78f, 1.0f), TextAlignmentOptions.Center, FontStyles.Bold, 32);
-            m_LobbySubHeaderText = CreateTMP(panel, "MAP: Frontline | TICKETS: 250 | BOTS: 8/team (Normal)", 14, Color.yellow, TextAlignmentOptions.Center, FontStyles.Bold, 22);
+            m_LobbySubHeaderText = CreateTMP(panel, "MAP: Frontline | TICKETS: 250 | BOTS: 8/team (Normal)", 14, Color.yellow, TextAlignmentOptions.Center, FontStyles.Bold, 44);
 
             // Red vs Blue Columns
             GameObject teamsRow = new GameObject("TeamsRow");
@@ -984,7 +993,7 @@ namespace Game.Conquest.UI
                     string sceneName = lobby.selectedMapScene.Value.ToString();
                     var mapData = mapRegistry != null ? mapRegistry.GetMapBySceneName(sceneName) : null;
                     string mapLabel = mapData != null && mapData.sceneName == sceneName ? mapData.displayName : sceneName;
-                    m_LobbySubHeaderText.text = $"MAP: {mapLabel} | TICKETS: {lobby.reinforcementTickets.Value} | BOTS: {lobby.targetTeamSize.Value}/team ({lobby.botDifficulty.Value})";
+                    m_LobbySubHeaderText.text = $"MAP: {mapLabel} | TICKETS: {lobby.reinforcementTickets.Value} | BOTS: {lobby.targetTeamSize.Value}/team ({lobby.botDifficulty.Value}){m_LobbyJoinAddressLine}";
                 }
 
                 string redList = "";

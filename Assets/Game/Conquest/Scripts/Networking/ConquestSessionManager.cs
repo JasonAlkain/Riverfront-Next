@@ -1,5 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.Net;
+using System.Net.NetworkInformation;
+using System.Net.Sockets;
 using System.Threading.Tasks;
 using Unity.Netcode;
 using Unity.Netcode.Transports.UTP;
@@ -107,7 +110,8 @@ namespace Game.Conquest.Networking
             enableBotFilling = true;
             botDifficulty = difficulty;
 
-            EnsureNetworkManagerConfigured("127.0.0.1", 7777);
+            // Solo stays on loopback; set explicitly because the transport persists between sessions.
+            EnsureNetworkManagerConfigured("127.0.0.1", 7777, "127.0.0.1");
 
             if (NetworkManager.Singleton != null)
             {
@@ -135,7 +139,8 @@ namespace Game.Conquest.Networking
             botDifficulty = diff;
             lastJoinCode = $"{UnityEngine.Random.Range(1000, 9999)}-CQ";
 
-            EnsureNetworkManagerConfigured(connectAddress, connectPort);
+            // Listen on all interfaces so LAN players can reach the host (loopback-only refuses them).
+            EnsureNetworkManagerConfigured("127.0.0.1", connectPort, AnyListenAddress);
 
             if (NetworkManager.Singleton != null)
             {
@@ -147,7 +152,8 @@ namespace Game.Conquest.Networking
                 bool success = NetworkManager.Singleton.StartHost();
                 if (success)
                 {
-                    m_StatusMessage = $"Hosting session on {connectAddress}:{connectPort}";
+                    m_StatusMessage = $"Hosting on {GetHostAddressSummary(connectPort)}";
+                    Debug.Log($"[ConquestSessionManager] {m_StatusMessage}");
                     OnStatusChanged?.Invoke(m_StatusMessage);
                     return true;
                 }
@@ -200,7 +206,12 @@ namespace Game.Conquest.Networking
             ConquestSceneTransitionManager.Instance?.ReturnToMainMenu();
         }
 
-        public void EnsureNetworkManagerConfigured(string address, ushort port)
+        public const string AnyListenAddress = "0.0.0.0";
+
+        /// <param name="address">Address a client connects to (and the host's own client uses).</param>
+        /// <param name="listenAddress">Address the server binds to. Empty means "same as address" in UTP,
+        /// so pass it explicitly for every role to avoid inheriting a previous session's value.</param>
+        public void EnsureNetworkManagerConfigured(string address, ushort port, string listenAddress = "")
         {
             if (NetworkManager.Singleton != null)
             {
@@ -209,8 +220,44 @@ namespace Game.Conquest.Networking
                 {
                     transport.ConnectionData.Address = address;
                     transport.ConnectionData.Port = port;
+                    transport.ConnectionData.ServerListenAddress = listenAddress ?? "";
                 }
             }
+        }
+
+        /// <summary>Human-readable "ip:port" list of this machine's LAN IPv4 addresses, for players to type in.</summary>
+        public static string GetHostAddressSummary(ushort port)
+        {
+            var ips = GetLocalIPv4Addresses();
+            if (ips.Count == 0) return $"127.0.0.1:{port} (no LAN address found)";
+            for (int i = 0; i < ips.Count; i++) ips[i] = $"{ips[i]}:{port}";
+            return string.Join(", ", ips);
+        }
+
+        public static List<string> GetLocalIPv4Addresses()
+        {
+            var result = new List<string>();
+            try
+            {
+                foreach (var ni in NetworkInterface.GetAllNetworkInterfaces())
+                {
+                    if (ni.OperationalStatus != OperationalStatus.Up) continue;
+                    if (ni.NetworkInterfaceType == NetworkInterfaceType.Loopback) continue;
+                    foreach (var ua in ni.GetIPProperties().UnicastAddresses)
+                    {
+                        if (ua.Address.AddressFamily != AddressFamily.InterNetwork) continue;
+                        if (IPAddress.IsLoopback(ua.Address)) continue;
+                        string ip = ua.Address.ToString();
+                        if (ip.StartsWith("169.254.")) continue; // link-local, not reachable by other players
+                        if (!result.Contains(ip)) result.Add(ip);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.LogWarning($"[ConquestSessionManager] Could not enumerate network interfaces: {ex.Message}");
+            }
+            return result;
         }
     }
 }
