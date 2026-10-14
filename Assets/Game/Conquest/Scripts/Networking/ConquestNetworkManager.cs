@@ -125,6 +125,11 @@ namespace Game.Conquest.Networking
                 else
                 {
                     assignedTeam = (m_RedCount <= m_BlueCount) ? Team.Red : Team.Blue;
+                    // Late joiners never saw the lobby; use the name from their connection payload.
+                    if (session != null && session.TryGetApprovedName(player.OwnerClientId, out var payloadName))
+                    {
+                        assignedName = payloadName;
+                    }
                 }
 
                 if (assignedTeam == Team.Red) m_RedCount++;
