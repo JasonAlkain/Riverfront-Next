@@ -284,7 +284,7 @@ MonoBehaviour:
     - line: '|   shaderPrecisionModel: 0'
     - line: '|   clonedFromGUID: 3c72c65a16f0acb438eed22b8b16c24a'
     - line: '|   templatePackageId: com.unity.template.urp-blank@17.0.14'
-    - line: '|   templateDefaultScene: Assets/Scenes/MainMenu.unity'
+    - line: '|   templateDefaultScene: Assets/Templates/MultiplayerFPS/Scenes/MainMenu.unity'
     - line: '|   useCustomMainManifest: 0'
     - line: '|   useCustomLauncherManifest: 0'
     - line: '|   useCustomMainGradleTemplate: 0'
