@@ -13,6 +13,7 @@ Assets/
     Data/                     Tuning assets: Classes/ (Class_*.asset), Maps/ (Map_*.asset, registry)
     Materials/                Team and character materials
     Prefabs/                  Player, bot, command post, support station, network prefab list
+      UI/                    Main menu canvas, player and server cards
     Scenes/                   Bootstrap, MainMenu and the Conquest maps (these are the build scenes)
 
   Art/, Audio/                Shared art and sound used by the game (characters, environment kits, clips)
