@@ -62,6 +62,9 @@ namespace Game.Conquest.Player
         public int CurrentClassIndex => selectedClassIndex.Value;
         public IReadOnlyList<ConquestClassData> AvailableClasses => availableClasses;
 
+        /// <summary>This peer's own (non-bot) player once it has spawned; null before that and after despawn.</summary>
+        public static ConquestPlayer Local { get; private set; }
+
         private void Awake()
         {
             m_Movement = GetComponent<ConquestPlayerMovement>();
@@ -80,6 +83,8 @@ namespace Game.Conquest.Player
             ConfigureLocalPerspective();
             ApplyClass(selectedClassIndex.Value);
 
+            if (IsOwner && !isBot) Local = this;
+
             if (IsServer && !isBot)
             {
                 ConquestNetworkManager.Instance?.RegisterPlayer(this);
@@ -92,6 +97,8 @@ namespace Game.Conquest.Player
             selectedClassIndex.OnValueChanged -= HandleClassChanged;
             m_Health.OnDied -= HandleDeath;
             m_Health.OnRespawned -= HandleRespawn;
+
+            if (Local == this) Local = null;
 
             if (IsServer && !isBot)
             {

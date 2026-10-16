@@ -66,6 +66,10 @@ namespace Game.Conquest.Gameplay
         {
             Game.Conquest.Scenes.ConquestSceneTransitionManager.Instance?.HideLoading();
 
+            // Every peer fills the list: the HUD reads it on clients too, and an empty
+            // serialized list used to leave clients with no command posts or spawn buttons.
+            FindAllCommandPosts();
+
             if (IsServer)
             {
                 if (ConquestSessionManager.Instance != null)
@@ -78,8 +82,6 @@ namespace Game.Conquest.Gameplay
                 isMatchOver.Value = false;
                 winningTeam.Value = Team.Neutral;
                 m_NextDrainTime = Time.time + ticketDrainInterval;
-
-                FindAllCommandPosts();
             }
         }
 
