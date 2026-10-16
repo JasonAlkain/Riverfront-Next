@@ -36,7 +36,7 @@ Any Windows build can run headless as a dedicated server: it has no local player
 auto-starts once enough players have joined and are all ready.
 
 ```
-Rivetfront.exe -batchmode -nographics -server -map industrial_depot -port 7777 -maxPlayers 16 -name "LAN Battle"
+"Riverfront Next.exe" -batchmode -nographics -server -map industrial_depot -port 7777 -maxPlayers 16 -name "LAN Battle"
 ```
 
 | Argument | Meaning | Default |
