@@ -45,6 +45,7 @@ namespace Game.Conquest.Player
             NetworkVariableWritePermission.Owner);
 
         private CharacterController m_CharacterController;
+        private Unity.Netcode.Components.NetworkTransform m_NetworkTransform;
         private ConquestHealth m_Health;
         private Vector3 m_Velocity;
         private float m_Pitch;
@@ -58,6 +59,7 @@ namespace Game.Conquest.Player
         private void Awake()
         {
             m_CharacterController = GetComponent<CharacterController>();
+            m_NetworkTransform = GetComponent<Unity.Netcode.Components.NetworkTransform>();
             m_Health = GetComponent<ConquestHealth>();
         }
 
@@ -190,6 +192,9 @@ namespace Game.Conquest.Player
         [ServerRpc]
         private void RequestFallDeathServerRpc()
         {
+            // Only honour the request if the server also sees the player below the kill height
+            // (small margin for owner-authoritative transform lag).
+            if (transform.position.y > fallLimitY + 2f) return;
             if (m_Health != null && !m_Health.IsDead)
             {
                 m_Health.TakeDamage(m_Health.MaxHealth * 10, 0);
@@ -314,6 +319,7 @@ namespace Game.Conquest.Player
                     transform.position = position;
                 }
                 transform.rotation = rotation;
+                CommitTeleport(position, rotation);
                 return;
             }
 
@@ -321,7 +327,21 @@ namespace Game.Conquest.Player
             transform.position = position;
             transform.rotation = rotation;
             m_Velocity = Vector3.zero;
+            CommitTeleport(position, rotation);
             if (m_CharacterController != null) m_CharacterController.enabled = true;
+        }
+
+        /// <summary>True on the peer allowed to move this object (owner for players, server for bots).</summary>
+        public bool HasTransformAuthority => m_NetworkTransform == null || m_NetworkTransform.CanCommitToTransform;
+
+        // Flag the move as a teleport so observers snap to the spawn point instead of
+        // interpolating a slide across the map.
+        private void CommitTeleport(Vector3 position, Quaternion rotation)
+        {
+            if (m_NetworkTransform != null && m_NetworkTransform.IsSpawned && m_NetworkTransform.CanCommitToTransform)
+            {
+                m_NetworkTransform.Teleport(position, rotation, transform.localScale);
+            }
         }
     }
 }

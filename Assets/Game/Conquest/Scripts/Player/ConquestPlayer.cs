@@ -281,7 +281,9 @@ namespace Game.Conquest.Player
             if (IsServer)
             {
                 SpawnClientRpc(position, rotation);
-                if (IsOwner)
+                // Server-owned objects (bots, the host's player) are moved here; remote players
+                // move themselves when the ClientRpc reaches their owner.
+                if (IsOwner && m_Movement.HasTransformAuthority)
                 {
                     m_Movement.Teleport(position, rotation);
                     ConfigureLocalPerspective();
@@ -296,7 +298,12 @@ namespace Game.Conquest.Player
         [ClientRpc]
         private void SpawnClientRpc(Vector3 position, Quaternion rotation)
         {
-            m_Movement.Teleport(position, rotation);
+            // Only the transform authority writes the position; everyone else receives the
+            // teleport through the NetworkTransform instead of fighting it locally.
+            if (m_Movement.HasTransformAuthority && !(IsServer && IsOwner))
+            {
+                m_Movement.Teleport(position, rotation);
+            }
             ConfigureLocalPerspective();
             if (IsOwner && !isBot)
             {

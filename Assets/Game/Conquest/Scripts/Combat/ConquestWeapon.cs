@@ -30,6 +30,14 @@ namespace Game.Conquest.Combat
         [SerializeField] private GameObject supportStationPrefab;
         [SerializeField] private float stationCooldown = 15.0f;
 
+        [Header("Server Validation")]
+        [Tooltip("Shots may arrive this much earlier than the fire rate allows (network jitter) without being dropped.")]
+        [SerializeField] private float fireTimingTolerance = 0.1f;
+        [Tooltip("Max distance between the client's ray origin and the server's view of the player's camera.")]
+        [SerializeField] private float maxRayOriginOffset = 3.0f;
+        [Tooltip("Distance in front of the player where the server places a deployed station.")]
+        [SerializeField] private float stationDeployDistance = 1.5f;
+
         [Header("Visuals & Audio")]
         [SerializeField] private Transform muzzlePoint;
         [SerializeField] private GameObject muzzleFlashPrefab;
@@ -59,6 +67,12 @@ namespace Game.Conquest.Combat
         private ConquestPlayerAnimator m_Animator;
         private float m_NextFireTime;
         private float m_NextStationDeployTime;
+
+        // Server-side state. Kept separate from the owner's prediction fields because on a host
+        // the same component is both owner and server.
+        private float m_ServerNextFireTime;
+        private float m_ServerNextStationTime;
+        private NetworkObject m_ServerActiveStation;
         private float m_DefaultFOV = 75.0f;
         private bool m_IsZoomed = false;
 
@@ -219,6 +233,7 @@ namespace Game.Conquest.Combat
         {
             if (m_Health != null && m_Health.IsDead) return;
             if (isReloading.Value || currentAmmo.Value <= 0) return;
+            if (!ServerValidateShot(ref rayOrigin, ref rayDirection)) return;
 
             currentAmmo.Value = Mathf.Max(0, currentAmmo.Value - 1);
 
@@ -281,6 +296,34 @@ namespace Game.Conquest.Combat
             {
                 StartCoroutine(ServerReloadCoroutine());
             }
+        }
+
+        /// <summary>
+        /// Never trust the client's shot: enforce the class fire rate, reject malformed rays and
+        /// origins far from where the server thinks this player's camera is.
+        /// </summary>
+        private bool ServerValidateShot(ref Vector3 rayOrigin, ref Vector3 rayDirection)
+        {
+            if (!IsFinite(rayOrigin) || !IsFinite(rayDirection) || rayDirection.sqrMagnitude < 1e-6f) return false;
+            rayDirection.Normalize();
+
+            // Movement is owner-authoritative, so the server's copy lags slightly; the tolerance covers that.
+            Vector3 expectedOrigin = (m_Movement != null && m_Movement.PlayerCamera != null)
+                ? m_Movement.PlayerCamera.transform.position
+                : transform.position + Vector3.up * 1.6f;
+            if ((rayOrigin - expectedOrigin).sqrMagnitude > maxRayOriginOffset * maxRayOriginOffset) return false;
+
+            // Rate limit that tolerates bunched-up packets but holds the long-run average to fireRate.
+            float now = Time.time;
+            if (now < m_ServerNextFireTime - fireTimingTolerance) return false;
+            m_ServerNextFireTime = Mathf.Max(now, m_ServerNextFireTime) + fireRate;
+            return true;
+        }
+
+        private static bool IsFinite(Vector3 v)
+        {
+            return !(float.IsNaN(v.x) || float.IsNaN(v.y) || float.IsNaN(v.z) ||
+                     float.IsInfinity(v.x) || float.IsInfinity(v.y) || float.IsInfinity(v.z));
         }
 
         // Server-side execution for AI soldiers
@@ -431,20 +474,34 @@ namespace Game.Conquest.Combat
             if (Time.time < m_NextStationDeployTime) return;
             m_NextStationDeployTime = Time.time + stationCooldown;
 
-            Vector3 spawnPos = transform.position + transform.forward * 1.5f + Vector3.up * 0.1f;
-            DeployStationServerRpc(spawnPos);
+            DeployStationServerRpc();
         }
 
         [ServerRpc]
-        private void DeployStationServerRpc(Vector3 position)
+        private void DeployStationServerRpc()
         {
             if (supportStationPrefab == null || m_Player == null) return;
+            // Capability, alive state and cooldown are checked here, not just on the client.
+            if (!hasSupportStation) return;
+            if (m_Health != null && m_Health.IsDead) return;
+            if (Time.time < m_ServerNextStationTime) return;
+            m_ServerNextStationTime = Time.time + stationCooldown;
 
+            // One active station per player: deploying again replaces the old one.
+            if (m_ServerActiveStation != null && m_ServerActiveStation.IsSpawned)
+            {
+                m_ServerActiveStation.Despawn(true);
+            }
+            m_ServerActiveStation = null;
+
+            // Position comes from the server's view of the player, never from the client.
+            Vector3 position = transform.position + transform.forward * stationDeployDistance + Vector3.up * 0.1f;
             GameObject stationObj = Instantiate(supportStationPrefab, position, transform.rotation);
             var netObj = stationObj.GetComponent<NetworkObject>();
             if (netObj != null)
             {
                 netObj.Spawn();
+                m_ServerActiveStation = netObj;
                 var stationComp = stationObj.GetComponent<ConquestSupportStation>();
                 if (stationComp != null)
                 {

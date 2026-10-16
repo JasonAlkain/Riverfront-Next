@@ -7,10 +7,7 @@
         "Unity.TextMeshPro",
         "UnityEngine.UI",
         "Unity.Collections",
-        "Unity.AI.Navigation",
-        "Unity.Services.Core",
-        "Unity.Services.Authentication",
-        "Unity.Services.Multiplayer"
+        "Unity.AI.Navigation"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

@@ -73,7 +73,8 @@ namespace Game.Conquest.UI
         private void Start()
         {
             FindLocalPlayer();
-            Game.Conquest.Scenes.ConquestSceneTransitionManager.Instance?.HideLoading();
+            // The loading overlay is owned by ConquestSceneTransitionManager and hides once this
+            // peer is network-synchronised (see ConquestMatchManager.OnNetworkSpawn).
         }
 
         private void FindLocalPlayer()
