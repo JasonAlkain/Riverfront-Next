@@ -180,7 +180,7 @@ namespace Game.Conquest.Player
             {
                 if (IsServer)
                 {
-                    m_Health.TakeDamage(m_Health.MaxHealth * 10, 0);
+                    m_Health.TakeDamage(m_Health.MaxHealth * 10, Game.Conquest.Combat.ConquestHealth.NoAttacker);
                 }
                 else
                 {
@@ -197,7 +197,7 @@ namespace Game.Conquest.Player
             if (transform.position.y > fallLimitY + 2f) return;
             if (m_Health != null && !m_Health.IsDead)
             {
-                m_Health.TakeDamage(m_Health.MaxHealth * 10, 0);
+                m_Health.TakeDamage(m_Health.MaxHealth * 10, Game.Conquest.Combat.ConquestHealth.NoAttacker);
             }
         }
 

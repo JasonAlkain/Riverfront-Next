@@ -268,7 +268,7 @@ namespace Game.Conquest.Combat
                         ConquestPlayer targetPlayer = hit.collider.GetComponentInParent<ConquestPlayer>();
                         if (targetPlayer == null || targetPlayer.CurrentTeam != m_Player.CurrentTeam)
                         {
-                            targetHealth.TakeDamage(damagePerShot, OwnerClientId);
+                            targetHealth.TakeDamage(damagePerShot, NetworkObjectId);
                             hitAnyEnemy = true;
                         }
                     }
@@ -372,7 +372,7 @@ namespace Game.Conquest.Combat
                         ConquestPlayer targetPlayer = hit.collider.GetComponentInParent<ConquestPlayer>();
                         if (targetPlayer == null || targetPlayer.CurrentTeam != m_Player.CurrentTeam)
                         {
-                            targetHealth.TakeDamage(damagePerShot, OwnerClientId);
+                            targetHealth.TakeDamage(damagePerShot, NetworkObjectId);
                         }
                     }
                 }

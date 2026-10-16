@@ -252,7 +252,9 @@ namespace Game.Conquest.UI
             panelRect.pivot = new Vector2(0.5f, 0.5f);
             panelRect.sizeDelta = new Vector2(380, 55);
 
-            CreateButton(m_MatchEndNavPanel, "RETURN TO MAIN MENU", new Color(0.2f, 0.75f, 0.4f), 50, () =>
+            // Everyone goes to the results screen and back to the lobby automatically; this only
+            // lets a client drop out early. Hidden on the host, where leaving would end the session for all.
+            CreateButton(m_MatchEndNavPanel, "LEAVE GAME", new Color(0.3f, 0.35f, 0.4f), 50, () =>
             {
                 ConquestSessionManager.Instance?.LeaveSession();
             });
@@ -271,12 +273,13 @@ namespace Game.Conquest.UI
         {
             FindLocalPlayer();
 
-            // Match Results return button
+            // Match over: results and the lobby follow automatically
             var mm = ConquestMatchManager.Instance;
             if (mm != null && mm.IsMatchOver)
             {
+                bool isServer = NetworkManager.Singleton != null && NetworkManager.Singleton.IsServer;
                 if (m_PauseCanvas != null) m_PauseCanvas.enabled = true;
-                if (m_MatchEndNavPanel != null) m_MatchEndNavPanel.SetActive(true);
+                if (m_MatchEndNavPanel != null) m_MatchEndNavPanel.SetActive(!isServer);
                 if (m_MainPausePanel != null) m_MainPausePanel.SetActive(false);
                 Cursor.lockState = CursorLockMode.None;
                 Cursor.visible = true;
