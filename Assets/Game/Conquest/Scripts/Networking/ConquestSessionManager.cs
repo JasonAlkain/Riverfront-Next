@@ -151,6 +151,9 @@ namespace Game.Conquest.Networking
         private void PrepareNetworkManager(NetworkManager nm)
         {
             EnsureNetworkPrefabsRegistered(nm);
+            // Named-message handlers only exist once the client has started.
+            nm.OnClientStarted -= RegisterResultsMessageHandler;
+            nm.OnClientStarted += RegisterResultsMessageHandler;
             nm.NetworkConfig.AutoSpawnPlayerPrefabClientSide = false;
             ConfigureConnectionApproval(nm);
         }
@@ -410,11 +413,74 @@ namespace Game.Conquest.Networking
             return false;
         }
 
+        // ---------- Match flow and results ----------
+
+        [Header("Match Flow")]
+        [Tooltip("Scene shown between a finished match and the lobby. Must be in the build scene list.")]
+        public string resultsSceneName = "MatchResults";
+        [Tooltip("Scene that holds the lobby. Players return here (still connected) after the results.")]
+        public string lobbySceneName = "MainMenu";
+        [Tooltip("Seconds the in-map VICTORY/DEFEAT banner stays up before the results scene loads.")]
+        public float victoryBannerSeconds = 6f;
+        [Tooltip("Seconds the results screen stays up before everyone returns to the lobby.")]
+        public float resultsScreenSeconds = 15f;
+
+        private const string MatchResultsMessage = "Conquest.MatchResults";
+
+        /// <summary>Results of the last finished match on this peer (server: built; client: received).</summary>
+        public MatchResults LastMatchResults { get; private set; }
+
+        /// <summary>Raised on every peer when <see cref="LastMatchResults"/> is set.</summary>
+        public event Action<MatchResults> OnMatchResultsAvailable;
+
+        /// <summary>Server: store the final results; they are sent to clients when they reach the results scene.</summary>
+        public void SetMatchResults(MatchResults results)
+        {
+            LastMatchResults = results;
+            OnMatchResultsAvailable?.Invoke(results);
+        }
+
+        public void ClearMatchResults()
+        {
+            LastMatchResults = null;
+        }
+
+        /// <summary>Server: send the stored results to one client.</summary>
+        public void SendMatchResultsTo(ulong clientId)
+        {
+            var nm = NetworkManager.Singleton;
+            if (nm == null || !nm.IsServer || LastMatchResults == null || nm.CustomMessagingManager == null) return;
+            if (clientId == NetworkManager.ServerClientId) return; // the host reads LastMatchResults directly
+
+            // Up to 64 rows exceeds one packet, so use the fragmented channel.
+            using (var writer = new FastBufferWriter(1024, Unity.Collections.Allocator.Temp, 64 * 1024))
+            {
+                writer.WriteNetworkSerializable(LastMatchResults);
+                nm.CustomMessagingManager.SendNamedMessage(MatchResultsMessage, clientId, writer, NetworkDelivery.ReliableFragmentedSequenced);
+            }
+        }
+
+        private void RegisterResultsMessageHandler()
+        {
+            var nm = NetworkManager.Singleton;
+            if (nm == null || nm.CustomMessagingManager == null || nm.IsServer) return;
+            nm.CustomMessagingManager.UnregisterNamedMessageHandler(MatchResultsMessage);
+            nm.CustomMessagingManager.RegisterNamedMessageHandler(MatchResultsMessage, HandleMatchResultsMessage);
+        }
+
+        private void HandleMatchResultsMessage(ulong senderClientId, FastBufferReader reader)
+        {
+            var results = new MatchResults();
+            reader.ReadNetworkSerializable(out results);
+            SetMatchResults(results);
+        }
+
         public void LeaveSession()
         {
             m_StatusMessage = "Leaving session...";
             OnStatusChanged?.Invoke(m_StatusMessage);
             ClearPlayerAssignments();
+            ClearMatchResults();
 
             if (NetworkManager.Singleton != null && (NetworkManager.Singleton.IsClient || NetworkManager.Singleton.IsServer))
             {

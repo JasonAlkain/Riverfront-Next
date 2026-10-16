@@ -30,7 +30,12 @@ namespace Game.Conquest.Combat
             NetworkVariableReadPermission.Everyone,
             NetworkVariableWritePermission.Server);
 
+        /// <summary>Attacker id for deaths with no shooter (falls, kill volumes).</summary>
+        public const ulong NoAttacker = ulong.MaxValue;
+
         public event Action<int, int> OnHealthChanged;
+        /// <summary>Raised once per death. On the server the argument is the attacker's NetworkObjectId
+        /// (or <see cref="NoAttacker"/>); clients don't know the attacker and receive NoAttacker.</summary>
         public event Action<ulong> OnDied;
         public event Action OnRespawned;
 
@@ -69,36 +74,40 @@ namespace Game.Conquest.Combat
 
         private void HandleDeathChanged(bool oldVal, bool newVal)
         {
+            // NGO also invokes OnValueChanged on the server when it writes the value, and the
+            // server already raises these events itself in TakeDamage / ResetHealth. Raising them
+            // here too used to count every death twice (two tickets, two respawn coroutines).
             if (newVal)
             {
-                OnDied?.Invoke(0);
+                if (!IsServer) OnDied?.Invoke(NoAttacker);
                 PlayAudio(deathSoundClip, 0.9f);
             }
             else
             {
-                OnRespawned?.Invoke();
+                if (!IsServer) OnRespawned?.Invoke();
                 PlayAudio(respawnSoundClip, 0.7f);
             }
         }
 
-        public void TakeDamage(int damage, ulong attackerClientId)
+        /// <param name="attackerObjectId">NetworkObjectId of the shooter (player or bot), or NoAttacker.</param>
+        public void TakeDamage(int damage, ulong attackerObjectId)
         {
             if (!IsServer || isDead.Value) return;
 
             int newHealth = Mathf.Max(0, currentHealth.Value - damage);
             currentHealth.Value = newHealth;
 
-            TakeDamageClientRpc(damage, attackerClientId);
+            TakeDamageClientRpc(damage, attackerObjectId);
 
             if (newHealth <= 0)
             {
                 isDead.Value = true;
-                OnDied?.Invoke(attackerClientId);
+                OnDied?.Invoke(attackerObjectId);
             }
         }
 
         [ClientRpc]
-        private void TakeDamageClientRpc(int damage, ulong attackerClientId)
+        private void TakeDamageClientRpc(int damage, ulong attackerObjectId)
         {
             // Play subtle hurt sound with anti-stacking limiter
             ConquestAudioLimiter.TryPlayDamageHurt(audioSource, hitSoundClip, GetHashCode(), 0.18f);

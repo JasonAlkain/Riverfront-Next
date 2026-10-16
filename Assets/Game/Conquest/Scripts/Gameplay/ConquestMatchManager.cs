@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
@@ -42,6 +43,9 @@ namespace Game.Conquest.Gameplay
             NetworkVariableWritePermission.Server);
 
         private float m_NextDrainTime;
+        private float m_MatchStartTime;
+        private readonly MatchStatsTracker m_Stats = new MatchStatsTracker();
+        private static int s_MatchCounter;
 
         public int RedTickets => redTickets.Value;
         public int BlueTickets => blueTickets.Value;
@@ -70,8 +74,12 @@ namespace Game.Conquest.Gameplay
             // serialized list used to leave clients with no command posts or spawn buttons.
             FindAllCommandPosts();
 
+            // A new match: forget the previous results on every peer.
+            ConquestSessionManager.Instance?.ClearMatchResults();
+
             if (IsServer)
             {
+                m_MatchStartTime = Time.time;
                 if (ConquestSessionManager.Instance != null)
                 {
                     initialTickets = ConquestSessionManager.Instance.reinforcementTickets;
@@ -116,7 +124,7 @@ namespace Game.Conquest.Gameplay
                 {
                     if (p.Health != null && !p.Health.IsDead)
                     {
-                        p.Health.TakeDamage(p.Health.MaxHealth * 10, 0);
+                        p.Health.TakeDamage(p.Health.MaxHealth * 10, Game.Conquest.Combat.ConquestHealth.NoAttacker);
                     }
                 }
             }
@@ -147,9 +155,18 @@ namespace Game.Conquest.Gameplay
             }
         }
 
-        public void OnPlayerDied(ConquestPlayer victim)
+        /// <param name="killerObjectId">Attacker's NetworkObjectId, or ConquestHealth.NoAttacker.</param>
+        public void OnPlayerDied(ConquestPlayer victim, ulong killerObjectId)
         {
             if (!IsServer || isMatchOver.Value) return;
+
+            ConquestPlayer killer = null;
+            if (killerObjectId != Game.Conquest.Combat.ConquestHealth.NoAttacker &&
+                NetworkManager.SpawnManager.SpawnedObjects.TryGetValue(killerObjectId, out var killerObject))
+            {
+                killer = killerObject.GetComponent<ConquestPlayer>();
+            }
+            m_Stats.RecordDeath(victim, killer);
 
             // Death costs 1 ticket to victim's team
             if (victim.CurrentTeam == Team.Red)
@@ -189,6 +206,54 @@ namespace Game.Conquest.Gameplay
             isMatchOver.Value = true;
             winningTeam.Value = winner;
             Debug.Log($"[ConquestMatchManager] MATCH OVER! Winning team: {winner}");
+
+            var session = ConquestSessionManager.Instance;
+            session?.SetMatchResults(BuildResults(winner));
+            StartCoroutine(ShowResultsAfterBanner());
+        }
+
+        private MatchResults BuildResults(Team winner)
+        {
+            // Make sure everyone still in the match has a line, even with no kills or deaths.
+            foreach (var p in FindObjectsByType<ConquestPlayer>(FindObjectsInactive.Exclude))
+            {
+                if (p != null && p.IsSpawned) m_Stats.Touch(p);
+            }
+
+            var session = ConquestSessionManager.Instance;
+            var results = new MatchResults
+            {
+                matchId = ++s_MatchCounter,
+                winner = winner,
+                redTickets = redTickets.Value,
+                blueTickets = blueTickets.Value,
+                durationSeconds = Time.time - m_MatchStartTime,
+                mapScene = gameObject.scene.name,
+                returnToLobbySeconds = session != null ? session.resultsScreenSeconds : 15f,
+            };
+            m_Stats.CopyRowsTo(results.rows);
+            return results;
+        }
+
+        // Server: leave the VICTORY/DEFEAT banner up, then take everyone to the results scene.
+        private IEnumerator ShowResultsAfterBanner()
+        {
+            var session = ConquestSessionManager.Instance;
+            yield return new WaitForSeconds(session != null ? session.victoryBannerSeconds : 6f);
+
+            // Players, bots and stations are spawned with destroyWithScene = false, so they would
+            // follow everyone into the results scene and lobby. Players are respawned on the next map.
+            var spawned = new List<NetworkObject>(NetworkManager.SpawnManager.SpawnedObjectsList);
+            foreach (var networkObject in spawned)
+            {
+                if (networkObject != null && networkObject.IsSpawned && networkObject.IsSceneObject != true)
+                {
+                    networkObject.Despawn(true);
+                }
+            }
+
+            string resultsScene = session != null ? session.resultsSceneName : "MatchResults";
+            Game.Conquest.Scenes.ConquestSceneTransitionManager.Instance?.TransitionToMap(resultsScene, true);
         }
 
         public bool GetFriendlyPostSpawnPoint(Team team, string preferredPostName, out Vector3 position, out Quaternion rotation)
