@@ -1073,47 +1073,19 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 666355484404952866, guid: cb1d8cf1354c688499a1e4e6ddcb1fe0, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 604313407}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: cb1d8cf1354c688499a1e4e6ddcb1fe0, type: 3}
---- !u!1 &604313406 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 666355484404952866, guid: cb1d8cf1354c688499a1e4e6ddcb1fe0, type: 3}
-  m_PrefabInstance: {fileID: 604313405}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &604313407
+--- !u!114 &604313407 stripped
 MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 604313406}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cada60a0693e14c4c8acc7f0272ac9e4, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: '::'
-  tmp_SessionName: {fileID: 604313408}
-  sld_MaxHumanConnections: {fileID: 604313414}
-  sld_ReinforcementTickets: {fileID: 604313413}
-  sld_TargetTeamSize: {fileID: 604313412}
-  btn_PrevMap: {fileID: 604313416}
-  btn_NextMap: {fileID: 604313415}
-  btn_CreateLobby: {fileID: 604313411}
-  btn_Back: {fileID: 604313410}
---- !u!114 &604313408 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 5973152907483787923, guid: cb1d8cf1354c688499a1e4e6ddcb1fe0, type: 3}
+  m_CorrespondingSourceObject: {fileID: 504662169219751299, guid: cb1d8cf1354c688499a1e4e6ddcb1fe0, type: 3}
   m_PrefabInstance: {fileID: 604313405}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2da0c512f12947e489f739169773d7ca, type: 3}
+  m_Script: {fileID: 11500000, guid: cada60a0693e14c4c8acc7f0272ac9e4, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Unity.TextMeshPro::TMPro.TMP_InputField
+  m_EditorClassIdentifier: Game.Conquest::Game.Conquest.HostPanelUI
 --- !u!114 &604313409 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 117985461044567569, guid: cb1d8cf1354c688499a1e4e6ddcb1fe0, type: 3}
@@ -1125,83 +1097,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0f86b79446182f145b88a2ae86ffff80, type: 3}
   m_Name: 
   m_EditorClassIdentifier: '::'
---- !u!114 &604313410 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 1488234643110506424, guid: cb1d8cf1354c688499a1e4e6ddcb1fe0, type: 3}
-  m_PrefabInstance: {fileID: 604313405}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Button
---- !u!114 &604313411 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 2037930267659493316, guid: cb1d8cf1354c688499a1e4e6ddcb1fe0, type: 3}
-  m_PrefabInstance: {fileID: 604313405}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Button
---- !u!114 &604313412 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 7242523816523426240, guid: cb1d8cf1354c688499a1e4e6ddcb1fe0, type: 3}
-  m_PrefabInstance: {fileID: 604313405}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 67db9e8f0e2ae9c40bc1e2b64352a6b4, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Slider
---- !u!114 &604313413 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 8784600123934796437, guid: cb1d8cf1354c688499a1e4e6ddcb1fe0, type: 3}
-  m_PrefabInstance: {fileID: 604313405}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 67db9e8f0e2ae9c40bc1e2b64352a6b4, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Slider
---- !u!114 &604313414 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 1002006910080662227, guid: cb1d8cf1354c688499a1e4e6ddcb1fe0, type: 3}
-  m_PrefabInstance: {fileID: 604313405}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 67db9e8f0e2ae9c40bc1e2b64352a6b4, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Slider
---- !u!114 &604313415 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 8119002879332937108, guid: cb1d8cf1354c688499a1e4e6ddcb1fe0, type: 3}
-  m_PrefabInstance: {fileID: 604313405}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Button
---- !u!114 &604313416 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 6091277691098556993, guid: cb1d8cf1354c688499a1e4e6ddcb1fe0, type: 3}
-  m_PrefabInstance: {fileID: 604313405}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Button
 --- !u!114 &604313417 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 5430992167914348426, guid: cb1d8cf1354c688499a1e4e6ddcb1fe0, type: 3}

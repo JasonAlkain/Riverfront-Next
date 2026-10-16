@@ -1,3 +1,4 @@
+using System;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -39,8 +40,8 @@ namespace Game.Conquest
             txt_LobbyInfo.text = lobbyInfo;
         }
 
-        //Add a player card to the appropriate team
-        public void AddPlayerCard(string playerName, bool isReady = false, bool isRedTeam = true)
+        //Add a player card to the appropriate team. Pass onReadyToggled for the local player's own card.
+        public void AddPlayerCard(string playerName, bool isReady = false, bool isRedTeam = true, Action onReadyToggled = null)
         {
             if(playerCardPrefab == null)
             {
@@ -59,7 +60,7 @@ namespace Game.Conquest
             }
             GameObject newCard = Instantiate(playerCardPrefab, isRedTeam ? redTeamContainer : blueTeamContainer);
             PlayerCardUI cardUI = newCard.GetComponent<PlayerCardUI>();
-            cardUI.SetPlayerInfo(playerName, isReady);
+            cardUI.SetPlayerInfo(playerName, isReady, onReadyToggled);
         }
 
         // Clear all player cards from both teams
