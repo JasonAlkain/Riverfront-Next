@@ -163,31 +163,36 @@ namespace Game.Conquest.UI
             panelRect.anchorMin = new Vector2(0.5f, 0.5f);
             panelRect.anchorMax = new Vector2(0.5f, 0.5f);
             panelRect.pivot = new Vector2(0.5f, 0.5f);
-            panelRect.sizeDelta = new Vector2(560, 480);
+            panelRect.sizeDelta = new Vector2(620, 0);
 
             var bg = m_SettingsPanel.AddComponent<UnityEngine.UI.Image>();
             bg.color = new Color(0.08f, 0.11f, 0.16f, 0.98f);
 
+            // The panel grows to fit its rows instead of leaving a fixed-size gap at the bottom.
+            var fitter = m_SettingsPanel.AddComponent<ContentSizeFitter>();
+            fitter.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
+
             var vLayout = m_SettingsPanel.AddComponent<VerticalLayoutGroup>();
-            vLayout.padding = new RectOffset(35, 35, 25, 25);
+            vLayout.padding = new RectOffset(40, 40, 28, 28);
             vLayout.spacing = 10;
             vLayout.childAlignment = TextAnchor.UpperCenter;
             vLayout.childControlWidth = true;
-            vLayout.childControlHeight = false;
+            vLayout.childControlHeight = true; // rows take their LayoutElement heights
+            vLayout.childForceExpandHeight = false;
 
-            CreateTMP(m_SettingsPanel, "GAME SETTINGS", 24, new Color(0.35f, 0.78f, 1.0f), TextAlignmentOptions.Center, FontStyles.Bold, 34);
+            CreateTMP(m_SettingsPanel, "SETTINGS", 24, new Color(0.35f, 0.78f, 1.0f), TextAlignmentOptions.Center, FontStyles.Bold, 34);
+            CreateDivider(m_SettingsPanel);
 
-            m_MasterLabel = CreateTMP(m_SettingsPanel, "Master Volume: 85%", 14, Color.white, TextAlignmentOptions.Left, FontStyles.Normal, 20);
-            m_MasterSlider = CreateSlider(m_SettingsPanel, 0f, 1f, (val) => { m_MasterLabel.text = $"Master Volume: {(int)(val * 100)}%"; });
+            // One row per setting: name on the left, slider in the middle, value on the right.
+            CreateTMP(m_SettingsPanel, "AUDIO", 13, k_SectionColor, TextAlignmentOptions.Left, FontStyles.Bold, 22);
+            m_MasterSlider = CreateSettingRow(m_SettingsPanel, "Master Volume", 0f, 1f, out m_MasterLabel, FormatPercent);
+            m_SfxSlider = CreateSettingRow(m_SettingsPanel, "Effects Volume", 0f, 1f, out m_SfxLabel, FormatPercent);
 
-            m_SfxLabel = CreateTMP(m_SettingsPanel, "SFX Volume: 80%", 14, Color.white, TextAlignmentOptions.Left, FontStyles.Normal, 20);
-            m_SfxSlider = CreateSlider(m_SettingsPanel, 0f, 1f, (val) => { m_SfxLabel.text = $"SFX Volume: {(int)(val * 100)}%"; });
+            CreateTMP(m_SettingsPanel, "CONTROLS & VIEW", 13, k_SectionColor, TextAlignmentOptions.Left, FontStyles.Bold, 22);
+            m_SensitivitySlider = CreateSettingRow(m_SettingsPanel, "Mouse Sensitivity", 0.05f, 0.6f, out m_SensitivityLabel, FormatSensitivity);
+            m_FovSlider = CreateSettingRow(m_SettingsPanel, "Field of View", 60f, 100f, out m_FovLabel, FormatFov);
 
-            m_SensitivityLabel = CreateTMP(m_SettingsPanel, "Mouse Sensitivity: 0.15", 14, Color.white, TextAlignmentOptions.Left, FontStyles.Normal, 20);
-            m_SensitivitySlider = CreateSlider(m_SettingsPanel, 0.05f, 0.6f, (val) => { m_SensitivityLabel.text = $"Mouse Sensitivity: {val:F2}"; });
-
-            m_FovLabel = CreateTMP(m_SettingsPanel, "Field of View: 75°", 14, Color.white, TextAlignmentOptions.Left, FontStyles.Normal, 20);
-            m_FovSlider = CreateSlider(m_SettingsPanel, 60f, 100f, (val) => { m_FovLabel.text = $"Field of View: {(int)val}°"; });
+            CreateDivider(m_SettingsPanel);
 
             // Buttons row
             GameObject btnRow = new GameObject("BtnRow");
@@ -196,12 +201,11 @@ namespace Game.Conquest.UI
             rowLayout.spacing = 10;
             rowLayout.childControlWidth = true;
             rowLayout.childControlHeight = true;
-            var rowRect = btnRow.GetComponent<RectTransform>();
-            rowRect.sizeDelta = new Vector2(0, 42);
+            btnRow.AddComponent<LayoutElement>().preferredHeight = 42;
 
-            CreateButton(btnRow, "APPLY & SAVE", new Color(0.2f, 0.75f, 0.4f), 42, ApplyCurrentSettings);
-            CreateButton(btnRow, "DEFAULTS", new Color(0.6f, 0.5f, 0.2f), 42, RestoreDefaults);
-            CreateButton(btnRow, "BACK", new Color(0.3f, 0.35f, 0.4f), 42, () => ShowSubPanel(m_MainPausePanel));
+            CreateButton(btnRow, "BACK", new Color(0.25f, 0.30f, 0.38f), 42, () => ShowSubPanel(m_MainPausePanel));
+            CreateButton(btnRow, "DEFAULTS", new Color(0.25f, 0.30f, 0.38f), 42, RestoreDefaults);
+            CreateButton(btnRow, "APPLY", new Color(0.2f, 0.6f, 1f), 42, ApplyCurrentSettings);
 
             m_SettingsPanel.SetActive(false);
         }
@@ -359,10 +363,10 @@ namespace Game.Conquest.UI
             if (m_SensitivitySlider != null) m_SensitivitySlider.value = s.mouseSensitivity;
             if (m_FovSlider != null) m_FovSlider.value = s.fieldOfView;
 
-            if (m_MasterLabel != null) m_MasterLabel.text = $"Master Volume: {(int)(s.masterVolume * 100)}%";
-            if (m_SfxLabel != null) m_SfxLabel.text = $"SFX Volume: {(int)(s.sfxVolume * 100)}%";
-            if (m_SensitivityLabel != null) m_SensitivityLabel.text = $"Mouse Sensitivity: {s.mouseSensitivity:F2}";
-            if (m_FovLabel != null) m_FovLabel.text = $"Field of View: {(int)s.fieldOfView}°";
+            if (m_MasterLabel != null) m_MasterLabel.text = FormatPercent(s.masterVolume);
+            if (m_SfxLabel != null) m_SfxLabel.text = FormatPercent(s.sfxVolume);
+            if (m_SensitivityLabel != null) m_SensitivityLabel.text = FormatSensitivity(s.mouseSensitivity);
+            if (m_FovLabel != null) m_FovLabel.text = FormatFov(s.fieldOfView);
         }
 
         private void ApplyCurrentSettings()
@@ -437,6 +441,49 @@ namespace Game.Conquest.UI
             return btn;
         }
 
+        private static readonly Color k_SectionColor = new Color(0.55f, 0.62f, 0.72f);
+
+        private static string FormatPercent(float value) => $"{Mathf.RoundToInt(value * 100)}%";
+        private static string FormatSensitivity(float value) => value.ToString("F2");
+        private static string FormatFov(float value) => $"{Mathf.RoundToInt(value)}\u00B0";
+
+        private void CreateDivider(GameObject parent)
+        {
+            GameObject go = new GameObject("Divider");
+            go.transform.SetParent(parent.transform, false);
+            go.AddComponent<LayoutElement>().preferredHeight = 2;
+            go.AddComponent<UnityEngine.UI.Image>().color = new Color(0.35f, 0.78f, 1.0f, 0.25f);
+        }
+
+        /// <summary>A "name | slider | value" row; the value label follows the slider.</summary>
+        private Slider CreateSettingRow(GameObject parent, string label, float min, float max, out TextMeshProUGUI valueLabel, System.Func<float, string> format)
+        {
+            GameObject row = new GameObject($"Row_{label}");
+            row.transform.SetParent(parent.transform, false);
+            row.AddComponent<LayoutElement>().preferredHeight = 34;
+            var layout = row.AddComponent<HorizontalLayoutGroup>();
+            layout.spacing = 16;
+            layout.childAlignment = TextAnchor.MiddleLeft;
+            layout.childControlWidth = true;
+            layout.childControlHeight = true;
+            layout.childForceExpandWidth = false;
+
+            var name = CreateTMP(row, label, 15, Color.white, TextAlignmentOptions.MidlineLeft, FontStyles.Normal, 34);
+            name.GetComponent<LayoutElement>().preferredWidth = 190;
+
+            var value = CreateTMP(row, "", 15, new Color(0.35f, 0.78f, 1.0f), TextAlignmentOptions.MidlineRight, FontStyles.Bold, 34);
+            var valueLayout = value.GetComponent<LayoutElement>();
+            valueLayout.preferredWidth = 64;
+
+            var slider = CreateSlider(row, min, max, v => value.text = format(v));
+            var sliderLayout = slider.GetComponent<LayoutElement>();
+            sliderLayout.flexibleWidth = 1;
+            slider.transform.SetSiblingIndex(1); // between the name and the value
+
+            valueLabel = value;
+            return slider;
+        }
+
         private Slider CreateSlider(GameObject parent, float min, float max, UnityEngine.Events.UnityAction<float> onValueChanged)
         {
             GameObject sliderGO = new GameObject("Slider");
@@ -455,23 +502,43 @@ namespace Game.Conquest.UI
             var bgImg = bgGO.AddComponent<UnityEngine.UI.Image>();
             bgImg.color = new Color(0.2f, 0.25f, 0.32f);
             var bgRect = bgGO.GetComponent<RectTransform>();
-            bgRect.anchorMin = Vector2.zero;
-            bgRect.anchorMax = Vector2.one;
+            bgRect.anchorMin = new Vector2(0, 0.35f);
+            bgRect.anchorMax = new Vector2(1, 0.65f);
             bgRect.sizeDelta = Vector2.zero;
 
-            // Fill Area & Fill
+            // Fill Area & Fill (same thin track as the background)
             GameObject fillArea = new GameObject("Fill Area");
             fillArea.transform.SetParent(sliderGO.transform, false);
             var faRect = fillArea.AddComponent<RectTransform>();
-            faRect.anchorMin = new Vector2(0, 0.25f);
-            faRect.anchorMax = new Vector2(1, 0.75f);
+            faRect.anchorMin = new Vector2(0, 0.35f);
+            faRect.anchorMax = new Vector2(1, 0.65f);
             faRect.sizeDelta = Vector2.zero;
 
             GameObject fill = new GameObject("Fill");
             fill.transform.SetParent(fillArea.transform, false);
             var fillImg = fill.AddComponent<UnityEngine.UI.Image>();
             fillImg.color = new Color(0.3f, 0.75f, 1.0f);
-            slider.fillRect = fill.GetComponent<RectTransform>();
+            var fillRect = fill.GetComponent<RectTransform>();
+            fillRect.sizeDelta = Vector2.zero;
+            slider.fillRect = fillRect;
+
+            // Handle, so the slider can be grabbed and dragged
+            GameObject handleArea = new GameObject("Handle Slide Area");
+            handleArea.transform.SetParent(sliderGO.transform, false);
+            var haRect = handleArea.AddComponent<RectTransform>();
+            haRect.anchorMin = Vector2.zero;
+            haRect.anchorMax = Vector2.one;
+            haRect.offsetMin = new Vector2(7, 0);
+            haRect.offsetMax = new Vector2(-7, 0);
+
+            GameObject handle = new GameObject("Handle");
+            handle.transform.SetParent(handleArea.transform, false);
+            var handleImg = handle.AddComponent<UnityEngine.UI.Image>();
+            handleImg.color = Color.white;
+            var handleRect = handle.GetComponent<RectTransform>();
+            handleRect.sizeDelta = new Vector2(14, 0);
+            slider.handleRect = handleRect;
+            slider.targetGraphic = handleImg;
 
             return slider;
         }
