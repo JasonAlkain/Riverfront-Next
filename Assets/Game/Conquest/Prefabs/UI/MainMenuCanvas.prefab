@@ -2219,6 +2219,7 @@ GameObject:
   - component: {fileID: 315503798248383641}
   - component: {fileID: 7514996459869504350}
   - component: {fileID: 5556587796468029311}
+  - component: {fileID: 504662169219751299}
   m_Layer: 0
   m_Name: HostPanel
   m_TagString: Untagged
@@ -2226,6 +2227,30 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 0
+--- !u!114 &504662169219751299
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 666355484404952866}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cada60a0693e14c4c8acc7f0272ac9e4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Game.Conquest::Game.Conquest.HostPanelUI
+  tmp_SessionName: {fileID: 5973152907483787923}
+  txt_SelectedMap: {fileID: 3003880265277402421}
+  txt_MaxHumanConnections: {fileID: 2938576952332808906}
+  txt_ReinforcementTickets: {fileID: 1356089592315040827}
+  txt_TargetTeamSize: {fileID: 3540164130010615486}
+  sld_MaxHumanConnections: {fileID: 1002006910080662227}
+  sld_ReinforcementTickets: {fileID: 8784600123934796437}
+  sld_TargetTeamSize: {fileID: 7242523816523426240}
+  btn_PrevMap: {fileID: 6091277691098556993}
+  btn_NextMap: {fileID: 8119002879332937108}
+  btn_CreateLobby: {fileID: 2037930267659493316}
+  btn_Back: {fileID: 1488234643110506424}
 --- !u!224 &7993247996749425701
 RectTransform:
   m_ObjectHideFlags: 0

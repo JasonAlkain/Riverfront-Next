@@ -1,4 +1,3 @@
-using Game.Conquest.Gameplay;
 using System;
 using TMPro;
 using UnityEngine;
@@ -11,14 +10,23 @@ namespace Game.Conquest
         [SerializeField] private TextMeshProUGUI txt_PlayerName;
         [SerializeField] private Toggle tgl_Ready;
 
-        public void SetPlayerInfo(string playerName, bool isReady)
+        private Action m_OnReadyToggled;
+
+        private void Awake()
+        {
+            if (tgl_Ready != null) tgl_Ready.onValueChanged.AddListener(_ => m_OnReadyToggled?.Invoke());
+        }
+
+        /// <param name="onReadyToggled">Set only on the local player's own card, which makes its toggle clickable.</param>
+        public void SetPlayerInfo(string playerName, bool isReady, Action onReadyToggled = null)
         {
             txt_PlayerName.text = playerName;
-            tgl_Ready.isOn = isReady;
-            // Display only: ready state is server-owned and changed through the lobby's Ready button.
-            tgl_Ready.interactable = false;
+            m_OnReadyToggled = onReadyToggled;
+
+            // Ready state is server-owned: show it without raising the click callback, and let the
+            // server's reply (which rebuilds the cards) be what actually flips it.
+            tgl_Ready.SetIsOnWithoutNotify(isReady);
+            tgl_Ready.interactable = onReadyToggled != null;
         }
     }
-
-    
 }
