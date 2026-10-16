@@ -1,7 +1,5 @@
-using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
-using TMPro;
 using Game.Conquest.Gameplay;
 using Game.Conquest.Objectives;
 using Game.Conquest.Player;
@@ -34,10 +32,6 @@ namespace Game.Conquest.UI
         [SerializeField] private Color neutralColor = new Color(0.4f, 0.4f, 0.45f, 0.9f);
         [SerializeField] private Color contestedColor = new Color(0.9f, 0.75f, 0.1f, 0.95f);
 
-        [Header("Button Colors")]
-        [SerializeField] private Color buttonNormalColor = new Color(0.25f, 0.30f, 0.40f);
-        [SerializeField] private Color buttonSelectedColor = new Color(0.2f, 0.8f, 0.35f);
-
         [Header("Result Colors")]
         [SerializeField] private Color victoryColor = Color.green;
         [SerializeField] private Color defeatColor = Color.red;
@@ -46,7 +40,6 @@ namespace Game.Conquest.UI
         [SerializeField] private float hitmarkerDuration = 0.15f;
 
         private float m_HitmarkerEndTime;
-        private readonly List<string> m_SpawnPostNames = new List<string>();
 
         private void Awake()
         {
@@ -67,12 +60,21 @@ namespace Game.Conquest.UI
             }
             Instance = this;
 
-            BindClassButtons();
+            if (respawnPanelUI != null)
+            {
+                respawnPanelUI.ClassSelected += HandleClassSelected;
+                respawnPanelUI.SpawnPostSelected += HandleSpawnPostSelected;
+            }
             HideTransientPanels();
         }
 
         private void OnDestroy()
         {
+            if (respawnPanelUI != null)
+            {
+                respawnPanelUI.ClassSelected -= HandleClassSelected;
+                respawnPanelUI.SpawnPostSelected -= HandleSpawnPostSelected;
+            }
             if (Instance == this) Instance = null;
         }
 
@@ -84,22 +86,17 @@ namespace Game.Conquest.UI
             }
         }
 
-        private void BindClassButtons()
+        // The server applies a class picked while dead to this respawn; while alive it is queued.
+        private void HandleClassSelected(int classIndex)
         {
-            if (respawnPanelUI == null || respawnPanelUI.btn_Classes == null) return;
+            var player = ConquestPlayer.Local;
+            if (player != null) player.SelectClass(classIndex);
+        }
 
-            for (int i = 0; i < respawnPanelUI.btn_Classes.Length; i++)
-            {
-                var button = respawnPanelUI.btn_Classes[i];
-                if (button == null) continue;
-
-                int classIndex = i;
-                button.onClick.AddListener(() =>
-                {
-                    var player = ConquestPlayer.Local;
-                    if (player != null) player.SelectClass(classIndex);
-                });
-            }
+        private void HandleSpawnPostSelected(string postName)
+        {
+            var player = ConquestPlayer.Local;
+            if (player != null) player.SelectSpawnPost(postName);
         }
 
         // Panels that only appear for a reason (in a capture zone, dead, match over) start hidden.
@@ -262,57 +259,10 @@ namespace Game.Conquest.UI
 
             respawnPanelUI.Show();
             respawnPanelUI.SetTimer($"Respawning in {player.RemainingRespawnTime:0.0} seconds...");
-
-            var classButtons = respawnPanelUI.btn_Classes;
-            if (classButtons != null)
+            respawnPanelUI.SetSelectedClass(player.CurrentClassIndex);
+            if (match != null)
             {
-                for (int i = 0; i < classButtons.Length; i++)
-                {
-                    if (classButtons[i] != null && classButtons[i].targetGraphic != null)
-                    {
-                        classButtons[i].targetGraphic.color = player.CurrentClassIndex == i ? buttonSelectedColor : buttonNormalColor;
-                    }
-                }
-            }
-
-            if (match == null) return;
-
-            var friendlyPosts = match.GetFriendlyPostNames(player.CurrentTeam);
-            bool postsChanged = friendlyPosts.Count != m_SpawnPostNames.Count;
-            for (int i = 0; !postsChanged && i < friendlyPosts.Count; i++)
-            {
-                postsChanged = friendlyPosts[i] != m_SpawnPostNames[i];
-            }
-
-            for (int i = 0; i < friendlyPosts.Count; i++)
-            {
-                var button = respawnPanelUI.GetSpawnPostButton(i);
-                if (button == null) break;
-
-                string postName = friendlyPosts[i];
-                bool isSelected = player.SelectedPostName == postName;
-
-                // Rebind only when the owned posts change, not every frame.
-                if (postsChanged)
-                {
-                    button.onClick.RemoveAllListeners();
-                    button.onClick.AddListener(() =>
-                    {
-                        var local = ConquestPlayer.Local;
-                        if (local != null) local.SelectSpawnPost(postName);
-                    });
-                }
-
-                if (button.targetGraphic != null) button.targetGraphic.color = isSelected ? buttonSelectedColor : buttonNormalColor;
-                var label = button.GetComponentInChildren<TextMeshProUGUI>();
-                if (label != null) label.text = isSelected ? $"> Post {postName} <" : $"Post {postName}";
-            }
-            respawnPanelUI.SetVisibleSpawnPostCount(friendlyPosts.Count);
-
-            if (postsChanged)
-            {
-                m_SpawnPostNames.Clear();
-                m_SpawnPostNames.AddRange(friendlyPosts);
+                respawnPanelUI.SetSpawnPosts(match.GetFriendlyPostNames(player.CurrentTeam), player.SelectedPostName);
             }
         }
 

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
@@ -15,33 +16,68 @@ namespace Game.Conquest
         public Button[] btn_Classes;
 
         [Header("Spawn Post Buttons")]
-        public Button spawnPostButtonPrefab;
+        public SpawnPostButtonUI spawnPostButtonPrefab;
         public Transform spawnPostContainer;
 
-        private readonly List<Button> m_SpawnPostButtons = new List<Button>();
+        [Header("Colors")]
+        public Color normalColor = new Color(0.25f, 0.30f, 0.40f);
+        public Color selectedColor = new Color(0.2f, 0.8f, 0.35f);
+
+        /// <summary>Raised with the class index when a class button is clicked.</summary>
+        public event Action<int> ClassSelected;
+        /// <summary>Raised with the post name when a spawn post button is clicked.</summary>
+        public event Action<string> SpawnPostSelected;
+
+        private readonly List<SpawnPostButtonUI> m_SpawnPostButtons = new List<SpawnPostButtonUI>();
+        private int m_SelectedClass = -1;
+
+        private void Awake()
+        {
+            if (btn_Classes == null) return;
+            for (int i = 0; i < btn_Classes.Length; i++)
+            {
+                if (btn_Classes[i] == null) continue;
+                int classIndex = i;
+                btn_Classes[i].onClick.AddListener(() => ClassSelected?.Invoke(classIndex));
+            }
+        }
 
         public void SetTimer(string text)
         {
             if (txt_Timer != null) txt_Timer.text = text;
         }
 
-        /// <summary>Returns the spawn post button at index, creating buttons from the prefab as needed.</summary>
-        public Button GetSpawnPostButton(int index)
+        public void SetSelectedClass(int classIndex)
         {
-            if (spawnPostButtonPrefab == null || spawnPostContainer == null) return null;
+            if (classIndex == m_SelectedClass || btn_Classes == null) return;
+            m_SelectedClass = classIndex;
 
-            while (m_SpawnPostButtons.Count <= index)
+            for (int i = 0; i < btn_Classes.Length; i++)
             {
-                m_SpawnPostButtons.Add(Instantiate(spawnPostButtonPrefab, spawnPostContainer));
+                if (btn_Classes[i] != null && btn_Classes[i].targetGraphic != null)
+                {
+                    btn_Classes[i].targetGraphic.color = i == classIndex ? selectedColor : normalColor;
+                }
             }
-            return m_SpawnPostButtons[index];
         }
 
-        public void SetVisibleSpawnPostCount(int count)
+        /// <summary>Shows one button per friendly post, creating buttons from the prefab as needed.</summary>
+        public void SetSpawnPosts(IReadOnlyList<string> postNames, string selectedPost)
         {
+            if (spawnPostButtonPrefab == null || spawnPostContainer == null) return;
+
+            while (m_SpawnPostButtons.Count < postNames.Count)
+            {
+                var button = Instantiate(spawnPostButtonPrefab, spawnPostContainer);
+                button.Clicked += postName => SpawnPostSelected?.Invoke(postName);
+                m_SpawnPostButtons.Add(button);
+            }
+
             for (int i = 0; i < m_SpawnPostButtons.Count; i++)
             {
-                m_SpawnPostButtons[i].gameObject.SetActive(i < count);
+                bool visible = i < postNames.Count;
+                if (m_SpawnPostButtons[i].gameObject.activeSelf != visible) m_SpawnPostButtons[i].gameObject.SetActive(visible);
+                if (visible) m_SpawnPostButtons[i].SetPost(postNames[i], postNames[i] == selectedPost, normalColor, selectedColor);
             }
         }
 
