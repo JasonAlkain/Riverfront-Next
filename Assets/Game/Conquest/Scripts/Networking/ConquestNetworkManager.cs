@@ -177,15 +177,14 @@ namespace Game.Conquest.Networking
 
                 player.ServerApplyIdentity(assignedTeam, assignedName, assignedClass);
 
-                // Position at spawn point
-                if (GetSpawnPointForTeam(assignedTeam, out Vector3 spawnPos, out Quaternion spawnRot))
-                {
-                    player.SpawnAt(spawnPos, spawnRot);
-                }
+                // Humans start on the deploy screen (class and post) instead of spawning straight
+                // away; they are parked at a team spawn point meanwhile.
+                GetSpawnPointForTeam(assignedTeam, out Vector3 spawnPos, out Quaternion spawnRot);
+                player.ServerHoldForDeploy(spawnPos, spawnRot);
 
                 Debug.Log($"[ConquestNetworkManager] Player {player.OwnerClientId} assigned to {assignedTeam}. (Red: {m_RedCount}, Blue: {m_BlueCount})");
             }
-            else
+            else if (!player.Health.IsDead) // a player waiting to deploy stays on the deploy screen
             {
                 // Ensure player is positioned at an active spawn point on the current map
                 if (GetSpawnPointForTeam(player.playerTeam.Value, out Vector3 spawnPos, out Quaternion spawnRot))

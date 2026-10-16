@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
 using Game.Conquest.Gameplay;
@@ -73,6 +74,7 @@ namespace Game.Conquest.UI
             {
                 respawnPanelUI.ClassSelected += HandleClassSelected;
                 respawnPanelUI.SpawnPostSelected += HandleSpawnPostSelected;
+                respawnPanelUI.DeployClicked += HandleDeployClicked;
             }
             HideTransientPanels();
         }
@@ -83,6 +85,7 @@ namespace Game.Conquest.UI
             {
                 respawnPanelUI.ClassSelected -= HandleClassSelected;
                 respawnPanelUI.SpawnPostSelected -= HandleSpawnPostSelected;
+                respawnPanelUI.DeployClicked -= HandleDeployClicked;
             }
             if (Instance == this) Instance = null;
         }
@@ -106,6 +109,27 @@ namespace Game.Conquest.UI
         {
             var player = ConquestPlayer.Local;
             if (player != null) player.SelectSpawnPost(postName);
+        }
+
+        private void HandleDeployClicked()
+        {
+            var player = ConquestPlayer.Local;
+            var match = ConquestMatchManager.Instance;
+            if (player == null || match == null || !CanDeploy(match, player, match.GetFriendlyPostNames(player.CurrentTeam))) return;
+            player.Deploy(player.PendingClassIndex, player.SelectedPostName);
+        }
+
+        // A post must be picked whenever the team has one; with none left the player deploys at
+        // the team spawn, so losing every post never locks anyone out.
+        private static bool CanDeploy(ConquestMatchManager match, ConquestPlayer player, List<string> posts)
+        {
+            if (match.IsMatchOver || player.RemainingRespawnTime > 0f) return false;
+            if (posts.Count == 0) return true;
+            for (int i = 0; i < posts.Count; i++)
+            {
+                if (posts[i] == player.SelectedPostName) return true;
+            }
+            return false;
         }
 
         // Panels that only appear for a reason (in a capture zone, dead, match over) start hidden.
@@ -267,12 +291,18 @@ namespace Game.Conquest.UI
             }
 
             respawnPanelUI.Show();
-            respawnPanelUI.SetTimer($"Respawning in {player.RemainingRespawnTime:0.0} seconds...");
             respawnPanelUI.SetSelectedClass(player.CurrentClassIndex);
-            if (match != null)
-            {
-                respawnPanelUI.SetSpawnPosts(match.GetFriendlyPostNames(player.CurrentTeam), player.SelectedPostName);
-            }
+            if (match == null) return;
+
+            var posts = match.GetFriendlyPostNames(player.CurrentTeam);
+            respawnPanelUI.SetSpawnPosts(posts, player.SelectedPostName);
+            bool canDeploy = CanDeploy(match, player, posts);
+            respawnPanelUI.SetDeployInteractable(canDeploy);
+
+            float wait = player.RemainingRespawnTime;
+            if (wait > 0f) respawnPanelUI.SetTimer($"Deploy in {wait:0.0} seconds");
+            else if (canDeploy) respawnPanelUI.SetTimer(posts.Count == 0 ? "No command posts held: deploy at base" : "Ready to deploy");
+            else respawnPanelUI.SetTimer("Choose a command post to deploy");
         }
 
         private void UpdateMatchResult(ConquestMatchManager match, ConquestPlayer player)

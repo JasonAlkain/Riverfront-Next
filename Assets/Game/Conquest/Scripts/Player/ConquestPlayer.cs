@@ -25,6 +25,12 @@ namespace Game.Conquest.Player
             NetworkVariableReadPermission.Everyone,
             NetworkVariableWritePermission.Server);
 
+        /// <summary>Server time from which this player may deploy (spawn) again.</summary>
+        public NetworkVariable<double> deployAvailableAt = new NetworkVariable<double>(
+            0,
+            NetworkVariableReadPermission.Everyone,
+            NetworkVariableWritePermission.Server);
+
         public NetworkVariable<int> selectedClassIndex = new NetworkVariable<int>(
             0,
             NetworkVariableReadPermission.Everyone,
@@ -49,7 +55,6 @@ namespace Game.Conquest.Player
         private ConquestHealth m_Health;
         private ConquestWeapon m_Weapon;
         private string m_SelectedPostName = "";
-        private float m_DeathTimestamp = 0f;
         private int m_PendingClassIndex = 0;
 
         public Team CurrentTeam => playerTeam.Value;
@@ -57,8 +62,11 @@ namespace Game.Conquest.Player
         public ConquestPlayerMovement Movement => m_Movement;
         public ConquestWeapon Weapon => m_Weapon;
         public float RespawnWaitTime => respawnWaitTime;
-        public float RemainingRespawnTime => Mathf.Max(0f, (m_DeathTimestamp + respawnWaitTime) - Time.time);
+        public float RemainingRespawnTime =>
+            NetworkManager == null ? 0f : Mathf.Max(0f, (float)(deployAvailableAt.Value - NetworkManager.ServerTime.Time));
         public string SelectedPostName => m_SelectedPostName;
+        /// <summary>Class this player will deploy as (the local choice, before the server confirms it).</summary>
+        public int PendingClassIndex => m_PendingClassIndex;
         public int CurrentClassIndex => selectedClassIndex.Value;
         public IReadOnlyList<ConquestClassData> AvailableClasses => availableClasses;
 
@@ -80,8 +88,11 @@ namespace Game.Conquest.Player
             m_Health.OnRespawned += HandleRespawn;
 
             ApplyTeamVisuals(playerTeam.Value);
-            ConfigureLocalPerspective();
+            // A late joiner can see a player who is still waiting to deploy: keep it hidden.
+            if (m_Health.IsDead) HideVisuals();
+            else ConfigureLocalPerspective();
             ApplyClass(selectedClassIndex.Value);
+            m_PendingClassIndex = selectedClassIndex.Value;
 
             if (IsOwner && !isBot) Local = this;
 
@@ -216,17 +227,79 @@ namespace Game.Conquest.Player
             }
         }
 
-        private void HandleDeath(ulong killerId)
+        private void HideVisuals()
         {
-            m_DeathTimestamp = Time.time;
             if (thirdPersonVisualsRoot != null) thirdPersonVisualsRoot.SetActive(false);
             if (firstPersonVisualsRoot != null) firstPersonVisualsRoot.SetActive(false);
+        }
+
+        private void HandleDeath(ulong killerId)
+        {
+            HideVisuals();
+            // Every deploy needs a fresh choice of post.
+            m_SelectedPostName = "";
 
             if (IsServer)
             {
+                deployAvailableAt.Value = NetworkManager.ServerTime.Time + respawnWaitTime;
                 ConquestNetworkManager.Instance?.OnPlayerKilled(this, killerId);
-                StartCoroutine(ServerRespawnCoroutine());
+                // Bots respawn by themselves; humans wait on the deploy screen (DeployServerRpc).
+                if (isBot) StartCoroutine(ServerRespawnCoroutine());
             }
+        }
+
+        /// <summary>
+        /// Server: hold a human player out of play until they choose a class and post and deploy.
+        /// Used when they first enter a match. The position only parks their camera somewhere sensible.
+        /// </summary>
+        public void ServerHoldForDeploy(Vector3 parkPosition, Quaternion parkRotation)
+        {
+            if (!IsServer || isBot) return;
+            m_SelectedPostName = "";
+            deployAvailableAt.Value = NetworkManager.ServerTime.Time;
+            m_Health.ServerHold();
+            HideVisuals();
+            if (IsOwner && m_Movement.HasTransformAuthority) m_Movement.Teleport(parkPosition, parkRotation);
+            ParkClientRpc(parkPosition, parkRotation);
+        }
+
+        [ClientRpc]
+        private void ParkClientRpc(Vector3 position, Quaternion rotation)
+        {
+            if (m_Movement.HasTransformAuthority && !(IsServer && IsOwner))
+            {
+                m_Movement.Teleport(position, rotation);
+            }
+        }
+
+        /// <summary>Owner: spawn with this class at this post once the deploy wait is over.</summary>
+        public void Deploy(int classIndex, string postName)
+        {
+            if (!IsOwner || isBot) return;
+            m_PendingClassIndex = classIndex;
+            m_SelectedPostName = postName ?? "";
+            DeployServerRpc(classIndex, m_SelectedPostName);
+        }
+
+        [ServerRpc]
+        private void DeployServerRpc(int classIndex, string postName)
+        {
+            // The client only asks; the server decides whether the player may spawn now.
+            if (isBot || !m_Health.IsDead) return;
+            var match = ConquestMatchManager.Instance;
+            if (match == null || match.IsMatchOver) return;
+            if (NetworkManager.ServerTime.Time < deployAvailableAt.Value) return;
+
+            int maxIndex = availableClasses != null ? availableClasses.Count - 1 : 0;
+            classIndex = Mathf.Clamp(classIndex, 0, Mathf.Max(0, maxIndex));
+            m_PendingClassIndex = classIndex;
+            if (selectedClassIndex.Value != classIndex) selectedClassIndex.Value = classIndex;
+            ApplyClass(classIndex);
+
+            // An unknown or lost post falls back to another friendly post, then the team spawn,
+            // so a player can always get back into the match.
+            m_SelectedPostName = postName ?? "";
+            ServerRespawnNow();
         }
 
         private void HandleRespawn()
@@ -265,6 +338,11 @@ namespace Game.Conquest.Player
                 yield break;
             }
 
+            ServerRespawnNow();
+        }
+
+        private void ServerRespawnNow()
+        {
             Vector3 spawnPos = Vector3.zero;
             Quaternion spawnRot = Quaternion.identity;
             bool foundPost = false;
