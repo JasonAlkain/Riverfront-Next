@@ -2294,7 +2294,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 2277129173
+  GlobalObjectIdHash: 999449697
   InScenePlacedSourceGlobalObjectIdHash: 0
   m_InScenePlacedDisabledByDefault: 0
   DeferredDespawnTick: 0
@@ -2350,6 +2350,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Game.Conquest::Game.Conquest.Player.ConquestPlayerMovement
   ShowTopMostFoldoutHeaderGroup: 1
+  fallLimitY: -25
   walkSpeed: 6
   sprintSpeed: 10
   jumpHeight: 1.8
@@ -2396,6 +2397,9 @@ MonoBehaviour:
   hasSupportStation: 0
   supportStationPrefab: {fileID: 6656634446336126747, guid: 7a4757459bd50b54d93ea7c9ece0b483, type: 3}
   stationCooldown: 15
+  fireTimingTolerance: 0.1
+  maxRayOriginOffset: 3
+  stationDeployDistance: 1.5
   muzzlePoint: {fileID: 2855745713472899589}
   muzzleFlashPrefab: {fileID: 0}
   hitImpactPrefab: {fileID: 0}
@@ -2543,7 +2547,6 @@ MonoBehaviour:
   health: {fileID: 2556357968467199932}
   characterController: {fileID: 647404403156737811}
   walkSpeed: 6
-  sprintSpeed: 10
   speedDampTime: 0.15
 --- !u!114 &2115276390574478575
 MonoBehaviour:
