@@ -559,6 +559,7 @@ namespace Game.Conquest.UI
             p.ClearPlayerCards();
 
             if (lobby.lobbyPlayers == null) return;
+            ulong localClientId = NetworkManager.Singleton != null ? NetworkManager.Singleton.LocalClientId : ulong.MaxValue;
             for (int i = 0; i < lobby.lobbyPlayers.Count; i++)
             {
                 var player = lobby.lobbyPlayers[i];
@@ -566,7 +567,10 @@ namespace Game.Conquest.UI
 
                 string hostTag = player.isHost ? " (Host)" : "";
                 string className = player.classIndex >= 0 && player.classIndex < k_ClassNames.Length ? k_ClassNames[player.classIndex] : $"Class {player.classIndex}";
-                p.AddPlayerCard($"{player.playerName}{hostTag} - {className}", player.isReady, player.team == Team.Red);
+                // Only your own card's ready toggle is clickable; the server flips the state.
+                System.Action onReadyToggled = null;
+                if (player.clientId == localClientId) onReadyToggled = () => ConquestLobbyManager.Instance?.ToggleReadyServerRpc();
+                p.AddPlayerCard($"{player.playerName}{hostTag} - {className}", player.isReady, player.team == Team.Red, onReadyToggled);
             }
         }
 
