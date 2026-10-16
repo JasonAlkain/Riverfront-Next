@@ -190,6 +190,9 @@ namespace Game.Conquest.Player
         [ServerRpc]
         private void RequestFallDeathServerRpc()
         {
+            // Only honour the request if the server also sees the player below the kill height
+            // (small margin for owner-authoritative transform lag).
+            if (transform.position.y > fallLimitY + 2f) return;
             if (m_Health != null && !m_Health.IsDead)
             {
                 m_Health.TakeDamage(m_Health.MaxHealth * 10, 0);
