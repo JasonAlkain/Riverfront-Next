@@ -136,7 +136,7 @@ namespace Game.Conquest.UI
             // One-time lookup (not per frame) in case the scene hasn't assigned the header yet.
             if (headerBannerUI == null)
             {
-                headerBannerUI = FindFirstObjectByType<HeaderBannerUI>(FindObjectsInactive.Include);
+                headerBannerUI = FindAnyObjectByType<HeaderBannerUI>(FindObjectsInactive.Include);
             }
 
             BindTitlePanel();
@@ -412,11 +412,12 @@ namespace Game.Conquest.UI
             var p = settingsPanelUI;
             if (p == null) return;
 
-            BindSlider(p.masterVolume, false, 0.85f, val => SetText(p.txt_MasterVolume, $"Master Volume: {(int)(val * 100)}%"));
-            BindSlider(p.sfxVolume, false, 0.80f, val => SetText(p.txt_SfxVolume, $"SFX Volume: {(int)(val * 100)}%"));
-            BindSlider(p.musicVolume, false, 0.70f, val => SetText(p.txt_MusicVolume, $"Music Volume: {(int)(val * 100)}%"));
-            BindSlider(p.mouseSensitivity, false, 0.15f, val => SetText(p.txt_MouseSensitivity, $"Mouse Sensitivity: {val:F2}"));
-            BindSlider(p.fovSlider, false, 75f, val => SetText(p.txt_Fov, $"Field of View: {(int)val}°"));
+            BindSlider(p.masterVolume, false, 0.85f, _ => RefreshSettingsLabels());
+            BindSlider(p.sfxVolume, false, 0.80f, _ => RefreshSettingsLabels());
+            BindSlider(p.musicVolume, false, 0.70f, _ => RefreshSettingsLabels());
+            BindSlider(p.mouseSensitivity, false, 0.15f, _ => RefreshSettingsLabels());
+            BindSlider(p.fovSlider, false, 75f, _ => RefreshSettingsLabels());
+            RefreshSettingsLabels();
 
             Bind(p.btn_Apply, SaveAndApplySettings);
             Bind(p.btn_Defaults, RestoreSettingsDefaults);
@@ -830,12 +831,23 @@ namespace Game.Conquest.UI
             if (sm == null || p == null) return;
             var s = sm.CurrentSettings;
 
-            // Assigning value fires onValueChanged, which refreshes the value labels.
-            if (p.masterVolume != null) p.masterVolume.value = s.masterVolume;
-            if (p.sfxVolume != null) p.sfxVolume.value = s.sfxVolume;
-            if (p.musicVolume != null) p.musicVolume.value = s.musicVolume;
-            if (p.mouseSensitivity != null) p.mouseSensitivity.value = s.mouseSensitivity;
-            if (p.fovSlider != null) p.fovSlider.value = s.fieldOfView;
+            if (p.masterVolume != null) p.masterVolume.SetValueWithoutNotify(s.masterVolume);
+            if (p.sfxVolume != null) p.sfxVolume.SetValueWithoutNotify(s.sfxVolume);
+            if (p.musicVolume != null) p.musicVolume.SetValueWithoutNotify(s.musicVolume);
+            if (p.mouseSensitivity != null) p.mouseSensitivity.SetValueWithoutNotify(s.mouseSensitivity);
+            if (p.fovSlider != null) p.fovSlider.SetValueWithoutNotify(s.fieldOfView);
+            RefreshSettingsLabels();
+        }
+
+        private void RefreshSettingsLabels()
+        {
+            var p = settingsPanelUI;
+            if (p == null) return;
+            if (p.masterVolume != null) SetText(p.txt_MasterVolume, $"Master Volume: {(int)(p.masterVolume.value * 100)}%");
+            if (p.sfxVolume != null) SetText(p.txt_SfxVolume, $"SFX Volume: {(int)(p.sfxVolume.value * 100)}%");
+            if (p.musicVolume != null) SetText(p.txt_MusicVolume, $"Music Volume: {(int)(p.musicVolume.value * 100)}%");
+            if (p.mouseSensitivity != null) SetText(p.txt_MouseSensitivity, $"Mouse Sensitivity: {p.mouseSensitivity.value:F2}");
+            if (p.fovSlider != null) SetText(p.txt_Fov, $"Field of View: {(int)p.fovSlider.value}°");
         }
 
         private void SaveAndApplySettings()

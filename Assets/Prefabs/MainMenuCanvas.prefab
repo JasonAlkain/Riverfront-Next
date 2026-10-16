@@ -2445,6 +2445,11 @@ MonoBehaviour:
   sfxVolume: {fileID: 2185767288159429968}
   mouseSensitivity: {fileID: 6524589181361217784}
   fovSlider: {fileID: 8561991720168714631}
+  txt_MasterVolume: {fileID: 669770978402240980}
+  txt_MusicVolume: {fileID: 7981553200041517870}
+  txt_SfxVolume: {fileID: 5875724241521627456}
+  txt_MouseSensitivity: {fileID: 749318955002650929}
+  txt_Fov: {fileID: 1779086162661275458}
   btn_Apply: {fileID: 3961847103858839881}
   btn_Defaults: {fileID: 6722554558066440597}
   btn_Back: {fileID: 8055530649079997102}
@@ -7745,6 +7750,16 @@ MonoBehaviour:
   blueTeamContainer: {fileID: 6046798812889435822}
   btn_SwitchTeam: {fileID: 5068165435320757880}
   btn_LeaveLobby: {fileID: 990714290229530756}
+  btn_ToggleReady: {fileID: 3546023560447680846}
+  btn_StartMatch: {fileID: 1468419954081044765}
+  btn_CycleMap: {fileID: 3667996784756370126}
+  btn_Classes:
+  - {fileID: 8335204505912811824}
+  - {fileID: 347557162816226395}
+  - {fileID: 8247703538451326516}
+  - {fileID: 5643835569166813042}
+  tmp_PlayerName: {fileID: 0}
+  btn_SetName: {fileID: 0}
 --- !u!1 &2755644362303891230
 GameObject:
   m_ObjectHideFlags: 0
@@ -20521,6 +20536,8 @@ MonoBehaviour:
   btn_Refresh: {fileID: 4095803804387605091}
   btn_Back: {fileID: 27137604247052936}
   btn_Host: {fileID: 7656099938393292675}
+  tmp_DirectAddress: {fileID: 4228136834820623376}
+  btn_ConnectDirect: {fileID: 4652345075905006680}
   serverCardPrefab: {fileID: 7023634811828590914, guid: 45488af607a024e4d9b0b8574803bb1f, type: 3}
   serverCardContainer: {fileID: 8549927280041798044}
 --- !u!1 &7231066576135795456
@@ -23852,6 +23869,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: '::'
   txt_MapName: {fileID: 6748675204639037920}
+  txt_MapDescription: {fileID: 7808976363367035828}
+  txt_Difficulty: {fileID: 1472964988331028769}
+  txt_TeamSize: {fileID: 8274309106670108417}
+  txt_Tickets: {fileID: 5751568200339991335}
   btn_NextMap: {fileID: 1828031131958810722}
   btn_PrevMap: {fileID: 4642089685763129568}
   btn_Start: {fileID: 60910330972143114}
