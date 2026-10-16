@@ -41,6 +41,12 @@ namespace Game.Conquest.Networking
 
         public string StatusMessage => m_StatusMessage;
 
+        public void SetStatus(string message)
+        {
+            m_StatusMessage = message ?? "";
+            OnStatusChanged?.Invoke(m_StatusMessage);
+        }
+
         public event Action<string> OnStatusChanged;
 
         /// <summary>Lobby choices committed by the server when the match starts.</summary>

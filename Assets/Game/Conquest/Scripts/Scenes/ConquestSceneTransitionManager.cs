@@ -28,7 +28,13 @@ namespace Game.Conquest.Scenes
             "Stick with your infantry squad to secure command posts faster."
         };
 
+        [Header("Failure Handling")]
+        [Tooltip("If a load hasn't finished (including network sync) after this long, give up and return to the menu.")]
+        [SerializeField] private float loadTimeoutSeconds = 60f;
+
         private bool m_IsTransitioning = false;
+        private float m_TransitionStartTime;
+        private NetworkManager m_DisconnectSubscribedManager;
         private string m_TargetScene = "";
         private string m_CurrentMapName = "";
         private string m_CurrentTip = "";
@@ -171,6 +177,11 @@ namespace Game.Conquest.Scenes
         {
             UnityEngine.SceneManagement.SceneManager.sceneLoaded -= HandleUnitySceneLoaded;
             UnsubscribeNetworkEvents();
+            if (m_DisconnectSubscribedManager != null)
+            {
+                m_DisconnectSubscribedManager.OnClientDisconnectCallback -= HandleClientDisconnect;
+                m_DisconnectSubscribedManager = null;
+            }
         }
 
         private void Update()
@@ -179,6 +190,70 @@ namespace Game.Conquest.Scenes
             {
                 SubscribeNetworkEvents();
             }
+
+            var nm = NetworkManager.Singleton;
+            if (nm != m_DisconnectSubscribedManager)
+            {
+                if (m_DisconnectSubscribedManager != null) m_DisconnectSubscribedManager.OnClientDisconnectCallback -= HandleClientDisconnect;
+                if (nm != null) nm.OnClientDisconnectCallback += HandleClientDisconnect;
+                m_DisconnectSubscribedManager = nm;
+            }
+
+            // A missed load/sync event used to latch m_IsTransitioning and soft-lock the menu.
+            if (m_IsTransitioning && Time.unscaledTime - m_TransitionStartTime > loadTimeoutSeconds)
+            {
+                FailTransition("Timed out loading the battlefield.");
+            }
+        }
+
+        private void BeginTransition()
+        {
+            m_IsTransitioning = true;
+            m_TransitionStartTime = Time.unscaledTime;
+        }
+
+        private static bool IsMenuScene(string sceneName)
+        {
+            return sceneName == "MainMenu" || sceneName == "Bootstrap";
+        }
+
+        // Fires on a client for its own disconnect (server shut down, kicked, lost connection).
+        private void HandleClientDisconnect(ulong clientId)
+        {
+            var nm = NetworkManager.Singleton;
+            if (nm == null || nm.IsServer) return;
+
+            bool inMatch = !IsMenuScene(SceneManager.GetActiveScene().name);
+            if (!m_IsTransitioning && !inMatch) return; // the menu handles lobby/connect failures itself
+
+            string reason = nm.DisconnectReason;
+            // Defer a frame: we're inside NGO's disconnect callback and FailTransition shuts it down.
+            StartCoroutine(FailNextFrame(string.IsNullOrEmpty(reason) ? "Lost connection to the server." : reason));
+        }
+
+        private IEnumerator FailNextFrame(string message)
+        {
+            yield return null;
+            FailTransition(message);
+        }
+
+        /// <summary>Abandon whatever is loading and go back to the main menu with a message.</summary>
+        public void FailTransition(string message)
+        {
+            Debug.LogWarning($"[ConquestSceneTransitionManager] {message}");
+            StopAllCoroutines();
+            m_FadeCoroutine = null;
+            m_IsTransitioning = false;
+
+            Game.Conquest.Networking.ConquestSessionManager.Instance?.ClearPlayerAssignments();
+            Game.Conquest.Networking.ConquestSessionManager.Instance?.SetStatus(message);
+
+            if (IsMenuScene(SceneManager.GetActiveScene().name) && (NetworkManager.Singleton == null || !NetworkManager.Singleton.IsListening))
+            {
+                HideLoading();
+                return;
+            }
+            ReturnToMainMenu();
         }
 
         private void SubscribeNetworkEvents()
@@ -203,10 +278,12 @@ namespace Game.Conquest.Scenes
 
         private void HandleUnitySceneLoaded(Scene scene, LoadSceneMode mode)
         {
-            // If we loaded into any gameplay map or non-bootstrap scene, ensure loading screen hides
-            if (scene.name != "Bootstrap" && scene.name != "MainMenu")
+            // Gameplay maps in a network session hide the overlay only once this peer is synchronised
+            // (scene events / ConquestMatchManager.OnNetworkSpawn); a Unity load alone isn't enough.
+            if (!IsMenuScene(scene.name))
             {
-                StartCoroutine(DelayedHideLoading());
+                bool networked = NetworkManager.Singleton != null && NetworkManager.Singleton.IsListening;
+                if (!networked) StartCoroutine(DelayedHideLoading());
             }
             else if (scene.name == "MainMenu" && m_IsTransitioning)
             {
@@ -245,7 +322,7 @@ namespace Game.Conquest.Scenes
         public void TransitionToMap(string sceneName, bool isNetworked = true)
         {
             if (m_IsTransitioning) return;
-            m_IsTransitioning = true;
+            BeginTransition();
             m_TargetScene = sceneName;
 
             ShowLoading(sceneName);
@@ -264,7 +341,7 @@ namespace Game.Conquest.Scenes
         public void ReturnToMainMenu()
         {
             if (m_IsTransitioning) return;
-            m_IsTransitioning = true;
+            BeginTransition();
 
             ShowLoading("MainMenu");
 
