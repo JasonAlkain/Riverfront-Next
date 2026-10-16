@@ -51,6 +51,11 @@ auto-starts once enough players have joined and are all ready.
 | `-minPlayers` | Players needed (all ready) before the start countdown | `2` |
 | `-startCountdown` | Seconds from everyone ready to the map loading | `10` |
 
+A smaller server-only build comes from the **Windows Dedicated Server** build profile
+(`Assets/Settings/Build Profiles`): open **File → Build Profiles**, pick it, and build. It uses the
+normal scene list and player settings, so its version matches the client build. Run it the same way
+(`-server` is implied). On a server the HUD, pause menu, main menu and audio switch themselves off.
+
 Players join with **Multiplayer → Join by IP** using the address the server logs at startup.
 Allow the port through the Windows firewall on the server machine. Clients and server must be the
 same build (the server refuses mismatched versions).

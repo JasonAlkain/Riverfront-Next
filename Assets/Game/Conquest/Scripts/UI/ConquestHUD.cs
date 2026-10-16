@@ -1,6 +1,7 @@
 using Unity.Netcode;
 using UnityEngine;
 using Game.Conquest.Gameplay;
+using Game.Conquest.Networking;
 using Game.Conquest.Objectives;
 using Game.Conquest.Player;
 
@@ -43,6 +44,14 @@ namespace Game.Conquest.UI
 
         private void Awake()
         {
+            // A dedicated server has no local player, so there is nothing to show.
+            if (ConquestServerLaunchArgs.IsDedicatedServerLaunch())
+            {
+                if (hudCanvas != null) hudCanvas.enabled = false;
+                enabled = false;
+                return;
+            }
+
             // The map scenes used to carry a code-built HUD. Its old component has no canvas
             // assigned; it steps aside so the HUDCanvas prefab can drive the HUD instead.
             if (hudCanvas == null)

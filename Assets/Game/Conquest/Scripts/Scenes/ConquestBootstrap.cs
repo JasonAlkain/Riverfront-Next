@@ -23,6 +23,10 @@ namespace Game.Conquest.Scenes
             // A headless server has nothing to render; don't spin the CPU on frames.
             Application.targetFrameRate = 60;
 
+            // Nobody is listening either: stop the audio mixer so gunfire and capture sounds cost nothing.
+            AudioListener.pause = true;
+            AudioListener.volume = 0f;
+
             // The lobby NetworkObject and NetworkManager live in the menu scene, so load it first and
             // start the server once it's active. The persistent session manager outlives this object.
             UnityEngine.SceneManagement.SceneManager.sceneLoaded += OnMenuLoadedForServer;

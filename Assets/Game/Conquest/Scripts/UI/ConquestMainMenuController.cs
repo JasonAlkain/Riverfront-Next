@@ -121,8 +121,6 @@ namespace Game.Conquest.UI
 
         private void Awake()
         {
-            Instance = this;
-
             // Ensure persistent services exist if MainMenu is opened directly
             if (ConquestSettingsManager.Instance == null)
             {
@@ -132,6 +130,16 @@ namespace Game.Conquest.UI
                 var stm = servicesGO.AddComponent<ConquestSceneTransitionManager>();
                 stm.SetMapRegistry(mapRegistry);
             }
+
+            // A dedicated server shows no menus. The lobby itself runs on ConquestLobbyManager,
+            // which stays active in this scene.
+            if (ConquestServerLaunchArgs.IsDedicatedServerLaunch())
+            {
+                enabled = false;
+                return;
+            }
+
+            Instance = this;
 
             // One-time lookup (not per frame) in case the scene hasn't assigned the header yet.
             if (headerBannerUI == null)

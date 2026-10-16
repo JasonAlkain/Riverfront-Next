@@ -53,6 +53,13 @@ namespace Game.Conquest.UI
             }
             Instance = this;
 
+            // A dedicated server has no one to pause for; IsPaused stays false.
+            if (ConquestServerLaunchArgs.IsDedicatedServerLaunch())
+            {
+                enabled = false;
+                return;
+            }
+
             BuildPauseCanvas();
         }
 
