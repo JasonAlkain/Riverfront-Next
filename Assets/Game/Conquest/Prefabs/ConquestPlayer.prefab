@@ -3901,6 +3901,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Game.Conquest::Game.Conquest.Player.ConquestPlayerMovement
   ShowTopMostFoldoutHeaderGroup: 1
+  fallLimitY: -25
   walkSpeed: 6
   sprintSpeed: 10
   jumpHeight: 1.8
@@ -3947,6 +3948,9 @@ MonoBehaviour:
   hasSupportStation: 0
   supportStationPrefab: {fileID: 6656634446336126747, guid: 7a4757459bd50b54d93ea7c9ece0b483, type: 3}
   stationCooldown: 15
+  fireTimingTolerance: 0.1
+  maxRayOriginOffset: 3
+  stationDeployDistance: 1.5
   muzzlePoint: {fileID: 2874088377457026878}
   muzzleFlashPrefab: {fileID: 0}
   hitImpactPrefab: {fileID: 0}

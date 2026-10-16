@@ -185,6 +185,13 @@ namespace Game.Conquest.Lobby
 
         private void AddPlayer(ulong clientId, bool isHost)
         {
+            // OnClientConnectedCallback also fires for the host's own client right after
+            // OnNetworkSpawn has added it, which produced a second "Player_0" card.
+            for (int i = 0; i < lobbyPlayers.Count; i++)
+            {
+                if (lobbyPlayers[i].clientId == clientId) return;
+            }
+
             // Balance team assignment
             int redCount = 0;
             int blueCount = 0;
