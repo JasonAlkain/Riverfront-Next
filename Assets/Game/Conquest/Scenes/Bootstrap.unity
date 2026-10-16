@@ -355,16 +355,16 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Game.Conquest::Game.Conquest.Networking.ConquestSessionManager
   sessionName: Conquest Session
-  selectedMapId: battlefront_large
+  selectedMapId: the_frontline
   maxHumanPlayers: 16
   reinforcementTickets: 150
   targetTeamSize: 8
   enableBotFilling: 1
   botDifficulty: 1
   isSoloMode: 0
-  lastJoinCode: 
   connectAddress: 127.0.0.1
   connectPort: 7777
+  networkPrefabs: {fileID: 11400000, guid: 604d721117f82dd42b140bd4284be399, type: 2}
 --- !u!114 &629227549
 MonoBehaviour:
   m_ObjectHideFlags: 0

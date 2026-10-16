@@ -142,6 +142,34 @@ namespace Game.Conquest.Networking
         /// StartHost/StartServer/StartClient. The payload is a plain string so a Steam auth ticket can
         /// later be added as another field without changing the approval seam.
         /// </summary>
+        [Header("Network Prefabs")]
+        [Tooltip("Runtime-spawned prefabs (bots, support stations, player). Registered on the single persistent " +
+                 "NetworkManager before every start, whichever scene's copy that is.")]
+        [SerializeField] private NetworkPrefabsList networkPrefabs;
+
+        /// <summary>Everything that must be set on the NetworkManager before StartHost/StartServer/StartClient.</summary>
+        private void PrepareNetworkManager(NetworkManager nm)
+        {
+            EnsureNetworkPrefabsRegistered(nm);
+            nm.NetworkConfig.AutoSpawnPlayerPrefabClientSide = false;
+            ConfigureConnectionApproval(nm);
+        }
+
+        private void EnsureNetworkPrefabsRegistered(NetworkManager nm)
+        {
+            if (networkPrefabs == null)
+            {
+                Debug.LogWarning("[ConquestSessionManager] No network prefab list assigned; bots and stations may not replicate.");
+                return;
+            }
+            foreach (var entry in networkPrefabs.PrefabList)
+            {
+                if (entry == null || entry.Prefab == null) continue;
+                if (nm.NetworkConfig.Prefabs.Contains(entry.Prefab)) continue;
+                nm.AddNetworkPrefab(entry.Prefab);
+            }
+        }
+
         private void ConfigureConnectionApproval(NetworkManager nm)
         {
             m_ApprovedNames.Clear();
@@ -153,8 +181,9 @@ namespace Game.Conquest.Networking
 
         private void HandleConnectionApproval(NetworkManager.ConnectionApprovalRequest request, NetworkManager.ConnectionApprovalResponse response)
         {
-            // Keep existing behaviour: NGO spawns the configured player prefab for approved clients.
-            response.CreatePlayerObject = true;
+            // Players are spawned by ConquestNetworkManager once the client has loaded the map,
+            // not on connect (which would put them in the MainMenu lobby).
+            response.CreatePlayerObject = false;
             response.Pending = false;
 
             string version = "";
@@ -238,7 +267,7 @@ namespace Game.Conquest.Networking
                     NetworkManager.Singleton.Shutdown();
                 }
 
-                ConfigureConnectionApproval(NetworkManager.Singleton);
+                PrepareNetworkManager(NetworkManager.Singleton);
                 NetworkManager.Singleton.StartHost();
                 ConquestSceneTransitionManager.Instance?.TransitionToMap(mapSceneName, true);
             }
@@ -268,7 +297,7 @@ namespace Game.Conquest.Networking
                     NetworkManager.Singleton.Shutdown();
                 }
 
-                ConfigureConnectionApproval(NetworkManager.Singleton);
+                PrepareNetworkManager(NetworkManager.Singleton);
                 bool success = NetworkManager.Singleton.StartHost();
                 if (success)
                 {
@@ -337,7 +366,7 @@ namespace Game.Conquest.Networking
             }
 
             EnsureNetworkManagerConfigured("127.0.0.1", hostPort, AnyListenAddress);
-            ConfigureConnectionApproval(nm);
+            PrepareNetworkManager(nm);
 
             if (!nm.StartServer())
             {
@@ -366,7 +395,7 @@ namespace Game.Conquest.Networking
                     NetworkManager.Singleton.Shutdown();
                 }
 
-                ConfigureConnectionApproval(NetworkManager.Singleton);
+                PrepareNetworkManager(NetworkManager.Singleton);
                 bool success = NetworkManager.Singleton.StartClient();
                 if (success)
                 {

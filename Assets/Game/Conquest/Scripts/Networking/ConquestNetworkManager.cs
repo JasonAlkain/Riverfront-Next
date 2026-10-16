@@ -46,6 +46,13 @@ namespace Game.Conquest.Networking
             if (NetworkManager.Singleton != null && NetworkManager.Singleton.IsServer)
             {
                 RegisterExistingPlayers();
+
+                // The host's own load may finish before this Start subscribes; remote clients
+                // are handled by their LoadComplete events.
+                if (NetworkManager.Singleton.IsHost)
+                {
+                    EnsurePlayerForClient(NetworkManager.Singleton.LocalClientId);
+                }
             }
         }
 
@@ -67,18 +74,51 @@ namespace Game.Conquest.Networking
         {
             if (NetworkManager.Singleton != null && NetworkManager.Singleton.IsServer)
             {
-                if (sceneEvent.SceneEventType == SceneEventType.LoadComplete)
+                // LoadComplete: a client finished loading this map. SynchronizeComplete: a late
+                // joiner finished its initial sync while the match is running.
+                if (sceneEvent.SceneEventType == SceneEventType.LoadComplete ||
+                    sceneEvent.SceneEventType == SceneEventType.SynchronizeComplete)
                 {
-                    if (NetworkManager.Singleton.ConnectedClients.TryGetValue(sceneEvent.ClientId, out var client))
-                    {
-                        var player = client.PlayerObject != null ? client.PlayerObject.GetComponent<ConquestPlayer>() : null;
-                        if (player != null && !player.isBot)
-                        {
-                            RegisterPlayer(player);
-                        }
-                    }
+                    EnsurePlayerForClient(sceneEvent.ClientId);
                 }
             }
+        }
+
+        /// <summary>
+        /// Server: give a client its player object once it is in the map, or re-place the one it has.
+        /// Players are no longer auto-spawned on connect, so nobody has a player in the lobby.
+        /// </summary>
+        private void EnsurePlayerForClient(ulong clientId)
+        {
+            var nm = NetworkManager.Singleton;
+            if (nm == null || !nm.IsServer) return;
+            if (!nm.ConnectedClients.TryGetValue(clientId, out var client)) return; // e.g. the dedicated server itself
+
+            if (client.PlayerObject != null)
+            {
+                var existing = client.PlayerObject.GetComponent<ConquestPlayer>();
+                if (existing != null && !existing.isBot) RegisterPlayer(existing);
+                return;
+            }
+
+            var prefab = nm.NetworkConfig.PlayerPrefab;
+            if (prefab == null)
+            {
+                Debug.LogError("[ConquestNetworkManager] NetworkConfig.PlayerPrefab is not set; cannot spawn players.");
+                return;
+            }
+
+            // Spawned at the origin; ConquestPlayer.OnNetworkSpawn -> RegisterPlayer applies the
+            // lobby identity and moves it to a team spawn point.
+            var instance = Instantiate(prefab, Vector3.zero, Quaternion.identity);
+            var netObj = instance.GetComponent<NetworkObject>();
+            if (netObj == null)
+            {
+                Debug.LogError("[ConquestNetworkManager] Player prefab has no NetworkObject.");
+                Destroy(instance);
+                return;
+            }
+            netObj.SpawnAsPlayerObject(clientId);
         }
 
         private void RegisterExistingPlayers()
