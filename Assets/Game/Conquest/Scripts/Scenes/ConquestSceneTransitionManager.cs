@@ -166,7 +166,9 @@ namespace Game.Conquest.Scenes
         }
 
         private Coroutine m_FadeCoroutine;
-        private bool m_NetworkEventsSubscribed = false;
+        // NetworkManager creates a new NetworkSceneManager on every start and disposes it on
+        // shutdown, so track the instance rather than a bool or later sessions miss scene events.
+        private NetworkSceneManager m_SubscribedSceneManager;
 
         private void OnEnable()
         {
@@ -186,7 +188,8 @@ namespace Game.Conquest.Scenes
 
         private void Update()
         {
-            if (!m_NetworkEventsSubscribed && NetworkManager.Singleton != null && NetworkManager.Singleton.SceneManager != null)
+            var currentSceneManager = NetworkManager.Singleton != null ? NetworkManager.Singleton.SceneManager : null;
+            if (currentSceneManager != m_SubscribedSceneManager)
             {
                 SubscribeNetworkEvents();
             }
@@ -223,7 +226,7 @@ namespace Game.Conquest.Scenes
             var nm = NetworkManager.Singleton;
             if (nm == null || nm.IsServer) return;
 
-            bool inMatch = !IsMenuScene(SceneManager.GetActiveScene().name);
+            bool inMatch = !IsMenuScene(UnityEngine.SceneManagement.SceneManager.GetActiveScene().name);
             if (!m_IsTransitioning && !inMatch) return; // the menu handles lobby/connect failures itself
 
             string reason = nm.DisconnectReason;
@@ -248,32 +251,31 @@ namespace Game.Conquest.Scenes
             Game.Conquest.Networking.ConquestSessionManager.Instance?.ClearPlayerAssignments();
             Game.Conquest.Networking.ConquestSessionManager.Instance?.SetStatus(message);
 
-            if (IsMenuScene(SceneManager.GetActiveScene().name) && (NetworkManager.Singleton == null || !NetworkManager.Singleton.IsListening))
-            {
-                HideLoading();
-                return;
-            }
+            // Always reload the menu: an async map load started by NGO can still finish after the
+            // connection is gone, and queuing MainMenu after it guarantees we end up back there.
             ReturnToMainMenu();
         }
 
         private void SubscribeNetworkEvents()
         {
-            if (m_NetworkEventsSubscribed) return;
-            if (NetworkManager.Singleton != null && NetworkManager.Singleton.SceneManager != null)
+            var current = NetworkManager.Singleton != null ? NetworkManager.Singleton.SceneManager : null;
+            if (current == m_SubscribedSceneManager) return;
+
+            UnsubscribeNetworkEvents();
+            if (current != null)
             {
-                NetworkManager.Singleton.SceneManager.OnSceneEvent += HandleSceneEvent;
-                m_NetworkEventsSubscribed = true;
+                current.OnSceneEvent += HandleSceneEvent;
+                m_SubscribedSceneManager = current;
             }
         }
 
         private void UnsubscribeNetworkEvents()
         {
-            if (!m_NetworkEventsSubscribed) return;
-            if (NetworkManager.Singleton != null && NetworkManager.Singleton.SceneManager != null)
+            if (m_SubscribedSceneManager != null)
             {
-                NetworkManager.Singleton.SceneManager.OnSceneEvent -= HandleSceneEvent;
+                m_SubscribedSceneManager.OnSceneEvent -= HandleSceneEvent;
             }
-            m_NetworkEventsSubscribed = false;
+            m_SubscribedSceneManager = null;
         }
 
         private void HandleUnitySceneLoaded(Scene scene, LoadSceneMode mode)
@@ -302,6 +304,9 @@ namespace Game.Conquest.Scenes
             switch (sceneEvent.SceneEventType)
             {
                 case SceneEventType.Load:
+                    // Clients only learn about a server-driven map load here, so start the
+                    // transition (and its timeout) now; otherwise a failure mid-load leaves the overlay up.
+                    if (!m_IsTransitioning) BeginTransition();
                     ShowLoading(sceneEvent.SceneName);
                     break;
                 case SceneEventType.LoadComplete:
