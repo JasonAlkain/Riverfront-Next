@@ -9,6 +9,12 @@ namespace Game.Conquest
         [Header("Input Fields")]
         public TMP_InputField tmp_SessionName;
 
+        [Header("Text Elements")]
+        public TextMeshProUGUI txt_SelectedMap;
+        public TextMeshProUGUI txt_MaxHumanConnections;
+        public TextMeshProUGUI txt_ReinforcementTickets;
+        public TextMeshProUGUI txt_TargetTeamSize;
+
         [Header("Slider")]
         public Slider sld_MaxHumanConnections;
         public Slider sld_ReinforcementTickets;

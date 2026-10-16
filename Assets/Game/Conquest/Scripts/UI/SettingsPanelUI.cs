@@ -1,3 +1,4 @@
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -11,6 +12,13 @@ namespace Game.Conquest
         public Slider sfxVolume;
         public Slider mouseSensitivity;
         public Slider fovSlider;
+
+        [Header("Value Labels")]
+        public TextMeshProUGUI txt_MasterVolume;
+        public TextMeshProUGUI txt_MusicVolume;
+        public TextMeshProUGUI txt_SfxVolume;
+        public TextMeshProUGUI txt_MouseSensitivity;
+        public TextMeshProUGUI txt_Fov;
 
         [Header("Buttons")]
         public Button btn_Apply;

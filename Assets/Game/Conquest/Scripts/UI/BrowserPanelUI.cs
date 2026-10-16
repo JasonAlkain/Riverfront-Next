@@ -1,3 +1,4 @@
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -10,7 +11,11 @@ namespace Game.Conquest
         public Button btn_Refresh;
         public Button btn_Back;
         public Button btn_Host;
-        
+
+        [Header("Direct IP")]
+        public TMP_InputField tmp_DirectAddress;
+        public Button btn_ConnectDirect;
+
         [Header("Server Cards")]
         public GameObject serverCardPrefab;
         public Transform serverCardContainer;
