@@ -33,7 +33,7 @@ namespace Game.Conquest.Networking
         public bool isDedicatedServer = false;
         [Tooltip("Dedicated server: humans required (all ready) before the auto-start countdown begins.")]
         public int minPlayersToStart = 2;
-        [Tooltip("Dedicated server: seconds between everyone being ready and the map loading.")]
+        [Tooltip("Seconds between everyone in the lobby being ready and the map loading (host or dedicated server).")]
         public float autoStartCountdownSeconds = 10f;
         public string connectAddress = "127.0.0.1";
         public ushort connectPort = DefaultPort;
