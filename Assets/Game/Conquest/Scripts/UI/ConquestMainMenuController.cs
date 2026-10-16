@@ -36,6 +36,18 @@ namespace Game.Conquest.UI
         [Header("Active Screen")]
         [SerializeField] private MenuState currentMenuState = MenuState.Title;
 
+        [Header("Panel UI References")]
+        [SerializeField] private TitlePanelUI titlePanelUI;
+        [SerializeField] private SoloPanelUI soloPanelUI;
+        [SerializeField] private MultiplayerPanelUI multiplayerPanelUI;
+        [SerializeField] private HostPanelUI hostPanelUI;
+        [SerializeField] private BrowserPanelUI browserPanelUI;
+        //[SerializeField] private JoinCodePanelUI joinCodePanelUI;
+        [SerializeField] private LobbyPanelUI lobbyPanelUI;
+        [SerializeField] private SettingsPanelUI settingsPanelUI;
+        [SerializeField] private CreditsPanelUI creditsPanelUI;
+        
+
 
         [Header("Colors")]
         [SerializeField] private Color primaryColor = new Color(0.35f, 0.78f, 1.0f, 1f);

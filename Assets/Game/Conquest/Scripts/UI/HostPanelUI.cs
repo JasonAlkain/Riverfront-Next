@@ -1,0 +1,27 @@
+using UnityEngine;
+using UnityEngine.UI;
+using TMPro;
+
+namespace Game.Conquest
+{
+    public class HostPanelUI : MonoBehaviour
+    {
+        [Header("Input Fields")]
+        public TMP_InputField tmp_SessionName;
+
+        [Header("Slider")]
+        public Slider sld_MaxHumanConnections;
+        public Slider sld_ReinforcementTickets;
+        public Slider sld_TargetTeamSize;
+
+        [Header("Buttons")]
+        public Button btn_PrevMap;
+        public Button btn_NextMap;
+        public Button btn_CreateLobby;
+        public Button btn_Back;
+
+        // Show and hide the host panel UI
+        public void Show() => gameObject.SetActive(true);
+        public void Hide() => gameObject.SetActive(false);
+    }
+}
