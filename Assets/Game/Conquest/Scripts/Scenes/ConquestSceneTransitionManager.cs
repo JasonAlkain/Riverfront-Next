@@ -383,15 +383,17 @@ namespace Game.Conquest.Scenes
                 m_FadeCoroutine = null;
             }
 
-            if (mapRegistry != null)
-            {
-                var mapData = mapRegistry.GetMapBySceneName(sceneName);
-                m_CurrentMapName = mapData != null ? mapData.displayName : sceneName;
-            }
+            // GetMapBySceneName falls back to the default map, so only trust an exact match;
+            // non-map scenes (results, lobby) get a plain label instead of a wrong map name.
+            var mapData = mapRegistry != null ? mapRegistry.GetMapBySceneName(sceneName) : null;
+            if (mapData != null && mapData.sceneName == sceneName)
+                m_CurrentMapName = mapData.displayName;
+            else if (sceneName == "MainMenu")
+                m_CurrentMapName = "Lobby";
+            else if (sceneName == "MatchResults")
+                m_CurrentMapName = "Match Results";
             else
-            {
                 m_CurrentMapName = sceneName;
-            }
 
             if (gameplayTips != null && gameplayTips.Length > 0)
             {

@@ -141,7 +141,25 @@ namespace Game.Conquest.Lobby
                 {
                     AddPlayer(NetworkManager.Singleton.LocalClientId, true);
                 }
+
+                // Coming back from a match: everyone is still connected, so no connect callbacks
+                // will fire. Put them all back in the lobby (with their previous team, class and name).
+                foreach (var clientId in NetworkManager.Singleton.ConnectedClientsIds)
+                {
+                    if (clientId == NetworkManager.ServerClientId && !IsHost) continue; // dedicated server
+                    AddPlayer(clientId, IsHost && clientId == NetworkManager.Singleton.LocalClientId);
+                }
             }
+
+            // The menu opens on its title screen; when the lobby spawns (joining, or returning
+            // from a match) show the lobby instead. Wait a frame so the menu's Start has run.
+            StartCoroutine(ShowLobbyScreenNextFrame());
+        }
+
+        private System.Collections.IEnumerator ShowLobbyScreenNextFrame()
+        {
+            yield return null;
+            Game.Conquest.UI.ConquestMainMenuController.Instance?.SwitchScreen(Game.Conquest.UI.MenuState.Lobby);
         }
 
         public override void OnNetworkDespawn()
@@ -202,12 +220,23 @@ namespace Game.Conquest.Lobby
             }
 
             Team assignedTeam = redCount <= blueCount ? Team.Red : Team.Blue;
+            int classIndex = 0; // Assault
 
             // Name from the connection payload (already sanitised during approval), if any.
             string name = isHost ? "Host" : $"Player_{clientId}";
-            if (ConquestSessionManager.Instance != null && ConquestSessionManager.Instance.TryGetApprovedName(clientId, out var approvedName))
+            var session = ConquestSessionManager.Instance;
+            if (session != null && session.TryGetApprovedName(clientId, out var approvedName))
             {
                 name = approvedName;
+            }
+
+            // Back from a match: keep the team, class and name the player had (ready resets).
+            if (session != null && session.TryGetPlayerAssignment(clientId, out var previous)
+                && (previous.team == Team.Red || previous.team == Team.Blue))
+            {
+                assignedTeam = previous.team;
+                classIndex = previous.classIndex;
+                if (!string.IsNullOrEmpty(previous.playerName)) name = previous.playerName;
             }
 
             LobbyPlayerState state = new LobbyPlayerState
@@ -215,7 +244,7 @@ namespace Game.Conquest.Lobby
                 clientId = clientId,
                 playerName = name,
                 team = assignedTeam,
-                classIndex = 0, // Assault
+                classIndex = classIndex,
                 isReady = isHost, // Host is ready by default
                 isHost = isHost
             };

@@ -238,8 +238,8 @@ namespace Game.Conquest.Networking
 
         public void OnPlayerKilled(ConquestPlayer victim, ulong killerId)
         {
-            Debug.Log($"[ConquestNetworkManager] Player {victim.OwnerClientId} ({victim.playerTeam.Value}) was killed by Client {killerId}");
-            ConquestMatchManager.Instance?.OnPlayerDied(victim);
+            Debug.Log($"[ConquestNetworkManager] Player {victim.OwnerClientId} ({victim.playerTeam.Value}) was killed by object {killerId}");
+            ConquestMatchManager.Instance?.OnPlayerDied(victim, killerId);
         }
     }
 }
