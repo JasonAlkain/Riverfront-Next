@@ -108,7 +108,7 @@ namespace Game.Conquest.Networking
         // ---------- Connection approval ----------
 
         /// <summary>Bump when the network protocol changes incompatibly (RPCs, NetworkVariables, prefab list).</summary>
-        public const string ProtocolVersion = "1";
+        public const string ProtocolVersion = "2";
         public static string BuildVersion => $"{Application.version}/p{ProtocolVersion}";
 
         private const string PayloadTag = "RF";
@@ -147,9 +147,22 @@ namespace Game.Conquest.Networking
                  "NetworkManager before every start, whichever scene's copy that is.")]
         [SerializeField] private NetworkPrefabsList networkPrefabs;
 
+        [Header("Network Config")]
+        [Tooltip("Network ticks per second. Part of NGO's config check, so every peer must use the same value; " +
+                 "it is applied here on every start rather than taken from whichever scene's NetworkManager survived.")]
+        [SerializeField] private uint tickRate = 30;
+
         /// <summary>Everything that must be set on the NetworkManager before StartHost/StartServer/StartClient.</summary>
         private void PrepareNetworkManager(NetworkManager nm)
         {
+            nm.NetworkConfig.TickRate = tickRate;
+            // Server-to-client log forwarding and per-message metrics cost bandwidth and CPU;
+            // keep them for the Editor and development builds only.
+            bool debugBuild = Debug.isDebugBuild;
+            nm.NetworkConfig.EnableNetworkLogs = debugBuild;
+            nm.NetworkConfig.NetworkMessageMetrics = debugBuild;
+            nm.NetworkConfig.NetworkProfilingMetrics = debugBuild;
+
             EnsureNetworkPrefabsRegistered(nm);
             // Named-message handlers only exist once the client has started.
             nm.OnClientStarted -= RegisterResultsMessageHandler;
