@@ -8,6 +8,10 @@ namespace Game.Conquest
     {
         [Header("Text Elements")]
         public TextMeshProUGUI txt_MapName;
+        public TextMeshProUGUI txt_MapDescription;
+        public TextMeshProUGUI txt_Difficulty;
+        public TextMeshProUGUI txt_TeamSize;
+        public TextMeshProUGUI txt_Tickets;
 
         [Header("Buttons")]
         public Button btn_NextMap;
