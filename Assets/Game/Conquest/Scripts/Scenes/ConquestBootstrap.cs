@@ -39,14 +39,14 @@ namespace Game.Conquest.Scenes
         private static void OnMenuLoadedForServer(Scene scene, LoadSceneMode mode)
         {
             UnityEngine.SceneManagement.SceneManager.sceneLoaded -= OnMenuLoadedForServer;
-            var session = ConquestSessionManager.Instance;
+            var session = ConquestSession.Current;
             if (session == null)
             {
-                Debug.LogError("[ConquestBootstrap] Dedicated server: no ConquestSessionManager; quitting.");
+                Debug.LogError("[ConquestBootstrap] Dedicated server: no session service; quitting.");
                 Application.Quit(1);
                 return;
             }
-            session.StartDedicatedServerDeferred(s_ServerArgs);
+            session.StartDedicatedServer(s_ServerArgs);
         }
 
         private void Start()

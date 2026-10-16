@@ -241,7 +241,7 @@ namespace Game.Conquest.UI
             CreateButton(btnRow, "CONFIRM LEAVE", new Color(0.85f, 0.25f, 0.25f), 42, () =>
             {
                 SetPause(false);
-                ConquestSessionManager.Instance?.LeaveSession();
+                ConquestSession.Current?.LeaveSession();
             });
 
             CreateButton(btnRow, "CANCEL", new Color(0.2f, 0.4f, 0.6f), 42, () => ShowSubPanel(m_MainPausePanel));
@@ -263,7 +263,7 @@ namespace Game.Conquest.UI
             // lets a client drop out early. Hidden on the host, where leaving would end the session for all.
             CreateButton(m_MatchEndNavPanel, "LEAVE GAME", new Color(0.3f, 0.35f, 0.4f), 50, () =>
             {
-                ConquestSessionManager.Instance?.LeaveSession();
+                ConquestSession.Current?.LeaveSession();
             });
 
             m_MatchEndNavPanel.SetActive(false);

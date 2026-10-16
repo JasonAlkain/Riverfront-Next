@@ -12,7 +12,8 @@ using Game.Conquest.Scenes;
 
 namespace Game.Conquest.Networking
 {
-    public class ConquestSessionManager : MonoBehaviour
+    /// <summary>LAN / direct IP session backend over Unity Transport.</summary>
+    public class ConquestSessionManager : MonoBehaviour, IConquestSessionService
     {
         public static ConquestSessionManager Instance { get; private set; }
 
@@ -260,7 +261,15 @@ namespace Game.Conquest.Networking
                 return;
             }
             Instance = this;
+            ConquestSession.Current = this;
             DontDestroyOnLoad(gameObject);
+        }
+
+        private void OnDestroy()
+        {
+            if (Instance != this) return;
+            Instance = null;
+            if (ReferenceEquals(ConquestSession.Current, this)) ConquestSession.Current = null;
         }
 
         public void StartSoloGame(string mapSceneName, int tickets = 150, int botsPerTeam = 4, BotDifficulty difficulty = BotDifficulty.Normal)
@@ -333,7 +342,7 @@ namespace Game.Conquest.Networking
         /// Dedicated-server entry point: no local player. Call once the MainMenu scene (which holds
         /// the lobby NetworkObject) is loaded; the lobby then auto-starts the match when ready.
         /// </summary>
-        public void StartDedicatedServerDeferred(ConquestServerLaunchArgs args)
+        public void StartDedicatedServer(ConquestServerLaunchArgs args)
         {
             StartCoroutine(StartDedicatedServerNextFrame(args));
         }
@@ -343,14 +352,14 @@ namespace Game.Conquest.Networking
         private System.Collections.IEnumerator StartDedicatedServerNextFrame(ConquestServerLaunchArgs args)
         {
             yield return null;
-            if (!StartDedicatedServer(args))
+            if (!TryStartDedicatedServer(args))
             {
                 Debug.LogError("[ConquestSessionManager] Dedicated server failed to start; quitting.");
                 Application.Quit(1);
             }
         }
 
-        public bool StartDedicatedServer(ConquestServerLaunchArgs args)
+        private bool TryStartDedicatedServer(ConquestServerLaunchArgs args)
         {
             isSoloMode = false;
             isDedicatedServer = true;
@@ -395,11 +404,11 @@ namespace Game.Conquest.Networking
             return true;
         }
 
-        public bool StartClientConnect(string address, ushort port)
+        public bool StartClientConnect(ConquestConnectionData connection)
         {
             isSoloMode = false;
-            connectAddress = string.IsNullOrEmpty(address) ? "127.0.0.1" : address;
-            connectPort = port > 0 ? port : DefaultPort;
+            connectAddress = string.IsNullOrEmpty(connection.address) ? "127.0.0.1" : connection.address;
+            connectPort = connection.port > 0 ? connection.port : DefaultPort;
 
             EnsureNetworkManagerConfigured(connectAddress, connectPort);
             ApplyClientConnectTimeout();
@@ -425,6 +434,15 @@ namespace Game.Conquest.Networking
             OnStatusChanged?.Invoke(m_StatusMessage);
             return false;
         }
+
+        public void CancelConnect()
+        {
+            var nm = NetworkManager.Singleton;
+            if (nm != null && (nm.IsClient || nm.IsServer)) nm.Shutdown();
+            SetStatus("Connection cancelled");
+        }
+
+        public string HostJoinAddress => GetHostAddressSummary(hostPort);
 
         // ---------- Match flow and results ----------
 
