@@ -26,6 +26,14 @@ namespace Game.Conquest.Networking
         public bool enableBotFilling = true;
         public BotDifficulty botDifficulty = BotDifficulty.Normal;
         public bool isSoloMode = false;
+
+        [Header("Dedicated Server")]
+        [Tooltip("Set at runtime when this process was launched as a headless server (no local player).")]
+        public bool isDedicatedServer = false;
+        [Tooltip("Dedicated server: humans required (all ready) before the auto-start countdown begins.")]
+        public int minPlayersToStart = 2;
+        [Tooltip("Dedicated server: seconds between everyone being ready and the map loading.")]
+        public float autoStartCountdownSeconds = 10f;
         public string connectAddress = "127.0.0.1";
         public ushort connectPort = DefaultPort;
         [Tooltip("Port a listen-server host binds to.")]
@@ -274,6 +282,72 @@ namespace Game.Conquest.Networking
             m_StatusMessage = "Failed to start Host session";
             OnStatusChanged?.Invoke(m_StatusMessage);
             return false;
+        }
+
+        /// <summary>
+        /// Dedicated-server entry point: no local player. Call once the MainMenu scene (which holds
+        /// the lobby NetworkObject) is loaded; the lobby then auto-starts the match when ready.
+        /// </summary>
+        public void StartDedicatedServerDeferred(ConquestServerLaunchArgs args)
+        {
+            StartCoroutine(StartDedicatedServerNextFrame(args));
+        }
+
+        // Wait a frame so the freshly loaded scene's NetworkManager and in-scene NetworkObjects
+        // have finished Awake/Start before the server spawns them.
+        private System.Collections.IEnumerator StartDedicatedServerNextFrame(ConquestServerLaunchArgs args)
+        {
+            yield return null;
+            if (!StartDedicatedServer(args))
+            {
+                Debug.LogError("[ConquestSessionManager] Dedicated server failed to start; quitting.");
+                Application.Quit(1);
+            }
+        }
+
+        public bool StartDedicatedServer(ConquestServerLaunchArgs args)
+        {
+            isSoloMode = false;
+            isDedicatedServer = true;
+            ClearPlayerAssignments();
+
+            if (args != null)
+            {
+                if (!string.IsNullOrEmpty(args.mapId))
+                {
+                    selectedMapId = args.mapId;
+                    selectedMapScene = ""; // resolved from the registry by the lobby
+                }
+                if (!string.IsNullOrEmpty(args.sessionName)) sessionName = args.sessionName;
+                if (args.port.HasValue) hostPort = args.port.Value;
+                if (args.maxPlayers.HasValue) maxHumanPlayers = args.maxPlayers.Value;
+                if (args.tickets.HasValue) reinforcementTickets = args.tickets.Value;
+                if (args.teamSize.HasValue) targetTeamSize = args.teamSize.Value;
+                if (args.bots.HasValue) enableBotFilling = args.bots.Value;
+                if (args.botDifficulty.HasValue) botDifficulty = args.botDifficulty.Value;
+                if (args.minPlayersToStart.HasValue) minPlayersToStart = args.minPlayersToStart.Value;
+                if (args.startCountdownSeconds.HasValue) autoStartCountdownSeconds = args.startCountdownSeconds.Value;
+            }
+
+            var nm = NetworkManager.Singleton;
+            if (nm == null)
+            {
+                Debug.LogError("[ConquestSessionManager] Dedicated server: no NetworkManager in the loaded scene.");
+                return false;
+            }
+
+            EnsureNetworkManagerConfigured("127.0.0.1", hostPort, AnyListenAddress);
+            ConfigureConnectionApproval(nm);
+
+            if (!nm.StartServer())
+            {
+                Debug.LogError($"[ConquestSessionManager] Dedicated server failed to start on port {hostPort}.");
+                return false;
+            }
+
+            SetStatus($"Dedicated server '{sessionName}' on {GetHostAddressSummary(hostPort)} | map {selectedMapId} | max {maxHumanPlayers} players");
+            Debug.Log($"[ConquestSessionManager] {StatusMessage}");
+            return true;
         }
 
         public bool StartClientConnect(string address, ushort port)

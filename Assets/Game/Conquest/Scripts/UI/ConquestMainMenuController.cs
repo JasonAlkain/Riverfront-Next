@@ -549,9 +549,10 @@ namespace Game.Conquest.UI
             string mapLabel = mapData != null && mapData.sceneName == sceneName ? mapData.displayName : sceneName;
             if (p.txt_LobbyName != null && p.txt_LobbyInfo != null)
             {
+                string countdownLine = lobby.autoStartCountdown.Value >= 0 ? $"\nMATCH STARTS IN {lobby.autoStartCountdown.Value}s" : "";
                 p.SetLobbyInfo(
                     $"LOBBY: {lobby.sessionName.Value.ToString().ToUpper()}",
-                    $"MAP: {mapLabel} | TICKETS: {lobby.reinforcementTickets.Value} | BOTS: {lobby.targetTeamSize.Value}/team ({lobby.botDifficulty.Value}){m_LobbyJoinAddressLine}");
+                    $"MAP: {mapLabel} | TICKETS: {lobby.reinforcementTickets.Value} | BOTS: {lobby.targetTeamSize.Value}/team ({lobby.botDifficulty.Value}){m_LobbyJoinAddressLine}{countdownLine}");
             }
 
             if (p.redTeamContainer == null || p.blueTeamContainer == null) return;
@@ -579,6 +580,7 @@ namespace Game.Conquest.UI
                 h = h * 31 + lobby.reinforcementTickets.Value.GetHashCode();
                 h = h * 31 + lobby.targetTeamSize.Value.GetHashCode();
                 h = h * 31 + (int)lobby.botDifficulty.Value;
+                h = h * 31 + lobby.autoStartCountdown.Value;
                 if (lobby.lobbyPlayers != null)
                 {
                     h = h * 31 + lobby.lobbyPlayers.Count;

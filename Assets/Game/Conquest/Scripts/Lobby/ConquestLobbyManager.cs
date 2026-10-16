@@ -80,6 +80,15 @@ namespace Game.Conquest.Lobby
 
         public NetworkList<LobbyPlayerState> lobbyPlayers;
 
+        /// <summary>Dedicated server only: seconds until the match auto-starts, or -1 when not counting down.</summary>
+        public NetworkVariable<int> autoStartCountdown = new NetworkVariable<int>(
+            -1,
+            NetworkVariableReadPermission.Everyone,
+            NetworkVariableWritePermission.Server);
+
+        private float m_AutoStartAt = -1f;
+        private bool m_MatchStarting = false;
+
         public event Action OnLobbyStateChanged;
 
         private void Awake()
@@ -101,6 +110,7 @@ namespace Game.Conquest.Lobby
             reinforcementTickets.OnValueChanged += (oldVal, newVal) => OnLobbyStateChanged?.Invoke();
             targetTeamSize.OnValueChanged += (oldVal, newVal) => OnLobbyStateChanged?.Invoke();
             botDifficulty.OnValueChanged += (oldVal, newVal) => OnLobbyStateChanged?.Invoke();
+            autoStartCountdown.OnValueChanged += (oldVal, newVal) => OnLobbyStateChanged?.Invoke();
 
             if (IsServer)
             {
@@ -126,8 +136,11 @@ namespace Game.Conquest.Lobby
                 NetworkManager.Singleton.OnClientConnectedCallback += HandleClientConnected;
                 NetworkManager.Singleton.OnClientDisconnectCallback += HandleClientDisconnected;
 
-                // Add host
-                AddPlayer(NetworkManager.Singleton.LocalClientId, true);
+                // A listen server's own player is in the lobby; a dedicated server has no player.
+                if (IsHost)
+                {
+                    AddPlayer(NetworkManager.Singleton.LocalClientId, true);
+                }
             }
         }
 
@@ -300,9 +313,50 @@ namespace Game.Conquest.Lobby
             botDifficulty.Value = diff;
         }
 
+        // Dedicated servers have no host to press Start: once enough humans are in and all are
+        // ready, count down and start. Anyone un-readying (or leaving) cancels the countdown.
+        private void Update()
+        {
+            if (!IsSpawned || !IsServer || m_MatchStarting) return;
+            var session = ConquestSessionManager.Instance;
+            if (session == null || !session.isDedicatedServer) return;
+
+            bool canStart = lobbyPlayers.Count >= Mathf.Max(1, session.minPlayersToStart) && AllPlayersReady();
+            if (!canStart)
+            {
+                if (m_AutoStartAt >= 0f)
+                {
+                    m_AutoStartAt = -1f;
+                    autoStartCountdown.Value = -1;
+                }
+                return;
+            }
+
+            if (m_AutoStartAt < 0f) m_AutoStartAt = Time.unscaledTime + Mathf.Max(0f, session.autoStartCountdownSeconds);
+
+            int remaining = Mathf.CeilToInt(Mathf.Max(0f, m_AutoStartAt - Time.unscaledTime));
+            if (autoStartCountdown.Value != remaining) autoStartCountdown.Value = remaining;
+
+            if (Time.unscaledTime >= m_AutoStartAt)
+            {
+                StartMatch();
+            }
+        }
+
+        private bool AllPlayersReady()
+        {
+            for (int i = 0; i < lobbyPlayers.Count; i++)
+            {
+                if (!lobbyPlayers[i].isReady) return false;
+            }
+            return true;
+        }
+
         public void StartMatch()
         {
-            if (!IsServer) return;
+            if (!IsServer || m_MatchStarting) return;
+            m_MatchStarting = true;
+            m_AutoStartAt = -1f;
 
             // Commit settings to SessionManager
             if (ConquestSessionManager.Instance != null)
