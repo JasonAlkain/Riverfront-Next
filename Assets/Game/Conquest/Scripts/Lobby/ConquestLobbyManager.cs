@@ -112,8 +112,15 @@ namespace Game.Conquest.Lobby
                     enableBotFilling.Value = ConquestSessionManager.Instance.enableBotFilling;
                     botDifficulty.Value = ConquestSessionManager.Instance.botDifficulty;
 
-                    var map = mapRegistry != null ? mapRegistry.GetMapById(ConquestSessionManager.Instance.selectedMapId) : null;
-                    selectedMapScene.Value = map != null ? map.sceneName : "ConquestLargeBattlefield";
+                    // Prefer the registry entry for the chosen id; fall back to the scene name the host picked.
+                    var session = ConquestSessionManager.Instance;
+                    var map = mapRegistry != null ? mapRegistry.GetMapById(session.selectedMapId) : null;
+                    if (map != null && map.mapId.Equals(session.selectedMapId, StringComparison.OrdinalIgnoreCase))
+                        selectedMapScene.Value = map.sceneName;
+                    else if (!string.IsNullOrEmpty(session.selectedMapScene))
+                        selectedMapScene.Value = session.selectedMapScene;
+                    else if (map != null)
+                        selectedMapScene.Value = map.sceneName;
                 }
 
                 NetworkManager.Singleton.OnClientConnectedCallback += HandleClientConnected;
@@ -176,10 +183,17 @@ namespace Game.Conquest.Lobby
 
             Team assignedTeam = redCount <= blueCount ? Team.Red : Team.Blue;
 
+            // Name from the connection payload (already sanitised during approval), if any.
+            string name = isHost ? "Host" : $"Player_{clientId}";
+            if (ConquestSessionManager.Instance != null && ConquestSessionManager.Instance.TryGetApprovedName(clientId, out var approvedName))
+            {
+                name = approvedName;
+            }
+
             LobbyPlayerState state = new LobbyPlayerState
             {
                 clientId = clientId,
-                playerName = isHost ? "Host" : $"Player_{clientId}",
+                playerName = name,
                 team = assignedTeam,
                 classIndex = 0, // Assault
                 isReady = isHost, // Host is ready by default
@@ -238,6 +252,25 @@ namespace Game.Conquest.Lobby
             }
         }
 
+        [Rpc(SendTo.Server)]
+        public void SetNameServerRpc(string requestedName, RpcParams rpcParams = default)
+        {
+            string clean = ConquestSessionManager.SanitizePlayerName(requestedName);
+            if (string.IsNullOrEmpty(clean)) return;
+
+            ulong sender = rpcParams.Receive.SenderClientId;
+            for (int i = 0; i < lobbyPlayers.Count; i++)
+            {
+                if (lobbyPlayers[i].clientId == sender)
+                {
+                    var p = lobbyPlayers[i];
+                    p.playerName = clean;
+                    lobbyPlayers[i] = p;
+                    break;
+                }
+            }
+        }
+
         // Host controls
         [Rpc(SendTo.Server)]
         public void SetMapSceneServerRpc(string sceneName, RpcParams rpcParams = default)
@@ -278,6 +311,20 @@ namespace Game.Conquest.Lobby
                 ConquestSessionManager.Instance.targetTeamSize = targetTeamSize.Value;
                 ConquestSessionManager.Instance.enableBotFilling = enableBotFilling.Value;
                 ConquestSessionManager.Instance.botDifficulty = botDifficulty.Value;
+
+                // Persist each player's lobby choices; ConquestNetworkManager applies them when the
+                // player registers in the map scene (this lobby object is destroyed by the load).
+                ConquestSessionManager.Instance.ClearPlayerAssignments();
+                for (int i = 0; i < lobbyPlayers.Count; i++)
+                {
+                    var p = lobbyPlayers[i];
+                    ConquestSessionManager.Instance.SetPlayerAssignment(p.clientId, new ConquestSessionManager.PlayerAssignment
+                    {
+                        team = p.team,
+                        classIndex = p.classIndex,
+                        playerName = p.playerName.ToString()
+                    });
+                }
             }
 
             string mapScene = selectedMapScene.Value.ToString();
