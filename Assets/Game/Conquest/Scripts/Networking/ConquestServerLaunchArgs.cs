@@ -27,7 +27,9 @@ namespace Game.Conquest.Networking
         /// <summary>True when this process should run as a dedicated server.</summary>
         public static bool IsDedicatedServerLaunch()
         {
-#if UNITY_SERVER
+            // The Editor also defines UNITY_SERVER while the Dedicated Server build profile is
+            // active, but Play mode there is still for playing, so only a real server build counts.
+#if UNITY_SERVER && !UNITY_EDITOR
             return true;
 #else
             return HasFlag(Environment.GetCommandLineArgs(), "-server");
