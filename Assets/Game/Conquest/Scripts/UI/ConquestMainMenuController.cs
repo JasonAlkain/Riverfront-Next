@@ -100,7 +100,6 @@ namespace Game.Conquest.UI
         private GameObject m_SoloPanel;
         private GameObject m_MultiplayerPanel;
         private GameObject m_HostPanel;
-        private GameObject m_BrowserPanel;
         private GameObject m_JoinCodePanel;
         private GameObject m_LobbyPanel;
         private GameObject m_SettingsPanel;
@@ -121,8 +120,20 @@ namespace Game.Conquest.UI
         private TextMeshProUGUI m_HostTeamSizeLabel;
         private TextMeshProUGUI m_HostDiffLabel;
 
-        // Join Code Dynamic UI
-        private TMP_InputField m_CodeInput;
+        // Direct-connect (Join by IP) Dynamic UI
+        private TMP_InputField m_JoinAddressInput;
+        private TMP_InputField m_JoinPortInput;
+        private TextMeshProUGUI m_JoinStatusText;
+        private UnityEngine.UI.Button m_JoinConnectButton;
+        private UnityEngine.UI.Button m_JoinCancelButton;
+        private UnityEngine.UI.Button m_JoinBackButton;
+        private readonly UnityEngine.UI.Button[] m_RecentServerButtons = new UnityEngine.UI.Button[3];
+        private readonly List<string> m_RecentServers = new List<string>();
+        private bool m_IsConnecting = false;
+        private bool m_LeavingIntentionally = false;
+        private NetworkManager m_SubscribedNetworkManager;
+
+        private const string RecentServersPrefsKey = "Conquest.RecentServers";
 
         // Lobby Dynamic UI
         private TextMeshProUGUI m_LobbyHeaderText;
@@ -130,6 +141,11 @@ namespace Game.Conquest.UI
         private TextMeshProUGUI m_RedTeamListText;
         private TextMeshProUGUI m_BlueTeamListText;
         private GameObject m_LobbyHostControls;
+        private string m_LobbyJoinAddressLine = "";
+        private TMP_InputField m_LobbyNameInput;
+        private bool m_LobbyNameSent = false;
+
+        private static readonly string[] k_ClassNames = { "Assault", "Heavy", "Engineer", "Recon" };
 
         // Settings Dynamic UI
         private Slider m_SetMasterSlider;
@@ -173,11 +189,13 @@ namespace Game.Conquest.UI
                 HandleStatusChanged(ConquestSessionManager.Instance.StatusMessage);
             }
 
+            SubscribeNetworkCallbacks();
             SwitchScreen(MenuState.Title);
         }
 
         private void OnDestroy()
         {
+            UnsubscribeNetworkCallbacks();
             if (ConquestSessionManager.Instance != null)
             {
                 ConquestSessionManager.Instance.OnStatusChanged -= HandleStatusChanged;
@@ -194,11 +212,16 @@ namespace Game.Conquest.UI
 
         private void Update()
         {
-            // Transition to lobby if network connected
-            if (NetworkManager.Singleton != null && (NetworkManager.Singleton.IsClient || NetworkManager.Singleton.IsServer))
+            SubscribeNetworkCallbacks();
+
+            // Enter the lobby only once actually connected. IsClient is already true while a
+            // connection attempt is still pending, which used to strand players on an empty lobby.
+            var nm = NetworkManager.Singleton;
+            if (nm != null && (nm.IsServer || nm.IsConnectedClient))
             {
-                if (currentMenuState != MenuState.Lobby && (currentMenuState == MenuState.HostGame || currentMenuState == MenuState.JoinByCode || currentMenuState == MenuState.ServerBrowser))
+                if (currentMenuState == MenuState.HostGame || currentMenuState == MenuState.JoinByCode)
                 {
+                    m_IsConnecting = false;
                     SwitchScreen(MenuState.Lobby);
                 }
             }
@@ -217,7 +240,6 @@ namespace Game.Conquest.UI
             if (m_SoloPanel != null) m_SoloPanel.SetActive(newState == MenuState.PlaySolo);
             if (m_MultiplayerPanel != null) m_MultiplayerPanel.SetActive(newState == MenuState.Multiplayer);
             if (m_HostPanel != null) m_HostPanel.SetActive(newState == MenuState.HostGame);
-            if (m_BrowserPanel != null) m_BrowserPanel.SetActive(newState == MenuState.ServerBrowser);
             if (m_JoinCodePanel != null) m_JoinCodePanel.SetActive(newState == MenuState.JoinByCode);
             if (m_LobbyPanel != null) m_LobbyPanel.SetActive(newState == MenuState.Lobby);
             if (m_SettingsPanel != null) m_SettingsPanel.SetActive(newState == MenuState.Settings);
@@ -225,8 +247,18 @@ namespace Game.Conquest.UI
 
             if (newState == MenuState.PlaySolo) UpdateSoloDisplay();
             if (newState == MenuState.HostGame) UpdateHostDisplay();
+            if (newState == MenuState.JoinByCode) RefreshJoinPanel();
             if (newState == MenuState.Settings) LoadSettingsIntoUI();
-            if (newState == MenuState.Lobby) UpdateLobbyDisplay();
+            if (newState == MenuState.Lobby)
+            {
+                // Enumerating interfaces allocates, so resolve the join address once per lobby visit.
+                bool hosting = NetworkManager.Singleton != null && NetworkManager.Singleton.IsServer;
+                m_LobbyJoinAddressLine = hosting && ConquestSessionManager.Instance != null
+                    ? $"\nPLAYERS JOIN AT: {ConquestSessionManager.GetHostAddressSummary(ConquestSessionManager.Instance.hostPort)}"
+                    : "";
+                m_LobbyNameSent = false;
+                UpdateLobbyDisplay();
+            }
         }
 
         private void BuildMenuCanvas()
@@ -266,7 +298,6 @@ namespace Game.Conquest.UI
             m_SoloPanel = BuildSoloPanel(canvasGO);
             m_MultiplayerPanel = BuildMultiplayerPanel(canvasGO);
             m_HostPanel = BuildHostPanel(canvasGO);
-            m_BrowserPanel = BuildBrowserPanel(canvasGO);
             m_JoinCodePanel = BuildJoinCodePanel(canvasGO);
             m_LobbyPanel = BuildLobbyPanel(canvasGO);
             m_SettingsPanel = BuildSettingsPanel(canvasGO);
@@ -431,8 +462,12 @@ namespace Game.Conquest.UI
             CreateTMP(panel, "MULTIPLAYER OPERATIONS", 24, new Color(0.35f, 0.78f, 1.0f), TextAlignmentOptions.Center, FontStyles.Bold, 36);
 
             CreateButton(panel, "HOST NEW GAME", new Color(0.2f, 0.65f, 1.0f), 52, () => SwitchScreen(MenuState.HostGame));
-            CreateButton(panel, "BROWSE PUBLIC GAMES", new Color(0.3f, 0.75f, 0.4f), 52, () => SwitchScreen(MenuState.ServerBrowser));
-            CreateButton(panel, "JOIN BY CODE / IP", new Color(0.9f, 0.65f, 0.2f), 52, () => SwitchScreen(MenuState.JoinByCode));
+            // No public browser or join codes yet: direct IP is the only join path (Steam browser comes later).
+            CreateButton(panel, "JOIN BY IP", new Color(0.9f, 0.65f, 0.2f), 52, () =>
+            {
+                SwitchScreen(MenuState.JoinByCode);
+                SetJoinStatus("");
+            });
             CreateButton(panel, "BACK TO MAIN MENU", new Color(0.3f, 0.35f, 0.4f), 44, () => SwitchScreen(MenuState.Title));
 
             return panel;
@@ -502,75 +537,36 @@ namespace Game.Conquest.UI
             return panel;
         }
 
-        // ================= 5. SERVER BROWSER PANEL =================
-        private GameObject BuildBrowserPanel(GameObject canvasGO)
-        {
-            GameObject panel = CreateCenterPanel(canvasGO, "BrowserPanel", 700, 480);
-            var vLayout = panel.AddComponent<VerticalLayoutGroup>();
-            vLayout.padding = new RectOffset(35, 35, 25, 25);
-            vLayout.spacing = 14;
-            vLayout.childAlignment = TextAnchor.UpperCenter;
-            vLayout.childControlWidth = true;
-            vLayout.childControlHeight = false;
-
-            CreateTMP(panel, "PUBLIC GAME BROWSER", 24, new Color(0.35f, 0.78f, 1.0f), TextAlignmentOptions.Center, FontStyles.Bold, 34);
-
-            // Local LAN broadcast entry card
-            GameObject card = new GameObject("ServerCard");
-            card.transform.SetParent(panel.transform, false);
-            card.AddComponent<LayoutElement>().preferredHeight = 65;
-            var cImg = card.AddComponent<UnityEngine.UI.Image>();
-            cImg.color = new Color(0.12f, 0.16f, 0.24f, 0.95f);
-            var cLayout = card.AddComponent<HorizontalLayoutGroup>();
-            cLayout.padding = new RectOffset(20, 20, 10, 10);
-            cLayout.childAlignment = TextAnchor.MiddleCenter;
-            cLayout.childControlWidth = true;
-            cLayout.childControlHeight = true;
-
-            CreateTMP(card, "<b>Local LAN Server</b>\nConquest Mode (127.0.0.1:7777)", 15, Color.white, TextAlignmentOptions.Left, FontStyles.Normal);
-            CreateButton(card, "CONNECT", new Color(0.2f, 0.75f, 0.4f), 42, () =>
-            {
-                ConquestSessionManager.Instance?.StartClientConnect("127.0.0.1", 7777);
-                SwitchScreen(MenuState.Lobby);
-            });
-
-            CreateTMP(panel, "Direct IP Connection:", 14, Color.white, TextAlignmentOptions.Left, FontStyles.Normal, 20);
-            m_CodeInput = CreateInputField(panel, m_JoinCodeInput, 38);
-
-            GameObject actRow = new GameObject("BrowserActRow");
-            actRow.transform.SetParent(panel.transform, false);
-            var aLayout = actRow.AddComponent<HorizontalLayoutGroup>();
-            aLayout.spacing = 15;
-            aLayout.childControlWidth = true;
-            aLayout.childControlHeight = true;
-            actRow.AddComponent<LayoutElement>().preferredHeight = 44;
-
-            CreateButton(actRow, "CONNECT TO ENTERED IP", new Color(0.2f, 0.65f, 1f), 44, () =>
-            {
-                string ip = m_CodeInput != null ? m_CodeInput.text : "127.0.0.1";
-                ConquestSessionManager.Instance?.StartClientConnect(ip, 7777);
-                SwitchScreen(MenuState.Lobby);
-            });
-            CreateButton(actRow, "BACK", new Color(0.3f, 0.35f, 0.4f), 44, () => SwitchScreen(MenuState.Multiplayer));
-
-            return panel;
-        }
-
-        // ================= 6. JOIN BY CODE PANEL =================
+        // ================= 5. DIRECT CONNECT (JOIN BY IP) PANEL =================
         private GameObject BuildJoinCodePanel(GameObject canvasGO)
         {
-            GameObject panel = CreateCenterPanel(canvasGO, "JoinCodePanel", 500, 360);
+            GameObject panel = CreateCenterPanel(canvasGO, "JoinCodePanel", 560, 600);
             var vLayout = panel.AddComponent<VerticalLayoutGroup>();
-            vLayout.padding = new RectOffset(35, 35, 25, 25);
-            vLayout.spacing = 15;
-            vLayout.childAlignment = TextAnchor.MiddleCenter;
+            vLayout.padding = new RectOffset(35, 35, 20, 20);
+            vLayout.spacing = 10;
+            vLayout.childAlignment = TextAnchor.UpperCenter;
             vLayout.childControlWidth = true;
-            vLayout.childControlHeight = false;
+            vLayout.childControlHeight = true;
+            vLayout.childForceExpandHeight = false;
 
-            CreateTMP(panel, "JOIN BY SESSION CODE / IP", 24, new Color(0.35f, 0.78f, 1.0f), TextAlignmentOptions.Center, FontStyles.Bold, 34);
+            CreateTMP(panel, "JOIN BY IP", 24, new Color(0.35f, 0.78f, 1.0f), TextAlignmentOptions.Center, FontStyles.Bold, 34);
 
-            CreateTMP(panel, "Enter Server Address or Host Code:", 14, Color.white, TextAlignmentOptions.Left, FontStyles.Normal, 20);
-            var codeField = CreateInputField(panel, m_JoinCodeInput, 40);
+            CreateTMP(panel, "Server address (IP or host name):", 14, Color.white, TextAlignmentOptions.Left, FontStyles.Normal, 20);
+            m_JoinAddressInput = CreateInputField(panel, m_JoinCodeInput, 38);
+
+            CreateTMP(panel, "Port:", 14, Color.white, TextAlignmentOptions.Left, FontStyles.Normal, 20);
+            m_JoinPortInput = CreateInputField(panel, ConquestSessionManager.DefaultPort.ToString(), 38);
+            m_JoinPortInput.contentType = TMP_InputField.ContentType.IntegerNumber;
+            m_JoinPortInput.characterLimit = 5;
+
+            CreateTMP(panel, "Recent servers:", 14, Color.white, TextAlignmentOptions.Left, FontStyles.Normal, 20);
+            for (int i = 0; i < m_RecentServerButtons.Length; i++)
+            {
+                int slot = i;
+                m_RecentServerButtons[i] = CreateButton(panel, "-", new Color(0.22f, 0.27f, 0.36f), 34, () => ConnectToRecent(slot));
+            }
+
+            m_JoinStatusText = CreateTMP(panel, "", 14, new Color(1f, 0.75f, 0.3f), TextAlignmentOptions.Center, FontStyles.Bold, 44);
 
             GameObject actRow = new GameObject("CodeActRow");
             actRow.transform.SetParent(panel.transform, false);
@@ -580,13 +576,9 @@ namespace Game.Conquest.UI
             aLayout.childControlHeight = true;
             actRow.AddComponent<LayoutElement>().preferredHeight = 44;
 
-            CreateButton(actRow, "CONNECT", new Color(0.2f, 0.75f, 0.4f), 44, () =>
-            {
-                string ip = codeField != null ? codeField.text : "127.0.0.1";
-                ConquestSessionManager.Instance?.StartClientConnect(ip, 7777);
-                SwitchScreen(MenuState.Lobby);
-            });
-            CreateButton(actRow, "BACK", new Color(0.3f, 0.35f, 0.4f), 44, () => SwitchScreen(MenuState.Multiplayer));
+            m_JoinConnectButton = CreateButton(actRow, "CONNECT", new Color(0.2f, 0.75f, 0.4f), 44, ConnectToEnteredAddress);
+            m_JoinCancelButton = CreateButton(actRow, "CANCEL", new Color(0.85f, 0.25f, 0.25f), 44, CancelConnect);
+            m_JoinBackButton = CreateButton(actRow, "BACK", new Color(0.3f, 0.35f, 0.4f), 44, () => SwitchScreen(MenuState.Multiplayer));
 
             return panel;
         }
@@ -603,7 +595,7 @@ namespace Game.Conquest.UI
             vLayout.childControlHeight = false;
 
             m_LobbyHeaderText = CreateTMP(panel, "PRE-MATCH LOBBY", 26, new Color(0.35f, 0.78f, 1.0f), TextAlignmentOptions.Center, FontStyles.Bold, 32);
-            m_LobbySubHeaderText = CreateTMP(panel, "MAP: Frontline | TICKETS: 250 | BOTS: 8/team (Normal)", 14, Color.yellow, TextAlignmentOptions.Center, FontStyles.Bold, 22);
+            m_LobbySubHeaderText = CreateTMP(panel, "MAP: Frontline | TICKETS: 250 | BOTS: 8/team (Normal)", 14, Color.yellow, TextAlignmentOptions.Center, FontStyles.Bold, 44);
 
             // Red vs Blue Columns
             GameObject teamsRow = new GameObject("TeamsRow");
@@ -636,6 +628,24 @@ namespace Game.Conquest.UI
             CreateTMP(blueBox, "BLUE TEAM", 18, Color.white, TextAlignmentOptions.Center, FontStyles.Bold, 24);
             m_BlueTeamListText = CreateTMP(blueBox, "• Waiting for players...", 14, Color.white, TextAlignmentOptions.Left, FontStyles.Normal, 180);
 
+            // Player name row
+            GameObject nameRow = new GameObject("NameRow");
+            nameRow.transform.SetParent(panel.transform, false);
+            var nLayout = nameRow.AddComponent<HorizontalLayoutGroup>();
+            nLayout.spacing = 10;
+            nLayout.childControlWidth = true;
+            nLayout.childControlHeight = true;
+            nameRow.AddComponent<LayoutElement>().preferredHeight = 38;
+
+            m_LobbyNameInput = CreateInputField(nameRow, LoadSavedPlayerName(), 38);
+            m_LobbyNameInput.characterLimit = ConquestSessionManager.MaxPlayerNameLength;
+            m_LobbyNameInput.GetComponent<LayoutElement>().flexibleWidth = 3f;
+            CreateButton(nameRow, "SET NAME", new Color(0.25f, 0.35f, 0.5f), 38, SubmitLobbyName)
+                .GetComponent<LayoutElement>().flexibleWidth = 1f;
+            // Leave sits outside the host-only row so every participant can leave.
+            CreateButton(nameRow, "LEAVE LOBBY", new Color(0.85f, 0.25f, 0.25f), 38, LeaveLobby)
+                .GetComponent<LayoutElement>().flexibleWidth = 1f;
+
             // Player controls row
             GameObject ctrlRow = new GameObject("CtrlRow");
             ctrlRow.transform.SetParent(panel.transform, false);
@@ -663,11 +673,6 @@ namespace Game.Conquest.UI
 
             CreateButton(m_LobbyHostControls, "START BATTLE (AUTHORITATIVE)", new Color(0.2f, 0.8f, 0.35f), 48, () => ConquestLobbyManager.Instance?.StartMatch());
             CreateButton(m_LobbyHostControls, "CYCLE MAP", new Color(0.85f, 0.5f, 0.15f), 48, CycleLobbyMap);
-            CreateButton(m_LobbyHostControls, "LEAVE LOBBY", new Color(0.85f, 0.25f, 0.25f), 48, () =>
-            {
-                ConquestSessionManager.Instance?.LeaveSession();
-                SwitchScreen(MenuState.Title);
-            });
 
             return panel;
         }
@@ -957,10 +962,11 @@ namespace Game.Conquest.UI
             var maps = mapRegistry != null ? mapRegistry.RegisteredMaps : null;
             var map = maps != null && maps.Count > 0 ? maps[m_SelectedMapIndex] : null;
             string sceneName = map != null ? map.sceneName : "ConquestLargeBattlefield";
+            string mapId = map != null ? map.mapId : "the_frontline";
             string sName = m_HostNameInput != null ? m_HostNameInput.text : m_HostSessionName;
 
             bool success = ConquestSessionManager.Instance != null && ConquestSessionManager.Instance.StartHostGame(
-                sceneName, sName, m_HostMaxPlayers, m_HostTickets, m_HostTeamSize, m_HostBotFilling, (BotDifficulty)m_HostBotDifficultyIndex);
+                mapId, sceneName, sName, m_HostMaxPlayers, m_HostTickets, m_HostTeamSize, m_HostBotFilling, (BotDifficulty)m_HostBotDifficultyIndex);
 
             if (success)
             {
@@ -975,12 +981,23 @@ namespace Game.Conquest.UI
 
             if (m_LobbyHostControls != null) m_LobbyHostControls.SetActive(isHost);
 
+            // Send the saved name once the lobby object has spawned on this peer.
+            if (!m_LobbyNameSent && lobby != null && lobby.IsSpawned)
+            {
+                m_LobbyNameSent = true;
+                string saved = LoadSavedPlayerName();
+                if (!string.IsNullOrEmpty(saved)) lobby.SetNameServerRpc(saved);
+            }
+
             if (lobby != null)
             {
                 if (m_LobbyHeaderText != null) m_LobbyHeaderText.text = $"LOBBY: {lobby.sessionName.Value.ToString().ToUpper()}";
                 if (m_LobbySubHeaderText != null)
                 {
-                    m_LobbySubHeaderText.text = $"MAP: {lobby.selectedMapScene.Value} | TICKETS: {lobby.reinforcementTickets.Value} | BOTS: {lobby.targetTeamSize.Value}/team ({lobby.botDifficulty.Value})";
+                    string sceneName = lobby.selectedMapScene.Value.ToString();
+                    var mapData = mapRegistry != null ? mapRegistry.GetMapBySceneName(sceneName) : null;
+                    string mapLabel = mapData != null && mapData.sceneName == sceneName ? mapData.displayName : sceneName;
+                    m_LobbySubHeaderText.text = $"MAP: {mapLabel} | TICKETS: {lobby.reinforcementTickets.Value} | BOTS: {lobby.targetTeamSize.Value}/team ({lobby.botDifficulty.Value}){m_LobbyJoinAddressLine}";
                 }
 
                 string redList = "";
@@ -993,7 +1010,8 @@ namespace Game.Conquest.UI
                         var p = lobby.lobbyPlayers[i];
                         string readyStr = p.isReady ? "<color=green>[READY]</color>" : "<color=yellow>[WAITING]</color>";
                         string hostTag = p.isHost ? " (Host)" : "";
-                        string line = $"• {p.playerName}{hostTag} - Class {p.classIndex} {readyStr}\n";
+                        string className = p.classIndex >= 0 && p.classIndex < k_ClassNames.Length ? k_ClassNames[p.classIndex] : $"Class {p.classIndex}";
+                        string line = $"• {p.playerName}{hostTag} - {className} {readyStr}\n";
 
                         if (p.team == Team.Red) redList += line;
                         else if (p.team == Team.Blue) blueList += line;
@@ -1003,6 +1021,224 @@ namespace Game.Conquest.UI
                 if (m_RedTeamListText != null) m_RedTeamListText.text = string.IsNullOrEmpty(redList) ? "No players" : redList;
                 if (m_BlueTeamListText != null) m_BlueTeamListText.text = string.IsNullOrEmpty(blueList) ? "No players" : blueList;
             }
+        }
+
+        // ---------- Direct connect ----------
+
+        private void SubscribeNetworkCallbacks()
+        {
+            var nm = NetworkManager.Singleton;
+            if (nm == null || nm == m_SubscribedNetworkManager) return;
+
+            UnsubscribeNetworkCallbacks();
+            nm.OnClientDisconnectCallback += HandleNetworkDisconnect;
+            nm.OnTransportFailure += HandleTransportFailure;
+            m_SubscribedNetworkManager = nm;
+        }
+
+        private void UnsubscribeNetworkCallbacks()
+        {
+            if (m_SubscribedNetworkManager != null)
+            {
+                m_SubscribedNetworkManager.OnClientDisconnectCallback -= HandleNetworkDisconnect;
+                m_SubscribedNetworkManager.OnTransportFailure -= HandleTransportFailure;
+            }
+            m_SubscribedNetworkManager = null;
+        }
+
+        private void HandleNetworkDisconnect(ulong clientId)
+        {
+            var nm = NetworkManager.Singleton;
+            // On a host this fires for remote clients leaving; the lobby manager handles that.
+            if (nm == null || nm.IsServer) return;
+
+            bool wasConnecting = m_IsConnecting;
+            m_IsConnecting = false;
+
+            if (m_LeavingIntentionally)
+            {
+                m_LeavingIntentionally = false;
+                return;
+            }
+
+            string reason = nm.DisconnectReason;
+            if (string.IsNullOrEmpty(reason))
+            {
+                reason = wasConnecting
+                    ? "Could not reach the server (timed out or refused)."
+                    : "Disconnected from the server.";
+            }
+            ShowJoinError(reason);
+        }
+
+        private void HandleTransportFailure()
+        {
+            m_IsConnecting = false;
+            m_LeavingIntentionally = false;
+            ShowJoinError("Network transport failed. Check the address and try again.");
+        }
+
+        private void ShowJoinError(string message)
+        {
+            Debug.Log($"[ConquestMainMenuController] Connection ended: {message}");
+            if (currentMenuState == MenuState.Lobby || currentMenuState == MenuState.JoinByCode)
+            {
+                SwitchScreen(MenuState.JoinByCode);
+            }
+            SetJoinStatus(message);
+        }
+
+        private void RefreshJoinPanel()
+        {
+            LoadRecentServers();
+            for (int i = 0; i < m_RecentServerButtons.Length; i++)
+            {
+                var btn = m_RecentServerButtons[i];
+                if (btn == null) continue;
+                bool hasEntry = i < m_RecentServers.Count;
+                btn.gameObject.SetActive(hasEntry);
+                if (hasEntry)
+                {
+                    var label = btn.GetComponentInChildren<TextMeshProUGUI>();
+                    if (label != null) label.text = m_RecentServers[i];
+                }
+            }
+            UpdateJoinButtons();
+        }
+
+        private void UpdateJoinButtons()
+        {
+            if (m_JoinConnectButton != null) m_JoinConnectButton.interactable = !m_IsConnecting;
+            if (m_JoinBackButton != null) m_JoinBackButton.interactable = !m_IsConnecting;
+            if (m_JoinCancelButton != null) m_JoinCancelButton.gameObject.SetActive(m_IsConnecting);
+            foreach (var btn in m_RecentServerButtons)
+            {
+                if (btn != null) btn.interactable = !m_IsConnecting;
+            }
+        }
+
+        private void SetJoinStatus(string message)
+        {
+            if (m_JoinStatusText != null) m_JoinStatusText.text = message ?? "";
+            UpdateJoinButtons();
+        }
+
+        private void ConnectToEnteredAddress()
+        {
+            string address = m_JoinAddressInput != null ? m_JoinAddressInput.text : "";
+            string portText = m_JoinPortInput != null ? m_JoinPortInput.text : "";
+            BeginConnect(address, portText);
+        }
+
+        private void ConnectToRecent(int slot)
+        {
+            if (slot < 0 || slot >= m_RecentServers.Count) return;
+            string entry = m_RecentServers[slot];
+            int colon = entry.LastIndexOf(':');
+            string address = colon > 0 ? entry.Substring(0, colon) : entry;
+            string portText = colon > 0 ? entry.Substring(colon + 1) : "";
+
+            if (m_JoinAddressInput != null) m_JoinAddressInput.text = address;
+            if (m_JoinPortInput != null) m_JoinPortInput.text = portText;
+            BeginConnect(address, portText);
+        }
+
+        private void BeginConnect(string address, string portText)
+        {
+            if (m_IsConnecting) return;
+
+            address = address != null ? address.Trim() : "";
+            // Accept "host:port" pasted into the address field.
+            int colon = address.LastIndexOf(':');
+            if (colon > 0 && address.IndexOf(':') == colon)
+            {
+                portText = address.Substring(colon + 1);
+                address = address.Substring(0, colon);
+            }
+
+            if (string.IsNullOrEmpty(address))
+            {
+                SetJoinStatus("Enter the server's IP address.");
+                return;
+            }
+
+            ushort port = ConquestSessionManager.DefaultPort;
+            if (!string.IsNullOrWhiteSpace(portText) && (!ushort.TryParse(portText.Trim(), out port) || port == 0))
+            {
+                SetJoinStatus("Port must be a number between 1 and 65535.");
+                return;
+            }
+
+            m_LeavingIntentionally = false;
+            var session = ConquestSessionManager.Instance;
+            if (session == null || !session.StartClientConnect(address, port))
+            {
+                SetJoinStatus("Could not start the connection.");
+                return;
+            }
+
+            m_IsConnecting = true;
+            RememberRecentServer($"{address}:{port}");
+            SetJoinStatus($"Connecting to {address}:{port}...");
+        }
+
+        private void CancelConnect()
+        {
+            if (!m_IsConnecting) return;
+            m_IsConnecting = false;
+            m_LeavingIntentionally = true;
+            var nm = NetworkManager.Singleton;
+            if (nm != null && (nm.IsClient || nm.IsServer)) nm.Shutdown();
+            SetJoinStatus("Connection cancelled.");
+        }
+
+        private void LeaveLobby()
+        {
+            m_IsConnecting = false;
+            m_LeavingIntentionally = true;
+            ConquestSessionManager.Instance?.LeaveSession();
+            SwitchScreen(MenuState.Title);
+        }
+
+        private void LoadRecentServers()
+        {
+            m_RecentServers.Clear();
+            string raw = PlayerPrefs.GetString(RecentServersPrefsKey, "");
+            if (string.IsNullOrEmpty(raw)) return;
+            foreach (var entry in raw.Split('|'))
+            {
+                if (!string.IsNullOrWhiteSpace(entry) && m_RecentServers.Count < m_RecentServerButtons.Length)
+                {
+                    m_RecentServers.Add(entry.Trim());
+                }
+            }
+        }
+
+        private void RememberRecentServer(string entry)
+        {
+            LoadRecentServers();
+            m_RecentServers.Remove(entry);
+            m_RecentServers.Insert(0, entry);
+            while (m_RecentServers.Count > m_RecentServerButtons.Length) m_RecentServers.RemoveAt(m_RecentServers.Count - 1);
+            PlayerPrefs.SetString(RecentServersPrefsKey, string.Join("|", m_RecentServers));
+            PlayerPrefs.Save();
+        }
+
+        private static string LoadSavedPlayerName()
+        {
+            return ConquestSessionManager.LoadLocalPlayerName();
+        }
+
+        private void SubmitLobbyName()
+        {
+            string clean = ConquestSessionManager.SanitizePlayerName(m_LobbyNameInput != null ? m_LobbyNameInput.text : "");
+            if (string.IsNullOrEmpty(clean)) return;
+
+            ConquestSessionManager.SaveLocalPlayerName(clean);
+            if (m_LobbyNameInput != null) m_LobbyNameInput.text = clean;
+
+            var lobby = ConquestLobbyManager.Instance;
+            if (lobby != null && lobby.IsSpawned) lobby.SetNameServerRpc(clean);
         }
 
         private void CycleLobbyMap()

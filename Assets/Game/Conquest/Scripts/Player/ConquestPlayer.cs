@@ -150,6 +150,28 @@ namespace Game.Conquest.Player
             }
         }
 
+        /// <summary>
+        /// Server-only: apply the identity chosen in the lobby (or by auto-balance).
+        /// Also sets the pending class so the first respawn doesn't revert to class 0.
+        /// </summary>
+        public void ServerApplyIdentity(Team team, string displayName, int classIndex)
+        {
+            if (!IsServer) return;
+
+            int maxIndex = availableClasses != null ? availableClasses.Count - 1 : 0;
+            classIndex = Mathf.Clamp(classIndex, 0, Mathf.Max(0, maxIndex));
+
+            playerTeam.Value = team;
+            if (!string.IsNullOrEmpty(displayName)) playerName.Value = displayName;
+            m_PendingClassIndex = classIndex;
+            if (selectedClassIndex.Value != classIndex)
+            {
+                selectedClassIndex.Value = classIndex;
+            }
+            // Server applies directly; clients pick it up via HandleClassChanged.
+            ApplyClass(classIndex);
+        }
+
         public void SelectClass(int classIndex)
         {
             m_PendingClassIndex = classIndex;
