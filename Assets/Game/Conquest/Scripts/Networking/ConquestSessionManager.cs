@@ -12,7 +12,8 @@ using Game.Conquest.Scenes;
 
 namespace Game.Conquest.Networking
 {
-    public class ConquestSessionManager : MonoBehaviour
+    /// <summary>LAN / direct IP session backend over Unity Transport.</summary>
+    public class ConquestSessionManager : MonoBehaviour, IConquestSessionService
     {
         public static ConquestSessionManager Instance { get; private set; }
 
@@ -32,7 +33,7 @@ namespace Game.Conquest.Networking
         public bool isDedicatedServer = false;
         [Tooltip("Dedicated server: humans required (all ready) before the auto-start countdown begins.")]
         public int minPlayersToStart = 2;
-        [Tooltip("Dedicated server: seconds between everyone being ready and the map loading.")]
+        [Tooltip("Seconds between everyone in the lobby being ready and the map loading (host or dedicated server).")]
         public float autoStartCountdownSeconds = 10f;
         public string connectAddress = "127.0.0.1";
         public ushort connectPort = DefaultPort;
@@ -108,7 +109,7 @@ namespace Game.Conquest.Networking
         // ---------- Connection approval ----------
 
         /// <summary>Bump when the network protocol changes incompatibly (RPCs, NetworkVariables, prefab list).</summary>
-        public const string ProtocolVersion = "1";
+        public const string ProtocolVersion = "2";
         public static string BuildVersion => $"{Application.version}/p{ProtocolVersion}";
 
         private const string PayloadTag = "RF";
@@ -147,9 +148,22 @@ namespace Game.Conquest.Networking
                  "NetworkManager before every start, whichever scene's copy that is.")]
         [SerializeField] private NetworkPrefabsList networkPrefabs;
 
+        [Header("Network Config")]
+        [Tooltip("Network ticks per second. Part of NGO's config check, so every peer must use the same value; " +
+                 "it is applied here on every start rather than taken from whichever scene's NetworkManager survived.")]
+        [SerializeField] private uint tickRate = 30;
+
         /// <summary>Everything that must be set on the NetworkManager before StartHost/StartServer/StartClient.</summary>
         private void PrepareNetworkManager(NetworkManager nm)
         {
+            nm.NetworkConfig.TickRate = tickRate;
+            // Server-to-client log forwarding and per-message metrics cost bandwidth and CPU;
+            // keep them for the Editor and development builds only.
+            bool debugBuild = Debug.isDebugBuild;
+            nm.NetworkConfig.EnableNetworkLogs = debugBuild;
+            nm.NetworkConfig.NetworkMessageMetrics = debugBuild;
+            nm.NetworkConfig.NetworkProfilingMetrics = debugBuild;
+
             EnsureNetworkPrefabsRegistered(nm);
             // Named-message handlers only exist once the client has started.
             nm.OnClientStarted -= RegisterResultsMessageHandler;
@@ -247,7 +261,15 @@ namespace Game.Conquest.Networking
                 return;
             }
             Instance = this;
+            ConquestSession.Current = this;
             DontDestroyOnLoad(gameObject);
+        }
+
+        private void OnDestroy()
+        {
+            if (Instance != this) return;
+            Instance = null;
+            if (ReferenceEquals(ConquestSession.Current, this)) ConquestSession.Current = null;
         }
 
         public void StartSoloGame(string mapSceneName, int tickets = 150, int botsPerTeam = 4, BotDifficulty difficulty = BotDifficulty.Normal)
@@ -320,7 +342,7 @@ namespace Game.Conquest.Networking
         /// Dedicated-server entry point: no local player. Call once the MainMenu scene (which holds
         /// the lobby NetworkObject) is loaded; the lobby then auto-starts the match when ready.
         /// </summary>
-        public void StartDedicatedServerDeferred(ConquestServerLaunchArgs args)
+        public void StartDedicatedServer(ConquestServerLaunchArgs args)
         {
             StartCoroutine(StartDedicatedServerNextFrame(args));
         }
@@ -330,14 +352,14 @@ namespace Game.Conquest.Networking
         private System.Collections.IEnumerator StartDedicatedServerNextFrame(ConquestServerLaunchArgs args)
         {
             yield return null;
-            if (!StartDedicatedServer(args))
+            if (!TryStartDedicatedServer(args))
             {
                 Debug.LogError("[ConquestSessionManager] Dedicated server failed to start; quitting.");
                 Application.Quit(1);
             }
         }
 
-        public bool StartDedicatedServer(ConquestServerLaunchArgs args)
+        private bool TryStartDedicatedServer(ConquestServerLaunchArgs args)
         {
             isSoloMode = false;
             isDedicatedServer = true;
@@ -382,11 +404,11 @@ namespace Game.Conquest.Networking
             return true;
         }
 
-        public bool StartClientConnect(string address, ushort port)
+        public bool StartClientConnect(ConquestConnectionData connection)
         {
             isSoloMode = false;
-            connectAddress = string.IsNullOrEmpty(address) ? "127.0.0.1" : address;
-            connectPort = port > 0 ? port : DefaultPort;
+            connectAddress = string.IsNullOrEmpty(connection.address) ? "127.0.0.1" : connection.address;
+            connectPort = connection.port > 0 ? connection.port : DefaultPort;
 
             EnsureNetworkManagerConfigured(connectAddress, connectPort);
             ApplyClientConnectTimeout();
@@ -412,6 +434,15 @@ namespace Game.Conquest.Networking
             OnStatusChanged?.Invoke(m_StatusMessage);
             return false;
         }
+
+        public void CancelConnect()
+        {
+            var nm = NetworkManager.Singleton;
+            if (nm != null && (nm.IsClient || nm.IsServer)) nm.Shutdown();
+            SetStatus("Connection cancelled");
+        }
+
+        public string HostJoinAddress => GetHostAddressSummary(hostPort);
 
         // ---------- Match flow and results ----------
 

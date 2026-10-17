@@ -245,7 +245,7 @@ namespace Game.Conquest.Lobby
                 playerName = name,
                 team = assignedTeam,
                 classIndex = classIndex,
-                isReady = isHost, // Host is ready by default
+                isReady = false, // everyone, host included, readies up explicitly
                 isHost = isHost
             };
 
@@ -349,15 +349,17 @@ namespace Game.Conquest.Lobby
             botDifficulty.Value = diff;
         }
 
-        // Dedicated servers have no host to press Start: once enough humans are in and all are
-        // ready, count down and start. Anyone un-readying (or leaving) cancels the countdown.
+        // Once enough players are in and all are ready, count down and start; a host can still
+        // press Start to go early. Anyone un-readying (or leaving) cancels the countdown.
         private void Update()
         {
             if (!IsSpawned || !IsServer || m_MatchStarting) return;
             var session = ConquestSessionManager.Instance;
-            if (session == null || !session.isDedicatedServer) return;
+            if (session == null) return;
 
-            bool canStart = lobbyPlayers.Count >= Mathf.Max(1, session.minPlayersToStart) && AllPlayersReady();
+            // A listen server's host counts as a player; a dedicated server waits for its minimum.
+            int minPlayers = session.isDedicatedServer ? Mathf.Max(1, session.minPlayersToStart) : 1;
+            bool canStart = lobbyPlayers.Count >= minPlayers && AllPlayersReady();
             if (!canStart)
             {
                 if (m_AutoStartAt >= 0f)

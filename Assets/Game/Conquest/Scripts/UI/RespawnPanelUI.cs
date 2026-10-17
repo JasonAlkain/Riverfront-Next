@@ -15,6 +15,10 @@ namespace Game.Conquest
         [Tooltip("Class select buttons, ordered by class index (Assault, Heavy, Engineer, Recon).")]
         public Button[] btn_Classes;
 
+        [Header("Deploy")]
+        [Tooltip("Spawns the player with the selected class at the selected post.")]
+        public Button btn_Deploy;
+
         [Header("Spawn Post Buttons")]
         public SpawnPostButtonUI spawnPostButtonPrefab;
         public Transform spawnPostContainer;
@@ -27,12 +31,15 @@ namespace Game.Conquest
         public event Action<int> ClassSelected;
         /// <summary>Raised with the post name when a spawn post button is clicked.</summary>
         public event Action<string> SpawnPostSelected;
+        /// <summary>Raised when the deploy button is clicked.</summary>
+        public event Action DeployClicked;
 
         private readonly List<SpawnPostButtonUI> m_SpawnPostButtons = new List<SpawnPostButtonUI>();
         private int m_SelectedClass = -1;
 
         private void Awake()
         {
+            if (btn_Deploy != null) btn_Deploy.onClick.AddListener(() => DeployClicked?.Invoke());
             if (btn_Classes == null) return;
             for (int i = 0; i < btn_Classes.Length; i++)
             {
@@ -45,6 +52,11 @@ namespace Game.Conquest
         public void SetTimer(string text)
         {
             if (txt_Timer != null) txt_Timer.text = text;
+        }
+
+        public void SetDeployInteractable(bool interactable)
+        {
+            if (btn_Deploy != null && btn_Deploy.interactable != interactable) btn_Deploy.interactable = interactable;
         }
 
         public void SetSelectedClass(int classIndex)

@@ -39,10 +39,18 @@ namespace Game.Conquest.UI
         private NetworkSceneManager m_SubscribedSceneManager;
         private readonly List<MatchResultRow> m_Sorted = new List<MatchResultRow>();
 
+        // A dedicated server still runs this screen's server side (sending results, returning
+        // everyone to the lobby) but skips everything that is only for a player to look at.
+        private bool m_Headless;
+
         private void Start()
         {
-            Cursor.lockState = CursorLockMode.None;
-            Cursor.visible = true;
+            m_Headless = ConquestServerLaunchArgs.IsDedicatedServerLaunch();
+            if (!m_Headless)
+            {
+                Cursor.lockState = CursorLockMode.None;
+                Cursor.visible = true;
+            }
 
             if (summaryPanelUI != null && summaryPanelUI.btn_ReturnNow != null)
             {
@@ -113,7 +121,7 @@ namespace Game.Conquest.UI
                 m_ReturnAt = Time.unscaledTime + m_Shown.returnToLobbySeconds;
             }
 
-            if (m_ReturnAt >= 0f)
+            if (m_ReturnAt >= 0f && !m_Headless)
             {
                 int remaining = Mathf.CeilToInt(Mathf.Max(0f, m_ReturnAt - Time.unscaledTime));
                 summaryPanelUI?.SetCountdown(m_Returning ? "Returning to the lobby..." : $"Returning to the lobby in {remaining}s");

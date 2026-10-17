@@ -121,8 +121,6 @@ namespace Game.Conquest.UI
 
         private void Awake()
         {
-            Instance = this;
-
             // Ensure persistent services exist if MainMenu is opened directly
             if (ConquestSettingsManager.Instance == null)
             {
@@ -132,6 +130,16 @@ namespace Game.Conquest.UI
                 var stm = servicesGO.AddComponent<ConquestSceneTransitionManager>();
                 stm.SetMapRegistry(mapRegistry);
             }
+
+            // A dedicated server shows no menus. The lobby itself runs on ConquestLobbyManager,
+            // which stays active in this scene.
+            if (ConquestServerLaunchArgs.IsDedicatedServerLaunch())
+            {
+                enabled = false;
+                return;
+            }
+
+            Instance = this;
 
             // One-time lookup (not per frame) in case the scene hasn't assigned the header yet.
             if (headerBannerUI == null)
@@ -154,10 +162,11 @@ namespace Game.Conquest.UI
             Cursor.lockState = CursorLockMode.None;
             Cursor.visible = true;
 
-            if (ConquestSessionManager.Instance != null)
+            var session = ConquestSession.Current;
+            if (session != null)
             {
-                ConquestSessionManager.Instance.OnStatusChanged += HandleStatusChanged;
-                HandleStatusChanged(ConquestSessionManager.Instance.StatusMessage);
+                session.OnStatusChanged += HandleStatusChanged;
+                HandleStatusChanged(session.StatusMessage);
             }
 
             SubscribeNetworkCallbacks();
@@ -167,9 +176,9 @@ namespace Game.Conquest.UI
         private void OnDestroy()
         {
             UnsubscribeNetworkCallbacks();
-            if (ConquestSessionManager.Instance != null)
+            if (ConquestSession.Current != null)
             {
-                ConquestSessionManager.Instance.OnStatusChanged -= HandleStatusChanged;
+                ConquestSession.Current.OnStatusChanged -= HandleStatusChanged;
             }
             if (Instance == this) Instance = null;
         }
@@ -231,8 +240,8 @@ namespace Game.Conquest.UI
             {
                 // Enumerating interfaces allocates, so resolve the join address once per lobby visit.
                 bool hosting = NetworkManager.Singleton != null && NetworkManager.Singleton.IsServer;
-                m_LobbyJoinAddressLine = hosting && ConquestSessionManager.Instance != null
-                    ? $"\nPLAYERS JOIN AT: {ConquestSessionManager.GetHostAddressSummary(ConquestSessionManager.Instance.hostPort)}"
+                m_LobbyJoinAddressLine = hosting && ConquestSession.Current != null
+                    ? $"\nPLAYERS JOIN AT: {ConquestSession.Current.HostJoinAddress}"
                     : "";
                 m_LobbyNameSent = false;
                 m_LobbyDisplayValid = false;
@@ -494,7 +503,7 @@ namespace Game.Conquest.UI
             var maps = mapRegistry != null ? mapRegistry.RegisteredMaps : null;
             var map = maps != null && maps.Count > 0 ? maps[m_SelectedMapIndex] : null;
             string sceneName = map != null ? map.sceneName : "ConquestLargeBattlefield";
-            ConquestSessionManager.Instance?.StartSoloGame(sceneName, m_SoloTickets, m_SoloTeamSize, (BotDifficulty)m_SoloBotDifficultyIndex);
+            ConquestSession.Current?.StartSoloGame(sceneName, m_SoloTickets, m_SoloTeamSize, (BotDifficulty)m_SoloBotDifficultyIndex);
         }
 
         private void LaunchHostGame()
@@ -506,7 +515,8 @@ namespace Game.Conquest.UI
             var nameInput = hostPanelUI != null ? hostPanelUI.tmp_SessionName : null;
             string sName = nameInput != null && !string.IsNullOrWhiteSpace(nameInput.text) ? nameInput.text : m_HostSessionName;
 
-            bool success = ConquestSessionManager.Instance != null && ConquestSessionManager.Instance.StartHostGame(
+            var session = ConquestSession.Current;
+            bool success = session != null && session.StartHostGame(
                 mapId, sceneName, sName, m_HostMaxPlayers, m_HostTickets, m_HostTeamSize, m_HostBotFilling, (BotDifficulty)m_HostBotDifficultyIndex);
 
             if (success)
@@ -748,8 +758,8 @@ namespace Game.Conquest.UI
             }
 
             m_LeavingIntentionally = false;
-            var session = ConquestSessionManager.Instance;
-            if (session == null || !session.StartClientConnect(address, port))
+            var session = ConquestSession.Current;
+            if (session == null || !session.StartClientConnect(new ConquestConnectionData(address, port)))
             {
                 SetJoinStatus("Could not start the connection.");
                 return;
@@ -765,8 +775,7 @@ namespace Game.Conquest.UI
             if (!m_IsConnecting) return;
             m_IsConnecting = false;
             m_LeavingIntentionally = true;
-            var nm = NetworkManager.Singleton;
-            if (nm != null && (nm.IsClient || nm.IsServer)) nm.Shutdown();
+            ConquestSession.Current?.CancelConnect();
             SetJoinStatus("Connection cancelled.");
         }
 
@@ -774,7 +783,7 @@ namespace Game.Conquest.UI
         {
             m_IsConnecting = false;
             m_LeavingIntentionally = true;
-            ConquestSessionManager.Instance?.LeaveSession();
+            ConquestSession.Current?.LeaveSession();
             SwitchScreen(MenuState.Title);
         }
 

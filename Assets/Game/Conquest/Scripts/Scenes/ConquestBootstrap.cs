@@ -23,6 +23,10 @@ namespace Game.Conquest.Scenes
             // A headless server has nothing to render; don't spin the CPU on frames.
             Application.targetFrameRate = 60;
 
+            // Nobody is listening either: stop the audio mixer so gunfire and capture sounds cost nothing.
+            AudioListener.pause = true;
+            AudioListener.volume = 0f;
+
             // The lobby NetworkObject and NetworkManager live in the menu scene, so load it first and
             // start the server once it's active. The persistent session manager outlives this object.
             UnityEngine.SceneManagement.SceneManager.sceneLoaded += OnMenuLoadedForServer;
@@ -35,14 +39,14 @@ namespace Game.Conquest.Scenes
         private static void OnMenuLoadedForServer(Scene scene, LoadSceneMode mode)
         {
             UnityEngine.SceneManagement.SceneManager.sceneLoaded -= OnMenuLoadedForServer;
-            var session = ConquestSessionManager.Instance;
+            var session = ConquestSession.Current;
             if (session == null)
             {
-                Debug.LogError("[ConquestBootstrap] Dedicated server: no ConquestSessionManager; quitting.");
+                Debug.LogError("[ConquestBootstrap] Dedicated server: no session service; quitting.");
                 Application.Quit(1);
                 return;
             }
-            session.StartDedicatedServerDeferred(s_ServerArgs);
+            session.StartDedicatedServer(s_ServerArgs);
         }
 
         private void Start()

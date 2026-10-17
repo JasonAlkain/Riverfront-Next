@@ -54,10 +54,11 @@ namespace Game.Conquest.Combat
             currentHealth.OnValueChanged += HandleHealthChanged;
             isDead.OnValueChanged += HandleDeathChanged;
 
+            // isDead is left alone: the player may already be held out of play for deploy
+            // (ServerHold), depending on which component's OnNetworkSpawn ran first.
             if (IsServer)
             {
                 currentHealth.Value = maxHealth;
-                isDead.Value = false;
             }
         }
 
@@ -80,7 +81,8 @@ namespace Game.Conquest.Combat
             if (newVal)
             {
                 if (!IsServer) OnDied?.Invoke(NoAttacker);
-                PlayAudio(deathSoundClip, 0.9f);
+                // A hold for deploy keeps full health; only a real death plays the sound.
+                if (currentHealth.Value <= 0) PlayAudio(deathSoundClip, 0.9f);
             }
             else
             {
@@ -132,6 +134,17 @@ namespace Game.Conquest.Combat
             {
                 currentHealth.Value = maxHealth;
             }
+        }
+
+        /// <summary>
+        /// Server: keep this player out of play, as if dead, without it counting as a death
+        /// (no ticket, no killer). Used while a player picks a class and post before deploying.
+        /// </summary>
+        public void ServerHold()
+        {
+            if (!IsServer) return;
+            currentHealth.Value = maxHealth;
+            isDead.Value = true;
         }
 
         public void ResetHealth()

@@ -14,7 +14,10 @@ namespace Game.Conquest
 
         private void Awake()
         {
-            if (tgl_Ready != null) tgl_Ready.onValueChanged.AddListener(_ => m_OnReadyToggled?.Invoke());
+            if (tgl_Ready == null) return;
+            // Cards start unready until the server says otherwise.
+            tgl_Ready.SetIsOnWithoutNotify(false);
+            tgl_Ready.onValueChanged.AddListener(_ => m_OnReadyToggled?.Invoke());
         }
 
         /// <param name="onReadyToggled">Set only on the local player's own card, which makes its toggle clickable.</param>

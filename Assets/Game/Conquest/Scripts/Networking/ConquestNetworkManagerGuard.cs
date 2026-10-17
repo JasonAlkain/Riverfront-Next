@@ -5,9 +5,9 @@ using UnityEngine;
 namespace Game.Conquest.Networking
 {
     /// <summary>
-    /// Keeps exactly one NetworkManager alive. MainMenu and every map scene carry their own
-    /// NetworkManager + UnityTransport; NGO makes the first one the persistent singleton and
-    /// leaves later copies idle in DontDestroyOnLoad, piling up with each scene change.
+    /// Keeps exactly one NetworkManager alive. Only MainMenu carries a NetworkManager +
+    /// UnityTransport, but players return there after every match while the first one is still
+    /// the persistent singleton; NGO would leave each later copy idle in DontDestroyOnLoad.
     /// Duplicates are disabled before their OnEnable runs (so they never move their
     /// GameObject, which may hold scene components, into DontDestroyOnLoad) and removed.
     /// </summary>
