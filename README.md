@@ -59,3 +59,47 @@ normal scene list and player settings, so its version matches the client build. 
 Players join with **Multiplayer → Join by IP** using the address the server logs at startup.
 Allow the port through the Windows firewall on the server machine. Clients and server must be the
 same build (the server refuses mismatched versions).
+
+## Building and publishing to itch.io
+
+Release builds are made headless from a terminal (close the project in the Editor first; Unity locks it):
+
+```
+powershell -ExecutionPolicy Bypass -File Tools/Build/build.ps1 -Zip
+```
+
+This builds the Windows client and the dedicated server with the scene list and Player Settings from
+the project, and writes them to `Builds/<version>/` (gitignored):
+
+| Path | What |
+| --- | --- |
+| `windows-client/` | The game. This folder is what gets pushed to itch.io. |
+| `windows-server/` | Dedicated server build (see above). |
+| `symbols/` | Burst/IL2CPP debug folders Unity writes next to the exe. Keep for crash reports, never ship. |
+| `zips/` | Zipped client and server (with `-Zip`) for sharing outside itch.io. |
+| `build-info.txt` | Version, Unity version and build time. |
+
+The version defaults to `<Player Settings version>+<git commit>` (for example `0.1.0+a418e76`), with
+`-dirty` added if there are uncommitted changes. Pass `-Version 0.2.0` for a named release.
+It becomes `Application.version`, which clients and servers compare when connecting, so the client
+and server from one run always match. Other options: `-Targets client` or `-Targets server`,
+`-Development`, `-UnityPath` (defaults to the Hub install of the version in `ProjectVersion.txt`).
+The same builds are available in the Editor under **Rivetfront → Build**.
+
+Push the newest build to https://allyn-david.itch.io/riverfront-next:
+
+```
+powershell -ExecutionPolicy Bypass -File Tools/Build/publish-itch.ps1 -DryRun
+powershell -ExecutionPolicy Bypass -File Tools/Build/publish-itch.ps1
+```
+
+It pushes `windows-client/` to the `windows` channel with `--userversion <version>`; butler only
+uploads what changed. `-IncludeServer` also pushes the server to `windows-server`, and `-Version`
+picks an older build. It refuses `-dirty` builds unless you pass `-AllowDirty`.
+
+One-time setup:
+1. Install [butler](https://itchio.itch.io/butler) and put it on PATH (the script also looks in `C:\butler`).
+2. Run `butler login`, or set `BUTLER_API_KEY` to a key from https://itch.io/user/settings/api-keys.
+   Never commit the key.
+3. Create the project page on itch.io (Kind of project: Downloadable) with the URL `riverfront-next`.
+   The first push creates the `windows` channel; then mark it as Windows in the page's upload list.
