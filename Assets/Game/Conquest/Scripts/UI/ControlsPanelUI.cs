@@ -7,15 +7,17 @@ using Game.Conquest.Controls;
 namespace Game.Conquest
 {
     /// <summary>
-    /// Keyboard and mouse rebinding, opened from the Settings panel (SettingsPanelUI.btn_Controls). Rows are RebindRow prefab
-    /// instances, one per rebindable binding; rebinds are saved at once by ConquestInput.
-    /// Pause stays on Escape so the menu can always be reached.
+    /// Keyboard and mouse rebinding, opened from the Settings panel (SettingsPanelUI.btn_Controls).
+    /// Rows are RebindRow prefab instances in two columns, movement and combat; rebinds are saved at
+    /// once by ConquestInput. A key used by two rows is shown in a warning colour. Pause stays on
+    /// Escape so the menu can always be reached.
     /// </summary>
     public class ControlsPanelUI : MonoBehaviour
     {
         [Header("Rows")]
         public RebindRowUI rowPrefab;
-        public Transform rowsParent;
+        public Transform movementRows;
+        public Transform combatRows;
 
         [Header("Buttons")]
         public Button btn_Reset;
@@ -59,30 +61,31 @@ namespace Game.Conquest
 
         private void BuildRows()
         {
-            if (rowPrefab == null || rowsParent == null) return;
+            if (rowPrefab == null || movementRows == null || combatRows == null) return;
             var g = ConquestInput.Gameplay;
 
             // Movement is a composite: one row per direction.
-            AddCompositePart("Move forward", g.Move, "up");
-            AddCompositePart("Move back", g.Move, "down");
-            AddCompositePart("Move left", g.Move, "left");
-            AddCompositePart("Move right", g.Move, "right");
-            AddRow("Fire", g.Fire);
-            AddRow("Aim / scope", g.Aim);
-            AddRow("Reload", g.Reload);
-            AddRow("Sprint", g.Sprint);
-            AddRow("Jump", g.Jump);
-            AddRow("Deploy station", g.Deploy);
-            AddRow("Scoreboard", g.Scoreboard);
+            AddCompositePart(movementRows, "Forward", g.Move, "up");
+            AddCompositePart(movementRows, "Back", g.Move, "down");
+            AddCompositePart(movementRows, "Left", g.Move, "left");
+            AddCompositePart(movementRows, "Right", g.Move, "right");
+            AddRow(movementRows, "Sprint", g.Sprint);
+            AddRow(movementRows, "Jump", g.Jump);
+
+            AddRow(combatRows, "Fire", g.Fire);
+            AddRow(combatRows, "Aim / scope", g.Aim);
+            AddRow(combatRows, "Reload", g.Reload);
+            AddRow(combatRows, "Deploy station", g.Deploy);
+            AddRow(combatRows, "Scoreboard", g.Scoreboard);
         }
 
-        private void AddRow(string label, InputAction action)
+        private void AddRow(Transform parent, string label, InputAction action)
         {
             int index = action.GetBindingIndex(group: ConquestInput.KeyboardMouseGroup);
-            if (index >= 0) CreateRow(label, action, index);
+            if (index >= 0) CreateRow(parent, label, action, index);
         }
 
-        private void AddCompositePart(string label, InputAction action, string partName)
+        private void AddCompositePart(Transform parent, string label, InputAction action, string partName)
         {
             var bindings = action.bindings;
             for (int i = 0; i < bindings.Count; i++)
@@ -90,15 +93,15 @@ namespace Game.Conquest
                 if (bindings[i].isPartOfComposite && bindings[i].name == partName &&
                     InputBinding.MaskByGroup(ConquestInput.KeyboardMouseGroup).Matches(bindings[i]))
                 {
-                    CreateRow(label, action, i);
+                    CreateRow(parent, label, action, i);
                     return;
                 }
             }
         }
 
-        private void CreateRow(string label, InputAction action, int bindingIndex)
+        private void CreateRow(Transform parent, string label, InputAction action, int bindingIndex)
         {
-            RebindRowUI row = Instantiate(rowPrefab, rowsParent);
+            RebindRowUI row = Instantiate(rowPrefab, parent);
             row.Setup(label, action, bindingIndex);
             row.Clicked += StartRebind;
             m_Rows.Add(row);
@@ -134,7 +137,16 @@ namespace Game.Conquest
 
         private void RefreshRows()
         {
-            for (int i = 0; i < m_Rows.Count; i++) m_Rows[i].Refresh();
+            for (int i = 0; i < m_Rows.Count; i++)
+            {
+                string path = m_Rows[i].EffectivePath;
+                bool conflict = false;
+                for (int j = 0; j < m_Rows.Count && !conflict; j++)
+                {
+                    conflict = j != i && string.Equals(m_Rows[j].EffectivePath, path, System.StringComparison.OrdinalIgnoreCase);
+                }
+                m_Rows[i].Refresh(conflict);
+            }
         }
     }
 }
