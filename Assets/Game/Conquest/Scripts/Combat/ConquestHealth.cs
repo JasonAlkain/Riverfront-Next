@@ -147,6 +147,14 @@ namespace Game.Conquest.Combat
             }
         }
 
+        /// <summary>Server: restore up to <paramref name="amount"/> health, never above max. The dead can't be healed.</summary>
+        public void Heal(int amount)
+        {
+            if (!IsServer || isDead.Value || amount <= 0) return;
+            int newHealth = Mathf.Min(maxHealth, currentHealth.Value + amount);
+            if (newHealth != currentHealth.Value) currentHealth.Value = newHealth;
+        }
+
         public void SetMaxHealth(int newMaxHealth)
         {
             maxHealth = newMaxHealth;

@@ -342,7 +342,14 @@ namespace Game.Conquest.UI
             if (weapon != null)
             {
                 ammo = weapon.IsReloading ? "AMMO: RELOADING..." : $"AMMO: {weapon.CurrentAmmo} / {weapon.MagazineCapacity} [R]";
-                if (weapon.HasSupportStation) ammo += "  |  [Q] Station";
+                if (weapon.HasSupportStation)
+                {
+                    string refusal = weapon.StationRefusal;
+                    float cooldown = weapon.StationCooldownRemaining;
+                    if (refusal.Length > 0) ammo += $"  |  {refusal}";
+                    else if (cooldown > 0f) ammo += $"  |  Station {Mathf.CeilToInt(cooldown)}s";
+                    else ammo += "  |  [Q] Station";
+                }
                 if (weapon.HasZoom) ammo += "  |  [RMB] Scope";
             }
 

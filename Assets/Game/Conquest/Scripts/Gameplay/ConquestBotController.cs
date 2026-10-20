@@ -60,6 +60,8 @@ namespace Game.Conquest.Gameplay
         private Vector3 m_LastPos;
         private float m_StuckTimer;
         private bool m_HasReacted;
+        private float m_NextStationAttemptTime;
+        private const float StationAttemptInterval = 3f;
 
         public BotState CurrentState => currentState;
         public BotDifficulty Difficulty => difficulty;
@@ -356,6 +358,10 @@ namespace Game.Conquest.Gameplay
             {
                 MoveToTarget(m_TargetPost.GetCaptureTargetPosition(transform.position));
             }
+            else
+            {
+                TryDeployStationAtPost();
+            }
 
             // Once fully captured and secured, push immediately to next objective!
             if (m_TargetPost.CurrentOwner == m_Player.CurrentTeam && !m_TargetPost.IsContested && m_TargetPost.CaptureProgress >= 0.99f)
@@ -367,6 +373,16 @@ namespace Game.Conquest.Gameplay
                     MoveToTarget(m_TargetPost.GetCaptureTargetPosition(transform.position));
                 }
             }
+        }
+
+        // Engineer bots drop a station while holding a post, unless their own already covers them.
+        // The weapon applies the same cooldown and team cap as for players.
+        private void TryDeployStationAtPost()
+        {
+            if (m_Weapon == null || !m_Weapon.HasSupportStation || Time.time < m_NextStationAttemptTime) return;
+            m_NextStationAttemptTime = Time.time + StationAttemptInterval;
+            if (m_Weapon.ServerOwnStationCovers(transform.position)) return;
+            m_Weapon.ServerTryDeployStation();
         }
 
         private void UpdateDefend()

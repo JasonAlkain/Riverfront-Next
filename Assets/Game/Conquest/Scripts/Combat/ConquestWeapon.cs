@@ -29,6 +29,8 @@ namespace Game.Conquest.Combat
         [SerializeField] private bool hasSupportStation = false;
         [SerializeField] private GameObject supportStationPrefab;
         [SerializeField] private float stationCooldown = 15.0f;
+        [Tooltip("Placeholder: most stations one team may have out at once (each player still has at most one).")]
+        [SerializeField] private int maxStationsPerTeam = 3;
 
         [Header("Server Validation")]
         [Tooltip("Shots may arrive this much earlier than the fire rate allows (network jitter) without being dropped.")]
@@ -500,46 +502,97 @@ namespace Game.Conquest.Combat
             if (isReloading.Value || currentAmmo.Value < magazineCapacity) ServerResetAmmo();
         }
 
+        /// <summary>Owner: seconds until the station can be deployed again (as last confirmed by the server).</summary>
+        public float StationCooldownRemaining => Mathf.Max(0f, m_NextStationDeployTime - Time.time);
+
+        /// <summary>Owner: why the last deploy was refused, shown briefly on the HUD; empty otherwise.</summary>
+        public string StationRefusal => Time.time < m_StationRefusalUntil ? m_StationRefusal : "";
+
+        private string m_StationRefusal = "";
+        private float m_StationRefusalUntil;
+
         private void TryDeployStation()
         {
+            // The cooldown only starts when the server confirms a deploy (StationDeployResultClientRpc).
             if (Time.time < m_NextStationDeployTime) return;
-            m_NextStationDeployTime = Time.time + stationCooldown;
-
             DeployStationServerRpc();
         }
 
         [ServerRpc]
         private void DeployStationServerRpc()
         {
-            if (supportStationPrefab == null || m_Player == null) return;
-            // Capability, alive state and cooldown are checked here, not just on the client.
-            if (!hasSupportStation) return;
-            if (m_Health != null && m_Health.IsDead) return;
-            if (IsMatchOver) return;
-            if (Time.time < m_ServerNextStationTime) return;
+            StationDeployResult result = ServerTryDeployStation();
+            if (result != StationDeployResult.Ignored)
+            {
+                StationDeployResultClientRpc(result, Mathf.Max(0f, m_ServerNextStationTime - Time.time), m_OwnerRpcParams);
+            }
+        }
+
+        public enum StationDeployResult : byte { Ignored, Deployed, CoolingDown, TeamLimit }
+
+        /// <summary>Server: true if this player's own station is up and covers <paramref name="position"/>.</summary>
+        public bool ServerOwnStationCovers(Vector3 position)
+        {
+            if (m_ServerActiveStation == null || !m_ServerActiveStation.IsSpawned) return false;
+            var station = m_ServerActiveStation.GetComponent<ConquestSupportStation>();
+            float range = station != null ? station.Radius : 0f;
+            return (m_ServerActiveStation.transform.position - position).sqrMagnitude <= range * range;
+        }
+
+        /// <summary>
+        /// Server: deploy this player's (or bot's) support station in front of them. Capability,
+        /// alive state, cooldown and the per-team cap are all checked here, never on the client.
+        /// </summary>
+        public StationDeployResult ServerTryDeployStation()
+        {
+            if (!IsServer || supportStationPrefab == null || m_Player == null) return StationDeployResult.Ignored;
+            if (!hasSupportStation || IsMatchOver) return StationDeployResult.Ignored;
+            if (m_Health != null && m_Health.IsDead) return StationDeployResult.Ignored;
+            if (Time.time < m_ServerNextStationTime) return StationDeployResult.CoolingDown;
+
+            // One active station per player: deploying again replaces the old one, so it never
+            // counts against the team cap.
+            bool replacing = m_ServerActiveStation != null && m_ServerActiveStation.IsSpawned;
+            if (!replacing && ConquestSupportStation.CountForTeam(m_Player.CurrentTeam) >= maxStationsPerTeam)
+            {
+                return StationDeployResult.TeamLimit;
+            }
+
+            if (replacing) m_ServerActiveStation.Despawn(true);
+            m_ServerActiveStation = null;
+
             if (m_Health != null) m_Health.EndSpawnProtection();
             m_ServerNextStationTime = Time.time + stationCooldown;
-
-            // One active station per player: deploying again replaces the old one.
-            if (m_ServerActiveStation != null && m_ServerActiveStation.IsSpawned)
-            {
-                m_ServerActiveStation.Despawn(true);
-            }
-            m_ServerActiveStation = null;
 
             // Position comes from the server's view of the player, never from the client.
             Vector3 position = transform.position + transform.forward * stationDeployDistance + Vector3.up * 0.1f;
             GameObject stationObj = Instantiate(supportStationPrefab, position, transform.rotation);
             var netObj = stationObj.GetComponent<NetworkObject>();
-            if (netObj != null)
+            if (netObj == null)
             {
-                netObj.Spawn();
-                m_ServerActiveStation = netObj;
-                var stationComp = stationObj.GetComponent<ConquestSupportStation>();
-                if (stationComp != null)
-                {
-                    stationComp.stationTeam.Value = m_Player.CurrentTeam;
-                }
+                Destroy(stationObj);
+                return StationDeployResult.Ignored;
+            }
+
+            // Team first, so the station is counted for the right side from its first frame.
+            var stationComp = stationObj.GetComponent<ConquestSupportStation>();
+            if (stationComp != null) stationComp.stationTeam.Value = m_Player.CurrentTeam;
+            netObj.Spawn();
+            m_ServerActiveStation = netObj;
+            return StationDeployResult.Deployed;
+        }
+
+        [ClientRpc]
+        private void StationDeployResultClientRpc(StationDeployResult result, float cooldownLeft, ClientRpcParams rpcParams = default)
+        {
+            if (result == StationDeployResult.Deployed || result == StationDeployResult.CoolingDown)
+            {
+                m_NextStationDeployTime = Time.time + cooldownLeft;
+            }
+            if (result == StationDeployResult.TeamLimit)
+            {
+                m_StationRefusal = "TEAM STATION LIMIT";
+                m_StationRefusalUntil = Time.time + 2f;
             }
         }
 

@@ -1,4 +1,4 @@
-using System.Collections;
+using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
 using Game.Conquest.Gameplay;
@@ -30,24 +30,44 @@ namespace Game.Conquest.Combat
             NetworkVariableReadPermission.Everyone,
             NetworkVariableWritePermission.Server);
 
+        private static readonly List<ConquestSupportStation> s_Active = new List<ConquestSupportStation>();
+
         private float m_NextPulseTime;
+        private float m_ServerExpiresAt;
+
+        public float Radius => radius;
+
+        /// <summary>Spawned stations on this peer (the server's list is the one rules use).</summary>
+        public static IReadOnlyList<ConquestSupportStation> Active => s_Active;
+
+        public static int CountForTeam(Team team)
+        {
+            int count = 0;
+            for (int i = 0; i < s_Active.Count; i++)
+            {
+                if (s_Active[i] != null && s_Active[i].stationTeam.Value == team) count++;
+            }
+            return count;
+        }
 
         public override void OnNetworkSpawn()
         {
             stationTeam.OnValueChanged += HandleTeamChanged;
             UpdateVisuals(stationTeam.Value);
+            if (!s_Active.Contains(this)) s_Active.Add(this);
 
             if (IsServer)
             {
                 currentHealth.Value = maxHealth;
                 m_NextPulseTime = Time.time + pulseInterval;
-                Destroy(gameObject, lifetime);
+                m_ServerExpiresAt = Time.time + lifetime;
             }
         }
 
         public override void OnNetworkDespawn()
         {
             stationTeam.OnValueChanged -= HandleTeamChanged;
+            s_Active.Remove(this);
         }
 
         private void HandleTeamChanged(Team oldTeam, Team newTeam)
@@ -59,12 +79,19 @@ namespace Game.Conquest.Combat
         {
             if (stationRenderer == null) return;
             Material mat = team == Team.Red ? redMaterial : (team == Team.Blue ? blueMaterial : null);
-            if (mat != null) stationRenderer.material = mat;
+            if (mat != null) stationRenderer.sharedMaterial = mat;
         }
 
         private void Update()
         {
-            if (!IsServer) return;
+            if (!IsServer || !IsSpawned) return;
+
+            // Despawn (not Destroy) so the station disappears on every peer and NGO stays consistent.
+            if (Time.time >= m_ServerExpiresAt)
+            {
+                NetworkObject.Despawn(true);
+                return;
+            }
 
             if (Time.time >= m_NextPulseTime)
             {
@@ -73,38 +100,30 @@ namespace Game.Conquest.Combat
             }
         }
 
+        // Each pulse heals and refills every living teammate in range, bots included.
         private void PulseSupport()
         {
-            Collider[] hits = Physics.OverlapSphere(transform.position, radius);
-            foreach (var col in hits)
+            float sqrRadius = radius * radius;
+            Vector3 center = transform.position;
+            var all = ConquestPlayer.All;
+            for (int i = 0; i < all.Count; i++)
             {
-                ConquestPlayer player = col.GetComponentInParent<ConquestPlayer>();
-                if (player != null && !player.Health.IsDead && player.CurrentTeam == stationTeam.Value)
-                {
-                    // Heal
-                    if (player.Health.CurrentHealth < player.Health.MaxHealth)
-                    {
-                        int newHealth = Mathf.Min(player.Health.MaxHealth, player.Health.CurrentHealth + healAmount);
-                        player.Health.currentHealth.Value = newHealth;
-                    }
+                ConquestPlayer player = all[i];
+                if (player == null || player.Health.IsDead || player.CurrentTeam != stationTeam.Value) continue;
+                if ((player.transform.position - center).sqrMagnitude > sqrRadius) continue;
 
-                    // Resupply ammo
-                    ConquestWeapon wep = player.GetComponent<ConquestWeapon>();
-                    if (wep != null)
-                    {
-                        wep.ResupplyAmmo();
-                    }
-                }
+                player.Health.Heal(healAmount);
+                if (player.Weapon != null) player.Weapon.ResupplyAmmo();
             }
         }
 
         public void TakeDamage(int damage)
         {
-            if (!IsServer) return;
+            if (!IsServer || !IsSpawned) return;
             currentHealth.Value = Mathf.Max(0, currentHealth.Value - damage);
             if (currentHealth.Value <= 0)
             {
-                GetComponent<NetworkObject>()?.Despawn(true);
+                NetworkObject.Despawn(true);
             }
         }
 
