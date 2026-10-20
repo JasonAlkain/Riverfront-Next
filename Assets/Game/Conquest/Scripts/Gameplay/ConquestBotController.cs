@@ -40,7 +40,7 @@ namespace Game.Conquest.Gameplay
         [SerializeField] private float fieldOfView = 120.0f;
         [SerializeField] private float aimAccuracy = 0.6f; // 0 (wild) to 1 (perfect)
         [SerializeField] private float reactionDelay = 0.5f;
-        [SerializeField] private LayerMask visionMask = ~0;
+        [SerializeField] private LayerMask visionMask = ConquestPhysics.ShotMask;
 
         [Header("Behavior Intervals")]
         [SerializeField] private float decisionInterval = 1.0f;
@@ -456,37 +456,34 @@ namespace Game.Conquest.Gameplay
 
         private ConquestPlayer ScanForEnemy()
         {
-            Collider[] hits = Physics.OverlapSphere(transform.position, detectionRange);
             ConquestPlayer closest = null;
-            float closestDist = float.MaxValue;
+            float closestSqrDist = detectionRange * detectionRange;
+            Vector3 eyePos = transform.position + Vector3.up * 1.6f;
 
-            foreach (var col in hits)
+            // The roster of spawned players, not an OverlapSphere: no allocation, and range is
+            // measured to the target's position rather than to whichever collider overlapped.
+            var all = ConquestPlayer.All;
+            for (int i = 0; i < all.Count; i++)
             {
-                ConquestPlayer candidate = col.GetComponentInParent<ConquestPlayer>();
+                ConquestPlayer candidate = all[i];
                 if (candidate == null || candidate == m_Player || candidate.Health.IsDead) continue;
                 if (candidate.CurrentTeam == m_Player.CurrentTeam || candidate.CurrentTeam == Team.Neutral) continue;
 
                 Vector3 toTarget = candidate.transform.position - transform.position;
-                float angle = Vector3.Angle(transform.forward, toTarget);
+                float sqrDist = toTarget.sqrMagnitude;
+                if (sqrDist > closestSqrDist) continue;
+                if (Vector3.Angle(transform.forward, toTarget) > fieldOfView * 0.5f) continue;
 
-                // FOV check
-                if (angle <= fieldOfView * 0.5f)
+                // Line of sight: the bot's own body never blocks it, and hitting the target counts as seeing it.
+                Vector3 targetPos = candidate.transform.position + Vector3.up * 1.3f;
+                if (ConquestPhysics.LinecastIgnoring(transform, eyePos, targetPos, visionMask, out RaycastHit hit) &&
+                    !hit.collider.transform.IsChildOf(candidate.transform))
                 {
-                    // Line of sight check
-                    Vector3 eyePos = transform.position + Vector3.up * 1.6f;
-                    Vector3 targetPos = candidate.transform.position + Vector3.up * 1.3f;
-
-                    if (!Physics.Linecast(eyePos, targetPos, out RaycastHit hit, visionMask, QueryTriggerInteraction.Ignore) ||
-                        hit.collider.transform.IsChildOf(candidate.transform))
-                    {
-                        float dist = toTarget.sqrMagnitude;
-                        if (dist < closestDist)
-                        {
-                            closestDist = dist;
-                            closest = candidate;
-                        }
-                    }
+                    continue;
                 }
+
+                closestSqrDist = sqrDist;
+                closest = candidate;
             }
 
             return closest;

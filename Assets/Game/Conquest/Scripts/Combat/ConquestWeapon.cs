@@ -21,7 +21,7 @@ namespace Game.Conquest.Combat
         [SerializeField] private int magazineCapacity = 32;
         [SerializeField] private float reloadDuration = 1.6f;
         [SerializeField] private bool isAutomatic = true;
-        [SerializeField] private LayerMask hitLayers = ~0;
+        [SerializeField] private LayerMask hitLayers = ConquestPhysics.ShotMask;
 
         [Header("Special Abilities")]
         [SerializeField] private bool hasZoom = false;
@@ -42,6 +42,11 @@ namespace Game.Conquest.Combat
         [SerializeField] private Transform muzzlePoint;
         [SerializeField] private GameObject muzzleFlashPrefab;
         [SerializeField] private GameObject hitImpactPrefab;
+        [Tooltip("Shared tracer materials per team. Assets, never instanced at runtime.")]
+        [SerializeField] private Material redTracerMaterial;
+        [SerializeField] private Material blueTracerMaterial;
+        [SerializeField] private float tracerWidth = 0.05f;
+        [SerializeField] private float tracerDuration = 0.06f;
         [SerializeField] private AudioSource weaponAudioSource;
         [SerializeField] private AudioClip fireSoundClip;
         [SerializeField] private AudioClip reloadSoundClip;
@@ -73,6 +78,8 @@ namespace Game.Conquest.Combat
         private float m_ServerNextFireTime;
         private float m_ServerNextStationTime;
         private NetworkObject m_ServerActiveStation;
+        private Coroutine m_ServerReload;
+        private ClientRpcParams m_OwnerRpcParams;
         private float m_DefaultFOV = 75.0f;
         private bool m_IsZoomed = false;
 
@@ -92,20 +99,36 @@ namespace Game.Conquest.Combat
 
         public override void OnNetworkDespawn()
         {
+            isReloading.OnValueChanged -= HandleReloadingChanged;
+            if (IsServer && m_Health != null)
+            {
+                m_Health.OnDied -= HandleServerDied;
+            }
+
             // A player who leaves (or is cleared at match end) takes their support station with them.
             if (IsServer && m_ServerActiveStation != null && m_ServerActiveStation.IsSpawned)
             {
                 m_ServerActiveStation.Despawn(true);
             }
             m_ServerActiveStation = null;
+
+            if (m_ServerReload != null)
+            {
+                StopCoroutine(m_ServerReload);
+                m_ServerReload = null;
+            }
         }
 
         public override void OnNetworkSpawn()
         {
+            isReloading.OnValueChanged += HandleReloadingChanged;
+
             if (IsServer)
             {
-                currentAmmo.Value = magazineCapacity;
-                isReloading.Value = false;
+                // Cached so a hit confirmation doesn't allocate a target list every shot.
+                m_OwnerRpcParams = new ClientRpcParams { Send = new ClientRpcSendParams { TargetClientIds = new[] { OwnerClientId } } };
+                if (m_Health != null) m_Health.OnDied += HandleServerDied;
+                ServerResetAmmo();
             }
 
             if (m_Movement != null && m_Movement.PlayerCamera != null)
@@ -136,16 +159,19 @@ namespace Game.Conquest.Combat
             firePitchMax = data.firePitchMax;
             fireVolume = data.fireVolume;
 
-            if (IsServer)
-            {
-                currentAmmo.Value = magazineCapacity;
-                isReloading.Value = false;
-            }
+            // Also runs on every respawn (ConquestPlayer.HandleRespawn), which is what refills the magazine.
+            ServerResetAmmo();
+        }
+
+        private void HandleServerDied(ulong killerId)
+        {
+            ServerResetAmmo();
         }
 
         private void Update()
         {
-            if (!IsOwner) return;
+            // The host owns every bot, so IsOwner alone would let the host's keys drive bot weapons.
+            if (!PredictsLocally) return;
             if (m_Health != null && m_Health.IsDead) return;
             if (IsMatchOver) return;
             if (ConquestPauseMenu.Instance != null && ConquestPauseMenu.Instance.IsPaused) return;
@@ -157,6 +183,11 @@ namespace Game.Conquest.Combat
         // Firing and stations stop when the match ends, on the owner and again on the server.
         private static bool IsMatchOver =>
             ConquestMatchManager.Instance != null && ConquestMatchManager.Instance.IsMatchOver;
+
+        private bool IsBot => m_Player != null && m_Player.isBot;
+
+        /// <summary>True on the human owner's peer, which reads input and draws its own shots ahead of the server.</summary>
+        private bool PredictsLocally => IsOwner && !IsBot;
 
         private void HandleInput()
         {
@@ -218,7 +249,7 @@ namespace Game.Conquest.Combat
                 Vector3 shootDir = ApplySpread(baseRay.direction, spreadAngle);
                 Vector3 targetPoint = origin + shootDir * maxRange;
 
-                if (Physics.Raycast(origin, shootDir, out RaycastHit hit, maxRange, hitLayers, QueryTriggerInteraction.Ignore))
+                if (ConquestPhysics.RaycastIgnoring(transform, origin, shootDir, maxRange, hitLayers, out RaycastHit hit))
                 {
                     targetPoint = hit.point;
                 }
@@ -246,72 +277,97 @@ namespace Game.Conquest.Combat
         [ServerRpc]
         private void FireServerRpc(Vector3 rayOrigin, Vector3 rayDirection)
         {
-            if (m_Health != null && m_Health.IsDead) return;
-            if (IsMatchOver) return;
-            if (isReloading.Value || currentAmmo.Value <= 0) return;
+            if (!ServerCanShoot()) return;
             if (!ServerValidateShot(ref rayOrigin, ref rayDirection)) return;
-            if (m_Health != null) m_Health.EndSpawnProtection();
 
+            ServerResolveShot(rayOrigin, rayDirection, muzzlePoint != null ? muzzlePoint.position : rayOrigin);
+        }
+
+        /// <summary>Server: fire at a world position on behalf of this bot. Same rules as a player's shot.</summary>
+        public void FireFromAI(Vector3 targetAimPosition)
+        {
+            if (!IsServer || !ServerCanShoot()) return;
+
+            // Bots run on the server, so there is no jitter to tolerate: plain fire-rate gate.
+            if (Time.time < m_ServerNextFireTime) return;
+            m_ServerNextFireTime = Time.time + fireRate;
+
+            Vector3 origin = muzzlePoint != null ? muzzlePoint.position : transform.position + Vector3.up * 1.5f;
+            ServerResolveShot(origin, (targetAimPosition - origin).normalized, origin);
+        }
+
+        /// <summary>Server: alive, match running, not reloading and has ammo. An empty magazine starts a reload.</summary>
+        private bool ServerCanShoot()
+        {
+            if (m_Health != null && m_Health.IsDead) return false;
+            if (IsMatchOver || isReloading.Value) return false;
+            if (currentAmmo.Value <= 0)
+            {
+                ServerStartReload();
+                return false;
+            }
+            return true;
+        }
+
+        /// <summary>
+        /// Server: the one place a shot is resolved, for players and bots alike. Spends a round,
+        /// traces every pellet, applies damage to enemy players and stations, then tells clients.
+        /// </summary>
+        private void ServerResolveShot(Vector3 origin, Vector3 direction, Vector3 muzzlePos)
+        {
+            if (m_Health != null) m_Health.EndSpawnProtection();
             currentAmmo.Value = Mathf.Max(0, currentAmmo.Value - 1);
 
-            Vector3 muzzlePos = muzzlePoint != null ? muzzlePoint.position : rayOrigin;
+            Team myTeam = m_Player != null ? m_Player.CurrentTeam : Team.Neutral;
             bool hitAnyEnemy = false;
-            Vector3 primaryHitPoint = rayOrigin + rayDirection * maxRange;
-            Vector3 primaryHitNormal = -rayDirection;
             bool didHitAny = false;
+            Vector3 primaryHitPoint = origin + direction * maxRange;
+            Vector3 primaryHitNormal = -direction;
 
             for (int i = 0; i < bulletsPerShot; i++)
             {
-                Vector3 shootDir = ApplySpread(rayDirection, spreadAngle);
-                Vector3 hitPoint = rayOrigin + shootDir * maxRange;
-                Vector3 hitNormal = -shootDir;
+                Vector3 shootDir = ApplySpread(direction, spreadAngle);
+                if (!ConquestPhysics.RaycastIgnoring(transform, origin, shootDir, maxRange, hitLayers, out RaycastHit hit)) continue;
 
-                if (Physics.Raycast(rayOrigin, shootDir, out RaycastHit hit, maxRange, hitLayers, QueryTriggerInteraction.Ignore))
+                didHitAny = true;
+                if (i == 0)
                 {
-                    hitPoint = hit.point;
-                    hitNormal = hit.normal;
-                    didHitAny = true;
-                    if (i == 0)
-                    {
-                        primaryHitPoint = hitPoint;
-                        primaryHitNormal = hitNormal;
-                    }
+                    primaryHitPoint = hit.point;
+                    primaryHitNormal = hit.normal;
+                }
 
-                    // Damage target
-                    ConquestHealth targetHealth = hit.collider.GetComponentInParent<ConquestHealth>();
-                    if (targetHealth != null && targetHealth != m_Health)
+                // No friendly fire. Any health without a team (none today) is fair game.
+                ConquestHealth targetHealth = hit.collider.GetComponentInParent<ConquestHealth>();
+                if (targetHealth != null && targetHealth != m_Health)
+                {
+                    ConquestPlayer targetPlayer = targetHealth.GetComponent<ConquestPlayer>();
+                    if (targetPlayer == null || targetPlayer.CurrentTeam != myTeam)
                     {
-                        // Check team to avoid friendly fire
-                        ConquestPlayer targetPlayer = hit.collider.GetComponentInParent<ConquestPlayer>();
-                        if (targetPlayer == null || targetPlayer.CurrentTeam != m_Player.CurrentTeam)
-                        {
-                            targetHealth.TakeDamage(damagePerShot, NetworkObjectId);
-                            hitAnyEnemy = true;
-                        }
+                        targetHealth.TakeDamage(damagePerShot, NetworkObjectId);
+                        hitAnyEnemy = true;
                     }
+                    continue;
+                }
 
-                    // Damage support stations
-                    ConquestSupportStation station = hit.collider.GetComponentInParent<ConquestSupportStation>();
-                    if (station != null && station.stationTeam.Value != m_Player.CurrentTeam)
-                    {
-                        station.TakeDamage(damagePerShot);
-                    }
+                ConquestSupportStation station = hit.collider.GetComponentInParent<ConquestSupportStation>();
+                if (station != null && station.stationTeam.Value != myTeam)
+                {
+                    station.TakeDamage(damagePerShot);
+                    hitAnyEnemy = true;
                 }
             }
 
-            // Confirm hit audio to attacker ONCE per trigger
-            if (hitAnyEnemy)
+            // Hit confirmation goes to a human shooter only; a bot's owner is the host.
+            if (hitAnyEnemy && !IsBot)
             {
-                ConfirmHitClientRpc(new ClientRpcParams { Send = new ClientRpcSendParams { TargetClientIds = new[] { OwnerClientId } } });
+                ConfirmHitClientRpc(m_OwnerRpcParams);
             }
 
-            // Broadcast firing audio and tracer ONCE to remote clients
             FireClientRpc(muzzlePos, primaryHitPoint, primaryHitNormal, didHitAny);
 
-            // Auto-reload when dry
             if (currentAmmo.Value <= 0)
             {
-                StartCoroutine(ServerReloadCoroutine());
+                ServerStartReload();
             }
         }
 
@@ -343,73 +399,12 @@ namespace Game.Conquest.Combat
                      float.IsInfinity(v.x) || float.IsInfinity(v.y) || float.IsInfinity(v.z));
         }
 
-        // Server-side execution for AI soldiers
-        public void FireFromAI(Vector3 targetAimPosition)
-        {
-            if (!IsServer || (m_Health != null && m_Health.IsDead)) return;
-            if (IsMatchOver) return;
-            if (isReloading.Value) return;
-            if (m_Health != null) m_Health.EndSpawnProtection();
-
-            if (currentAmmo.Value <= 0)
-            {
-                StartCoroutine(ServerReloadCoroutine());
-                return;
-            }
-
-            if (Time.time < m_NextFireTime) return;
-            m_NextFireTime = Time.time + fireRate;
-
-            currentAmmo.Value = Mathf.Max(0, currentAmmo.Value - 1);
-
-            Vector3 origin = muzzlePoint != null ? muzzlePoint.position : transform.position + Vector3.up * 1.5f;
-            Vector3 aimDirection = (targetAimPosition - origin).normalized;
-            Vector3 primaryHitPoint = origin + aimDirection * maxRange;
-            Vector3 primaryHitNormal = -aimDirection;
-            bool didHitAny = false;
-
-            for (int i = 0; i < bulletsPerShot; i++)
-            {
-                Vector3 shootDir = ApplySpread(aimDirection, spreadAngle);
-                Vector3 hitPoint = origin + shootDir * maxRange;
-                Vector3 hitNormal = -shootDir;
-
-                if (Physics.Raycast(origin, shootDir, out RaycastHit hit, maxRange, hitLayers, QueryTriggerInteraction.Ignore))
-                {
-                    hitPoint = hit.point;
-                    hitNormal = hit.normal;
-                    didHitAny = true;
-                    if (i == 0)
-                    {
-                        primaryHitPoint = hitPoint;
-                        primaryHitNormal = hitNormal;
-                    }
-
-                    ConquestHealth targetHealth = hit.collider.GetComponentInParent<ConquestHealth>();
-                    if (targetHealth != null && targetHealth != m_Health)
-                    {
-                        ConquestPlayer targetPlayer = hit.collider.GetComponentInParent<ConquestPlayer>();
-                        if (targetPlayer == null || targetPlayer.CurrentTeam != m_Player.CurrentTeam)
-                        {
-                            targetHealth.TakeDamage(damagePerShot, NetworkObjectId);
-                        }
-                    }
-                }
-            }
-
-            // Broadcast fire audio and visual feedback ONCE to clients
-            FireClientRpc(origin, primaryHitPoint, primaryHitNormal, didHitAny);
-
-            if (currentAmmo.Value <= 0)
-            {
-                StartCoroutine(ServerReloadCoroutine());
-            }
-        }
-
         [ClientRpc]
         private void FireClientRpc(Vector3 muzzlePos, Vector3 hitPoint, Vector3 hitNormal, bool didHit)
         {
-            if (IsOwner) return; // Local owner already rendered prediction
+            // The human shooter already drew this shot. Bots are owned by the host, so the
+            // host still needs to see and hear their fire.
+            if (PredictsLocally) return;
 
             SpawnLocalTracer(muzzlePos, hitPoint);
             PlayFireAudio();
@@ -437,41 +432,59 @@ namespace Game.Conquest.Combat
         {
             if (isReloading.Value || currentAmmo.Value >= magazineCapacity) return;
 
-            m_Animator?.TriggerReload();
-
-            if (IsServer)
-            {
-                StartCoroutine(ServerReloadCoroutine());
-            }
-            else
-            {
-                RequestReloadServerRpc();
-            }
+            // Animation and sound follow the replicated isReloading flag, on every peer.
+            if (IsServer) ServerStartReload();
+            else RequestReloadServerRpc();
         }
 
         [ServerRpc]
         private void RequestReloadServerRpc()
         {
-            if (!isReloading.Value && currentAmmo.Value < magazineCapacity)
+            if (m_Health != null && m_Health.IsDead) return;
+            if (IsMatchOver) return;
+            ServerStartReload();
+        }
+
+        /// <summary>Server: start a reload unless one is running or the magazine is full. Only one runs at a time.</summary>
+        private void ServerStartReload()
+        {
+            if (m_ServerReload != null || isReloading.Value || currentAmmo.Value >= magazineCapacity) return;
+            m_ServerReload = StartCoroutine(ServerReloadCoroutine());
+        }
+
+        /// <summary>
+        /// Server: drop any reload in progress and refill the magazine. Called on death, respawn,
+        /// class change, match end and despawn so a dead or reset player never keeps a ghost reload.
+        /// </summary>
+        public void ServerResetAmmo()
+        {
+            if (!IsServer) return;
+            if (m_ServerReload != null)
             {
-                StartCoroutine(ServerReloadCoroutine());
+                StopCoroutine(m_ServerReload);
+                m_ServerReload = null;
             }
+            isReloading.Value = false;
+            currentAmmo.Value = magazineCapacity;
         }
 
         private IEnumerator ServerReloadCoroutine()
         {
             isReloading.Value = true;
-            PlayReloadClientRpc();
 
             yield return new WaitForSeconds(reloadDuration);
 
             currentAmmo.Value = magazineCapacity;
             isReloading.Value = false;
+            m_ServerReload = null;
         }
 
-        [ClientRpc]
-        private void PlayReloadClientRpc()
+        // Runs on every peer (the server included) once per reload, on the false-to-true edge.
+        private void HandleReloadingChanged(bool wasReloading, bool reloading)
         {
+            if (!reloading || wasReloading) return;
+            if (m_Health != null && m_Health.IsDead) return;
+
             m_Animator?.TriggerReload();
             if (weaponAudioSource != null && reloadSoundClip != null)
             {
@@ -480,12 +493,11 @@ namespace Game.Conquest.Combat
             }
         }
 
+        /// <summary>Server: a full magazine now, cutting short any reload in progress.</summary>
         public void ResupplyAmmo()
         {
-            if (IsServer)
-            {
-                currentAmmo.Value = magazineCapacity;
-            }
+            if (!IsServer) return;
+            if (isReloading.Value || currentAmmo.Value < magazineCapacity) ServerResetAmmo();
         }
 
         private void TryDeployStation()
@@ -539,19 +551,8 @@ namespace Game.Conquest.Combat
                 Destroy(flash, 0.15f);
             }
 
-            GameObject tracerGO = new GameObject("LaserTracer");
-            LineRenderer lr = tracerGO.AddComponent<LineRenderer>();
-            lr.startWidth = 0.05f;
-            lr.endWidth = 0.05f;
-            lr.positionCount = 2;
-            lr.SetPosition(0, from);
-            lr.SetPosition(1, to);
-
-            Material mat = new Material(Shader.Find("Universal Render Pipeline/Unlit") ?? Shader.Find("Sprites/Default"));
-            mat.color = m_Player != null && m_Player.CurrentTeam == Team.Blue ? new Color(0.2f, 0.6f, 1f) : new Color(1f, 0.2f, 0.2f);
-            lr.material = mat;
-
-            Destroy(tracerGO, 0.06f);
+            Material tracerMaterial = m_Player != null && m_Player.CurrentTeam == Team.Blue ? blueTracerMaterial : redTracerMaterial;
+            ConquestTracerPool.Show(from, to, tracerMaterial, tracerWidth, tracerDuration);
         }
 
         private void PlayFireAudio()
