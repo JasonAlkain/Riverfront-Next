@@ -225,14 +225,11 @@ namespace Game.Conquest.Networking
                 }
             }
 
-            // Fallback default
-            position = team == Team.Red ? new Vector3(-15f, 1.5f, 0f) : new Vector3(15f, 1.5f, 0f);
-            if (UnityEngine.Physics.Raycast(position + Vector3.up * 5f, Vector3.down, out RaycastHit fallbackHit, 20f))
-            {
-                position = fallbackHit.point + Vector3.up * 0.15f;
-            }
-            rotation = Quaternion.identity;
-            return true;
+            // Every map must assign team spawn points to this component; there is no safe guess.
+            Debug.LogError($"[ConquestNetworkManager] No {team} spawn points assigned in '{gameObject.scene.name}'. Spawning at the network manager instead.", this);
+            position = transform.position;
+            rotation = transform.rotation;
+            return false;
         }
 
         public void OnPlayerKilled(ConquestPlayer victim, ulong killerId)

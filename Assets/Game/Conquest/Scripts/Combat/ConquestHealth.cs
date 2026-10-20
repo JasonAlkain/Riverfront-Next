@@ -11,6 +11,8 @@ namespace Game.Conquest.Combat
     {
         [Header("Health Settings")]
         [SerializeField] private int maxHealth = 100;
+        [Tooltip("Seconds of invulnerability after spawning. Firing or deploying a station ends it early.")]
+        [SerializeField] private float spawnProtectionSeconds = 2f;
 
         [Header("Audio")]
         [SerializeField] private AudioSource audioSource;
@@ -19,6 +21,7 @@ namespace Game.Conquest.Combat
         [SerializeField] private AudioClip respawnSoundClip;
 
         private ConquestPlayerAnimator m_Animator;
+        private float m_ServerProtectedUntil;
 
         public NetworkVariable<int> currentHealth = new NetworkVariable<int>(
             100,
@@ -108,6 +111,9 @@ namespace Game.Conquest.Combat
             if (!IsServer || isDead.Value) return;
             // Nobody gets hurt once the match is decided.
             if (ConquestMatchManager.Instance != null && ConquestMatchManager.Instance.IsMatchOver) return;
+            // Spawn protection: a fresh spawn can't be camped. Falls still kill (a protected
+            // player could otherwise drop forever below the map).
+            if (Time.time < m_ServerProtectedUntil && attackerObjectId != NoAttacker) return;
 
             int newHealth = Mathf.Max(0, currentHealth.Value - damage);
             currentHealth.Value = newHealth;
@@ -162,11 +168,18 @@ namespace Game.Conquest.Combat
             isDead.Value = true;
         }
 
+        /// <summary>Server: the player has started fighting, so spawn protection no longer applies.</summary>
+        public void EndSpawnProtection()
+        {
+            m_ServerProtectedUntil = 0f;
+        }
+
         public void ResetHealth()
         {
             if (!IsServer) return;
             currentHealth.Value = maxHealth;
             isDead.Value = false;
+            m_ServerProtectedUntil = Time.time + spawnProtectionSeconds;
             OnRespawned?.Invoke();
         }
     }
