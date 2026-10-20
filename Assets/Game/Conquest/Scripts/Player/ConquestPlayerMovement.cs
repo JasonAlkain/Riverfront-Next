@@ -51,6 +51,7 @@ namespace Game.Conquest.Player
         private float m_Pitch;
         private bool m_CursorLocked = true;
         private bool m_LocalViewActive = false;
+        private float m_BaseFieldOfView = 75.0f;
 
         // Solid colliders on this body and whether each started enabled (the bot's
         // CharacterController is disabled in its prefab and must stay that way).
@@ -61,6 +62,8 @@ namespace Game.Conquest.Player
         public Camera PlayerCamera => playerCamera;
         public Transform CameraPivot => cameraPivot;
         public float Pitch => m_Pitch;
+        /// <summary>The unzoomed field of view from the player's settings.</summary>
+        public float BaseFieldOfView => m_BaseFieldOfView;
 
         private void Awake()
         {
@@ -138,6 +141,7 @@ namespace Game.Conquest.Player
         {
             if (settings == null) return;
             mouseSensitivity = settings.mouseSensitivity;
+            m_BaseFieldOfView = settings.fieldOfView;
             if (playerCamera != null)
             {
                 playerCamera.fieldOfView = settings.fieldOfView;
@@ -275,7 +279,7 @@ namespace Game.Conquest.Player
         {
             if (Mouse.current == null) return;
 
-            Vector2 mouseDelta = Mouse.current.delta.ReadValue() * mouseSensitivity;
+            Vector2 mouseDelta = Mouse.current.delta.ReadValue() * mouseSensitivity * ZoomSensitivityScale();
 
             // Horizontal rotation on player root (networked via ClientNetworkTransform)
             transform.Rotate(Vector3.up * mouseDelta.x);
@@ -293,6 +297,16 @@ namespace Game.Conquest.Player
                     networkPitch.Value = m_Pitch;
                 }
             }
+        }
+
+        // While zoomed (smaller FOV) the view turns proportionally slower, so the same mouse
+        // movement sweeps the same distance across the screen at any zoom.
+        private float ZoomSensitivityScale()
+        {
+            if (playerCamera == null || m_BaseFieldOfView <= 1f) return 1f;
+            float baseHalf = Mathf.Tan(m_BaseFieldOfView * 0.5f * Mathf.Deg2Rad);
+            float currentHalf = Mathf.Tan(playerCamera.fieldOfView * 0.5f * Mathf.Deg2Rad);
+            return Mathf.Clamp(currentHalf / baseHalf, 0.05f, 1f);
         }
 
         private void HandleMovement()

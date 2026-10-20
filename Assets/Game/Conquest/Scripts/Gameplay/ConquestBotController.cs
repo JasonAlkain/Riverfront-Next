@@ -40,6 +40,10 @@ namespace Game.Conquest.Gameplay
         [SerializeField] private float fieldOfView = 120.0f;
         [SerializeField] private float aimAccuracy = 0.6f; // 0 (wild) to 1 (perfect)
         [SerializeField] private float reactionDelay = 0.5f;
+        [Tooltip("Placeholder: aim error in degrees at aimAccuracy 0. About the old 2.2 m wobble at 18 m.")]
+        [SerializeField] private float worstAimErrorDegrees = 7.0f;
+        [Tooltip("Placeholder: aim error in degrees at aimAccuracy 1. About the old 0.2 m wobble at 18 m.")]
+        [SerializeField] private float bestAimErrorDegrees = 0.6f;
         [SerializeField] private LayerMask visionMask = ConquestPhysics.ShotMask;
 
         [Header("Behavior Intervals")]
@@ -457,16 +461,13 @@ namespace Game.Conquest.Gameplay
                 }
             }
 
-            // Aim with simulated inaccuracy
+            // Aim error is an angle, so a bot misses by more at long range, like a person would.
             Vector3 targetAimPoint = m_CurrentEnemy.transform.position + Vector3.up * 1.3f;
-            float maxError = Mathf.Lerp(2.2f, 0.2f, aimAccuracy);
-            Vector3 randomOffset = Random.insideUnitSphere * maxError;
-            targetAimPoint += randomOffset;
+            float aimErrorDegrees = Mathf.Lerp(worstAimErrorDegrees, bestAimErrorDegrees, aimAccuracy);
 
-            // Fire weapon
             if (m_Weapon != null)
             {
-                m_Weapon.FireFromAI(targetAimPoint);
+                m_Weapon.FireFromAI(targetAimPoint, aimErrorDegrees);
             }
         }
 

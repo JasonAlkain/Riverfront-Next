@@ -89,7 +89,6 @@ namespace Game.Conquest.Combat
         private NetworkObject m_ServerActiveStation;
         private Coroutine m_ServerReload;
         private ClientRpcParams m_OwnerRpcParams;
-        private float m_DefaultFOV = 75.0f;
         private bool m_IsZoomed = false;
 
         public int CurrentAmmo => currentAmmo.Value;
@@ -138,11 +137,6 @@ namespace Game.Conquest.Combat
                 m_OwnerRpcParams = new ClientRpcParams { Send = new ClientRpcSendParams { TargetClientIds = new[] { OwnerClientId } } };
                 if (m_Health != null) m_Health.OnDied += HandleServerDied;
                 ServerResetAmmo();
-            }
-
-            if (m_Movement != null && m_Movement.PlayerCamera != null)
-            {
-                m_DefaultFOV = m_Movement.PlayerCamera.fieldOfView;
             }
         }
 
@@ -238,7 +232,8 @@ namespace Game.Conquest.Combat
             bool zoomHeld = Mouse.current != null && Mouse.current.rightButton.isPressed;
             m_IsZoomed = zoomHeld;
 
-            float targetFOV = m_IsZoomed ? zoomFOV : m_DefaultFOV;
+            // The unzoomed FOV follows the settings, even when they change mid-match.
+            float targetFOV = m_IsZoomed ? zoomFOV : m_Movement.BaseFieldOfView;
             m_Movement.PlayerCamera.fieldOfView = Mathf.Lerp(m_Movement.PlayerCamera.fieldOfView, targetFOV, Time.deltaTime * 12.0f);
         }
 
@@ -294,8 +289,11 @@ namespace Game.Conquest.Combat
             ServerResolveShot(rayOrigin, rayDirection, muzzlePoint != null ? muzzlePoint.position : rayOrigin);
         }
 
-        /// <summary>Server: fire at a world position on behalf of this bot. Same rules as a player's shot.</summary>
-        public void FireFromAI(Vector3 targetAimPosition)
+        /// <summary>
+        /// Server: fire at a world position on behalf of this bot. Same rules as a player's shot.
+        /// <paramref name="aimErrorDegrees"/> is the bot's own aim wobble, an angle so it scales with range.
+        /// </summary>
+        public void FireFromAI(Vector3 targetAimPosition, float aimErrorDegrees = 0f)
         {
             if (!IsServer || !ServerCanShoot()) return;
 
@@ -304,7 +302,10 @@ namespace Game.Conquest.Combat
             m_ServerNextFireTime = Time.time + fireRate;
 
             Vector3 origin = muzzlePoint != null ? muzzlePoint.position : transform.position + Vector3.up * 1.5f;
-            ServerResolveShot(origin, (targetAimPosition - origin).normalized, origin);
+            Vector3 aim = targetAimPosition - origin;
+            if (aim.sqrMagnitude < 1e-6f) aim = transform.forward;
+            Vector3 direction = ApplySpread(aim.normalized, aimErrorDegrees);
+            ServerResolveShot(origin, direction, origin);
         }
 
         /// <summary>Server: alive, match running, not reloading and has ammo. An empty magazine starts a reload.</summary>
