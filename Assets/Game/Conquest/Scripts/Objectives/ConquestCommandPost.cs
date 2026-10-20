@@ -31,6 +31,11 @@ namespace Game.Conquest.Objectives
         [SerializeField] private Material redMaterial;
         [SerializeField] private Material blueMaterial;
         [SerializeField] private Material neutralMaterial;
+        [Tooltip("Flat disc showing the capture zone. Sized to captureRadius and tinted by owner at runtime.")]
+        [SerializeField] private Renderer zoneRenderer;
+        [SerializeField] private Color zoneRedColor = new Color(1f, 0.25f, 0.2f, 0.22f);
+        [SerializeField] private Color zoneBlueColor = new Color(0.25f, 0.55f, 1f, 0.22f);
+        [SerializeField] private Color zoneNeutralColor = new Color(0.85f, 0.85f, 0.85f, 0.16f);
 
         [Header("Audio")]
         [SerializeField] private AudioSource postAudioSource;
@@ -267,12 +272,32 @@ namespace Game.Conquest.Objectives
 
         public void UpdateVisuals(Team owner)
         {
+            UpdateZoneVisual(owner);
             if (postRenderer == null) return;
             Material mat = (owner == Team.Red) ? redMaterial : (owner == Team.Blue ? blueMaterial : neutralMaterial);
             if (mat != null)
             {
                 postRenderer.material = mat;
             }
+        }
+
+        private static readonly int s_BaseColorId = Shader.PropertyToID("_BaseColor");
+        private MaterialPropertyBlock m_ZoneBlock;
+
+        // The disc matches the real capture radius (a unit cylinder is 1 m across) and takes the
+        // owner's colour through a property block, so all posts share one material asset.
+        private void UpdateZoneVisual(Team owner)
+        {
+            if (zoneRenderer == null) return;
+            Transform zone = zoneRenderer.transform;
+            Vector3 parentScale = zone.parent != null ? zone.parent.lossyScale : Vector3.one;
+            zone.localScale = new Vector3(captureRadius * 2f / Mathf.Max(0.01f, parentScale.x), zone.localScale.y,
+                                          captureRadius * 2f / Mathf.Max(0.01f, parentScale.z));
+
+            if (m_ZoneBlock == null) m_ZoneBlock = new MaterialPropertyBlock();
+            zoneRenderer.GetPropertyBlock(m_ZoneBlock);
+            m_ZoneBlock.SetColor(s_BaseColorId, owner == Team.Red ? zoneRedColor : owner == Team.Blue ? zoneBlueColor : zoneNeutralColor);
+            zoneRenderer.SetPropertyBlock(m_ZoneBlock);
         }
 
         public bool GetSpawnPoint(out Vector3 position, out Quaternion rotation)
