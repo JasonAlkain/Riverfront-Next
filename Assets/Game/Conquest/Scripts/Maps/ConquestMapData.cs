@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace Game.Conquest.Maps
 {
@@ -19,8 +20,11 @@ namespace Game.Conquest.Maps
         public int commandPostsCount = 5;
         public string[] availableGameModes = new string[] { "Conquest" };
 
-        [Header("Default Parameters")]
+        [Header("Default Match Settings")]
+        [Tooltip("Pre-fills the host and solo menus when this map is picked.")]
         public int defaultTickets = 250;
-        public int defaultBotsPerTeam = 4;
+        [Tooltip("Participants per team (humans and bots together).")]
+        [FormerlySerializedAs("defaultBotsPerTeam")]
+        public int defaultTeamSize = 4;
     }
 }

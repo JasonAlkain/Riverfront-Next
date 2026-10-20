@@ -10,15 +10,10 @@ namespace Game.Conquest.Gameplay
     {
         public static ConquestBotManager Instance { get; private set; }
 
-        [Header("Population Settings")]
-        [Tooltip("Target participants (human + bots) per team. Default 4v4 (8 total).")]
-        [SerializeField] private int targetParticipantsPerTeam = 4;
-
-        [Tooltip("If true, bots will automatically spawn to fill remaining team slots.")]
-        [SerializeField] private bool enableBotFilling = true;
-
-        [Tooltip("Bot difficulty preset (Easy, Normal, Hard).")]
-        [SerializeField] private BotDifficulty botDifficulty = BotDifficulty.Easy;
+        // Population comes from the session's match settings when the match spawns.
+        private int targetParticipantsPerTeam = ConquestMatchSettings.Default.teamSize;
+        private bool enableBotFilling = ConquestMatchSettings.Default.botFilling;
+        private BotDifficulty botDifficulty = ConquestMatchSettings.Default.botDifficulty;
 
         [Header("Bot Prefab & Timing")]
         [SerializeField] private GameObject botPrefab;
@@ -69,9 +64,10 @@ namespace Game.Conquest.Gameplay
             {
                 if (ConquestSessionManager.Instance != null)
                 {
-                    targetParticipantsPerTeam = ConquestSessionManager.Instance.targetTeamSize;
-                    enableBotFilling = ConquestSessionManager.Instance.enableBotFilling;
-                    botDifficulty = ConquestSessionManager.Instance.botDifficulty;
+                    var settings = ConquestSessionManager.Instance.matchSettings;
+                    targetParticipantsPerTeam = Mathf.Max(1, settings.teamSize);
+                    enableBotFilling = settings.botFilling;
+                    botDifficulty = settings.botDifficulty;
                 }
 
                 m_NextCheckTime = Time.time + 1.0f;

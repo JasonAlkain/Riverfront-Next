@@ -117,10 +117,7 @@ namespace Game.Conquest.Lobby
                 if (ConquestSessionManager.Instance != null)
                 {
                     sessionName.Value = ConquestSessionManager.Instance.sessionName;
-                    reinforcementTickets.Value = ConquestSessionManager.Instance.reinforcementTickets;
-                    targetTeamSize.Value = ConquestSessionManager.Instance.targetTeamSize;
-                    enableBotFilling.Value = ConquestSessionManager.Instance.enableBotFilling;
-                    botDifficulty.Value = ConquestSessionManager.Instance.botDifficulty;
+                    ShowSettings(ConquestSessionManager.Instance.matchSettings);
 
                     // Prefer the registry entry for the chosen id; fall back to the scene name the host picked.
                     var session = ConquestSessionManager.Instance;
@@ -326,6 +323,25 @@ namespace Game.Conquest.Lobby
         {
             if (rpcParams.Receive.SenderClientId != NetworkManager.Singleton.LocalClientId) return;
             selectedMapScene.Value = sceneName;
+
+            // A new map brings its own tickets and team size; difficulty and bot filling stay.
+            var map = mapRegistry != null ? mapRegistry.GetMapBySceneName(sceneName) : null;
+            if (map != null)
+            {
+                var settings = ConquestMatchSettings.ForMap(map);
+                settings.botFilling = enableBotFilling.Value;
+                settings.botDifficulty = botDifficulty.Value;
+                ShowSettings(settings);
+            }
+        }
+
+        // Server: show these settings in the replicated lobby state.
+        private void ShowSettings(ConquestMatchSettings settings)
+        {
+            reinforcementTickets.Value = settings.reinforcementTickets;
+            targetTeamSize.Value = settings.teamSize;
+            enableBotFilling.Value = settings.botFilling;
+            botDifficulty.Value = settings.botDifficulty;
         }
 
         [Rpc(SendTo.Server)]
@@ -399,10 +415,14 @@ namespace Game.Conquest.Lobby
             // Commit settings to SessionManager
             if (ConquestSessionManager.Instance != null)
             {
-                ConquestSessionManager.Instance.reinforcementTickets = reinforcementTickets.Value;
-                ConquestSessionManager.Instance.targetTeamSize = targetTeamSize.Value;
-                ConquestSessionManager.Instance.enableBotFilling = enableBotFilling.Value;
-                ConquestSessionManager.Instance.botDifficulty = botDifficulty.Value;
+                // The match plays with exactly what the lobby showed.
+                ConquestSessionManager.Instance.matchSettings = new ConquestMatchSettings
+                {
+                    reinforcementTickets = reinforcementTickets.Value,
+                    teamSize = targetTeamSize.Value,
+                    botFilling = enableBotFilling.Value,
+                    botDifficulty = botDifficulty.Value,
+                };
 
                 // Persist each player's lobby choices; ConquestNetworkManager applies them when the
                 // player registers in the map scene (this lobby object is destroyed by the load).

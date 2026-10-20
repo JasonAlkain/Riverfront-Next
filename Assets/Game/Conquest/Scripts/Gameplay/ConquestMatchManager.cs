@@ -14,9 +14,6 @@ namespace Game.Conquest.Gameplay
         public static ConquestMatchManager Instance { get; private set; }
 
         [Header("Match Settings")]
-        // Tickets are only spent on deaths (SWBF2-style); holding posts doesn't bleed the enemy.
-        [SerializeField] private int initialTickets = 250;
-
         [Header("All Posts Win")]
         [Tooltip("Seconds a team must hold every command post to win. 0 wins the moment the last post falls.")]
         [SerializeField] private float allPostsHoldSeconds = 20f;
@@ -100,13 +97,12 @@ namespace Game.Conquest.Gameplay
             if (IsServer)
             {
                 m_MatchStartTime = Time.time;
-                if (ConquestSessionManager.Instance != null)
-                {
-                    initialTickets = ConquestSessionManager.Instance.reinforcementTickets;
-                }
-
-                redTickets.Value = initialTickets;
-                blueTickets.Value = initialTickets;
+                // Tickets are only spent on deaths (SWBF2-style); holding posts doesn't bleed the enemy.
+                var settings = ConquestSessionManager.Instance != null
+                    ? ConquestSessionManager.Instance.matchSettings
+                    : ConquestMatchSettings.Default;
+                redTickets.Value = settings.reinforcementTickets;
+                blueTickets.Value = settings.reinforcementTickets;
                 isMatchOver.Value = false;
                 winningTeam.Value = Team.Neutral;
                 allPostsHolder.Value = Team.Neutral;
