@@ -18,6 +18,11 @@ namespace Game.Conquest.Gameplay
         [Tooltip("Seconds a team must hold every command post to win. 0 wins the moment the last post falls.")]
         [SerializeField] private float allPostsHoldSeconds = 20f;
 
+        [Header("Empty Team")]
+        [Tooltip("Seconds after the match starts for both teams to get a player or bot. After that, " +
+                 "or once both teams have had someone, a team with nobody ends the session.")]
+        [SerializeField] private float emptyTeamGraceSeconds = 15f;
+
         [Header("Command Posts")]
         [SerializeField] private List<ConquestCommandPost> commandPosts = new List<ConquestCommandPost>();
 
@@ -65,6 +70,8 @@ namespace Game.Conquest.Gameplay
 
         private float m_MatchStartTime;
         private float m_NextRosterRefresh;
+        private bool m_BothTeamsPopulated;
+        private bool m_EndingSession;
         private readonly MatchStatsTracker m_Stats = new MatchStatsTracker();
         private static int s_MatchCounter;
 
@@ -144,9 +151,57 @@ namespace Game.Conquest.Gameplay
         {
             if (Time.time < m_NextRosterRefresh) return;
             m_NextRosterRefresh = Time.time + 1f;
+            int red = 0, blue = 0;
             foreach (var player in ConquestPlayer.All)
             {
-                if (player != null && player.IsSpawned) m_Stats.Touch(player);
+                if (player == null || !player.IsSpawned) continue;
+                m_Stats.Touch(player);
+                if (player.CurrentTeam == Team.Red) red++;
+                else if (player.CurrentTeam == Team.Blue) blue++;
+            }
+            CheckForEmptyTeam(red, blue);
+        }
+
+        // A team with no players and no bots should never happen: it is either an error or
+        // everyone has left. Either way the session ends and everyone goes back to the main menu.
+        private void CheckForEmptyTeam(int red, int blue)
+        {
+            if (red > 0 && blue > 0)
+            {
+                m_BothTeamsPopulated = true;
+                return;
+            }
+            if (m_EndingSession) return;
+            if (!m_BothTeamsPopulated && Time.time - m_MatchStartTime < emptyTeamGraceSeconds) return;
+
+            m_EndingSession = true;
+            Debug.LogWarning($"[ConquestMatchManager] A team has nobody left (Red {red}, Blue {blue}). Ending the session.");
+            StartCoroutine(EndSessionForEmptyTeam());
+        }
+
+        private IEnumerator EndSessionForEmptyTeam()
+        {
+            // Tell remote players why before the server goes away; the main menu shows the reason.
+            var clientIds = new List<ulong>(NetworkManager.ConnectedClientsIds);
+            foreach (var clientId in clientIds)
+            {
+                if (clientId != NetworkManager.ServerClientId)
+                {
+                    NetworkManager.DisconnectClient(clientId, "The match ended because a team had no players or bots left.");
+                }
+            }
+            yield return new WaitForSecondsRealtime(0.5f);
+
+            var session = ConquestSessionManager.Instance;
+            if (session != null && session.isDedicatedServer)
+            {
+                // A headless server has no menu to return to: close it.
+                NetworkManager.Shutdown();
+                Application.Quit();
+            }
+            else
+            {
+                ConquestSession.Current?.LeaveSession();
             }
         }
 

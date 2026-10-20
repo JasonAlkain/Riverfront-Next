@@ -17,6 +17,8 @@ namespace Game.Conquest.Networking
 
         [Header("Team Balancing")]
         private readonly List<ConquestPlayer> m_ConnectedPlayers = new List<ConquestPlayer>();
+        // Clients who connected while the match was already running; they wait the respawn delay.
+        private readonly HashSet<ulong> m_LateJoiners = new HashSet<ulong>();
 
         private void Awake()
         {
@@ -74,6 +76,10 @@ namespace Game.Conquest.Networking
             {
                 // LoadComplete: a client finished loading this map. SynchronizeComplete: a late
                 // joiner finished its initial sync while the match is running.
+                if (sceneEvent.SceneEventType == SceneEventType.SynchronizeComplete)
+                {
+                    m_LateJoiners.Add(sceneEvent.ClientId);
+                }
                 if (sceneEvent.SceneEventType == SceneEventType.LoadComplete ||
                     sceneEvent.SceneEventType == SceneEventType.SynchronizeComplete)
                 {
@@ -139,6 +145,7 @@ namespace Game.Conquest.Networking
         private void HandleClientDisconnected(ulong clientId)
         {
             Debug.Log($"[ConquestNetworkManager] Client {clientId} disconnected.");
+            m_LateJoiners.Remove(clientId);
         }
 
         public void RegisterPlayer(ConquestPlayer player)
@@ -175,7 +182,8 @@ namespace Game.Conquest.Networking
                 // Humans start on the deploy screen (class and post) instead of spawning straight
                 // away; they are parked at a team spawn point meanwhile.
                 GetSpawnPointForTeam(assignedTeam, out Vector3 spawnPos, out Quaternion spawnRot);
-                player.ServerHoldForDeploy(spawnPos, spawnRot);
+                bool lateJoiner = m_LateJoiners.Remove(player.OwnerClientId);
+                player.ServerHoldForDeploy(spawnPos, spawnRot, lateJoiner);
 
                 Debug.Log($"[ConquestNetworkManager] Player {player.OwnerClientId} assigned to {assignedTeam}.");
             }
