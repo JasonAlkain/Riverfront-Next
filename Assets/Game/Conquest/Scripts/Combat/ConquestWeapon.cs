@@ -43,7 +43,12 @@ namespace Game.Conquest.Combat
         [Header("Visuals & Audio")]
         [SerializeField] private Transform muzzlePoint;
         [SerializeField] private GameObject muzzleFlashPrefab;
+        [Tooltip("Impact on world geometry and stations.")]
         [SerializeField] private GameObject hitImpactPrefab;
+        [Tooltip("Impact on a player or bot. Falls back to the surface impact when empty.")]
+        [SerializeField] private GameObject characterImpactPrefab;
+        [SerializeField] private float muzzleFlashSeconds = 0.06f;
+        [SerializeField] private float impactSeconds = 0.6f;
         [Tooltip("Shared tracer materials per team. Assets, never instanced at runtime.")]
         [SerializeField] private Material redTracerMaterial;
         [SerializeField] private Material blueTracerMaterial;
@@ -53,6 +58,8 @@ namespace Game.Conquest.Combat
         [SerializeField] private AudioClip fireSoundClip;
         [SerializeField] private AudioClip reloadSoundClip;
         [SerializeField] private AudioClip targetHitClip;
+        [Tooltip("Optional: played instead of the hit sound when the shot killed. Empty uses the hit sound.")]
+        [SerializeField] private AudioClip killConfirmClip;
         [SerializeField] private float firePitchMin = 0.95f;
         [SerializeField] private float firePitchMax = 1.05f;
         [SerializeField] private float fireVolume = 0.40f;
@@ -245,7 +252,8 @@ namespace Game.Conquest.Combat
             Vector3 origin = muzzlePoint != null ? muzzlePoint.position : cam.transform.position;
             Ray baseRay = cam.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f));
 
-            // Visual feedback & tracer for all pellets
+            // Predicted visuals for every pellet; the server's own trace decides the damage.
+            PlayMuzzleFlash();
             for (int i = 0; i < bulletsPerShot; i++)
             {
                 Vector3 shootDir = ApplySpread(baseRay.direction, spreadAngle);
@@ -254,6 +262,7 @@ namespace Game.Conquest.Combat
                 if (ConquestPhysics.RaycastIgnoring(transform, origin, shootDir, maxRange, hitLayers, out RaycastHit hit))
                 {
                     targetPoint = hit.point;
+                    PlayImpact(hit.point, hit.normal, hit.collider.GetComponentInParent<ConquestHealth>() != null);
                 }
                 SpawnLocalTracer(origin, targetPoint);
             }
@@ -322,7 +331,9 @@ namespace Game.Conquest.Combat
 
             Team myTeam = m_Player != null ? m_Player.CurrentTeam : Team.Neutral;
             bool hitAnyEnemy = false;
+            bool killedAny = false;
             bool didHitAny = false;
+            bool primaryHitCharacter = false;
             Vector3 primaryHitPoint = origin + direction * maxRange;
             Vector3 primaryHitNormal = -direction;
 
@@ -340,13 +351,16 @@ namespace Game.Conquest.Combat
 
                 // No friendly fire. Any health without a team (none today) is fair game.
                 ConquestHealth targetHealth = hit.collider.GetComponentInParent<ConquestHealth>();
+                if (i == 0) primaryHitCharacter = targetHealth != null;
                 if (targetHealth != null && targetHealth != m_Health)
                 {
                     ConquestPlayer targetPlayer = targetHealth.GetComponent<ConquestPlayer>();
                     if (targetPlayer == null || targetPlayer.CurrentTeam != myTeam)
                     {
-                        targetHealth.TakeDamage(damagePerShot, NetworkObjectId);
+                        bool wasAlive = !targetHealth.IsDead;
+                        targetHealth.TakeDamage(damagePerShot, NetworkObjectId, origin);
                         hitAnyEnemy = true;
+                        killedAny |= wasAlive && targetHealth.IsDead;
                     }
                     continue;
                 }
@@ -362,10 +376,10 @@ namespace Game.Conquest.Combat
             // Hit confirmation goes to a human shooter only; a bot's owner is the host.
             if (hitAnyEnemy && !IsBot)
             {
-                ConfirmHitClientRpc(m_OwnerRpcParams);
+                ConfirmHitClientRpc(killedAny, m_OwnerRpcParams);
             }
 
-            FireClientRpc(muzzlePos, primaryHitPoint, primaryHitNormal, didHitAny);
+            FireClientRpc(muzzlePos, primaryHitPoint, primaryHitNormal, didHitAny, primaryHitCharacter);
 
             if (currentAmmo.Value <= 0)
             {
@@ -402,31 +416,29 @@ namespace Game.Conquest.Combat
         }
 
         [ClientRpc]
-        private void FireClientRpc(Vector3 muzzlePos, Vector3 hitPoint, Vector3 hitNormal, bool didHit)
+        private void FireClientRpc(Vector3 muzzlePos, Vector3 hitPoint, Vector3 hitNormal, bool didHit, bool hitCharacter)
         {
             // The human shooter already drew this shot. Bots are owned by the host, so the
             // host still needs to see and hear their fire.
             if (PredictsLocally) return;
 
+            PlayMuzzleFlash();
             SpawnLocalTracer(muzzlePos, hitPoint);
             PlayFireAudio();
             m_Animator?.TriggerFire();
 
-            if (didHit && hitImpactPrefab != null)
-            {
-                GameObject fx = Instantiate(hitImpactPrefab, hitPoint, Quaternion.LookRotation(hitNormal));
-                Destroy(fx, 1.2f);
-            }
+            if (didHit) PlayImpact(hitPoint, hitNormal, hitCharacter);
         }
 
         [ClientRpc]
-        private void ConfirmHitClientRpc(ClientRpcParams clientRpcParams = default)
+        private void ConfirmHitClientRpc(bool killed, ClientRpcParams clientRpcParams = default)
         {
-            ConquestHUD.TriggerHitmarker();
-            if (weaponAudioSource != null && targetHitClip != null)
+            ConquestHUD.TriggerHitmarker(killed);
+            AudioClip clip = killed && killConfirmClip != null ? killConfirmClip : targetHitClip;
+            if (weaponAudioSource != null && clip != null)
             {
                 // Play subtle hit confirmation using the audio limiter
-                ConquestAudioLimiter.TryPlayHitFeedback(weaponAudioSource, targetHitClip, 0.16f);
+                ConquestAudioLimiter.TryPlayHitFeedback(weaponAudioSource, clip, killed ? 0.3f : 0.16f);
             }
         }
 
@@ -596,14 +608,22 @@ namespace Game.Conquest.Combat
             }
         }
 
+        private void PlayMuzzleFlash()
+        {
+            if (muzzlePoint == null) return;
+            ConquestFxPool.Play(muzzleFlashPrefab, muzzlePoint.position, muzzlePoint.rotation, muzzleFlashSeconds);
+        }
+
+        // Characters and surfaces get different effects (energy sparks vs. dust and sparks).
+        private void PlayImpact(Vector3 point, Vector3 normal, bool hitCharacter)
+        {
+            GameObject prefab = hitCharacter && characterImpactPrefab != null ? characterImpactPrefab : hitImpactPrefab;
+            if (normal.sqrMagnitude < 1e-6f) normal = Vector3.up;
+            ConquestFxPool.Play(prefab, point, Quaternion.LookRotation(normal), impactSeconds);
+        }
+
         private void SpawnLocalTracer(Vector3 from, Vector3 to)
         {
-            if (muzzleFlashPrefab != null && muzzlePoint != null)
-            {
-                GameObject flash = Instantiate(muzzleFlashPrefab, muzzlePoint.position, muzzlePoint.rotation, muzzlePoint);
-                Destroy(flash, 0.15f);
-            }
-
             Material tracerMaterial = m_Player != null && m_Player.CurrentTeam == Team.Blue ? blueTracerMaterial : redTracerMaterial;
             ConquestTracerPool.Show(from, to, tracerMaterial, tracerWidth, tracerDuration);
         }

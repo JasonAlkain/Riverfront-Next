@@ -108,6 +108,12 @@ namespace Game.Conquest.Combat
         /// <param name="attackerObjectId">NetworkObjectId of the shooter (player or bot), or NoAttacker.</param>
         public void TakeDamage(int damage, ulong attackerObjectId)
         {
+            TakeDamage(damage, attackerObjectId, transform.position);
+        }
+
+        /// <param name="sourcePosition">Where the damage came from (the shot's origin), for the victim's hit-direction indicator.</param>
+        public void TakeDamage(int damage, ulong attackerObjectId, Vector3 sourcePosition)
+        {
             if (!IsServer || isDead.Value) return;
             // Nobody gets hurt once the match is decided.
             if (ConquestMatchManager.Instance != null && ConquestMatchManager.Instance.IsMatchOver) return;
@@ -118,7 +124,7 @@ namespace Game.Conquest.Combat
             int newHealth = Mathf.Max(0, currentHealth.Value - damage);
             currentHealth.Value = newHealth;
 
-            TakeDamageClientRpc(damage, attackerObjectId);
+            TakeDamageClientRpc(damage, attackerObjectId, sourcePosition);
 
             if (newHealth <= 0)
             {
@@ -129,13 +135,19 @@ namespace Game.Conquest.Combat
         }
 
         [ClientRpc]
-        private void TakeDamageClientRpc(int damage, ulong attackerObjectId)
+        private void TakeDamageClientRpc(int damage, ulong attackerObjectId, Vector3 sourcePosition)
         {
             // Play subtle hurt sound with anti-stacking limiter
             ConquestAudioLimiter.TryPlayDamageHurt(audioSource, hitSoundClip, GetHashCode(), 0.18f);
 
             // Trigger hit reaction animation
             m_Animator?.TriggerHit();
+
+            // Only the hurt human sees where it came from; falls have no direction.
+            if (attackerObjectId != NoAttacker && ConquestPlayer.Local != null && ConquestPlayer.Local.Health == this)
+            {
+                Game.Conquest.UI.ConquestHUD.ShowDamageFrom(sourcePosition);
+            }
         }
 
         private void PlayAudio(AudioClip clip, float volume = 1.0f)

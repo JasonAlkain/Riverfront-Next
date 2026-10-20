@@ -31,6 +31,7 @@ namespace Game.Conquest.UI
         [SerializeField] private AllPostsAlertUI allPostsAlertUI;
         [SerializeField] private KillFeedUI killFeedUI;
         [SerializeField] private ScoreboardUI scoreboardUI;
+        [SerializeField] private DamageIndicatorUI damageIndicatorUI;
 
         [Header("Team Colors")]
         [SerializeField] private Color redColor = new Color(0.85f, 0.2f, 0.2f, 0.9f);
@@ -50,6 +51,7 @@ namespace Game.Conquest.UI
         [SerializeField] private float hitmarkerDuration = 0.15f;
 
         private float m_HitmarkerEndTime;
+        private bool m_HitmarkerKill;
         private ConquestMatchManager m_StatsSource;
         private bool m_ScoreboardDirty = true;
         private readonly List<MatchResultRow> m_StatsCopy = new List<MatchResultRow>();
@@ -104,11 +106,23 @@ namespace Game.Conquest.UI
             if (Instance == this) Instance = null;
         }
 
-        public static void TriggerHitmarker()
+        /// <param name="killed">The shot also killed: the marker shows in the kill colour, for longer.</param>
+        public static void TriggerHitmarker(bool killed = false)
         {
-            if (Instance != null)
+            var hud = Instance;
+            if (hud == null) return;
+            // A plain hit doesn't cut a kill marker short.
+            if (hud.m_HitmarkerKill && !killed && Time.time < hud.m_HitmarkerEndTime) return;
+            hud.m_HitmarkerKill = killed;
+            hud.m_HitmarkerEndTime = Time.time + hud.hitmarkerDuration * (killed ? 3f : 1f);
+        }
+
+        /// <summary>Local player was hurt by a shot fired from <paramref name="sourcePosition"/>.</summary>
+        public static void ShowDamageFrom(Vector3 sourcePosition)
+        {
+            if (Instance != null && Instance.damageIndicatorUI != null)
             {
-                Instance.m_HitmarkerEndTime = Time.time + Instance.hitmarkerDuration;
+                Instance.damageIndicatorUI.ShowFrom(sourcePosition);
             }
         }
 
@@ -172,6 +186,10 @@ namespace Game.Conquest.UI
             UpdateCommandPosts(match);
             UpdateCaptureBar(match, player);
             UpdateCrosshair(player);
+            if (damageIndicatorUI != null)
+            {
+                damageIndicatorUI.Tick(player != null && !player.Health.IsDead ? player.transform : null);
+            }
             UpdatePlayerStats(player);
             UpdateRespawnPanel(match, player);
             UpdateMatchResult(match, player);
@@ -314,7 +332,8 @@ namespace Game.Conquest.UI
             }
 
             crosshairUI.Show();
-            crosshairUI.SetHitmarker(Time.time < m_HitmarkerEndTime);
+            bool showing = Time.time < m_HitmarkerEndTime;
+            crosshairUI.SetHitmarker(showing, showing && m_HitmarkerKill);
         }
 
         private void UpdatePlayerStats(ConquestPlayer player)
