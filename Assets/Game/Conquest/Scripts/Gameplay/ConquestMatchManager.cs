@@ -14,9 +14,8 @@ namespace Game.Conquest.Gameplay
         public static ConquestMatchManager Instance { get; private set; }
 
         [Header("Match Settings")]
+        // Tickets are only spent on deaths (SWBF2-style); holding posts doesn't bleed the enemy.
         [SerializeField] private int initialTickets = 250;
-        [SerializeField] private float ticketDrainInterval = 3.0f; // Seconds between majority drains
-        [SerializeField] private int ticketDrainAmount = 1;
 
         [Header("Command Posts")]
         [SerializeField] private List<ConquestCommandPost> commandPosts = new List<ConquestCommandPost>();
@@ -42,7 +41,6 @@ namespace Game.Conquest.Gameplay
             NetworkVariableReadPermission.Everyone,
             NetworkVariableWritePermission.Server);
 
-        private float m_NextDrainTime;
         private float m_MatchStartTime;
         private readonly MatchStatsTracker m_Stats = new MatchStatsTracker();
         private static int s_MatchCounter;
@@ -89,7 +87,6 @@ namespace Game.Conquest.Gameplay
                 blueTickets.Value = initialTickets;
                 isMatchOver.Value = false;
                 winningTeam.Value = Team.Neutral;
-                m_NextDrainTime = Time.time + ticketDrainInterval;
             }
         }
 
@@ -106,13 +103,6 @@ namespace Game.Conquest.Gameplay
             if (!IsServer || isMatchOver.Value) return;
 
             EvaluateFallLimits();
-
-            // Handle majority post ticket drain
-            if (Time.time >= m_NextDrainTime)
-            {
-                m_NextDrainTime = Time.time + ticketDrainInterval;
-                EvaluateMajorityPostDrain();
-            }
         }
 
         private void EvaluateFallLimits()
@@ -127,31 +117,6 @@ namespace Game.Conquest.Gameplay
                         p.Health.TakeDamage(p.Health.MaxHealth * 10, Game.Conquest.Combat.ConquestHealth.NoAttacker);
                     }
                 }
-            }
-        }
-
-        private void EvaluateMajorityPostDrain()
-        {
-            int redPosts = 0;
-            int bluePosts = 0;
-
-            foreach (var post in commandPosts)
-            {
-                if (post != null)
-                {
-                    if (post.CurrentOwner == Team.Red) redPosts++;
-                    else if (post.CurrentOwner == Team.Blue) bluePosts++;
-                }
-            }
-
-            // Majority of 5 posts is 3 or more
-            if (redPosts > bluePosts)
-            {
-                DrainTickets(Team.Blue, ticketDrainAmount);
-            }
-            else if (bluePosts > redPosts)
-            {
-                DrainTickets(Team.Red, ticketDrainAmount);
             }
         }
 
