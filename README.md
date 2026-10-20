@@ -62,7 +62,12 @@ same build (the server refuses mismatched versions).
 
 ## Building and publishing to itch.io
 
-Release builds are made headless from a terminal (close the project in the Editor first; Unity locks it):
+**From the Editor:** **Rivetfront → Publish → Build Client and Push to itch.io** builds the client and
+pushes it in one step (the upload runs in its own PowerShell window). **Push Latest Build to itch.io**
+pushes the newest folder in `Builds/` without rebuilding.
+
+**Without the Editor:** double-click `Tools/Build/build.cmd`, then `Tools/Build/publish-itch.cmd`
+(close the project in Unity first; Unity locks it). From a terminal:
 
 ```
 powershell -ExecutionPolicy Bypass -File Tools/Build/build.ps1 -Zip
@@ -84,7 +89,9 @@ The version defaults to `<Player Settings version>+<git commit>` (for example `0
 It becomes `Application.version`, which clients and servers compare when connecting, so the client
 and server from one run always match. Other options: `-Targets client` or `-Targets server`,
 `-Development`, `-UnityPath` (defaults to the Hub install of the version in `ProjectVersion.txt`).
-The same builds are available in the Editor under **Rivetfront → Build**.
+The same builds are available in the Editor under **Rivetfront → Build**. Editor builds use the active
+build profile's Player Settings overrides (such as the Windows Client splash screen) and refuse to run
+if that profile changes the product name.
 
 Push the newest build to https://allyn-david.itch.io/riverfront-next:
 

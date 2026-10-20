@@ -20,9 +20,10 @@ namespace Game.Conquest.Build
     /// Debug-symbol folders Unity writes next to the player are moved to {output}/symbols/ so the
     /// client folder can be pushed to itch.io as-is.
     ///
-    /// Uses the global scene list and Player Settings rather than the build profiles in
-    /// Assets/Settings/Build Profiles: the "Windows Client" profile still carries template Player Settings
-    /// overrides (productName "FPSSample2"), which would ship the wrong exe name.
+    /// Uses the global scene list and Player Settings. In batchmode no build profile is active; in the
+    /// Editor the active profile's Player Settings overrides apply (e.g. the Windows Client splash screen).
+    /// The build refuses to run when those overrides change the product name, so the exe on itch.io is
+    /// always "Riverfront Next.exe".
     /// </summary>
     public static class ReleaseBuild
     {
@@ -41,15 +42,60 @@ namespace Game.Conquest.Build
         [MenuItem("Rivetfront/Build/Windows Dedicated Server")]
         private static void MenuBuildServer() => BuildFromMenu(client: false, server: true);
 
-        private static void BuildFromMenu(bool client, bool server)
+        /// <summary>Builds into Builds/{version}/ and returns that folder, or null when the build failed.</summary>
+        internal static string BuildFromMenu(bool client, bool server, bool reveal = true)
         {
-            string version = PlayerSettings.bundleVersion;
+            string version = DefaultVersion();
             string output = Path.Combine(DefaultOutputRoot, version);
             bool ok = Run(version, output, client, server, development: false);
-            EditorUtility.RevealInFinder(output);
             if (!ok)
             {
                 EditorUtility.DisplayDialog("Build failed", "See the Console for details.", "OK");
+                return null;
+            }
+            if (reveal)
+            {
+                EditorUtility.RevealInFinder(output);
+            }
+            return output;
+        }
+
+        /// <summary>Same default as Tools/Build/build.ps1: "{bundleVersion}+{git short sha}", plus "-dirty" for uncommitted changes.</summary>
+        internal static string DefaultVersion()
+        {
+            string version = PlayerSettings.bundleVersion;
+            string sha = Git("rev-parse --short HEAD");
+            if (string.IsNullOrEmpty(sha))
+            {
+                return version;
+            }
+            version += "+" + sha;
+            if (!string.IsNullOrEmpty(Git("status --porcelain")))
+            {
+                version += "-dirty";
+            }
+            return version;
+        }
+
+        private static string Git(string arguments)
+        {
+            try
+            {
+                var psi = new System.Diagnostics.ProcessStartInfo("git", arguments)
+                {
+                    WorkingDirectory = Directory.GetCurrentDirectory(),
+                    RedirectStandardOutput = true,
+                    UseShellExecute = false,
+                    CreateNoWindow = true,
+                };
+                using var process = System.Diagnostics.Process.Start(psi);
+                string output = process.StandardOutput.ReadToEnd().Trim();
+                process.WaitForExit();
+                return process.ExitCode == 0 ? output : null;
+            }
+            catch (Exception)
+            {
+                return null; // git not on PATH
             }
         }
 
@@ -89,6 +135,15 @@ namespace Game.Conquest.Build
             if (scenes.Length == 0)
             {
                 Debug.LogError("[ReleaseBuild] No enabled scenes in Build Settings.");
+                return false;
+            }
+
+            string projectProductName = ReadProjectProductName();
+            if (projectProductName != null && PlayerSettings.productName != projectProductName)
+            {
+                Debug.LogError($"[ReleaseBuild] The active build profile renames the game to '{PlayerSettings.productName}' " +
+                               $"(Project Settings say '{projectProductName}'). Fix Product Name in that profile's Player Settings " +
+                               "overrides (File > Build Profiles) or switch to another profile.");
                 return false;
             }
 
@@ -194,6 +249,25 @@ namespace Game.Conquest.Build
                 $"targets={(client ? ClientFolder + " " : "")}{(server ? ServerFolder : "")}".TrimEnd(),
             };
             File.WriteAllLines(Path.Combine(outputRoot, "build-info.txt"), lines);
+        }
+
+        /// <summary>productName from ProjectSettings.asset, ignoring any build-profile override.</summary>
+        private static string ReadProjectProductName()
+        {
+            const string path = "ProjectSettings/ProjectSettings.asset";
+            if (!File.Exists(path))
+            {
+                return null;
+            }
+            foreach (string line in File.ReadLines(path))
+            {
+                string trimmed = line.Trim();
+                if (trimmed.StartsWith("productName:", StringComparison.Ordinal))
+                {
+                    return trimmed.Substring("productName:".Length).Trim();
+                }
+            }
+            return null;
         }
 
         private static string GetArg(string name)
