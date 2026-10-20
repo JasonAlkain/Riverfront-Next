@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using Game.Conquest.Gameplay;
 using Game.Conquest.Networking;
 using Game.Conquest.Objectives;
@@ -28,6 +29,8 @@ namespace Game.Conquest.UI
         [SerializeField] private RespawnPanelUI respawnPanelUI;
         [SerializeField] private MatchResultPanelUI matchResultPanelUI;
         [SerializeField] private AllPostsAlertUI allPostsAlertUI;
+        [SerializeField] private KillFeedUI killFeedUI;
+        [SerializeField] private ScoreboardUI scoreboardUI;
 
         [Header("Team Colors")]
         [SerializeField] private Color redColor = new Color(0.85f, 0.2f, 0.2f, 0.9f);
@@ -39,10 +42,17 @@ namespace Game.Conquest.UI
         [SerializeField] private Color victoryColor = Color.green;
         [SerializeField] private Color defeatColor = Color.red;
 
+        [Header("Scoreboard Rows")]
+        [SerializeField] private Color rowColor = new Color(0.12f, 0.16f, 0.24f, 0.9f);
+        [SerializeField] private Color botRowColor = new Color(0.1f, 0.12f, 0.16f, 0.75f);
+
         [Header("Hitmarker")]
         [SerializeField] private float hitmarkerDuration = 0.15f;
 
         private float m_HitmarkerEndTime;
+        private ConquestMatchManager m_StatsSource;
+        private bool m_ScoreboardDirty = true;
+        private readonly List<MatchResultRow> m_StatsCopy = new List<MatchResultRow>();
 
         private void Awake()
         {
@@ -77,6 +87,7 @@ namespace Game.Conquest.UI
                 respawnPanelUI.SpawnPostSelected += HandleSpawnPostSelected;
                 respawnPanelUI.DeployClicked += HandleDeployClicked;
             }
+            ConquestMatchManager.KillReported += HandleKillReported;
             HideTransientPanels();
         }
 
@@ -88,6 +99,8 @@ namespace Game.Conquest.UI
                 respawnPanelUI.SpawnPostSelected -= HandleSpawnPostSelected;
                 respawnPanelUI.DeployClicked -= HandleDeployClicked;
             }
+            ConquestMatchManager.KillReported -= HandleKillReported;
+            WatchStats(null);
             if (Instance == this) Instance = null;
         }
 
@@ -140,6 +153,7 @@ namespace Game.Conquest.UI
             if (respawnPanelUI != null) respawnPanelUI.Hide();
             if (matchResultPanelUI != null) matchResultPanelUI.Hide();
             if (allPostsAlertUI != null) allPostsAlertUI.Hide();
+            if (scoreboardUI != null) scoreboardUI.Hide();
         }
 
         private void Update()
@@ -162,6 +176,61 @@ namespace Game.Conquest.UI
             UpdateRespawnPanel(match, player);
             UpdateMatchResult(match, player);
             UpdateAllPostsAlert(match, player);
+            UpdateScoreboard(match);
+        }
+
+        // "Killer [weapon] Victim", each name in its team colour; falls just name the victim.
+        private void HandleKillReported(KillReport report)
+        {
+            if (killFeedUI == null) return;
+            string victim = $"<color=#{ColorUtility.ToHtmlStringRGB(TeamColor(report.victimTeam))}>{report.victimName}</color>";
+            if (!report.hasKiller)
+            {
+                killFeedUI.Push($"{victim} died");
+                return;
+            }
+            string killer = $"<color=#{ColorUtility.ToHtmlStringRGB(TeamColor(report.killerTeam))}>{report.killerName}</color>";
+            killFeedUI.Push($"{killer} [{report.weaponName}] {victim}");
+        }
+
+        // Held Tab shows the scoreboard. Rows are rebuilt only when it opens or the stats change.
+        private void UpdateScoreboard(ConquestMatchManager match)
+        {
+            if (scoreboardUI == null) return;
+
+            bool wanted = match != null && !match.IsMatchOver && Keyboard.current != null && Keyboard.current.tabKey.isPressed;
+            if (!wanted)
+            {
+                scoreboardUI.Hide();
+                return;
+            }
+
+            WatchStats(match);
+            if (scoreboardUI.IsShown && !m_ScoreboardDirty) return;
+
+            scoreboardUI.Show();
+            m_ScoreboardDirty = false;
+            // NetworkList isn't enumerable, so take a plain copy for the team columns.
+            m_StatsCopy.Clear();
+            for (int i = 0; i < match.liveStats.Count; i++) m_StatsCopy.Add(match.liveStats[i]);
+            if (scoreboardUI.redTeamPanel != null)
+                scoreboardUI.redTeamPanel.ShowTeam(m_StatsCopy, Team.Red, "RED TEAM", redColor, rowColor, botRowColor);
+            if (scoreboardUI.blueTeamPanel != null)
+                scoreboardUI.blueTeamPanel.ShowTeam(m_StatsCopy, Team.Blue, "BLUE TEAM", blueColor, rowColor, botRowColor);
+        }
+
+        private void WatchStats(ConquestMatchManager match)
+        {
+            if (m_StatsSource == match) return;
+            if (m_StatsSource != null) m_StatsSource.liveStats.OnListChanged -= HandleStatsChanged;
+            m_StatsSource = match;
+            if (m_StatsSource != null) m_StatsSource.liveStats.OnListChanged += HandleStatsChanged;
+            m_ScoreboardDirty = true;
+        }
+
+        private void HandleStatsChanged(NetworkListEvent<MatchResultRow> change)
+        {
+            m_ScoreboardDirty = true;
         }
 
         private Color TeamColor(Team team)

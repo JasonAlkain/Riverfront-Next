@@ -1,11 +1,12 @@
+using System;
 using System.Collections.Generic;
 using Unity.Collections;
 using Unity.Netcode;
 
 namespace Game.Conquest.Gameplay
 {
-    /// <summary>One combatant's line on the results screen.</summary>
-    public struct MatchResultRow : INetworkSerializable
+    /// <summary>One combatant's line on the scoreboard and the results screen.</summary>
+    public struct MatchResultRow : INetworkSerializable, IEquatable<MatchResultRow>
     {
         public FixedString64Bytes playerName;
         /// <summary>Owning client for humans; ulong.MaxValue for bots.</summary>
@@ -15,6 +16,8 @@ namespace Game.Conquest.Gameplay
         public bool isBot;
         public int kills;
         public int deaths;
+        /// <summary>Command posts captured or neutralised while standing in the zone.</summary>
+        public int captures;
 
         public void NetworkSerialize<T>(BufferSerializer<T> serializer) where T : IReaderWriter
         {
@@ -25,6 +28,14 @@ namespace Game.Conquest.Gameplay
             serializer.SerializeValue(ref isBot);
             serializer.SerializeValue(ref kills);
             serializer.SerializeValue(ref deaths);
+            serializer.SerializeValue(ref captures);
+        }
+
+        public bool Equals(MatchResultRow other)
+        {
+            return playerName.Equals(other.playerName) && clientId == other.clientId && team == other.team &&
+                   classIndex == other.classIndex && isBot == other.isBot && kills == other.kills &&
+                   deaths == other.deaths && captures == other.captures;
         }
     }
 
@@ -85,6 +96,17 @@ namespace Game.Conquest.Gameplay
     {
         private readonly Dictionary<ulong, MatchResultRow> m_Rows = new Dictionary<ulong, MatchResultRow>();
         private readonly List<ulong> m_Order = new List<ulong>();
+        // Replicated copy for the live scoreboard; index i always holds the row for m_Order[i].
+        private NetworkList<MatchResultRow> m_Mirror;
+
+        /// <summary>Server: keep this replicated list in step with the rows from now on.</summary>
+        public void SetMirror(NetworkList<MatchResultRow> mirror)
+        {
+            m_Mirror = mirror;
+            if (m_Mirror == null) return;
+            m_Mirror.Clear();
+            foreach (var key in m_Order) m_Mirror.Add(m_Rows[key]);
+        }
 
         private const ulong BotKeyFlag = 1UL << 63;
 
@@ -98,17 +120,30 @@ namespace Game.Conquest.Gameplay
         {
             if (player == null) return;
             ulong key = KeyFor(player);
-            if (!m_Rows.TryGetValue(key, out var row))
-            {
-                m_Order.Add(key);
-                row = new MatchResultRow();
-            }
+            m_Rows.TryGetValue(key, out var row);
             row.playerName = player.playerName.Value;
             row.clientId = player.isBot ? ulong.MaxValue : player.OwnerClientId;
             row.team = player.CurrentTeam;
             row.classIndex = player.CurrentClassIndex;
             row.isBot = player.isBot;
-            m_Rows[key] = row;
+            Store(key, row);
+        }
+
+        // Writes a row, and its replicated copy only when something changed (no needless traffic).
+        private void Store(ulong key, MatchResultRow row)
+        {
+            if (m_Rows.TryGetValue(key, out var existing))
+            {
+                if (existing.Equals(row)) return;
+                m_Rows[key] = row;
+                if (m_Mirror != null) m_Mirror[m_Order.IndexOf(key)] = row;
+            }
+            else
+            {
+                m_Rows[key] = row;
+                m_Order.Add(key);
+                if (m_Mirror != null) m_Mirror.Add(row);
+            }
         }
 
         public void RecordDeath(Player.ConquestPlayer victim, Player.ConquestPlayer killer)
@@ -118,7 +153,7 @@ namespace Game.Conquest.Gameplay
             ulong victimKey = KeyFor(victim);
             var v = m_Rows[victimKey];
             v.deaths++;
-            m_Rows[victimKey] = v;
+            Store(victimKey, v);
 
             if (killer != null && killer != victim)
             {
@@ -126,8 +161,18 @@ namespace Game.Conquest.Gameplay
                 ulong killerKey = KeyFor(killer);
                 var k = m_Rows[killerKey];
                 k.kills++;
-                m_Rows[killerKey] = k;
+                Store(killerKey, k);
             }
+        }
+
+        public void RecordCapture(Player.ConquestPlayer player)
+        {
+            if (player == null) return;
+            Touch(player);
+            ulong key = KeyFor(player);
+            var row = m_Rows[key];
+            row.captures++;
+            Store(key, row);
         }
 
         public void CopyRowsTo(List<MatchResultRow> destination)

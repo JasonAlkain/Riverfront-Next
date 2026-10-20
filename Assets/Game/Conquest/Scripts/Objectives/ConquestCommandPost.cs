@@ -78,6 +78,10 @@ namespace Game.Conquest.Objectives
 
         public event Action<ConquestCommandPost, Team> OnOwnerChanged;
 
+        // Server scratch lists of who is standing in the zone this frame, for capture credit.
+        private readonly List<ConquestPlayer> m_RedInZone = new List<ConquestPlayer>();
+        private readonly List<ConquestPlayer> m_BlueInZone = new List<ConquestPlayer>();
+
         public override void OnNetworkSpawn()
         {
             currentOwner.OnValueChanged += HandleOwnerChanged;
@@ -138,17 +142,19 @@ namespace Game.Conquest.Objectives
         {
             // Count each living player once. A physics query counted every collider, so bots
             // (CharacterController + CapsuleCollider) captured twice as fast as humans.
-            int redPlayers = 0;
-            int bluePlayers = 0;
+            m_RedInZone.Clear();
+            m_BlueInZone.Clear();
 
             foreach (var player in ConquestPlayer.All)
             {
                 if (player == null || player.Health == null || player.Health.IsDead) continue;
                 if (!IsInCaptureZone(player.transform.position)) continue;
 
-                if (player.CurrentTeam == Team.Red) redPlayers++;
-                else if (player.CurrentTeam == Team.Blue) bluePlayers++;
+                if (player.CurrentTeam == Team.Red) m_RedInZone.Add(player);
+                else if (player.CurrentTeam == Team.Blue) m_BlueInZone.Add(player);
             }
+            int redPlayers = m_RedInZone.Count;
+            int bluePlayers = m_BlueInZone.Count;
 
             Team owner = currentOwner.Value;
             int ownerEnemies = owner == Team.Red ? bluePlayers : (owner == Team.Blue ? redPlayers : 0);
@@ -203,6 +209,7 @@ namespace Game.Conquest.Objectives
                     captureProgress.Value = 0f;
                     currentOwner.Value = Team.Neutral;
                     capturingTeam.Value = dominantTeam;
+                    CreditCapture(dominantTeam);
                     Debug.Log($"[CommandPost {PostName}] Post neutralized by {dominantTeam}!");
                 }
             }
@@ -226,9 +233,15 @@ namespace Game.Conquest.Objectives
                 {
                     captureProgress.Value = 1.0f;
                     currentOwner.Value = dominantTeam;
+                    CreditCapture(dominantTeam);
                     Debug.Log($"[CommandPost {PostName}] Captured by {dominantTeam}!");
                 }
             }
+        }
+
+        private void CreditCapture(Team team)
+        {
+            ConquestMatchManager.Instance?.OnPostCaptured(team == Team.Red ? m_RedInZone : m_BlueInZone);
         }
 
         // Nobody on the post: an owned post refills toward 1, a neutral one empties toward 0.
