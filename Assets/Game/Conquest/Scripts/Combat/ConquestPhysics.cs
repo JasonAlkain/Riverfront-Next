@@ -23,17 +23,26 @@ namespace Game.Conquest.Combat
         public static bool RaycastIgnoring(Transform ignoreRoot, Vector3 origin, Vector3 direction, float maxDistance,
                                            int layerMask, out RaycastHit nearest)
         {
-            int count = Physics.RaycastNonAlloc(origin, direction, s_Hits, maxDistance, layerMask, QueryTriggerInteraction.Ignore);
+            RaycastHit[] hits = s_Hits;
+            int count = Physics.RaycastNonAlloc(origin, direction, hits, maxDistance, layerMask, QueryTriggerInteraction.Ignore);
 
-            // RaycastNonAlloc returns hits in no particular order.
+            // A full buffer may have dropped the nearest hit (it keeps an arbitrary subset), so
+            // fall back to the allocating query in that rare case.
+            if (count == hits.Length)
+            {
+                hits = Physics.RaycastAll(origin, direction, maxDistance, layerMask, QueryTriggerInteraction.Ignore);
+                count = hits.Length;
+            }
+
+            // Hits come back in no particular order.
             int best = -1;
             for (int i = 0; i < count; i++)
             {
-                if (ignoreRoot != null && s_Hits[i].collider.transform.IsChildOf(ignoreRoot)) continue;
-                if (best < 0 || s_Hits[i].distance < s_Hits[best].distance) best = i;
+                if (ignoreRoot != null && hits[i].collider.transform.IsChildOf(ignoreRoot)) continue;
+                if (best < 0 || hits[i].distance < hits[best].distance) best = i;
             }
 
-            nearest = best >= 0 ? s_Hits[best] : default;
+            nearest = best >= 0 ? hits[best] : default;
             return best >= 0;
         }
 
