@@ -431,6 +431,7 @@ namespace Game.Conquest.UI
 
             Bind(p.btn_Apply, SaveAndApplySettings);
             Bind(p.btn_Defaults, RestoreSettingsDefaults);
+            Bind(p.btn_Controls, () => { if (p.controlsPanel != null) p.controlsPanel.Open(); });
             Bind(p.btn_Back, () => SwitchScreen(MenuState.Title));
         }
 

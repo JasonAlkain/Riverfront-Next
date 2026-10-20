@@ -7,7 +7,7 @@ using Game.Conquest.Controls;
 namespace Game.Conquest
 {
     /// <summary>
-    /// Keyboard and mouse rebinding, opened from the Settings panel. Rows are RebindRow prefab
+    /// Keyboard and mouse rebinding, opened from the Settings panel (SettingsPanelUI.btn_Controls). Rows are RebindRow prefab
     /// instances, one per rebindable binding; rebinds are saved at once by ConquestInput.
     /// Pause stays on Escape so the menu can always be reached.
     /// </summary>
@@ -22,8 +22,6 @@ namespace Game.Conquest
         public Button btn_Back;
 
         [Header("Navigation")]
-        [Tooltip("Button on the Settings panel that opens this panel.")]
-        public Button btn_Open;
         [Tooltip("Panel shown again when this one closes.")]
         public GameObject returnPanel;
 
@@ -32,7 +30,6 @@ namespace Game.Conquest
 
         private void Awake()
         {
-            if (btn_Open != null) btn_Open.onClick.AddListener(Open);
             if (btn_Back != null) btn_Back.onClick.AddListener(Close);
             if (btn_Reset != null) btn_Reset.onClick.AddListener(ResetAll);
         }

@@ -2622,6 +2622,8 @@ MonoBehaviour:
   btn_Apply: {fileID: 3961847103858839881}
   btn_Defaults: {fileID: 6722554558066440597}
   btn_Back: {fileID: 8055530649079997102}
+  btn_Controls: {fileID: 9099712616114760029}
+  controlsPanel: {fileID: 4498023330801151270}
 --- !u!114 &6902586265977359881
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -18202,7 +18204,6 @@ MonoBehaviour:
   rowsParent: {fileID: 5510199172278206687}
   btn_Reset: {fileID: 6814323744777068859}
   btn_Back: {fileID: 1528639080433777836}
-  btn_Open: {fileID: 9099712616114760029}
   returnPanel: {fileID: 683591507359229258}
 --- !u!1 &6083355746490237413
 GameObject:
