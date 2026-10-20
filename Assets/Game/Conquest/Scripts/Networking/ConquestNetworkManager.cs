@@ -17,8 +17,6 @@ namespace Game.Conquest.Networking
 
         [Header("Team Balancing")]
         private readonly List<ConquestPlayer> m_ConnectedPlayers = new List<ConquestPlayer>();
-        private int m_RedCount = 0;
-        private int m_BlueCount = 0;
 
         private void Awake()
         {
@@ -164,16 +162,13 @@ namespace Game.Conquest.Networking
                 }
                 else
                 {
-                    assignedTeam = (m_RedCount <= m_BlueCount) ? Team.Red : Team.Blue;
+                    assignedTeam = SmallerTeam();
                     // Late joiners never saw the lobby; use the name from their connection payload.
                     if (session != null && session.TryGetApprovedName(player.OwnerClientId, out var payloadName))
                     {
                         assignedName = payloadName;
                     }
                 }
-
-                if (assignedTeam == Team.Red) m_RedCount++;
-                else m_BlueCount++;
 
                 player.ServerApplyIdentity(assignedTeam, assignedName, assignedClass);
 
@@ -182,25 +177,31 @@ namespace Game.Conquest.Networking
                 GetSpawnPointForTeam(assignedTeam, out Vector3 spawnPos, out Quaternion spawnRot);
                 player.ServerHoldForDeploy(spawnPos, spawnRot);
 
-                Debug.Log($"[ConquestNetworkManager] Player {player.OwnerClientId} assigned to {assignedTeam}. (Red: {m_RedCount}, Blue: {m_BlueCount})");
+                Debug.Log($"[ConquestNetworkManager] Player {player.OwnerClientId} assigned to {assignedTeam}.");
             }
-            else if (!player.Health.IsDead) // a player waiting to deploy stays on the deploy screen
-            {
-                // Ensure player is positioned at an active spawn point on the current map
-                if (GetSpawnPointForTeam(player.playerTeam.Value, out Vector3 spawnPos, out Quaternion spawnRot))
-                {
-                    player.SpawnAt(spawnPos, spawnRot);
-                }
-            }
+            // Already registered: leave them where they are. Re-placing them on every scene event
+            // used to teleport live players back to their base mid-fight.
         }
 
         public void UnregisterPlayer(ConquestPlayer player)
         {
-            if (m_ConnectedPlayers.Remove(player))
+            // Team sizes are counted live (SmallerTeam), so a leaver needs no bookkeeping here;
+            // bot filling takes the free slot on its next population check.
+            m_ConnectedPlayers.Remove(player);
+        }
+
+        // Late joiners go to the team with fewer combatants, bots included, so a human
+        // replaces a bot on the short side instead of stacking the team that has more humans.
+        private static Team SmallerTeam()
+        {
+            int red = 0, blue = 0;
+            foreach (var p in ConquestPlayer.All)
             {
-                if (player.playerTeam.Value == Team.Red) m_RedCount = Mathf.Max(0, m_RedCount - 1);
-                else if (player.playerTeam.Value == Team.Blue) m_BlueCount = Mathf.Max(0, m_BlueCount - 1);
+                if (p == null) continue;
+                if (p.CurrentTeam == Team.Red) red++;
+                else if (p.CurrentTeam == Team.Blue) blue++;
             }
+            return red <= blue ? Team.Red : Team.Blue;
         }
 
         public bool GetSpawnPointForTeam(Team team, out Vector3 position, out Quaternion rotation)

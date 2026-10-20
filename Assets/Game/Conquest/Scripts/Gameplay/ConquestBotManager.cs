@@ -99,8 +99,9 @@ namespace Game.Conquest.Gameplay
             int blueBots = 0;
 
             // Count existing participants
-            foreach (var p in FindObjectsByType<ConquestPlayer>(FindObjectsInactive.Exclude))
+            foreach (var p in ConquestPlayer.All)
             {
+                if (p == null) continue;
                 if (p.isBot)
                 {
                     if (p.CurrentTeam == Team.Red) redBots++;
@@ -134,9 +135,9 @@ namespace Game.Conquest.Gameplay
         public bool ShouldRetireBot(Team team)
         {
             int count = 0;
-            foreach (var p in FindObjectsByType<ConquestPlayer>(FindObjectsInactive.Exclude))
+            foreach (var p in ConquestPlayer.All)
             {
-                if (p.CurrentTeam == team) count++;
+                if (p != null && p.CurrentTeam == team) count++;
             }
             return count > targetParticipantsPerTeam;
         }
