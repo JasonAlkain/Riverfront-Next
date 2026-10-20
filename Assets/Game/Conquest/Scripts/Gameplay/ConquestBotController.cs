@@ -40,7 +40,11 @@ namespace Game.Conquest.Gameplay
         [SerializeField] private float fieldOfView = 120.0f;
         [SerializeField] private float aimAccuracy = 0.6f; // 0 (wild) to 1 (perfect)
         [SerializeField] private float reactionDelay = 0.5f;
-        [SerializeField] private LayerMask visionMask = ~0;
+        [Tooltip("Placeholder: aim error in degrees at aimAccuracy 0. About the old 2.2 m wobble at 18 m.")]
+        [SerializeField] private float worstAimErrorDegrees = 7.0f;
+        [Tooltip("Placeholder: aim error in degrees at aimAccuracy 1. About the old 0.2 m wobble at 18 m.")]
+        [SerializeField] private float bestAimErrorDegrees = 0.6f;
+        [SerializeField] private LayerMask visionMask = ConquestPhysics.ShotMask;
 
         [Header("Behavior Intervals")]
         [SerializeField] private float decisionInterval = 1.0f;
@@ -60,6 +64,8 @@ namespace Game.Conquest.Gameplay
         private Vector3 m_LastPos;
         private float m_StuckTimer;
         private bool m_HasReacted;
+        private float m_NextStationAttemptTime;
+        private const float StationAttemptInterval = 3f;
 
         public BotState CurrentState => currentState;
         public BotDifficulty Difficulty => difficulty;
@@ -356,6 +362,10 @@ namespace Game.Conquest.Gameplay
             {
                 MoveToTarget(m_TargetPost.GetCaptureTargetPosition(transform.position));
             }
+            else
+            {
+                TryDeployStationAtPost();
+            }
 
             // Once fully captured and secured, push immediately to next objective!
             if (m_TargetPost.CurrentOwner == m_Player.CurrentTeam && !m_TargetPost.IsContested && m_TargetPost.CaptureProgress >= 0.99f)
@@ -367,6 +377,16 @@ namespace Game.Conquest.Gameplay
                     MoveToTarget(m_TargetPost.GetCaptureTargetPosition(transform.position));
                 }
             }
+        }
+
+        // Engineer bots drop a station while holding a post, unless their own already covers them.
+        // The weapon applies the same cooldown and team cap as for players.
+        private void TryDeployStationAtPost()
+        {
+            if (m_Weapon == null || !m_Weapon.HasSupportStation || Time.time < m_NextStationAttemptTime) return;
+            m_NextStationAttemptTime = Time.time + StationAttemptInterval;
+            if (m_Weapon.ServerOwnStationCovers(transform.position)) return;
+            m_Weapon.ServerTryDeployStation();
         }
 
         private void UpdateDefend()
@@ -441,52 +461,46 @@ namespace Game.Conquest.Gameplay
                 }
             }
 
-            // Aim with simulated inaccuracy
+            // Aim error is an angle, so a bot misses by more at long range, like a person would.
             Vector3 targetAimPoint = m_CurrentEnemy.transform.position + Vector3.up * 1.3f;
-            float maxError = Mathf.Lerp(2.2f, 0.2f, aimAccuracy);
-            Vector3 randomOffset = Random.insideUnitSphere * maxError;
-            targetAimPoint += randomOffset;
+            float aimErrorDegrees = Mathf.Lerp(worstAimErrorDegrees, bestAimErrorDegrees, aimAccuracy);
 
-            // Fire weapon
             if (m_Weapon != null)
             {
-                m_Weapon.FireFromAI(targetAimPoint);
+                m_Weapon.FireFromAI(targetAimPoint, aimErrorDegrees);
             }
         }
 
         private ConquestPlayer ScanForEnemy()
         {
-            Collider[] hits = Physics.OverlapSphere(transform.position, detectionRange);
             ConquestPlayer closest = null;
-            float closestDist = float.MaxValue;
+            float closestSqrDist = detectionRange * detectionRange;
+            Vector3 eyePos = transform.position + Vector3.up * 1.6f;
 
-            foreach (var col in hits)
+            // The roster of spawned players, not an OverlapSphere: no allocation, and range is
+            // measured to the target's position rather than to whichever collider overlapped.
+            var all = ConquestPlayer.All;
+            for (int i = 0; i < all.Count; i++)
             {
-                ConquestPlayer candidate = col.GetComponentInParent<ConquestPlayer>();
+                ConquestPlayer candidate = all[i];
                 if (candidate == null || candidate == m_Player || candidate.Health.IsDead) continue;
                 if (candidate.CurrentTeam == m_Player.CurrentTeam || candidate.CurrentTeam == Team.Neutral) continue;
 
                 Vector3 toTarget = candidate.transform.position - transform.position;
-                float angle = Vector3.Angle(transform.forward, toTarget);
+                float sqrDist = toTarget.sqrMagnitude;
+                if (sqrDist > closestSqrDist) continue;
+                if (Vector3.Angle(transform.forward, toTarget) > fieldOfView * 0.5f) continue;
 
-                // FOV check
-                if (angle <= fieldOfView * 0.5f)
+                // Line of sight: the bot's own body never blocks it, and hitting the target counts as seeing it.
+                Vector3 targetPos = candidate.transform.position + Vector3.up * 1.3f;
+                if (ConquestPhysics.LinecastIgnoring(transform, eyePos, targetPos, visionMask, out RaycastHit hit) &&
+                    !hit.collider.transform.IsChildOf(candidate.transform))
                 {
-                    // Line of sight check
-                    Vector3 eyePos = transform.position + Vector3.up * 1.6f;
-                    Vector3 targetPos = candidate.transform.position + Vector3.up * 1.3f;
-
-                    if (!Physics.Linecast(eyePos, targetPos, out RaycastHit hit, visionMask, QueryTriggerInteraction.Ignore) ||
-                        hit.collider.transform.IsChildOf(candidate.transform))
-                    {
-                        float dist = toTarget.sqrMagnitude;
-                        if (dist < closestDist)
-                        {
-                            closestDist = dist;
-                            closest = candidate;
-                        }
-                    }
+                    continue;
                 }
+
+                closestSqrDist = sqrDist;
+                closest = candidate;
             }
 
             return closest;

@@ -2233,7 +2233,7 @@ GameObject:
   - component: {fileID: 1595283648238975233}
   - component: {fileID: 5359286594393080228}
   - component: {fileID: 1523976920118597526}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: ConquestBot
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2323,6 +2323,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Game.Conquest::Game.Conquest.Combat.ConquestHealth
   ShowTopMostFoldoutHeaderGroup: 1
   maxHealth: 100
+  spawnProtectionSeconds: 2
   audioSource: {fileID: 1523976920118597526}
   hitSoundClip: {fileID: 8300000, guid: 8fc0a6d6ceaa48c4a862ba36f574e317, type: 3}
   deathSoundClip: {fileID: 8300000, guid: bd11cc5c8126ab7408316050608042e2, type: 3}
@@ -2332,6 +2333,11 @@ MonoBehaviour:
       MinSecondsBetweenUpdates: 0
       MaxSecondsBetweenUpdates: 0
     m_InternalValue: 100
+  lastAttackerId:
+    UpdateTraits:
+      MinSecondsBetweenUpdates: 0
+      MaxSecondsBetweenUpdates: 0
+    m_InternalValue: 18446744073709551615
   isDead:
     UpdateTraits:
       MinSecondsBetweenUpdates: 0
@@ -2391,22 +2397,31 @@ MonoBehaviour:
   isAutomatic: 1
   hitLayers:
     serializedVersion: 2
-    m_Bits: 4294967295
+    m_Bits: 193
   hasZoom: 0
   zoomFOV: 35
   hasSupportStation: 0
   supportStationPrefab: {fileID: 6656634446336126747, guid: 7a4757459bd50b54d93ea7c9ece0b483, type: 3}
   stationCooldown: 15
+  maxStationsPerTeam: 3
   fireTimingTolerance: 0.1
   maxRayOriginOffset: 3
   stationDeployDistance: 1.5
   muzzlePoint: {fileID: 2855745713472899589}
-  muzzleFlashPrefab: {fileID: 0}
-  hitImpactPrefab: {fileID: 0}
+  muzzleFlashPrefab: {fileID: 3467393141438468049, guid: 016655018e05da742a72089f17ad60e8, type: 3}
+  hitImpactPrefab: {fileID: 8944413571679683895, guid: 5477348e25395274e8b5bab0a1d1b958, type: 3}
+  characterImpactPrefab: {fileID: 5192824054049741679, guid: eb569fff252055b45bab9337994c08db, type: 3}
+  muzzleFlashSeconds: 0.06
+  impactSeconds: 0.6
+  redTracerMaterial: {fileID: 2100000, guid: 424978d382571fd448c834b38fef21c5, type: 2}
+  blueTracerMaterial: {fileID: 2100000, guid: 538c161c5d4f98e458343f2ec3d836e6, type: 2}
+  tracerWidth: 0.05
+  tracerDuration: 0.06
   weaponAudioSource: {fileID: 1954870533503147489}
   fireSoundClip: {fileID: 0}
   reloadSoundClip: {fileID: 0}
   targetHitClip: {fileID: 8300000, guid: c4ad7a8965250da40b2b72025cb6dca8, type: 3}
+  killConfirmClip: {fileID: 0}
   firePitchMin: 0.95
   firePitchMax: 1.05
   fireVolume: 1
@@ -2510,6 +2525,11 @@ MonoBehaviour:
         byte0059: 0
         byte0060: 0
         byte0061: 0
+  deployAvailableAt:
+    UpdateTraits:
+      MinSecondsBetweenUpdates: 0
+      MaxSecondsBetweenUpdates: 0
+    m_InternalValue: 0
   selectedClassIndex:
     UpdateTraits:
       MinSecondsBetweenUpdates: 0
@@ -2637,7 +2657,7 @@ MonoBehaviour:
   reactionDelay: 0.5
   visionMask:
     serializedVersion: 2
-    m_Bits: 4294967295
+    m_Bits: 193
   decisionInterval: 1
   stuckThresholdTime: 2.5
 --- !u!136 &5359286594393080228

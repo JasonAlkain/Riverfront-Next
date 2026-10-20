@@ -1,6 +1,6 @@
 using Unity.Netcode;
 using UnityEngine;
-using UnityEngine.InputSystem;
+using Game.Conquest.Controls;
 using Game.Conquest.Combat;
 
 namespace Game.Conquest.Player
@@ -51,6 +51,7 @@ namespace Game.Conquest.Player
         private float m_Pitch;
         private bool m_CursorLocked = true;
         private bool m_LocalViewActive = false;
+        private float m_BaseFieldOfView = 75.0f;
 
         // Solid colliders on this body and whether each started enabled (the bot's
         // CharacterController is disabled in its prefab and must stay that way).
@@ -61,6 +62,8 @@ namespace Game.Conquest.Player
         public Camera PlayerCamera => playerCamera;
         public Transform CameraPivot => cameraPivot;
         public float Pitch => m_Pitch;
+        /// <summary>The unzoomed field of view from the player's settings.</summary>
+        public float BaseFieldOfView => m_BaseFieldOfView;
 
         private void Awake()
         {
@@ -138,6 +141,7 @@ namespace Game.Conquest.Player
         {
             if (settings == null) return;
             mouseSensitivity = settings.mouseSensitivity;
+            m_BaseFieldOfView = settings.fieldOfView;
             if (playerCamera != null)
             {
                 playerCamera.fieldOfView = settings.fieldOfView;
@@ -243,7 +247,7 @@ namespace Game.Conquest.Player
                 return;
             }
 
-            if (Mouse.current != null && Mouse.current.leftButton.wasPressedThisFrame && !m_CursorLocked)
+            if (ConquestInput.FirePressed && !m_CursorLocked)
             {
                 SetCursorLock(true);
             }
@@ -273,9 +277,7 @@ namespace Game.Conquest.Player
 
         private void HandleLook()
         {
-            if (Mouse.current == null) return;
-
-            Vector2 mouseDelta = Mouse.current.delta.ReadValue() * mouseSensitivity;
+            Vector2 mouseDelta = ConquestInput.LookDegrees(mouseSensitivity) * ZoomSensitivityScale();
 
             // Horizontal rotation on player root (networked via ClientNetworkTransform)
             transform.Rotate(Vector3.up * mouseDelta.x);
@@ -295,24 +297,22 @@ namespace Game.Conquest.Player
             }
         }
 
+        // While zoomed (smaller FOV) the view turns proportionally slower, so the same mouse
+        // movement sweeps the same distance across the screen at any zoom.
+        private float ZoomSensitivityScale()
+        {
+            if (playerCamera == null || m_BaseFieldOfView <= 1f) return 1f;
+            float baseHalf = Mathf.Tan(m_BaseFieldOfView * 0.5f * Mathf.Deg2Rad);
+            float currentHalf = Mathf.Tan(playerCamera.fieldOfView * 0.5f * Mathf.Deg2Rad);
+            return Mathf.Clamp(currentHalf / baseHalf, 0.05f, 1f);
+        }
+
         private void HandleMovement()
         {
-            Vector2 moveInput = Vector2.zero;
-            bool isSprinting = false;
-            bool jumpPressed = false;
-
-            if (Keyboard.current != null)
-            {
-                if (Keyboard.current.wKey.isPressed) moveInput.y += 1f;
-                if (Keyboard.current.sKey.isPressed) moveInput.y -= 1f;
-                if (Keyboard.current.aKey.isPressed) moveInput.x -= 1f;
-                if (Keyboard.current.dKey.isPressed) moveInput.x += 1f;
-
-                isSprinting = Keyboard.current.leftShiftKey.isPressed;
-                jumpPressed = Keyboard.current.spaceKey.wasPressedThisFrame;
-            }
-
-            moveInput.Normalize();
+            // Clamped rather than normalised so a half-tilted stick walks slower.
+            Vector2 moveInput = Vector2.ClampMagnitude(ConquestInput.Move, 1f);
+            bool isSprinting = ConquestInput.SprintHeld;
+            bool jumpPressed = ConquestInput.JumpPressed;
 
             float currentSpeed = isSprinting ? sprintSpeed : walkSpeed;
             Vector3 moveDirection = transform.right * moveInput.x + transform.forward * moveInput.y;

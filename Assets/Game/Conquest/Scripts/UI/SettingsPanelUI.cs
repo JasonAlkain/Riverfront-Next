@@ -24,6 +24,10 @@ namespace Game.Conquest
         public Button btn_Apply;
         public Button btn_Defaults;
         public Button btn_Back;
+        public Button btn_Controls;
+
+        [Header("Sub-panels")]
+        public ControlsPanelUI controlsPanel;
 
         // Show and hide the settings panel
         public void Show() => gameObject.SetActive(true);

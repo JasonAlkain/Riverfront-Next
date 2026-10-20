@@ -3,7 +3,7 @@ using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
-using UnityEngine.InputSystem;
+using Game.Conquest.Controls;
 using Game.Conquest.Player;
 using Game.Conquest.Settings;
 using Game.Conquest.Networking;
@@ -297,8 +297,8 @@ namespace Game.Conquest.UI
                 return;
             }
 
-            // ESC toggle
-            if (Keyboard.current != null && Keyboard.current.escapeKey.wasPressedThisFrame)
+            // Pause action: Escape, or Start on a gamepad.
+            if (ConquestInput.PausePressed)
             {
                 if (m_SettingsPanel != null && m_SettingsPanel.activeSelf)
                 {

@@ -195,7 +195,7 @@ GameObject:
   - component: {fileID: 8158915484592444454}
   - component: {fileID: 8622671296224831407}
   - component: {fileID: 5312596042473618625}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: StationCrate
   m_TagString: Untagged
   m_Icon: {fileID: 0}
