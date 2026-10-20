@@ -1,6 +1,6 @@
 using Unity.Netcode;
 using UnityEngine;
-using UnityEngine.InputSystem;
+using Game.Conquest.Controls;
 using Game.Conquest.Combat;
 
 namespace Game.Conquest.Player
@@ -247,7 +247,7 @@ namespace Game.Conquest.Player
                 return;
             }
 
-            if (Mouse.current != null && Mouse.current.leftButton.wasPressedThisFrame && !m_CursorLocked)
+            if (ConquestInput.FirePressed && !m_CursorLocked)
             {
                 SetCursorLock(true);
             }
@@ -277,9 +277,7 @@ namespace Game.Conquest.Player
 
         private void HandleLook()
         {
-            if (Mouse.current == null) return;
-
-            Vector2 mouseDelta = Mouse.current.delta.ReadValue() * mouseSensitivity * ZoomSensitivityScale();
+            Vector2 mouseDelta = ConquestInput.LookDegrees(mouseSensitivity) * ZoomSensitivityScale();
 
             // Horizontal rotation on player root (networked via ClientNetworkTransform)
             transform.Rotate(Vector3.up * mouseDelta.x);
@@ -311,22 +309,10 @@ namespace Game.Conquest.Player
 
         private void HandleMovement()
         {
-            Vector2 moveInput = Vector2.zero;
-            bool isSprinting = false;
-            bool jumpPressed = false;
-
-            if (Keyboard.current != null)
-            {
-                if (Keyboard.current.wKey.isPressed) moveInput.y += 1f;
-                if (Keyboard.current.sKey.isPressed) moveInput.y -= 1f;
-                if (Keyboard.current.aKey.isPressed) moveInput.x -= 1f;
-                if (Keyboard.current.dKey.isPressed) moveInput.x += 1f;
-
-                isSprinting = Keyboard.current.leftShiftKey.isPressed;
-                jumpPressed = Keyboard.current.spaceKey.wasPressedThisFrame;
-            }
-
-            moveInput.Normalize();
+            // Clamped rather than normalised so a half-tilted stick walks slower.
+            Vector2 moveInput = Vector2.ClampMagnitude(ConquestInput.Move, 1f);
+            bool isSprinting = ConquestInput.SprintHeld;
+            bool jumpPressed = ConquestInput.JumpPressed;
 
             float currentSpeed = isSprinting ? sprintSpeed : walkSpeed;
             Vector3 moveDirection = transform.right * moveInput.x + transform.forward * moveInput.y;

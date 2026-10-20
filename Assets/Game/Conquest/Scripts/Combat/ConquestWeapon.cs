@@ -1,7 +1,7 @@
 using System.Collections;
 using Unity.Netcode;
 using UnityEngine;
-using UnityEngine.InputSystem;
+using Game.Conquest.Controls;
 using Game.Conquest.Player;
 using Game.Conquest.Classes;
 using Game.Conquest.Gameplay;
@@ -197,8 +197,7 @@ namespace Game.Conquest.Combat
             if (Cursor.lockState != CursorLockMode.Locked) return;
 
             // Firing
-            bool fireRequested = isAutomatic ? (Mouse.current != null && Mouse.current.leftButton.isPressed)
-                                             : (Mouse.current != null && Mouse.current.leftButton.wasPressedThisFrame);
+            bool fireRequested = isAutomatic ? ConquestInput.FireHeld : ConquestInput.FirePressed;
 
             if (fireRequested && Time.time >= m_NextFireTime && !isReloading.Value)
             {
@@ -212,14 +211,12 @@ namespace Game.Conquest.Combat
                 }
             }
 
-            // Reload key (R)
-            if (Keyboard.current != null && Keyboard.current.rKey.wasPressedThisFrame && !isReloading.Value && currentAmmo.Value < magazineCapacity)
+            if (ConquestInput.ReloadPressed && !isReloading.Value && currentAmmo.Value < magazineCapacity)
             {
                 TryStartReload();
             }
 
-            // Deploy Support Station (Q)
-            if (hasSupportStation && Keyboard.current != null && Keyboard.current.qKey.wasPressedThisFrame)
+            if (hasSupportStation && ConquestInput.DeployPressed)
             {
                 TryDeployStation();
             }
@@ -229,7 +226,7 @@ namespace Game.Conquest.Combat
         {
             if (m_Movement == null || m_Movement.PlayerCamera == null) return;
 
-            m_IsZoomed = canAct && hasZoom && Mouse.current != null && Mouse.current.rightButton.isPressed;
+            m_IsZoomed = canAct && hasZoom && ConquestInput.AimHeld;
 
             // The unzoomed FOV follows the settings, even when they change mid-match.
             float targetFOV = m_IsZoomed ? zoomFOV : m_Movement.BaseFieldOfView;

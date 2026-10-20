@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
-using UnityEngine.InputSystem;
+using Game.Conquest.Controls;
 using Game.Conquest.Gameplay;
 using Game.Conquest.Networking;
 using Game.Conquest.Objectives;
@@ -52,6 +52,10 @@ namespace Game.Conquest.UI
 
         private float m_HitmarkerEndTime;
         private bool m_HitmarkerKill;
+        // Current key labels for the HUD hints, refreshed when the player rebinds.
+        private string m_ReloadKey = "R";
+        private string m_DeployKey = "Q";
+        private string m_AimKey = "RMB";
         private ConquestMatchManager m_StatsSource;
         private bool m_ScoreboardDirty = true;
         private readonly List<MatchResultRow> m_StatsCopy = new List<MatchResultRow>();
@@ -90,6 +94,8 @@ namespace Game.Conquest.UI
                 respawnPanelUI.DeployClicked += HandleDeployClicked;
             }
             ConquestMatchManager.KillReported += HandleKillReported;
+            ConquestInput.BindingsChanged += RefreshKeyLabels;
+            RefreshKeyLabels();
             HideTransientPanels();
         }
 
@@ -102,6 +108,7 @@ namespace Game.Conquest.UI
                 respawnPanelUI.DeployClicked -= HandleDeployClicked;
             }
             ConquestMatchManager.KillReported -= HandleKillReported;
+            ConquestInput.BindingsChanged -= RefreshKeyLabels;
             WatchStats(null);
             if (Instance == this) Instance = null;
         }
@@ -124,6 +131,13 @@ namespace Game.Conquest.UI
             {
                 Instance.damageIndicatorUI.ShowFrom(sourcePosition);
             }
+        }
+
+        private void RefreshKeyLabels()
+        {
+            m_ReloadKey = ConquestInput.KeyLabel(ConquestInput.Gameplay.Reload);
+            m_DeployKey = ConquestInput.KeyLabel(ConquestInput.Gameplay.Deploy);
+            m_AimKey = ConquestInput.KeyLabel(ConquestInput.Gameplay.Aim);
         }
 
         // The server applies a class picked while dead to this respawn; while alive it is queued.
@@ -216,7 +230,7 @@ namespace Game.Conquest.UI
         {
             if (scoreboardUI == null) return;
 
-            bool wanted = match != null && !match.IsMatchOver && Keyboard.current != null && Keyboard.current.tabKey.isPressed;
+            bool wanted = match != null && !match.IsMatchOver && ConquestInput.ScoreboardHeld;
             if (!wanted)
             {
                 scoreboardUI.Hide();
@@ -360,16 +374,16 @@ namespace Game.Conquest.UI
             var weapon = player.Weapon;
             if (weapon != null)
             {
-                ammo = weapon.IsReloading ? "AMMO: RELOADING..." : $"AMMO: {weapon.CurrentAmmo} / {weapon.MagazineCapacity} [R]";
+                ammo = weapon.IsReloading ? "AMMO: RELOADING..." : $"AMMO: {weapon.CurrentAmmo} / {weapon.MagazineCapacity} [{m_ReloadKey}]";
                 if (weapon.HasSupportStation)
                 {
                     string refusal = weapon.StationRefusal;
                     float cooldown = weapon.StationCooldownRemaining;
                     if (refusal.Length > 0) ammo += $"  |  {refusal}";
                     else if (cooldown > 0f) ammo += $"  |  Station {Mathf.CeilToInt(cooldown)}s";
-                    else ammo += "  |  [Q] Station";
+                    else ammo += $"  |  [{m_DeployKey}] Station";
                 }
-                if (weapon.HasZoom) ammo += "  |  [RMB] Scope";
+                if (weapon.HasZoom) ammo += $"  |  [{m_AimKey}] Scope";
             }
 
             playerStatsUI.SetStats(
