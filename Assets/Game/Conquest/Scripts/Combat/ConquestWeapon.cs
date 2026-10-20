@@ -175,12 +175,12 @@ namespace Game.Conquest.Combat
         {
             // The host owns every bot, so IsOwner alone would let the host's keys drive bot weapons.
             if (!PredictsLocally) return;
-            if (m_Health != null && m_Health.IsDead) return;
-            if (IsMatchOver) return;
-            if (ConquestPauseMenu.Instance != null && ConquestPauseMenu.Instance.IsPaused) return;
+            bool canAct = !(m_Health != null && m_Health.IsDead) && !IsMatchOver &&
+                          !(ConquestPauseMenu.Instance != null && ConquestPauseMenu.Instance.IsPaused);
 
-            HandleInput();
-            HandleZoom();
+            // Always runs, so dying or switching off a scoped class zooms back out.
+            HandleZoom(canAct);
+            if (canAct) HandleInput();
         }
 
         // Firing and stations stop when the match ends, on the owner and again on the server.
@@ -225,12 +225,11 @@ namespace Game.Conquest.Combat
             }
         }
 
-        private void HandleZoom()
+        private void HandleZoom(bool canAct)
         {
-            if (!hasZoom || m_Movement == null || m_Movement.PlayerCamera == null) return;
+            if (m_Movement == null || m_Movement.PlayerCamera == null) return;
 
-            bool zoomHeld = Mouse.current != null && Mouse.current.rightButton.isPressed;
-            m_IsZoomed = zoomHeld;
+            m_IsZoomed = canAct && hasZoom && Mouse.current != null && Mouse.current.rightButton.isPressed;
 
             // The unzoomed FOV follows the settings, even when they change mid-match.
             float targetFOV = m_IsZoomed ? zoomFOV : m_Movement.BaseFieldOfView;
