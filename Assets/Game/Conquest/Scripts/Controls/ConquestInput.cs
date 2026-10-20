@@ -30,14 +30,37 @@ namespace Game.Conquest.Controls
         {
             get
             {
-                if (s_Controls == null)
+                if (s_Controls == null || s_Controls.asset == null)
                 {
                     s_Controls = new ConquestControls();
                     LoadOverrides();
-                    s_Controls.Gameplay.Enable();
                 }
+                // Anything that disabled the whole map (a rebind only disables one action) is undone here.
+                if (!s_Controls.Gameplay.enabled) s_Controls.Gameplay.Enable();
                 return s_Controls;
             }
+        }
+
+        // Domain reload is off in this project (Enter Play Mode options), so this static would
+        // survive into the next play session after the Input System has torn down the old
+        // actions' state, leaving them dead: no movement, no pause. Start every session fresh.
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+        private static void ResetForPlaySession()
+        {
+            if (s_Controls != null)
+            {
+                try
+                {
+                    s_Controls.Gameplay.Disable();
+                    s_Controls.Dispose();
+                }
+                catch (Exception)
+                {
+                    // The old state may already be gone; it is being replaced either way.
+                }
+            }
+            s_Controls = null;
+            BindingsChanged = null;
         }
 
         public static Vector2 Move => Gameplay.Move.ReadValue<Vector2>();
