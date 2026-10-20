@@ -17,7 +17,11 @@ namespace Game.Conquest.Objectives
 
         [Header("Capture Rules")]
         [SerializeField] private float captureRadius = 8.0f;
+        [Tooltip("How far above or below the post a player still counts, so a roof or a floor below doesn't capture.")]
+        [SerializeField] private float captureHeight = 4.0f;
         [SerializeField] private float captureTime = 10.0f; // Seconds to capture from 0 to 100%
+        [Tooltip("Progress per second an empty post drifts back toward its owner (or toward neutral). 0 holds partial progress.")]
+        [SerializeField] private float idleRecoveryRate = 0f;
 
         [Header("Spawn Locations")]
         [SerializeField] private List<Transform> spawnPoints = new List<Transform>();
@@ -114,21 +118,29 @@ namespace Game.Conquest.Objectives
             EvaluateCaptureState();
         }
 
+        /// <summary>True if a point is inside the capture zone: a cylinder around the post, not a sphere.</summary>
+        public bool IsInCaptureZone(Vector3 position)
+        {
+            Vector3 offset = position - transform.position;
+            if (Mathf.Abs(offset.y) > captureHeight) return false;
+            offset.y = 0f;
+            return offset.sqrMagnitude <= captureRadius * captureRadius;
+        }
+
         private void EvaluateCaptureState()
         {
-            // Find all players in capture radius
+            // Count each living player once. A physics query counted every collider, so bots
+            // (CharacterController + CapsuleCollider) captured twice as fast as humans.
             int redPlayers = 0;
             int bluePlayers = 0;
 
-            Collider[] hits = Physics.OverlapSphere(transform.position, captureRadius);
-            foreach (var col in hits)
+            foreach (var player in ConquestPlayer.All)
             {
-                ConquestPlayer player = col.GetComponentInParent<ConquestPlayer>();
-                if (player != null && !player.Health.IsDead)
-                {
-                    if (player.CurrentTeam == Team.Red) redPlayers++;
-                    else if (player.CurrentTeam == Team.Blue) bluePlayers++;
-                }
+                if (player == null || player.Health == null || player.Health.IsDead) continue;
+                if (!IsInCaptureZone(player.transform.position)) continue;
+
+                if (player.CurrentTeam == Team.Red) redPlayers++;
+                else if (player.CurrentTeam == Team.Blue) bluePlayers++;
             }
 
             // Determine if contested
@@ -156,7 +168,7 @@ namespace Game.Conquest.Objectives
 
             if (dominantTeam == Team.Neutral)
             {
-                // No one in point. If partially captured but not claimed, progress remains or slowly decays
+                RecoverIdleProgress();
                 return;
             }
 
@@ -183,6 +195,16 @@ namespace Game.Conquest.Objectives
                     Debug.Log($"[CommandPost {PostName}] Post neutralized by {dominantTeam}!");
                 }
             }
+            else if (capturingTeam.Value != dominantTeam && captureProgress.Value > 0f)
+            {
+                // Neutral post part-captured by the other team: undo their progress first,
+                // so neither team inherits the other's work.
+                captureProgress.Value = Mathf.Max(0f, captureProgress.Value - speed);
+                if (captureProgress.Value <= 0f)
+                {
+                    capturingTeam.Value = dominantTeam;
+                }
+            }
             else
             {
                 // Point is Neutral: dominant team captures it
@@ -195,6 +217,27 @@ namespace Game.Conquest.Objectives
                     currentOwner.Value = dominantTeam;
                     Debug.Log($"[CommandPost {PostName}] Captured by {dominantTeam}!");
                 }
+            }
+        }
+
+        // Nobody on the post: an owned post refills toward 1, a neutral one empties toward 0.
+        private void RecoverIdleProgress()
+        {
+            if (idleRecoveryRate <= 0f) return;
+
+            float step = idleRecoveryRate * Time.deltaTime;
+            if (currentOwner.Value != Team.Neutral)
+            {
+                if (captureProgress.Value < 1f)
+                {
+                    captureProgress.Value = Mathf.Min(1f, captureProgress.Value + step);
+                    capturingTeam.Value = currentOwner.Value;
+                }
+            }
+            else if (captureProgress.Value > 0f)
+            {
+                captureProgress.Value = Mathf.Max(0f, captureProgress.Value - step);
+                if (captureProgress.Value <= 0f) capturingTeam.Value = Team.Neutral;
             }
         }
 

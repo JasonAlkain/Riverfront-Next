@@ -73,6 +73,10 @@ namespace Game.Conquest.Player
         /// <summary>This peer's own (non-bot) player once it has spawned; null before that and after despawn.</summary>
         public static ConquestPlayer Local { get; private set; }
 
+        private static readonly List<ConquestPlayer> s_All = new List<ConquestPlayer>();
+        /// <summary>Every spawned player and bot on this peer, alive or dead. Saves scanning the scene or physics.</summary>
+        public static IReadOnlyList<ConquestPlayer> All => s_All;
+
         private void Awake()
         {
             m_Movement = GetComponent<ConquestPlayerMovement>();
@@ -95,6 +99,7 @@ namespace Game.Conquest.Player
             m_PendingClassIndex = selectedClassIndex.Value;
 
             if (IsOwner && !isBot) Local = this;
+            if (!s_All.Contains(this)) s_All.Add(this);
 
             if (IsServer && !isBot)
             {
@@ -110,6 +115,7 @@ namespace Game.Conquest.Player
             m_Health.OnRespawned -= HandleRespawn;
 
             if (Local == this) Local = null;
+            s_All.Remove(this);
 
             if (IsServer && !isBot)
             {

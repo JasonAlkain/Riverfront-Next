@@ -208,7 +208,7 @@ namespace Game.Conquest.UI
                 Vector3 playerPos = player.transform.position;
                 foreach (var post in match.CommandPosts)
                 {
-                    if (post != null && Vector3.Distance(post.transform.position, playerPos) <= post.CaptureRadius)
+                    if (post != null && post.IsInCaptureZone(playerPos))
                     {
                         nearbyPost = post;
                         break;
