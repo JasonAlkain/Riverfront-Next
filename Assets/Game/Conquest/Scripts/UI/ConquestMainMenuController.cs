@@ -155,6 +155,7 @@ namespace Game.Conquest.UI
             BindLobbyPanel();
             BindSettingsPanel();
             BindCreditsPanel();
+            ApplySelectedMapDefaults();
         }
 
         private void Start()
@@ -447,9 +448,35 @@ namespace Game.Conquest.UI
             if (maps != null && maps.Count > 0)
             {
                 m_SelectedMapIndex = (m_SelectedMapIndex + delta + maps.Count) % maps.Count;
+                ApplySelectedMapDefaults();
                 UpdateSoloDisplay();
                 UpdateHostDisplay();
             }
+        }
+
+        // Picking a map pre-fills its tickets and team size; the host can still change them.
+        private void ApplySelectedMapDefaults()
+        {
+            var maps = mapRegistry != null ? mapRegistry.RegisteredMaps : null;
+            if (maps == null || maps.Count == 0) return;
+
+            m_SelectedMapIndex = Mathf.Clamp(m_SelectedMapIndex, 0, maps.Count - 1);
+            var settings = ConquestMatchSettings.ForMap(maps[m_SelectedMapIndex]);
+
+            m_SoloTickets = PrefillSlider(soloPanelUI != null ? soloPanelUI.sld_TeamTickets : null, settings.reinforcementTickets);
+            m_SoloTeamSize = PrefillSlider(soloPanelUI != null ? soloPanelUI.sld_TargetTeamSize : null, settings.teamSize);
+            m_HostTickets = PrefillSlider(hostPanelUI != null ? hostPanelUI.sld_ReinforcementTickets : null, settings.reinforcementTickets);
+            m_HostTeamSize = PrefillSlider(hostPanelUI != null ? hostPanelUI.sld_TargetTeamSize : null, settings.teamSize);
+            UpdateSoloLabels();
+            UpdateHostLabels();
+        }
+
+        // Returns what the slider actually shows, in case its range clamped the value.
+        private static int PrefillSlider(Slider slider, int value)
+        {
+            if (slider == null) return value;
+            slider.SetValueWithoutNotify(value);
+            return Mathf.RoundToInt(slider.value);
         }
 
         private void SetSoloDifficulty(int diff)
@@ -562,7 +589,7 @@ namespace Game.Conquest.UI
                 string countdownLine = lobby.autoStartCountdown.Value >= 0 ? $"\nMATCH STARTS IN {lobby.autoStartCountdown.Value}s" : "";
                 p.SetLobbyInfo(
                     $"LOBBY: {lobby.sessionName.Value.ToString().ToUpper()}",
-                    $"MAP: {mapLabel} | TICKETS: {lobby.reinforcementTickets.Value} | BOTS: {lobby.targetTeamSize.Value}/team ({lobby.botDifficulty.Value}){m_LobbyJoinAddressLine}{countdownLine}");
+                    $"MAP: {mapLabel} | TICKETS: {lobby.reinforcementTickets.Value} | TEAM SIZE: {lobby.targetTeamSize.Value} (bots {lobby.botDifficulty.Value}){m_LobbyJoinAddressLine}{countdownLine}");
             }
 
             if (p.redTeamContainer == null || p.blueTeamContainer == null) return;

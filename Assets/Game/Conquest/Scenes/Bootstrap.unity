@@ -357,10 +357,11 @@ MonoBehaviour:
   sessionName: Conquest Session
   selectedMapId: the_frontline
   maxHumanPlayers: 16
-  reinforcementTickets: 150
-  targetTeamSize: 8
-  enableBotFilling: 1
-  botDifficulty: 1
+  matchSettings:
+    reinforcementTickets: 250
+    teamSize: 8
+    botFilling: 1
+    botDifficulty: 1
   isSoloMode: 0
   connectAddress: 127.0.0.1
   connectPort: 7777

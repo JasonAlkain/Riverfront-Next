@@ -22,10 +22,8 @@ namespace Game.Conquest.Networking
         public string selectedMapId = "the_frontline";
         public string selectedMapScene = "ConquestLargeBattlefield";
         public int maxHumanPlayers = 16;
-        public int reinforcementTickets = 150;
-        public int targetTeamSize = 8;
-        public bool enableBotFilling = true;
-        public BotDifficulty botDifficulty = BotDifficulty.Normal;
+        [Tooltip("Rules for the next match. Set by the menus, the lobby or the server launch args; read by the match.")]
+        public ConquestMatchSettings matchSettings = ConquestMatchSettings.Default;
         public bool isSoloMode = false;
 
         [Header("Dedicated Server")]
@@ -272,15 +270,18 @@ namespace Game.Conquest.Networking
             if (ReferenceEquals(ConquestSession.Current, this)) ConquestSession.Current = null;
         }
 
-        public void StartSoloGame(string mapSceneName, int tickets = 150, int botsPerTeam = 4, BotDifficulty difficulty = BotDifficulty.Normal)
+        public void StartSoloGame(string mapSceneName, int tickets, int teamSize, BotDifficulty difficulty)
         {
             isSoloMode = true;
             ClearPlayerAssignments();
             sessionName = "Solo Practice";
-            reinforcementTickets = tickets;
-            targetTeamSize = botsPerTeam;
-            enableBotFilling = true;
-            botDifficulty = difficulty;
+            matchSettings = new ConquestMatchSettings
+            {
+                reinforcementTickets = tickets,
+                teamSize = teamSize,
+                botFilling = true,
+                botDifficulty = difficulty,
+            };
 
             // Solo stays on loopback; set explicitly because the transport persists between sessions.
             EnsureNetworkManagerConfigured("127.0.0.1", DefaultPort, "127.0.0.1");
@@ -307,10 +308,13 @@ namespace Game.Conquest.Networking
             selectedMapScene = mapSceneName;
             sessionName = sessName;
             maxHumanPlayers = maxPlayers;
-            reinforcementTickets = tickets;
-            targetTeamSize = teamSize;
-            enableBotFilling = botFill;
-            botDifficulty = diff;
+            matchSettings = new ConquestMatchSettings
+            {
+                reinforcementTickets = tickets,
+                teamSize = teamSize,
+                botFilling = botFill,
+                botDifficulty = diff,
+            };
 
             // Listen on all interfaces so LAN players can reach the host (loopback-only refuses them).
             EnsureNetworkManagerConfigured("127.0.0.1", hostPort, AnyListenAddress);
@@ -375,10 +379,10 @@ namespace Game.Conquest.Networking
                 if (!string.IsNullOrEmpty(args.sessionName)) sessionName = args.sessionName;
                 if (args.port.HasValue) hostPort = args.port.Value;
                 if (args.maxPlayers.HasValue) maxHumanPlayers = args.maxPlayers.Value;
-                if (args.tickets.HasValue) reinforcementTickets = args.tickets.Value;
-                if (args.teamSize.HasValue) targetTeamSize = args.teamSize.Value;
-                if (args.bots.HasValue) enableBotFilling = args.bots.Value;
-                if (args.botDifficulty.HasValue) botDifficulty = args.botDifficulty.Value;
+                if (args.tickets.HasValue) matchSettings.reinforcementTickets = args.tickets.Value;
+                if (args.teamSize.HasValue) matchSettings.teamSize = args.teamSize.Value;
+                if (args.bots.HasValue) matchSettings.botFilling = args.bots.Value;
+                if (args.botDifficulty.HasValue) matchSettings.botDifficulty = args.botDifficulty.Value;
                 if (args.minPlayersToStart.HasValue) minPlayersToStart = args.minPlayersToStart.Value;
                 if (args.startCountdownSeconds.HasValue) autoStartCountdownSeconds = args.startCountdownSeconds.Value;
             }

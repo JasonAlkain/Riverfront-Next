@@ -23,4 +23,4 @@ MonoBehaviour:
   availableGameModes:
   - Conquest
   defaultTickets: 200
-  defaultBotsPerTeam: 6
+  defaultTeamSize: 6

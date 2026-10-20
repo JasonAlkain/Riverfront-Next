@@ -32,7 +32,7 @@ namespace Game.Conquest.Networking
         /// <summary>Where other players can reach this host, for showing in the lobby.</summary>
         string HostJoinAddress { get; }
 
-        void StartSoloGame(string mapSceneName, int tickets, int botsPerTeam, BotDifficulty difficulty);
+        void StartSoloGame(string mapSceneName, int tickets, int teamSize, BotDifficulty difficulty);
         bool StartHostGame(string mapId, string mapSceneName, string sessionName, int maxPlayers, int tickets, int teamSize, bool botFill, BotDifficulty difficulty);
 
         /// <summary>Starts a server with no local player once the current scene has finished loading. Quits the process on failure.</summary>
