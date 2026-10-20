@@ -25,6 +25,16 @@ namespace Game.Conquest.Combat
             NetworkVariableReadPermission.Everyone,
             NetworkVariableWritePermission.Server);
 
+        /// <summary>
+        /// NetworkObjectId of whoever dealt the killing blow (NoAttacker for falls and holds).
+        /// Declared before isDead on purpose: NGO applies a behaviour's changed variables in
+        /// declaration order, so clients already have the killer when isDead's callback runs.
+        /// </summary>
+        public NetworkVariable<ulong> lastAttackerId = new NetworkVariable<ulong>(
+            ulong.MaxValue,
+            NetworkVariableReadPermission.Everyone,
+            NetworkVariableWritePermission.Server);
+
         public NetworkVariable<bool> isDead = new NetworkVariable<bool>(
             false,
             NetworkVariableReadPermission.Everyone,
@@ -34,14 +44,15 @@ namespace Game.Conquest.Combat
         public const ulong NoAttacker = ulong.MaxValue;
 
         public event Action<int, int> OnHealthChanged;
-        /// <summary>Raised once per death. On the server the argument is the attacker's NetworkObjectId
-        /// (or <see cref="NoAttacker"/>); clients don't know the attacker and receive NoAttacker.</summary>
+        /// <summary>Raised once per death on every peer, with the attacker's NetworkObjectId
+        /// (or <see cref="NoAttacker"/>). A hold for deploy also raises it, with NoAttacker.</summary>
         public event Action<ulong> OnDied;
         public event Action OnRespawned;
 
         public int MaxHealth => maxHealth;
         public int CurrentHealth => currentHealth.Value;
         public bool IsDead => isDead.Value;
+        public ulong LastAttackerId => lastAttackerId.Value;
 
         private void Awake()
         {
@@ -80,7 +91,7 @@ namespace Game.Conquest.Combat
             // here too used to count every death twice (two tickets, two respawn coroutines).
             if (newVal)
             {
-                if (!IsServer) OnDied?.Invoke(NoAttacker);
+                if (!IsServer) OnDied?.Invoke(lastAttackerId.Value);
                 // A hold for deploy keeps full health; only a real death plays the sound.
                 if (currentHealth.Value <= 0) PlayAudio(deathSoundClip, 0.9f);
             }
@@ -105,6 +116,7 @@ namespace Game.Conquest.Combat
 
             if (newHealth <= 0)
             {
+                lastAttackerId.Value = attackerObjectId;
                 isDead.Value = true;
                 OnDied?.Invoke(attackerObjectId);
             }
@@ -146,6 +158,7 @@ namespace Game.Conquest.Combat
         {
             if (!IsServer) return;
             currentHealth.Value = maxHealth;
+            lastAttackerId.Value = NoAttacker;
             isDead.Value = true;
         }
 
