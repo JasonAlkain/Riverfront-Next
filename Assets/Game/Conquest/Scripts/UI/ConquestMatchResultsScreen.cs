@@ -37,7 +37,6 @@ namespace Game.Conquest.UI
         private float m_ReturnAt = -1f;
         private bool m_Returning;
         private NetworkSceneManager m_SubscribedSceneManager;
-        private readonly List<MatchResultRow> m_Sorted = new List<MatchResultRow>();
 
         // A dedicated server still runs this screen's server side (sending results, returning
         // everyone to the lobby) but skips everything that is only for a player to look at.
@@ -174,26 +173,7 @@ namespace Game.Conquest.UI
         private void FillTeam(TeamResultsPanelUI panel, MatchResults results, Team team, string teamName, Color teamColor)
         {
             if (panel == null) return;
-
-            m_Sorted.Clear();
-            int kills = 0, deaths = 0;
-            foreach (var row in results.rows)
-            {
-                if (row.team != team) continue;
-                m_Sorted.Add(row);
-                kills += row.kills;
-                deaths += row.deaths;
-            }
-            // Most kills first; fewer deaths breaks ties.
-            m_Sorted.Sort((a, b) => a.kills != b.kills ? b.kills.CompareTo(a.kills) : a.deaths.CompareTo(b.deaths));
-
-            panel.SetHeader(teamName, $"Kills {kills}  Deaths {deaths}", teamColor);
-            panel.ClearRows();
-            foreach (var row in m_Sorted)
-            {
-                string name = row.isBot ? $"{row.playerName} [BOT]" : row.playerName.ToString();
-                panel.AddRow(name, ClassLabel(row.classIndex), row.kills, row.deaths, row.isBot ? botRowColor : rowColor);
-            }
+            panel.ShowTeam(results.rows, team, teamName, teamColor, rowColor, botRowColor);
         }
 
         // Neutral for a dedicated server (no local player), which then just names the winner.
@@ -206,13 +186,6 @@ namespace Game.Conquest.UI
                 if (!row.isBot && row.clientId == nm.LocalClientId) return row.team;
             }
             return Team.Neutral;
-        }
-
-        private static string ClassLabel(int classIndex)
-        {
-            return System.Enum.IsDefined(typeof(InfantryClassType), classIndex)
-                ? ((InfantryClassType)classIndex).ToString()
-                : $"Class {classIndex}";
         }
 
         private string MapLabel(string sceneName)

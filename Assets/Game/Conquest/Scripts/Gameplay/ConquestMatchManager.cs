@@ -54,7 +54,17 @@ namespace Game.Conquest.Gameplay
             NetworkVariableReadPermission.Everyone,
             NetworkVariableWritePermission.Server);
 
+        /// <summary>Live kills/deaths/captures per combatant, for the Tab scoreboard on every peer.</summary>
+        public NetworkList<MatchResultRow> liveStats = new NetworkList<MatchResultRow>(
+            null,
+            NetworkVariableReadPermission.Everyone,
+            NetworkVariableWritePermission.Server);
+
+        /// <summary>Raised on every peer for each death, for the kill feed.</summary>
+        public static event Action<KillReport> KillReported;
+
         private float m_MatchStartTime;
+        private float m_NextRosterRefresh;
         private readonly MatchStatsTracker m_Stats = new MatchStatsTracker();
         private static int s_MatchCounter;
 
@@ -107,6 +117,7 @@ namespace Game.Conquest.Gameplay
                 winningTeam.Value = Team.Neutral;
                 allPostsHolder.Value = Team.Neutral;
                 allPostsWinAt.Value = 0;
+                m_Stats.SetMirror(liveStats);
             }
         }
 
@@ -124,6 +135,26 @@ namespace Game.Conquest.Gameplay
 
             EvaluateFallLimits();
             EvaluateAllPostsHeld();
+            RefreshRoster();
+        }
+
+        // Everyone in the match gets a scoreboard line (and an up-to-date name, team and class)
+        // even before they have a kill, death or capture. Once a second is plenty.
+        private void RefreshRoster()
+        {
+            if (Time.time < m_NextRosterRefresh) return;
+            m_NextRosterRefresh = Time.time + 1f;
+            foreach (var player in ConquestPlayer.All)
+            {
+                if (player != null && player.IsSpawned) m_Stats.Touch(player);
+            }
+        }
+
+        /// <summary>Server: credit everyone who stood on a post when it was captured or neutralised.</summary>
+        public void OnPostCaptured(IReadOnlyList<ConquestPlayer> capturers)
+        {
+            if (!IsServer || isMatchOver.Value) return;
+            for (int i = 0; i < capturers.Count; i++) m_Stats.RecordCapture(capturers[i]);
         }
 
         // Second win condition: one team holds every post for allPostsHoldSeconds.
@@ -187,6 +218,7 @@ namespace Game.Conquest.Gameplay
                 killer = killerObject.GetComponent<ConquestPlayer>();
             }
             m_Stats.RecordDeath(victim, killer);
+            ReportKillClientRpc(MakeKillReport(victim, killer));
 
             // Death costs 1 ticket to victim's team
             if (victim.CurrentTeam == Team.Red)
@@ -197,6 +229,30 @@ namespace Game.Conquest.Gameplay
             {
                 DrainTickets(Team.Blue, 1);
             }
+        }
+
+        private static KillReport MakeKillReport(ConquestPlayer victim, ConquestPlayer killer)
+        {
+            var report = new KillReport
+            {
+                victimName = victim.playerName.Value,
+                victimTeam = victim.CurrentTeam,
+                hasKiller = killer != null && killer != victim,
+            };
+            if (report.hasKiller)
+            {
+                report.killerName = killer.playerName.Value;
+                report.killerTeam = killer.CurrentTeam;
+                var weapon = killer.CurrentClassData;
+                if (weapon != null) report.weaponName = weapon.weaponName;
+            }
+            return report;
+        }
+
+        [ClientRpc]
+        private void ReportKillClientRpc(KillReport report)
+        {
+            KillReported?.Invoke(report);
         }
 
         public void DrainTickets(Team team, int amount)

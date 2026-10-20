@@ -69,6 +69,11 @@ namespace Game.Conquest.Player
         public int PendingClassIndex => m_PendingClassIndex;
         public int CurrentClassIndex => selectedClassIndex.Value;
         public IReadOnlyList<ConquestClassData> AvailableClasses => availableClasses;
+        /// <summary>The class this player is currently playing, or null if the index is out of range.</summary>
+        public ConquestClassData CurrentClassData =>
+            availableClasses != null && selectedClassIndex.Value >= 0 && selectedClassIndex.Value < availableClasses.Count
+                ? availableClasses[selectedClassIndex.Value]
+                : null;
 
         /// <summary>This peer's own (non-bot) player once it has spawned; null before that and after despawn.</summary>
         public static ConquestPlayer Local { get; private set; }
