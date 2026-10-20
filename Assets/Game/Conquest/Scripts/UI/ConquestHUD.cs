@@ -27,6 +27,7 @@ namespace Game.Conquest.UI
         [SerializeField] private PlayerStatsUI playerStatsUI;
         [SerializeField] private RespawnPanelUI respawnPanelUI;
         [SerializeField] private MatchResultPanelUI matchResultPanelUI;
+        [SerializeField] private AllPostsAlertUI allPostsAlertUI;
 
         [Header("Team Colors")]
         [SerializeField] private Color redColor = new Color(0.85f, 0.2f, 0.2f, 0.9f);
@@ -138,6 +139,7 @@ namespace Game.Conquest.UI
             if (captureBarUI != null) captureBarUI.Hide();
             if (respawnPanelUI != null) respawnPanelUI.Hide();
             if (matchResultPanelUI != null) matchResultPanelUI.Hide();
+            if (allPostsAlertUI != null) allPostsAlertUI.Hide();
         }
 
         private void Update()
@@ -159,6 +161,7 @@ namespace Game.Conquest.UI
             UpdatePlayerStats(player);
             UpdateRespawnPanel(match, player);
             UpdateMatchResult(match, player);
+            UpdateAllPostsAlert(match, player);
         }
 
         private Color TeamColor(Team team)
@@ -208,7 +211,7 @@ namespace Game.Conquest.UI
                 Vector3 playerPos = player.transform.position;
                 foreach (var post in match.CommandPosts)
                 {
-                    if (post != null && Vector3.Distance(post.transform.position, playerPos) <= post.CaptureRadius)
+                    if (post != null && post.IsInCaptureZone(playerPos))
                     {
                         nearbyPost = post;
                         break;
@@ -303,6 +306,24 @@ namespace Game.Conquest.UI
             if (wait > 0f) respawnPanelUI.SetTimer($"Deploy in {wait:0.0} seconds");
             else if (canDeploy) respawnPanelUI.SetTimer(posts.Count == 0 ? "No command posts held: deploy at base" : "Ready to deploy");
             else respawnPanelUI.SetTimer("Choose a command post to deploy");
+        }
+
+        private void UpdateAllPostsAlert(ConquestMatchManager match, ConquestPlayer player)
+        {
+            if (allPostsAlertUI == null) return;
+
+            if (match == null || match.IsMatchOver || match.AllPostsHolder == Team.Neutral)
+            {
+                allPostsAlertUI.Hide();
+                return;
+            }
+
+            Team holder = match.AllPostsHolder;
+            allPostsAlertUI.Show();
+            allPostsAlertUI.SetCountdown(
+                Mathf.CeilToInt(match.AllPostsSecondsLeft),
+                player != null && player.CurrentTeam == holder,
+                TeamColor(holder));
         }
 
         private void UpdateMatchResult(ConquestMatchManager match, ConquestPlayer player)

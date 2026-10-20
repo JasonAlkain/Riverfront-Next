@@ -178,8 +178,7 @@ namespace Game.Conquest.Gameplay
 
                 // Cycle assigned class (0=Assault, 1=Heavy, 2=Engineer, 3=Recon) for balanced class spread
                 int classIdx = (m_AssignedClassCounter++) % 4;
-                botPlayer.selectedClassIndex.Value = classIdx;
-                botPlayer.ApplyClass(classIdx);
+                botPlayer.ServerSetClass(classIdx);
                 botPlayer.ApplyTeamVisuals(team);
             }
 

@@ -14,9 +14,12 @@ namespace Game.Conquest.Gameplay
         public static ConquestMatchManager Instance { get; private set; }
 
         [Header("Match Settings")]
+        // Tickets are only spent on deaths (SWBF2-style); holding posts doesn't bleed the enemy.
         [SerializeField] private int initialTickets = 250;
-        [SerializeField] private float ticketDrainInterval = 3.0f; // Seconds between majority drains
-        [SerializeField] private int ticketDrainAmount = 1;
+
+        [Header("All Posts Win")]
+        [Tooltip("Seconds a team must hold every command post to win. 0 wins the moment the last post falls.")]
+        [SerializeField] private float allPostsHoldSeconds = 20f;
 
         [Header("Command Posts")]
         [SerializeField] private List<ConquestCommandPost> commandPosts = new List<ConquestCommandPost>();
@@ -42,7 +45,18 @@ namespace Game.Conquest.Gameplay
             NetworkVariableReadPermission.Everyone,
             NetworkVariableWritePermission.Server);
 
-        private float m_NextDrainTime;
+        /// <summary>The team holding every command post, or Neutral when no team does.</summary>
+        public NetworkVariable<Team> allPostsHolder = new NetworkVariable<Team>(
+            Team.Neutral,
+            NetworkVariableReadPermission.Everyone,
+            NetworkVariableWritePermission.Server);
+
+        /// <summary>Server time at which <see cref="allPostsHolder"/> wins if it still holds every post.</summary>
+        public NetworkVariable<double> allPostsWinAt = new NetworkVariable<double>(
+            0,
+            NetworkVariableReadPermission.Everyone,
+            NetworkVariableWritePermission.Server);
+
         private float m_MatchStartTime;
         private readonly MatchStatsTracker m_Stats = new MatchStatsTracker();
         private static int s_MatchCounter;
@@ -52,6 +66,12 @@ namespace Game.Conquest.Gameplay
         public bool IsMatchOver => isMatchOver.Value;
         public Team WinningTeam => winningTeam.Value;
         public IReadOnlyList<ConquestCommandPost> CommandPosts => commandPosts;
+        public Team AllPostsHolder => allPostsHolder.Value;
+        /// <summary>Seconds until the all-posts holder wins; 0 when no team holds every post.</summary>
+        public float AllPostsSecondsLeft =>
+            allPostsHolder.Value == Team.Neutral || NetworkManager == null
+                ? 0f
+                : Mathf.Max(0f, (float)(allPostsWinAt.Value - NetworkManager.ServerTime.Time));
 
         private void Awake()
         {
@@ -89,7 +109,8 @@ namespace Game.Conquest.Gameplay
                 blueTickets.Value = initialTickets;
                 isMatchOver.Value = false;
                 winningTeam.Value = Team.Neutral;
-                m_NextDrainTime = Time.time + ticketDrainInterval;
+                allPostsHolder.Value = Team.Neutral;
+                allPostsWinAt.Value = 0;
             }
         }
 
@@ -106,13 +127,41 @@ namespace Game.Conquest.Gameplay
             if (!IsServer || isMatchOver.Value) return;
 
             EvaluateFallLimits();
+            EvaluateAllPostsHeld();
+        }
 
-            // Handle majority post ticket drain
-            if (Time.time >= m_NextDrainTime)
+        // Second win condition: one team holds every post for allPostsHoldSeconds.
+        // Losing a single post (even to neutral) cancels the countdown.
+        private void EvaluateAllPostsHeld()
+        {
+            Team holder = TeamHoldingAllPosts();
+            double now = NetworkManager.ServerTime.Time;
+
+            if (holder != allPostsHolder.Value)
             {
-                m_NextDrainTime = Time.time + ticketDrainInterval;
-                EvaluateMajorityPostDrain();
+                allPostsHolder.Value = holder;
+                allPostsWinAt.Value = holder == Team.Neutral ? 0 : now + allPostsHoldSeconds;
             }
+
+            if (holder != Team.Neutral && now >= allPostsWinAt.Value)
+            {
+                EndMatch(holder);
+            }
+        }
+
+        private Team TeamHoldingAllPosts()
+        {
+            Team holder = Team.Neutral;
+            foreach (var post in commandPosts)
+            {
+                if (post == null) continue;
+
+                Team owner = post.CurrentOwner;
+                if (owner == Team.Neutral) return Team.Neutral;
+                if (holder == Team.Neutral) holder = owner;
+                else if (owner != holder) return Team.Neutral;
+            }
+            return holder;
         }
 
         private void EvaluateFallLimits()
@@ -127,31 +176,6 @@ namespace Game.Conquest.Gameplay
                         p.Health.TakeDamage(p.Health.MaxHealth * 10, Game.Conquest.Combat.ConquestHealth.NoAttacker);
                     }
                 }
-            }
-        }
-
-        private void EvaluateMajorityPostDrain()
-        {
-            int redPosts = 0;
-            int bluePosts = 0;
-
-            foreach (var post in commandPosts)
-            {
-                if (post != null)
-                {
-                    if (post.CurrentOwner == Team.Red) redPosts++;
-                    else if (post.CurrentOwner == Team.Blue) bluePosts++;
-                }
-            }
-
-            // Majority of 5 posts is 3 or more
-            if (redPosts > bluePosts)
-            {
-                DrainTickets(Team.Blue, ticketDrainAmount);
-            }
-            else if (bluePosts > redPosts)
-            {
-                DrainTickets(Team.Red, ticketDrainAmount);
             }
         }
 
