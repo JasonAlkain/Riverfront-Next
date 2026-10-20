@@ -176,11 +176,21 @@ namespace Game.Conquest.Player
         {
             if (!IsServer) return;
 
-            int maxIndex = availableClasses != null ? availableClasses.Count - 1 : 0;
-            classIndex = Mathf.Clamp(classIndex, 0, Mathf.Max(0, maxIndex));
-
             playerTeam.Value = team;
             if (!string.IsNullOrEmpty(displayName)) playerName.Value = displayName;
+            ServerSetClass(classIndex);
+        }
+
+        /// <summary>
+        /// Server-only: make this the player's class now and for every later respawn.
+        /// The pending class is the server's single source of truth: HandleRespawn re-applies it,
+        /// so anything that changes the class without updating it gets reverted on the next spawn.
+        /// </summary>
+        public void ServerSetClass(int classIndex)
+        {
+            if (!IsServer) return;
+
+            classIndex = ClampClassIndex(classIndex);
             m_PendingClassIndex = classIndex;
             if (selectedClassIndex.Value != classIndex)
             {
@@ -188,6 +198,12 @@ namespace Game.Conquest.Player
             }
             // Server applies directly; clients pick it up via HandleClassChanged.
             ApplyClass(classIndex);
+        }
+
+        private int ClampClassIndex(int classIndex)
+        {
+            int maxIndex = availableClasses != null ? availableClasses.Count - 1 : 0;
+            return Mathf.Clamp(classIndex, 0, Mathf.Max(0, maxIndex));
         }
 
         public void SelectClass(int classIndex)
@@ -202,14 +218,14 @@ namespace Game.Conquest.Player
         [ServerRpc]
         public void SelectClassServerRpc(int classIndex)
         {
+            // While dead the new class applies at once; while alive it waits for the next respawn.
             if (m_Health != null && m_Health.IsDead)
             {
-                selectedClassIndex.Value = classIndex;
-                ApplyClass(classIndex);
+                ServerSetClass(classIndex);
             }
             else
             {
-                m_PendingClassIndex = classIndex;
+                m_PendingClassIndex = ClampClassIndex(classIndex);
             }
         }
 
@@ -290,11 +306,7 @@ namespace Game.Conquest.Player
             if (match == null || match.IsMatchOver) return;
             if (NetworkManager.ServerTime.Time < deployAvailableAt.Value) return;
 
-            int maxIndex = availableClasses != null ? availableClasses.Count - 1 : 0;
-            classIndex = Mathf.Clamp(classIndex, 0, Mathf.Max(0, maxIndex));
-            m_PendingClassIndex = classIndex;
-            if (selectedClassIndex.Value != classIndex) selectedClassIndex.Value = classIndex;
-            ApplyClass(classIndex);
+            ServerSetClass(classIndex);
 
             // An unknown or lost post falls back to another friendly post, then the team spawn,
             // so a player can always get back into the match.
