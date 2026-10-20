@@ -137,11 +137,16 @@ namespace Game.Conquest.Combat
         {
             if (!IsOwner) return;
             if (m_Health != null && m_Health.IsDead) return;
+            if (IsMatchOver) return;
             if (ConquestPauseMenu.Instance != null && ConquestPauseMenu.Instance.IsPaused) return;
 
             HandleInput();
             HandleZoom();
         }
+
+        // Firing and stations stop when the match ends, on the owner and again on the server.
+        private static bool IsMatchOver =>
+            ConquestMatchManager.Instance != null && ConquestMatchManager.Instance.IsMatchOver;
 
         private void HandleInput()
         {
@@ -232,6 +237,7 @@ namespace Game.Conquest.Combat
         private void FireServerRpc(Vector3 rayOrigin, Vector3 rayDirection)
         {
             if (m_Health != null && m_Health.IsDead) return;
+            if (IsMatchOver) return;
             if (isReloading.Value || currentAmmo.Value <= 0) return;
             if (!ServerValidateShot(ref rayOrigin, ref rayDirection)) return;
 
@@ -330,6 +336,7 @@ namespace Game.Conquest.Combat
         public void FireFromAI(Vector3 targetAimPosition)
         {
             if (!IsServer || (m_Health != null && m_Health.IsDead)) return;
+            if (IsMatchOver) return;
             if (isReloading.Value) return;
 
             if (currentAmmo.Value <= 0)
@@ -484,6 +491,7 @@ namespace Game.Conquest.Combat
             // Capability, alive state and cooldown are checked here, not just on the client.
             if (!hasSupportStation) return;
             if (m_Health != null && m_Health.IsDead) return;
+            if (IsMatchOver) return;
             if (Time.time < m_ServerNextStationTime) return;
             m_ServerNextStationTime = Time.time + stationCooldown;
 

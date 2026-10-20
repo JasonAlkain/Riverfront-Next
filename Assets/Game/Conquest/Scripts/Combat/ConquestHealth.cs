@@ -95,6 +95,8 @@ namespace Game.Conquest.Combat
         public void TakeDamage(int damage, ulong attackerObjectId)
         {
             if (!IsServer || isDead.Value) return;
+            // Nobody gets hurt once the match is decided.
+            if (ConquestMatchManager.Instance != null && ConquestMatchManager.Instance.IsMatchOver) return;
 
             int newHealth = Mathf.Max(0, currentHealth.Value - damage);
             currentHealth.Value = newHealth;

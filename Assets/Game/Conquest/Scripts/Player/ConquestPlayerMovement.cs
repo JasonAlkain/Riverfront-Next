@@ -146,6 +146,13 @@ namespace Game.Conquest.Player
                 return;
             }
 
+            // The match is decided: everyone stands still under the victory/defeat banner.
+            if (Game.Conquest.Gameplay.ConquestMatchManager.Instance.IsMatchOver)
+            {
+                m_Velocity = Vector3.zero;
+                return;
+            }
+
             if (Game.Conquest.UI.ConquestPauseMenu.Instance != null && Game.Conquest.UI.ConquestPauseMenu.Instance.IsPaused)
             {
                 return;
