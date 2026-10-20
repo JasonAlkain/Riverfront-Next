@@ -281,11 +281,13 @@ namespace Game.Conquest.Player
         /// Server: hold a human player out of play until they choose a class and post and deploy.
         /// Used when they first enter a match. The position only parks their camera somewhere sensible.
         /// </summary>
-        public void ServerHoldForDeploy(Vector3 parkPosition, Quaternion parkRotation)
+        /// <param name="waitRespawnDelay">True for a player joining a running match: they wait the
+        /// normal respawn delay, like everyone else coming back into the fight.</param>
+        public void ServerHoldForDeploy(Vector3 parkPosition, Quaternion parkRotation, bool waitRespawnDelay = false)
         {
             if (!IsServer || isBot) return;
             m_SelectedPostName = "";
-            deployAvailableAt.Value = NetworkManager.ServerTime.Time;
+            deployAvailableAt.Value = NetworkManager.ServerTime.Time + (waitRespawnDelay ? respawnWaitTime : 0f);
             m_Health.ServerHold();
             HideBody();
             if (IsOwner && m_Movement.HasTransformAuthority) m_Movement.Teleport(parkPosition, parkRotation);
