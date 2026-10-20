@@ -52,6 +52,12 @@ namespace Game.Conquest.Player
         private bool m_CursorLocked = true;
         private bool m_LocalViewActive = false;
 
+        // Solid colliders on this body and whether each started enabled (the bot's
+        // CharacterController is disabled in its prefab and must stay that way).
+        private Collider[] m_BodyColliders;
+        private bool[] m_BodyColliderDefaults;
+        private bool m_BodyCollisionEnabled = true;
+
         public Camera PlayerCamera => playerCamera;
         public Transform CameraPivot => cameraPivot;
         public float Pitch => m_Pitch;
@@ -61,6 +67,28 @@ namespace Game.Conquest.Player
             m_CharacterController = GetComponent<CharacterController>();
             m_NetworkTransform = GetComponent<Unity.Netcode.Components.NetworkTransform>();
             m_Health = GetComponent<ConquestHealth>();
+
+            var colliders = new System.Collections.Generic.List<Collider>();
+            foreach (var c in GetComponentsInChildren<Collider>(true))
+            {
+                if (!c.isTrigger) colliders.Add(c);
+            }
+            m_BodyColliders = colliders.ToArray();
+            m_BodyColliderDefaults = new bool[m_BodyColliders.Length];
+            for (int i = 0; i < m_BodyColliders.Length; i++) m_BodyColliderDefaults[i] = m_BodyColliders[i].enabled;
+        }
+
+        /// <summary>
+        /// Turns this body's solid colliders off while dead, so an invisible corpse can't absorb
+        /// shots or block movement, and back on (to their prefab state) on respawn.
+        /// </summary>
+        public void SetBodyCollisionEnabled(bool enabled)
+        {
+            m_BodyCollisionEnabled = enabled;
+            for (int i = 0; i < m_BodyColliders.Length; i++)
+            {
+                if (m_BodyColliders[i] != null) m_BodyColliders[i].enabled = enabled && m_BodyColliderDefaults[i];
+            }
         }
 
         public override void OnNetworkSpawn()
@@ -335,7 +363,8 @@ namespace Game.Conquest.Player
             transform.rotation = rotation;
             m_Velocity = Vector3.zero;
             CommitTeleport(position, rotation);
-            if (m_CharacterController != null) m_CharacterController.enabled = true;
+            // A dead player parked for deploy stays without collision.
+            if (m_CharacterController != null) m_CharacterController.enabled = m_BodyCollisionEnabled;
         }
 
         /// <summary>True on the peer allowed to move this object (owner for players, server for bots).</summary>

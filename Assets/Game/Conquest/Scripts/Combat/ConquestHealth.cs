@@ -11,6 +11,8 @@ namespace Game.Conquest.Combat
     {
         [Header("Health Settings")]
         [SerializeField] private int maxHealth = 100;
+        [Tooltip("Seconds of invulnerability after spawning. Firing or deploying a station ends it early.")]
+        [SerializeField] private float spawnProtectionSeconds = 2f;
 
         [Header("Audio")]
         [SerializeField] private AudioSource audioSource;
@@ -19,9 +21,20 @@ namespace Game.Conquest.Combat
         [SerializeField] private AudioClip respawnSoundClip;
 
         private ConquestPlayerAnimator m_Animator;
+        private float m_ServerProtectedUntil;
 
         public NetworkVariable<int> currentHealth = new NetworkVariable<int>(
             100,
+            NetworkVariableReadPermission.Everyone,
+            NetworkVariableWritePermission.Server);
+
+        /// <summary>
+        /// NetworkObjectId of whoever dealt the killing blow (NoAttacker for falls and holds).
+        /// Declared before isDead on purpose: NGO applies a behaviour's changed variables in
+        /// declaration order, so clients already have the killer when isDead's callback runs.
+        /// </summary>
+        public NetworkVariable<ulong> lastAttackerId = new NetworkVariable<ulong>(
+            ulong.MaxValue,
             NetworkVariableReadPermission.Everyone,
             NetworkVariableWritePermission.Server);
 
@@ -34,14 +47,15 @@ namespace Game.Conquest.Combat
         public const ulong NoAttacker = ulong.MaxValue;
 
         public event Action<int, int> OnHealthChanged;
-        /// <summary>Raised once per death. On the server the argument is the attacker's NetworkObjectId
-        /// (or <see cref="NoAttacker"/>); clients don't know the attacker and receive NoAttacker.</summary>
+        /// <summary>Raised once per death on every peer, with the attacker's NetworkObjectId
+        /// (or <see cref="NoAttacker"/>). A hold for deploy also raises it, with NoAttacker.</summary>
         public event Action<ulong> OnDied;
         public event Action OnRespawned;
 
         public int MaxHealth => maxHealth;
         public int CurrentHealth => currentHealth.Value;
         public bool IsDead => isDead.Value;
+        public ulong LastAttackerId => lastAttackerId.Value;
 
         private void Awake()
         {
@@ -80,7 +94,7 @@ namespace Game.Conquest.Combat
             // here too used to count every death twice (two tickets, two respawn coroutines).
             if (newVal)
             {
-                if (!IsServer) OnDied?.Invoke(NoAttacker);
+                if (!IsServer) OnDied?.Invoke(lastAttackerId.Value);
                 // A hold for deploy keeps full health; only a real death plays the sound.
                 if (currentHealth.Value <= 0) PlayAudio(deathSoundClip, 0.9f);
             }
@@ -97,6 +111,9 @@ namespace Game.Conquest.Combat
             if (!IsServer || isDead.Value) return;
             // Nobody gets hurt once the match is decided.
             if (ConquestMatchManager.Instance != null && ConquestMatchManager.Instance.IsMatchOver) return;
+            // Spawn protection: a fresh spawn can't be camped. Falls still kill (a protected
+            // player could otherwise drop forever below the map).
+            if (Time.time < m_ServerProtectedUntil && attackerObjectId != NoAttacker) return;
 
             int newHealth = Mathf.Max(0, currentHealth.Value - damage);
             currentHealth.Value = newHealth;
@@ -105,6 +122,7 @@ namespace Game.Conquest.Combat
 
             if (newHealth <= 0)
             {
+                lastAttackerId.Value = attackerObjectId;
                 isDead.Value = true;
                 OnDied?.Invoke(attackerObjectId);
             }
@@ -146,7 +164,14 @@ namespace Game.Conquest.Combat
         {
             if (!IsServer) return;
             currentHealth.Value = maxHealth;
+            lastAttackerId.Value = NoAttacker;
             isDead.Value = true;
+        }
+
+        /// <summary>Server: the player has started fighting, so spawn protection no longer applies.</summary>
+        public void EndSpawnProtection()
+        {
+            m_ServerProtectedUntil = 0f;
         }
 
         public void ResetHealth()
@@ -154,6 +179,7 @@ namespace Game.Conquest.Combat
             if (!IsServer) return;
             currentHealth.Value = maxHealth;
             isDead.Value = false;
+            m_ServerProtectedUntil = Time.time + spawnProtectionSeconds;
             OnRespawned?.Invoke();
         }
     }

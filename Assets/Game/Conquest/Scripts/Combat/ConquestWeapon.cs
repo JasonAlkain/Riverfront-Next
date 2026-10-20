@@ -240,6 +240,7 @@ namespace Game.Conquest.Combat
             if (IsMatchOver) return;
             if (isReloading.Value || currentAmmo.Value <= 0) return;
             if (!ServerValidateShot(ref rayOrigin, ref rayDirection)) return;
+            if (m_Health != null) m_Health.EndSpawnProtection();
 
             currentAmmo.Value = Mathf.Max(0, currentAmmo.Value - 1);
 
@@ -338,6 +339,7 @@ namespace Game.Conquest.Combat
             if (!IsServer || (m_Health != null && m_Health.IsDead)) return;
             if (IsMatchOver) return;
             if (isReloading.Value) return;
+            if (m_Health != null) m_Health.EndSpawnProtection();
 
             if (currentAmmo.Value <= 0)
             {
@@ -493,6 +495,7 @@ namespace Game.Conquest.Combat
             if (m_Health != null && m_Health.IsDead) return;
             if (IsMatchOver) return;
             if (Time.time < m_ServerNextStationTime) return;
+            if (m_Health != null) m_Health.EndSpawnProtection();
             m_ServerNextStationTime = Time.time + stationCooldown;
 
             // One active station per player: deploying again replaces the old one.

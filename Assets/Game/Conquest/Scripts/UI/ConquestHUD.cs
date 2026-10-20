@@ -304,7 +304,7 @@ namespace Game.Conquest.UI
 
             float wait = player.RemainingRespawnTime;
             if (wait > 0f) respawnPanelUI.SetTimer($"Deploy in {wait:0.0} seconds");
-            else if (canDeploy) respawnPanelUI.SetTimer(posts.Count == 0 ? "No command posts held: deploy at base" : "Ready to deploy");
+            else if (canDeploy) respawnPanelUI.SetTimer(posts.Count == 0 ? "No safe command post: deploy at base" : "Ready to deploy");
             else respawnPanelUI.SetTimer("Choose a command post to deploy");
         }
 

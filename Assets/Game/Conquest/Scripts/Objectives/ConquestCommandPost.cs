@@ -63,10 +63,17 @@ namespace Game.Conquest.Objectives
             NetworkVariableReadPermission.Everyone,
             NetworkVariableWritePermission.Server);
 
+        /// <summary>The owner's enemies are inside the zone (attacking or contesting): nobody may spawn here.</summary>
+        public NetworkVariable<bool> isSpawnBlocked = new NetworkVariable<bool>(
+            false,
+            NetworkVariableReadPermission.Everyone,
+            NetworkVariableWritePermission.Server);
+
         public string PostName => postIdentifier.Value.ToString();
         public Team CurrentOwner => currentOwner.Value;
         public float CaptureProgress => captureProgress.Value;
         public bool IsContested => isContested.Value;
+        public bool IsSpawnBlocked => isSpawnBlocked.Value;
         public float CaptureRadius => captureRadius;
 
         public event Action<ConquestCommandPost, Team> OnOwnerChanged;
@@ -142,6 +149,10 @@ namespace Game.Conquest.Objectives
                 if (player.CurrentTeam == Team.Red) redPlayers++;
                 else if (player.CurrentTeam == Team.Blue) bluePlayers++;
             }
+
+            Team owner = currentOwner.Value;
+            int ownerEnemies = owner == Team.Red ? bluePlayers : (owner == Team.Blue ? redPlayers : 0);
+            isSpawnBlocked.Value = ownerEnemies > 0;
 
             // Determine if contested
             bool contested = redPlayers > 0 && bluePlayers > 0;

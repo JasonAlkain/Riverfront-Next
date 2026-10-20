@@ -287,7 +287,7 @@ namespace Game.Conquest.Gameplay
             {
                 foreach (var post in commandPosts)
                 {
-                    if (post != null && post.PostName == preferredPostName && post.CurrentOwner == team)
+                    if (IsSpawnablePost(post, team) && post.PostName == preferredPostName)
                     {
                         return post.GetSpawnPoint(out position, out rotation);
                     }
@@ -298,7 +298,7 @@ namespace Game.Conquest.Gameplay
             List<ConquestCommandPost> friendlyPosts = new List<ConquestCommandPost>();
             foreach (var post in commandPosts)
             {
-                if (post != null && post.CurrentOwner == team)
+                if (IsSpawnablePost(post, team))
                 {
                     friendlyPosts.Add(post);
                 }
@@ -310,10 +310,16 @@ namespace Game.Conquest.Gameplay
                 return chosen.GetSpawnPoint(out position, out rotation);
             }
 
-            // Fallback default
-            position = team == Team.Red ? new Vector3(-20f, 1f, 0f) : new Vector3(20f, 1f, 0f);
+            // No usable post: the caller falls back to the team's base spawn points.
+            position = Vector3.zero;
             rotation = Quaternion.identity;
             return false;
+        }
+
+        // Owned by the team and with no enemies in the zone, so nobody spawns into a fight.
+        private static bool IsSpawnablePost(ConquestCommandPost post, Team team)
+        {
+            return post != null && post.CurrentOwner == team && !post.IsSpawnBlocked;
         }
 
         public List<string> GetFriendlyPostNames(Team team)
@@ -321,7 +327,7 @@ namespace Game.Conquest.Gameplay
             List<string> list = new List<string>();
             foreach (var post in commandPosts)
             {
-                if (post != null && post.CurrentOwner == team)
+                if (IsSpawnablePost(post, team))
                 {
                     list.Add(post.PostName);
                 }

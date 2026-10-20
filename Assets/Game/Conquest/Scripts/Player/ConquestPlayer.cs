@@ -93,7 +93,7 @@ namespace Game.Conquest.Player
 
             ApplyTeamVisuals(playerTeam.Value);
             // A late joiner can see a player who is still waiting to deploy: keep it hidden.
-            if (m_Health.IsDead) HideVisuals();
+            if (m_Health.IsDead) HideBody();
             else ConfigureLocalPerspective();
             ApplyClass(selectedClassIndex.Value);
             m_PendingClassIndex = selectedClassIndex.Value;
@@ -249,15 +249,17 @@ namespace Game.Conquest.Player
             }
         }
 
-        private void HideVisuals()
+        // Dead or waiting to deploy: invisible and without collision.
+        private void HideBody()
         {
             if (thirdPersonVisualsRoot != null) thirdPersonVisualsRoot.SetActive(false);
             if (firstPersonVisualsRoot != null) firstPersonVisualsRoot.SetActive(false);
+            m_Movement.SetBodyCollisionEnabled(false);
         }
 
         private void HandleDeath(ulong killerId)
         {
-            HideVisuals();
+            HideBody();
             // Every deploy needs a fresh choice of post.
             m_SelectedPostName = "";
 
@@ -280,7 +282,7 @@ namespace Game.Conquest.Player
             m_SelectedPostName = "";
             deployAvailableAt.Value = NetworkManager.ServerTime.Time;
             m_Health.ServerHold();
-            HideVisuals();
+            HideBody();
             if (IsOwner && m_Movement.HasTransformAuthority) m_Movement.Teleport(parkPosition, parkRotation);
             ParkClientRpc(parkPosition, parkRotation);
         }
@@ -328,6 +330,7 @@ namespace Game.Conquest.Player
             }
             ApplyClass(selectedClassIndex.Value);
             ConfigureLocalPerspective();
+            m_Movement.SetBodyCollisionEnabled(true);
         }
 
         [ServerRpc]
