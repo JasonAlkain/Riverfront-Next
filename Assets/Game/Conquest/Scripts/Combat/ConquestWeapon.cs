@@ -90,6 +90,16 @@ namespace Game.Conquest.Combat
             m_Animator = GetComponent<ConquestPlayerAnimator>();
         }
 
+        public override void OnNetworkDespawn()
+        {
+            // A player who leaves (or is cleared at match end) takes their support station with them.
+            if (IsServer && m_ServerActiveStation != null && m_ServerActiveStation.IsSpawned)
+            {
+                m_ServerActiveStation.Despawn(true);
+            }
+            m_ServerActiveStation = null;
+        }
+
         public override void OnNetworkSpawn()
         {
             if (IsServer)
