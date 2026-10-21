@@ -13,18 +13,31 @@ MonoBehaviour:
   m_Name: UITheme
   m_EditorClassIdentifier: Game.Conquest::Game.Conquest.UI.ConquestUITheme
   font: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  primary: {r: 0.2, g: 0.6, b: 1, a: 1}
+  secondary: {r: 0.25, g: 0.3, b: 0.4, a: 1}
+  primaryButton:
+    normal: {r: 0.2, g: 0.6, b: 1, a: 1}
+    hover: {r: 0.35, g: 0.7, b: 1, a: 1}
+    pressed: {r: 0.12, g: 0.42, b: 0.78, a: 1}
+    selected: {r: 0.3, g: 0.66, b: 1, a: 1}
+    disabled: {r: 0.2, g: 0.28, b: 0.38, a: 0.7}
+  secondaryButton:
+    normal: {r: 0.25, g: 0.3, b: 0.4, a: 1}
+    hover: {r: 0.34, g: 0.41, b: 0.53, a: 1}
+    pressed: {r: 0.17, g: 0.21, b: 0.29, a: 1}
+    selected: {r: 0.3, g: 0.36, b: 0.47, a: 1}
+    disabled: {r: 0.16, g: 0.18, b: 0.22, a: 0.7}
+  buttonText: {r: 1, g: 1, b: 1, a: 1}
+  buttonTextDisabled: {r: 0.55, g: 0.58, b: 0.62, a: 1}
   backdrop: {r: 0.04, g: 0.06, b: 0.09, a: 0.85}
   panel: {r: 0.08, g: 0.11, b: 0.16, a: 0.96}
   panelAlt: {r: 0.12, g: 0.16, b: 0.24, a: 0.9}
   divider: {r: 0.35, g: 0.78, b: 1, a: 0.25}
-  accent: {r: 0.35, g: 0.78, b: 1, a: 1}
+  accent: {r: 0.45, g: 0.75, b: 1, a: 1}
   text: {r: 1, g: 1, b: 1, a: 1}
   textMuted: {r: 0.55, g: 0.62, b: 0.72, a: 1}
-  button: {r: 0.25, g: 0.3, b: 0.4, a: 1}
-  buttonPrimary: {r: 0.2, g: 0.6, b: 1, a: 1}
-  buttonDanger: {r: 0.85, g: 0.3, b: 0.2, a: 1}
   track: {r: 0.2, g: 0.25, b: 0.32, a: 1}
-  fill: {r: 0.3, g: 0.75, b: 1, a: 1}
+  fill: {r: 0.2, g: 0.6, b: 1, a: 1}
   redTeam: {r: 0.85, g: 0.2, b: 0.2, a: 0.9}
   blueTeam: {r: 0.2, g: 0.5, b: 0.9, a: 0.9}
   neutral: {r: 0.4, g: 0.4, b: 0.45, a: 0.9}

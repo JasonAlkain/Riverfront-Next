@@ -38,6 +38,7 @@ namespace Game.Conquest.UI
         [SerializeField] private WorldMarkersUI worldMarkersUI;
         [Tooltip("Small command map in the corner while alive.")]
         [SerializeField] private CommandMapUI commandMapUI;
+        [SerializeField] private ScopeOverlayUI scopeOverlayUI;
 
         [Header("Theme")]
         [Tooltip("Team colours (and the colour-blind palette), contested colour and team icons.")]
@@ -406,6 +407,7 @@ namespace Game.Conquest.UI
 
             if (player == null || player.Health.IsDead)
             {
+                if (scopeOverlayUI != null) scopeOverlayUI.SetVisible(false);
                 crosshairUI.Hide();
                 return;
             }
@@ -425,7 +427,10 @@ namespace Game.Conquest.UI
                 gap = Mathf.Tan(weapon.SpreadAngle * Mathf.Deg2Rad) / Mathf.Tan(cam.fieldOfView * 0.5f * Mathf.Deg2Rad) * halfHeight;
             }
             crosshairUI.SetSpread(gap);
-            crosshairUI.SetLinesHidden(weapon != null && weapon.IsZoomed);
+            // Scoped weapons draw their own reticle; every other aim keeps the crosshair.
+            bool scoped = weapon != null && weapon.IsScoped;
+            crosshairUI.SetLinesHidden(scoped);
+            if (scopeOverlayUI != null) scopeOverlayUI.SetVisible(scoped);
         }
 
         private void UpdateWorldMarkers(ConquestMatchManager match, ConquestPlayer player)
@@ -495,7 +500,7 @@ namespace Game.Conquest.UI
         {
             string refusal = weapon.HasSupportStation ? weapon.StationRefusal : "";
             int cooldown = weapon.HasSupportStation ? Mathf.CeilToInt(weapon.StationCooldownRemaining) : 0;
-            int key = (weapon.HasSupportStation ? 1 : 0) | (weapon.HasZoom ? 2 : 0) | (cooldown << 2);
+            int key = (weapon.HasSupportStation ? 1 : 0) | (weapon.HasZoom ? 2 : 0) | (weapon.HasScope ? 4 : 0) | (cooldown << 3);
             if (key == m_HintsKey && refusal == m_HintsRefusal) return;
             m_HintsKey = key;
             m_HintsRefusal = refusal;
@@ -507,7 +512,7 @@ namespace Game.Conquest.UI
                 else if (cooldown > 0) hints += $"  |  Station {cooldown}s";
                 else hints += $"  |  [{m_DeployKey}] Station";
             }
-            if (weapon.HasZoom) hints += $"  |  [{m_AimKey}] Scope";
+            if (weapon.HasZoom) hints += weapon.HasScope ? $"  |  [{m_AimKey}] Scope" : $"  |  [{m_AimKey}] Aim";
             playerStatsUI.SetHints(hints);
         }
 

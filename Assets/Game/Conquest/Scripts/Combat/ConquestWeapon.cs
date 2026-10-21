@@ -25,7 +25,8 @@ namespace Game.Conquest.Combat
 
         [Header("Special Abilities")]
         [SerializeField] private bool hasZoom = false;
-        [SerializeField] private float zoomFOV = 35.0f;
+        [SerializeField] private float zoomMagnification = 1.25f;
+        [SerializeField] private bool hasScope = false;
         [SerializeField] private bool hasSupportStation = false;
         [SerializeField] private GameObject supportStationPrefab;
         [SerializeField] private float stationCooldown = 15.0f;
@@ -100,6 +101,9 @@ namespace Game.Conquest.Combat
         /// <summary>Random cone, in degrees, each pellet can stray from the aim; the HUD crosshair opens to match.</summary>
         public float SpreadAngle => spreadAngle;
         public bool IsZoomed => m_IsZoomed;
+        public bool HasScope => hasScope;
+        /// <summary>Zoomed with a scope weapon: the HUD swaps the crosshair for the scope overlay.</summary>
+        public bool IsScoped => m_IsZoomed && hasScope;
         public bool HasSupportStation => hasSupportStation;
         /// <summary>Server: when this weapon last fired (Time.time). Bots use it to hear nearby gunfire.</summary>
         public float ServerLastShotTime { get; private set; } = float.NegativeInfinity;
@@ -160,7 +164,8 @@ namespace Game.Conquest.Combat
             reloadDuration = data.reloadDuration;
             isAutomatic = data.isAutomatic;
             hasZoom = data.hasZoom;
-            zoomFOV = data.zoomFOV;
+            zoomMagnification = Mathf.Max(1f, data.zoomMagnification);
+            hasScope = data.hasScope;
             hasSupportStation = data.hasSupportStation;
 
             if (data.fireSound != null) fireSoundClip = data.fireSound;
@@ -235,8 +240,12 @@ namespace Game.Conquest.Combat
 
             m_IsZoomed = canAct && hasZoom && ConquestInput.AimHeld;
 
-            // The unzoomed FOV follows the settings, even when they change mid-match.
-            float targetFOV = m_IsZoomed ? zoomFOV : m_Movement.BaseFieldOfView;
+            // The unzoomed FOV follows the settings, even when they change mid-match; zoom divides
+            // the view's half-angle tangent, so the magnification is the same at any base FOV.
+            float baseFOV = m_Movement.BaseFieldOfView;
+            float targetFOV = m_IsZoomed
+                ? 2f * Mathf.Atan(Mathf.Tan(baseFOV * 0.5f * Mathf.Deg2Rad) / zoomMagnification) * Mathf.Rad2Deg
+                : baseFOV;
             m_Movement.PlayerCamera.fieldOfView = Mathf.Lerp(m_Movement.PlayerCamera.fieldOfView, targetFOV, Time.deltaTime * 12.0f);
         }
 

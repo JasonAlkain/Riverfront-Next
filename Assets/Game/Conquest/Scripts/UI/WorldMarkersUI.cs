@@ -30,7 +30,7 @@ namespace Game.Conquest
         [Tooltip("Placeholder: metres above a post's centre where its marker sits.")]
         public float postMarkerHeight = 6f;
         [Tooltip("Metres above a player's feet where the nameplate sits.")]
-        public float nameplateHeight = 2.3f;
+        public float nameplateHeight = 1.95f;
         [Tooltip("Placeholder: teammates further away than this get no nameplate.")]
         public float nameplateRange = 40f;
         [Tooltip("Canvas pixels kept clear at the screen edge for post markers.")]

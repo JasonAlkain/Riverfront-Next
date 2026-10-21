@@ -21,6 +21,12 @@ namespace Game.Conquest
         public Button btn_ConfirmLeave;
         public Button btn_CancelLeave;
 
+        [Header("Quit confirmation")]
+        [Tooltip("Quitting ends the match for this player (and stops play mode in the Editor), so it asks first.")]
+        public GameObject quitConfirmPanel;
+        public Button btn_ConfirmQuit;
+        public Button btn_CancelQuit;
+
         [Header("Settings")]
         public SettingsPanelUI settingsPanel;
         public ControlsPanelUI controlsPanel;
@@ -30,12 +36,13 @@ namespace Game.Conquest
         public GameObject matchEndPanel;
         public Button btn_LeaveGame;
 
-        public enum PauseScreen { None, Main, Settings, LeaveConfirm }
+        public enum PauseScreen { None, Main, Settings, LeaveConfirm, QuitConfirm }
 
         public void ShowScreen(PauseScreen screen)
         {
             if (mainPanel != null) mainPanel.SetActive(screen == PauseScreen.Main);
             if (leaveConfirmPanel != null) leaveConfirmPanel.SetActive(screen == PauseScreen.LeaveConfirm);
+            if (quitConfirmPanel != null) quitConfirmPanel.SetActive(screen == PauseScreen.QuitConfirm);
             if (settingsPanel != null) settingsPanel.gameObject.SetActive(screen == PauseScreen.Settings);
             if (controlsPanel != null && screen != PauseScreen.Settings) controlsPanel.gameObject.SetActive(false);
         }
@@ -44,6 +51,7 @@ namespace Game.Conquest
         public bool IsInSubScreen =>
             (settingsPanel != null && settingsPanel.gameObject.activeSelf) ||
             (controlsPanel != null && controlsPanel.gameObject.activeSelf) ||
-            (leaveConfirmPanel != null && leaveConfirmPanel.activeSelf);
+            (leaveConfirmPanel != null && leaveConfirmPanel.activeSelf) ||
+            (quitConfirmPanel != null && quitConfirmPanel.activeSelf);
     }
 }

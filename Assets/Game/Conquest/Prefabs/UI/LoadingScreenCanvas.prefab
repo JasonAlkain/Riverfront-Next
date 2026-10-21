@@ -936,6 +936,7 @@ GameObject:
   - component: {fileID: 1294597133025569600}
   - component: {fileID: 4292176327858685182}
   - component: {fileID: 4336497650550200589}
+  - component: {fileID: 7089012796762118690}
   m_Layer: 5
   m_Name: Backdrop
   m_TagString: Untagged
@@ -983,7 +984,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.04, g: 0.06, b: 0.09, a: 0.98}
+  m_Color: {r: 0.08, g: 0.11, b: 0.16, a: 0.96}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -1000,3 +1001,17 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!114 &7089012796762118690
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8300464219946158998}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0dc2c4230e405e247b7395d0c87762c9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Game.Conquest::Game.Conquest.ThemedGraphic
+  theme: {fileID: 11400000, guid: 7190fbeaa29ca9f4ba0c8d5829f9c1f5, type: 2}
+  role: 1

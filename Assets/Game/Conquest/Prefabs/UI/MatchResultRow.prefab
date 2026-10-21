@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 62030704034600333}
   - component: {fileID: 5991376074662821389}
   - component: {fileID: 3834354338884611554}
+  - component: {fileID: 224026269112665659}
   m_Layer: 5
   m_Name: Kills
   m_TagString: Untagged
@@ -160,6 +161,20 @@ MonoBehaviour:
   m_LayoutPriority: 1
   m_MaxWidth: -1
   m_MaxHeight: -1
+--- !u!114 &224026269112665659
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3757103961128468606}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0dc2c4230e405e247b7395d0c87762c9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Game.Conquest::Game.Conquest.ThemedGraphic
+  theme: {fileID: 11400000, guid: 7190fbeaa29ca9f4ba0c8d5829f9c1f5, type: 2}
+  role: 4
 --- !u!1 &4497366920793465013
 GameObject:
   m_ObjectHideFlags: 0
@@ -174,6 +189,7 @@ GameObject:
   - component: {fileID: 6149976154963328375}
   - component: {fileID: 2679372737918364929}
   - component: {fileID: 3885531697644433457}
+  - component: {fileID: 3703463384769762110}
   m_Layer: 5
   m_Name: MatchResultRow
   m_TagString: Untagged
@@ -225,7 +241,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.12, g: 0.16, b: 0.24, a: 0.9}
+  m_Color: {r: 0.08, g: 0.11, b: 0.16, a: 0.96}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -307,6 +323,20 @@ MonoBehaviour:
   txt_Kills: {fileID: 5991376074662821389}
   txt_Deaths: {fileID: 6450388943781250389}
   img_Background: {fileID: 3891624692996742470}
+--- !u!114 &3703463384769762110
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4497366920793465013}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0dc2c4230e405e247b7395d0c87762c9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Game.Conquest::Game.Conquest.ThemedGraphic
+  theme: {fileID: 11400000, guid: 7190fbeaa29ca9f4ba0c8d5829f9c1f5, type: 2}
+  role: 1
 --- !u!1 &4915104215113899484
 GameObject:
   m_ObjectHideFlags: 0
@@ -319,6 +349,7 @@ GameObject:
   - component: {fileID: 5635479983395919432}
   - component: {fileID: 4682156675470049745}
   - component: {fileID: 1708628677927420178}
+  - component: {fileID: 6109026860868177723}
   m_Layer: 5
   m_Name: Name
   m_TagString: Untagged
@@ -467,6 +498,20 @@ MonoBehaviour:
   m_LayoutPriority: 1
   m_MaxWidth: -1
   m_MaxHeight: -1
+--- !u!114 &6109026860868177723
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4915104215113899484}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0dc2c4230e405e247b7395d0c87762c9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Game.Conquest::Game.Conquest.ThemedGraphic
+  theme: {fileID: 11400000, guid: 7190fbeaa29ca9f4ba0c8d5829f9c1f5, type: 2}
+  role: 4
 --- !u!1 &5101458885887043153
 GameObject:
   m_ObjectHideFlags: 0
@@ -479,6 +524,7 @@ GameObject:
   - component: {fileID: 8031412186738184517}
   - component: {fileID: 6450388943781250389}
   - component: {fileID: 6698747420415919723}
+  - component: {fileID: 7597080614083338401}
   m_Layer: 5
   m_Name: Deaths
   m_TagString: Untagged
@@ -627,6 +673,20 @@ MonoBehaviour:
   m_LayoutPriority: 1
   m_MaxWidth: -1
   m_MaxHeight: -1
+--- !u!114 &7597080614083338401
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5101458885887043153}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0dc2c4230e405e247b7395d0c87762c9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Game.Conquest::Game.Conquest.ThemedGraphic
+  theme: {fileID: 11400000, guid: 7190fbeaa29ca9f4ba0c8d5829f9c1f5, type: 2}
+  role: 4
 --- !u!1 &5396747642881989287
 GameObject:
   m_ObjectHideFlags: 0
@@ -639,6 +699,7 @@ GameObject:
   - component: {fileID: 1003417518159107218}
   - component: {fileID: 1775146722321366633}
   - component: {fileID: 2015731423305610597}
+  - component: {fileID: 315369638492430162}
   m_Layer: 5
   m_Name: Class
   m_TagString: Untagged
@@ -787,3 +848,17 @@ MonoBehaviour:
   m_LayoutPriority: 1
   m_MaxWidth: -1
   m_MaxHeight: -1
+--- !u!114 &315369638492430162
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5396747642881989287}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0dc2c4230e405e247b7395d0c87762c9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Game.Conquest::Game.Conquest.ThemedGraphic
+  theme: {fileID: 11400000, guid: 7190fbeaa29ca9f4ba0c8d5829f9c1f5, type: 2}
+  role: 4

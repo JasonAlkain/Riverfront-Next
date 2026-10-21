@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 3531781369242247441}
   - component: {fileID: 3915761783364312812}
   - component: {fileID: 4652345075905006680}
+  - component: {fileID: 8930018190153022406}
   m_Layer: 0
   m_Name: Btn_CONNECT TO ENTERED IP
   m_TagString: Untagged
@@ -83,7 +84,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.2, g: 0.65, b: 1, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -121,13 +122,13 @@ MonoBehaviour:
     m_SelectOnRight: {fileID: 0}
   m_Transition: 1
   m_Colors:
-    m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
-    m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
-    m_PressedColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
-    m_SelectedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
-    m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
+    m_NormalColor: {r: 0.2, g: 0.6, b: 1, a: 1}
+    m_HighlightedColor: {r: 0.35, g: 0.7, b: 1, a: 1}
+    m_PressedColor: {r: 0.12, g: 0.42, b: 0.78, a: 1}
+    m_SelectedColor: {r: 0.3, g: 0.66, b: 1, a: 1}
+    m_DisabledColor: {r: 0.2, g: 0.28, b: 0.38, a: 0.7}
     m_ColorMultiplier: 1
-    m_FadeDuration: 0.1
+    m_FadeDuration: 0.08
   m_SpriteState:
     m_HighlightedSprite: {fileID: 0}
     m_PressedSprite: {fileID: 0}
@@ -144,6 +145,20 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &8930018190153022406
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2998067114695941}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5236410ae28f14946b71d34aa6d626b6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Game.Conquest::Game.Conquest.ThemedButton
+  theme: {fileID: 11400000, guid: 7190fbeaa29ca9f4ba0c8d5829f9c1f5, type: 2}
+  style: 0
 --- !u!1 &48017080807317913
 GameObject:
   m_ObjectHideFlags: 0
@@ -679,6 +694,7 @@ GameObject:
   - component: {fileID: 6187117918252079153}
   - component: {fileID: 4422383106619817605}
   - component: {fileID: 1140576859130116679}
+  - component: {fileID: 5618520107369995455}
   m_Layer: 0
   m_Name: Btn_BACK
   m_TagString: Untagged
@@ -749,7 +765,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.3, g: 0.35, b: 0.4, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -787,13 +803,13 @@ MonoBehaviour:
     m_SelectOnRight: {fileID: 0}
   m_Transition: 1
   m_Colors:
-    m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
-    m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
-    m_PressedColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
-    m_SelectedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
-    m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
+    m_NormalColor: {r: 0.25, g: 0.3, b: 0.4, a: 1}
+    m_HighlightedColor: {r: 0.34, g: 0.41, b: 0.53, a: 1}
+    m_PressedColor: {r: 0.17, g: 0.21, b: 0.29, a: 1}
+    m_SelectedColor: {r: 0.3, g: 0.36, b: 0.47, a: 1}
+    m_DisabledColor: {r: 0.16, g: 0.18, b: 0.22, a: 0.7}
     m_ColorMultiplier: 1
-    m_FadeDuration: 0.1
+    m_FadeDuration: 0.08
   m_SpriteState:
     m_HighlightedSprite: {fileID: 0}
     m_PressedSprite: {fileID: 0}
@@ -810,6 +826,20 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &5618520107369995455
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 204317919197481087}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5236410ae28f14946b71d34aa6d626b6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Game.Conquest::Game.Conquest.ThemedButton
+  theme: {fileID: 11400000, guid: 7190fbeaa29ca9f4ba0c8d5829f9c1f5, type: 2}
+  style: 1
 --- !u!1 &265976556748766790
 GameObject:
   m_ObjectHideFlags: 0
@@ -960,6 +990,7 @@ GameObject:
   - component: {fileID: 8941166379668578913}
   - component: {fileID: 8413322549216140534}
   - component: {fileID: 3546023560447680846}
+  - component: {fileID: 5315287712775212679}
   m_Layer: 0
   m_Name: Btn_TOGGLE READY
   m_TagString: Untagged
@@ -1030,7 +1061,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.2, g: 0.7, b: 0.4, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -1068,13 +1099,13 @@ MonoBehaviour:
     m_SelectOnRight: {fileID: 0}
   m_Transition: 1
   m_Colors:
-    m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
-    m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
-    m_PressedColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
-    m_SelectedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
-    m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
+    m_NormalColor: {r: 0.2, g: 0.6, b: 1, a: 1}
+    m_HighlightedColor: {r: 0.35, g: 0.7, b: 1, a: 1}
+    m_PressedColor: {r: 0.12, g: 0.42, b: 0.78, a: 1}
+    m_SelectedColor: {r: 0.3, g: 0.66, b: 1, a: 1}
+    m_DisabledColor: {r: 0.2, g: 0.28, b: 0.38, a: 0.7}
     m_ColorMultiplier: 1
-    m_FadeDuration: 0.1
+    m_FadeDuration: 0.08
   m_SpriteState:
     m_HighlightedSprite: {fileID: 0}
     m_PressedSprite: {fileID: 0}
@@ -1091,6 +1122,20 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &5315287712775212679
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 276529617151288121}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5236410ae28f14946b71d34aa6d626b6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Game.Conquest::Game.Conquest.ThemedButton
+  theme: {fileID: 11400000, guid: 7190fbeaa29ca9f4ba0c8d5829f9c1f5, type: 2}
+  style: 0
 --- !u!1 &297110565506046441
 GameObject:
   m_ObjectHideFlags: 0
@@ -1104,6 +1149,7 @@ GameObject:
   - component: {fileID: 5901618986949871870}
   - component: {fileID: 660381503643424327}
   - component: {fileID: 7126982643088473312}
+  - component: {fileID: 6413832939163639264}
   m_Layer: 0
   m_Name: MultiplayerPanel
   m_TagString: Untagged
@@ -1156,7 +1202,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.08, g: 0.11, b: 0.16, a: 0.98}
+  m_Color: {r: 0.08, g: 0.11, b: 0.16, a: 0.96}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -1215,6 +1261,20 @@ MonoBehaviour:
   btn_BrowseGames: {fileID: 5855075208741533260}
   btn_Join: {fileID: 1410499117405412585}
   btn_Back: {fileID: 7296097390338333279}
+--- !u!114 &6413832939163639264
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 297110565506046441}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0dc2c4230e405e247b7395d0c87762c9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Game.Conquest::Game.Conquest.ThemedGraphic
+  theme: {fileID: 11400000, guid: 7190fbeaa29ca9f4ba0c8d5829f9c1f5, type: 2}
+  role: 1
 --- !u!1 &310441571294304383
 GameObject:
   m_ObjectHideFlags: 0
@@ -1228,6 +1288,7 @@ GameObject:
   - component: {fileID: 6981168657345815670}
   - component: {fileID: 4744836465907623878}
   - component: {fileID: 1410499117405412585}
+  - component: {fileID: 3034232399875028117}
   m_Layer: 0
   m_Name: Btn_JOIN BY CODE / IP
   m_TagString: Untagged
@@ -1298,7 +1359,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.9, g: 0.65, b: 0.2, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -1336,13 +1397,13 @@ MonoBehaviour:
     m_SelectOnRight: {fileID: 0}
   m_Transition: 1
   m_Colors:
-    m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
-    m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
-    m_PressedColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
-    m_SelectedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
-    m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
+    m_NormalColor: {r: 0.2, g: 0.6, b: 1, a: 1}
+    m_HighlightedColor: {r: 0.35, g: 0.7, b: 1, a: 1}
+    m_PressedColor: {r: 0.12, g: 0.42, b: 0.78, a: 1}
+    m_SelectedColor: {r: 0.3, g: 0.66, b: 1, a: 1}
+    m_DisabledColor: {r: 0.2, g: 0.28, b: 0.38, a: 0.7}
     m_ColorMultiplier: 1
-    m_FadeDuration: 0.1
+    m_FadeDuration: 0.08
   m_SpriteState:
     m_HighlightedSprite: {fileID: 0}
     m_PressedSprite: {fileID: 0}
@@ -1359,6 +1420,20 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &3034232399875028117
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 310441571294304383}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5236410ae28f14946b71d34aa6d626b6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Game.Conquest::Game.Conquest.ThemedButton
+  theme: {fileID: 11400000, guid: 7190fbeaa29ca9f4ba0c8d5829f9c1f5, type: 2}
+  style: 0
 --- !u!1 &435247747577076254
 GameObject:
   m_ObjectHideFlags: 0
@@ -1371,6 +1446,7 @@ GameObject:
   - component: {fileID: 6738725558144449717}
   - component: {fileID: 3992116975867301325}
   - component: {fileID: 8288411926424829562}
+  - component: {fileID: 2899612366362329312}
   m_Layer: 5
   m_Name: Label
   m_TagString: Untagged
@@ -1519,6 +1595,20 @@ MonoBehaviour:
   m_LayoutPriority: 1
   m_MaxWidth: -1
   m_MaxHeight: -1
+--- !u!114 &2899612366362329312
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 435247747577076254}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0dc2c4230e405e247b7395d0c87762c9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Game.Conquest::Game.Conquest.ThemedGraphic
+  theme: {fileID: 11400000, guid: 7190fbeaa29ca9f4ba0c8d5829f9c1f5, type: 2}
+  role: 4
 --- !u!1 &455730235324187333
 GameObject:
   m_ObjectHideFlags: 0
@@ -1609,6 +1699,7 @@ GameObject:
   - component: {fileID: 9097193955802694825}
   - component: {fileID: 7417322639026739973}
   - component: {fileID: 4095803804387605091}
+  - component: {fileID: 5040294369528274740}
   m_Layer: 0
   m_Name: Btn_REFRESH
   m_TagString: Untagged
@@ -1679,7 +1770,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.1333333, g: 0.5450981, b: 0.1333333, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -1717,13 +1808,13 @@ MonoBehaviour:
     m_SelectOnRight: {fileID: 0}
   m_Transition: 1
   m_Colors:
-    m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
-    m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
-    m_PressedColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
-    m_SelectedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
-    m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
+    m_NormalColor: {r: 0.25, g: 0.3, b: 0.4, a: 1}
+    m_HighlightedColor: {r: 0.34, g: 0.41, b: 0.53, a: 1}
+    m_PressedColor: {r: 0.17, g: 0.21, b: 0.29, a: 1}
+    m_SelectedColor: {r: 0.3, g: 0.36, b: 0.47, a: 1}
+    m_DisabledColor: {r: 0.16, g: 0.18, b: 0.22, a: 0.7}
     m_ColorMultiplier: 1
-    m_FadeDuration: 0.1
+    m_FadeDuration: 0.08
   m_SpriteState:
     m_HighlightedSprite: {fileID: 0}
     m_PressedSprite: {fileID: 0}
@@ -1740,6 +1831,20 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &5040294369528274740
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 540137727022165822}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5236410ae28f14946b71d34aa6d626b6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Game.Conquest::Game.Conquest.ThemedButton
+  theme: {fileID: 11400000, guid: 7190fbeaa29ca9f4ba0c8d5829f9c1f5, type: 2}
+  style: 1
 --- !u!1 &600582399932503603
 GameObject:
   m_ObjectHideFlags: 0
@@ -1751,6 +1856,7 @@ GameObject:
   - component: {fileID: 8413313521714503262}
   - component: {fileID: 2354518145208124015}
   - component: {fileID: 6498992503143419977}
+  - component: {fileID: 3384980403335868096}
   m_Layer: 0
   m_Name: Image
   m_TagString: Untagged
@@ -1798,7 +1904,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.8, g: 0.6, b: 0.2, a: 1}
+  m_Color: {r: 0.2, g: 0.6, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -1815,6 +1921,20 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!114 &3384980403335868096
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 600582399932503603}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0dc2c4230e405e247b7395d0c87762c9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Game.Conquest::Game.Conquest.ThemedGraphic
+  theme: {fileID: 11400000, guid: 7190fbeaa29ca9f4ba0c8d5829f9c1f5, type: 2}
+  role: 12
 --- !u!1 &666355484404952866
 GameObject:
   m_ObjectHideFlags: 0
@@ -1828,6 +1948,7 @@ GameObject:
   - component: {fileID: 7514996459869504350}
   - component: {fileID: 5556587796468029311}
   - component: {fileID: 504662169219751299}
+  - component: {fileID: 4721532425480697984}
   m_Layer: 0
   m_Name: HostPanel
   m_TagString: Untagged
@@ -1889,7 +2010,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.08, g: 0.11, b: 0.16, a: 0.98}
+  m_Color: {r: 0.08, g: 0.11, b: 0.16, a: 0.96}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -1958,6 +2079,20 @@ MonoBehaviour:
   btn_NextMap: {fileID: 8119002879332937108}
   btn_CreateLobby: {fileID: 2037930267659493316}
   btn_Back: {fileID: 1488234643110506424}
+--- !u!114 &4721532425480697984
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 666355484404952866}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0dc2c4230e405e247b7395d0c87762c9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Game.Conquest::Game.Conquest.ThemedGraphic
+  theme: {fileID: 11400000, guid: 7190fbeaa29ca9f4ba0c8d5829f9c1f5, type: 2}
+  role: 1
 --- !u!1 &704196182868448853
 GameObject:
   m_ObjectHideFlags: 0
@@ -1970,6 +2105,7 @@ GameObject:
   - component: {fileID: 2159856847010011727}
   - component: {fileID: 726062964123987248}
   - component: {fileID: 1356089592315040827}
+  - component: {fileID: 219373528260130880}
   m_Layer: 0
   m_Name: TMP
   m_TagString: Untagged
@@ -2118,6 +2254,20 @@ MonoBehaviour:
   m_hasFontAssetChanged: 0
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
+--- !u!114 &219373528260130880
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 704196182868448853}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0dc2c4230e405e247b7395d0c87762c9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Game.Conquest::Game.Conquest.ThemedGraphic
+  theme: {fileID: 11400000, guid: 7190fbeaa29ca9f4ba0c8d5829f9c1f5, type: 2}
+  role: 4
 --- !u!1 &715299387530249372
 GameObject:
   m_ObjectHideFlags: 0
@@ -2131,6 +2281,7 @@ GameObject:
   - component: {fileID: 2800618850043459868}
   - component: {fileID: 8117368832721689858}
   - component: {fileID: 5855075208741533260}
+  - component: {fileID: 6858702356727218908}
   m_Layer: 0
   m_Name: Btn_BROWSE PUBLIC GAMES
   m_TagString: Untagged
@@ -2201,7 +2352,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.3, g: 0.75, b: 0.4, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -2239,13 +2390,13 @@ MonoBehaviour:
     m_SelectOnRight: {fileID: 0}
   m_Transition: 1
   m_Colors:
-    m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
-    m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
-    m_PressedColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
-    m_SelectedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
-    m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
+    m_NormalColor: {r: 0.25, g: 0.3, b: 0.4, a: 1}
+    m_HighlightedColor: {r: 0.34, g: 0.41, b: 0.53, a: 1}
+    m_PressedColor: {r: 0.17, g: 0.21, b: 0.29, a: 1}
+    m_SelectedColor: {r: 0.3, g: 0.36, b: 0.47, a: 1}
+    m_DisabledColor: {r: 0.16, g: 0.18, b: 0.22, a: 0.7}
     m_ColorMultiplier: 1
-    m_FadeDuration: 0.1
+    m_FadeDuration: 0.08
   m_SpriteState:
     m_HighlightedSprite: {fileID: 0}
     m_PressedSprite: {fileID: 0}
@@ -2262,6 +2413,20 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &6858702356727218908
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 715299387530249372}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5236410ae28f14946b71d34aa6d626b6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Game.Conquest::Game.Conquest.ThemedButton
+  theme: {fileID: 11400000, guid: 7190fbeaa29ca9f4ba0c8d5829f9c1f5, type: 2}
+  style: 1
 --- !u!1 &752973505482937087
 GameObject:
   m_ObjectHideFlags: 0
@@ -2273,6 +2438,7 @@ GameObject:
   - component: {fileID: 2710892333819913829}
   - component: {fileID: 7422092614516942685}
   - component: {fileID: 8045163514095592264}
+  - component: {fileID: 363761945927259069}
   m_Layer: 0
   m_Name: Image
   m_TagString: Untagged
@@ -2320,7 +2486,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.8, g: 0.6, b: 0.2, a: 1}
+  m_Color: {r: 0.2, g: 0.6, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -2337,6 +2503,20 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!114 &363761945927259069
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 752973505482937087}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0dc2c4230e405e247b7395d0c87762c9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Game.Conquest::Game.Conquest.ThemedGraphic
+  theme: {fileID: 11400000, guid: 7190fbeaa29ca9f4ba0c8d5829f9c1f5, type: 2}
+  role: 12
 --- !u!1 &798431740937296883
 GameObject:
   m_ObjectHideFlags: 0
@@ -2348,6 +2528,7 @@ GameObject:
   - component: {fileID: 5972445445188940656}
   - component: {fileID: 2238908063717939799}
   - component: {fileID: 5697679652853394069}
+  - component: {fileID: 8485850796952207049}
   m_Layer: 0
   m_Name: Backdrop
   m_TagString: Untagged
@@ -2395,7 +2576,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.04, g: 0.06, b: 0.09, a: 1}
+  m_Color: {r: 0.08, g: 0.11, b: 0.16, a: 0.96}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -2412,6 +2593,20 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!114 &8485850796952207049
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 798431740937296883}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0dc2c4230e405e247b7395d0c87762c9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Game.Conquest::Game.Conquest.ThemedGraphic
+  theme: {fileID: 11400000, guid: 7190fbeaa29ca9f4ba0c8d5829f9c1f5, type: 2}
+  role: 1
 --- !u!1 &814133728067723937
 GameObject:
   m_ObjectHideFlags: 0
@@ -2423,6 +2618,7 @@ GameObject:
   - component: {fileID: 5396258828880213635}
   - component: {fileID: 1967576856092943451}
   - component: {fileID: 533368287637685664}
+  - component: {fileID: 2724931324309826505}
   m_Layer: 0
   m_Name: Background
   m_TagString: Untagged
@@ -2487,6 +2683,20 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!114 &2724931324309826505
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 814133728067723937}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0dc2c4230e405e247b7395d0c87762c9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Game.Conquest::Game.Conquest.ThemedGraphic
+  theme: {fileID: 11400000, guid: 7190fbeaa29ca9f4ba0c8d5829f9c1f5, type: 2}
+  role: 9
 --- !u!1 &913919488460779431
 GameObject:
   m_ObjectHideFlags: 0
@@ -2498,6 +2708,7 @@ GameObject:
   - component: {fileID: 5342585467026256848}
   - component: {fileID: 7724144648840944052}
   - component: {fileID: 3225871596377109083}
+  - component: {fileID: 2237143085236770506}
   m_Layer: 0
   m_Name: Text
   m_TagString: Untagged
@@ -2624,6 +2835,20 @@ MonoBehaviour:
   m_hasFontAssetChanged: 0
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
+--- !u!114 &2237143085236770506
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 913919488460779431}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0dc2c4230e405e247b7395d0c87762c9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Game.Conquest::Game.Conquest.ThemedGraphic
+  theme: {fileID: 11400000, guid: 7190fbeaa29ca9f4ba0c8d5829f9c1f5, type: 2}
+  role: 4
 --- !u!1 &1010353258937765526
 GameObject:
   m_ObjectHideFlags: 0
@@ -2774,6 +2999,7 @@ GameObject:
   - component: {fileID: 6826633150950593783}
   - component: {fileID: 6387832300311521503}
   - component: {fileID: 4524959879462158155}
+  - component: {fileID: 3437308082710044991}
   m_Layer: 0
   m_Name: Btn_BACK TO MAIN MENU
   m_TagString: Untagged
@@ -2844,7 +3070,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.3, g: 0.35, b: 0.4, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -2882,13 +3108,13 @@ MonoBehaviour:
     m_SelectOnRight: {fileID: 0}
   m_Transition: 1
   m_Colors:
-    m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
-    m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
-    m_PressedColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
-    m_SelectedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
-    m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
+    m_NormalColor: {r: 0.25, g: 0.3, b: 0.4, a: 1}
+    m_HighlightedColor: {r: 0.34, g: 0.41, b: 0.53, a: 1}
+    m_PressedColor: {r: 0.17, g: 0.21, b: 0.29, a: 1}
+    m_SelectedColor: {r: 0.3, g: 0.36, b: 0.47, a: 1}
+    m_DisabledColor: {r: 0.16, g: 0.18, b: 0.22, a: 0.7}
     m_ColorMultiplier: 1
-    m_FadeDuration: 0.1
+    m_FadeDuration: 0.08
   m_SpriteState:
     m_HighlightedSprite: {fileID: 0}
     m_PressedSprite: {fileID: 0}
@@ -2905,6 +3131,20 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &3437308082710044991
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1064406903650607417}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5236410ae28f14946b71d34aa6d626b6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Game.Conquest::Game.Conquest.ThemedButton
+  theme: {fileID: 11400000, guid: 7190fbeaa29ca9f4ba0c8d5829f9c1f5, type: 2}
+  style: 1
 --- !u!1 &1090639871171860889
 GameObject:
   m_ObjectHideFlags: 0
@@ -3301,6 +3541,7 @@ GameObject:
   - component: {fileID: 2354891194249767797}
   - component: {fileID: 124185145578306663}
   - component: {fileID: 3667996784756370126}
+  - component: {fileID: 5046837053689187071}
   m_Layer: 0
   m_Name: Btn_CYCLE MAP
   m_TagString: Untagged
@@ -3371,7 +3612,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.85, g: 0.5, b: 0.15, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -3409,13 +3650,13 @@ MonoBehaviour:
     m_SelectOnRight: {fileID: 0}
   m_Transition: 1
   m_Colors:
-    m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
-    m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
-    m_PressedColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
-    m_SelectedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
-    m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
+    m_NormalColor: {r: 0.25, g: 0.3, b: 0.4, a: 1}
+    m_HighlightedColor: {r: 0.34, g: 0.41, b: 0.53, a: 1}
+    m_PressedColor: {r: 0.17, g: 0.21, b: 0.29, a: 1}
+    m_SelectedColor: {r: 0.3, g: 0.36, b: 0.47, a: 1}
+    m_DisabledColor: {r: 0.16, g: 0.18, b: 0.22, a: 0.7}
     m_ColorMultiplier: 1
-    m_FadeDuration: 0.1
+    m_FadeDuration: 0.08
   m_SpriteState:
     m_HighlightedSprite: {fileID: 0}
     m_PressedSprite: {fileID: 0}
@@ -3432,6 +3673,20 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &5046837053689187071
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1349633236324907896}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5236410ae28f14946b71d34aa6d626b6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Game.Conquest::Game.Conquest.ThemedButton
+  theme: {fileID: 11400000, guid: 7190fbeaa29ca9f4ba0c8d5829f9c1f5, type: 2}
+  style: 1
 --- !u!1 &1459120916247894479
 GameObject:
   m_ObjectHideFlags: 0
@@ -3581,6 +3836,7 @@ GameObject:
   - component: {fileID: 1584338514962892727}
   - component: {fileID: 5122214067568134787}
   - component: {fileID: 4071104190905710582}
+  - component: {fileID: 8806904475244977985}
   m_Layer: 0
   m_Name: TMP
   m_TagString: Untagged
@@ -3667,7 +3923,7 @@ MonoBehaviour:
   m_fontColor32:
     serializedVersion: 2
     rgba: 4294952793
-  m_fontColor: {r: 0.35, g: 0.78, b: 1, a: 1}
+  m_fontColor: {r: 0.45, g: 0.75, b: 1, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -3729,6 +3985,20 @@ MonoBehaviour:
   m_hasFontAssetChanged: 0
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
+--- !u!114 &8806904475244977985
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1604128571813015050}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0dc2c4230e405e247b7395d0c87762c9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Game.Conquest::Game.Conquest.ThemedGraphic
+  theme: {fileID: 11400000, guid: 7190fbeaa29ca9f4ba0c8d5829f9c1f5, type: 2}
+  role: 3
 --- !u!1 &1632816870887124879
 GameObject:
   m_ObjectHideFlags: 0
@@ -3740,6 +4010,7 @@ GameObject:
   - component: {fileID: 5497713869188948453}
   - component: {fileID: 1744463362204307761}
   - component: {fileID: 7055984159090839588}
+  - component: {fileID: 1281116393153090463}
   m_Layer: 0
   m_Name: Fill
   m_TagString: Untagged
@@ -3787,7 +4058,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.3, g: 0.75, b: 1, a: 1}
+  m_Color: {r: 0.2, g: 0.6, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -3804,6 +4075,20 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!114 &1281116393153090463
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1632816870887124879}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0dc2c4230e405e247b7395d0c87762c9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Game.Conquest::Game.Conquest.ThemedGraphic
+  theme: {fileID: 11400000, guid: 7190fbeaa29ca9f4ba0c8d5829f9c1f5, type: 2}
+  role: 10
 --- !u!1 &1662594874182258658
 GameObject:
   m_ObjectHideFlags: 0
@@ -3816,6 +4101,7 @@ GameObject:
   - component: {fileID: 3138177633190263458}
   - component: {fileID: 4988138895985463617}
   - component: {fileID: 762341869803896510}
+  - component: {fileID: 4874488701287487671}
   m_Layer: 0
   m_Name: TMP
   m_TagString: Untagged
@@ -3902,7 +4188,7 @@ MonoBehaviour:
   m_fontColor32:
     serializedVersion: 2
     rgba: 3875536895
-  m_fontColor: {r: 1, g: 1, b: 1, a: 0.9}
+  m_fontColor: {r: 1, g: 1, b: 1, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -3964,6 +4250,20 @@ MonoBehaviour:
   m_hasFontAssetChanged: 0
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
+--- !u!114 &4874488701287487671
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1662594874182258658}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0dc2c4230e405e247b7395d0c87762c9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Game.Conquest::Game.Conquest.ThemedGraphic
+  theme: {fileID: 11400000, guid: 7190fbeaa29ca9f4ba0c8d5829f9c1f5, type: 2}
+  role: 4
 --- !u!1 &1703893898039884970
 GameObject:
   m_ObjectHideFlags: 0
@@ -3977,6 +4277,7 @@ GameObject:
   - component: {fileID: 3381509958857737383}
   - component: {fileID: 5096176775373350655}
   - component: {fileID: 782905216573178277}
+  - component: {fileID: 1983662949081253924}
   m_Layer: 0
   m_Name: Btn_CONNECT
   m_TagString: Untagged
@@ -4047,7 +4348,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.2, g: 0.65, b: 1, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -4085,13 +4386,13 @@ MonoBehaviour:
     m_SelectOnRight: {fileID: 0}
   m_Transition: 1
   m_Colors:
-    m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
-    m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
-    m_PressedColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
-    m_SelectedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
-    m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
+    m_NormalColor: {r: 0.2, g: 0.6, b: 1, a: 1}
+    m_HighlightedColor: {r: 0.35, g: 0.7, b: 1, a: 1}
+    m_PressedColor: {r: 0.12, g: 0.42, b: 0.78, a: 1}
+    m_SelectedColor: {r: 0.3, g: 0.66, b: 1, a: 1}
+    m_DisabledColor: {r: 0.2, g: 0.28, b: 0.38, a: 0.7}
     m_ColorMultiplier: 1
-    m_FadeDuration: 0.1
+    m_FadeDuration: 0.08
   m_SpriteState:
     m_HighlightedSprite: {fileID: 0}
     m_PressedSprite: {fileID: 0}
@@ -4108,6 +4409,20 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &1983662949081253924
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1703893898039884970}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5236410ae28f14946b71d34aa6d626b6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Game.Conquest::Game.Conquest.ThemedButton
+  theme: {fileID: 11400000, guid: 7190fbeaa29ca9f4ba0c8d5829f9c1f5, type: 2}
+  style: 0
 --- !u!1 &1730471677515761992
 GameObject:
   m_ObjectHideFlags: 0
@@ -4256,6 +4571,7 @@ GameObject:
   - component: {fileID: 5861481420332047724}
   - component: {fileID: 6098298267760168902}
   - component: {fileID: 8080561609516880493}
+  - component: {fileID: 8302298962377889141}
   m_Layer: 0
   m_Name: Fill
   m_TagString: Untagged
@@ -4303,7 +4619,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.3, g: 0.75, b: 1, a: 1}
+  m_Color: {r: 0.2, g: 0.6, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -4320,6 +4636,20 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!114 &8302298962377889141
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1756974827465885836}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0dc2c4230e405e247b7395d0c87762c9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Game.Conquest::Game.Conquest.ThemedGraphic
+  theme: {fileID: 11400000, guid: 7190fbeaa29ca9f4ba0c8d5829f9c1f5, type: 2}
+  role: 10
 --- !u!1 &1788348558187432688
 GameObject:
   m_ObjectHideFlags: 0
@@ -4606,6 +4936,7 @@ GameObject:
   - component: {fileID: 5095664196978488927}
   - component: {fileID: 1106440554422702679}
   - component: {fileID: 2519277915727295253}
+  - component: {fileID: 5842069014240001963}
   m_Layer: 0
   m_Name: TMP
   m_TagString: Untagged
@@ -4663,6 +4994,9 @@ MonoBehaviour:
   m_text: '<b>RIVERFRONT NEXT</b>
 
     An original team-based Conquest shooter. Pre-alpha.
+
+
+    <b>Created by:</b> Zachary Aars
 
 
     <b>Engine:</b> Unity 6
@@ -4762,6 +5096,20 @@ MonoBehaviour:
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.ContentSizeFitter
   m_HorizontalFit: 0
   m_VerticalFit: 2
+--- !u!114 &5842069014240001963
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1805595461529974632}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0dc2c4230e405e247b7395d0c87762c9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Game.Conquest::Game.Conquest.ThemedGraphic
+  theme: {fileID: 11400000, guid: 7190fbeaa29ca9f4ba0c8d5829f9c1f5, type: 2}
+  role: 4
 --- !u!1 &1845577910124896619
 GameObject:
   m_ObjectHideFlags: 0
@@ -4884,6 +5232,7 @@ GameObject:
   - component: {fileID: 8766010199735834478}
   - component: {fileID: 7012772528728094165}
   - component: {fileID: 7524475497956490013}
+  - component: {fileID: 719992903120076782}
   m_Layer: 0
   m_Name: Text
   m_TagString: Untagged
@@ -5010,6 +5359,20 @@ MonoBehaviour:
   m_hasFontAssetChanged: 0
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
+--- !u!114 &719992903120076782
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1899949309301495938}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0dc2c4230e405e247b7395d0c87762c9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Game.Conquest::Game.Conquest.ThemedGraphic
+  theme: {fileID: 11400000, guid: 7190fbeaa29ca9f4ba0c8d5829f9c1f5, type: 2}
+  role: 4
 --- !u!1 &1901954332726555205
 GameObject:
   m_ObjectHideFlags: 0
@@ -5021,6 +5384,7 @@ GameObject:
   - component: {fileID: 5597356027809803844}
   - component: {fileID: 315841284412596586}
   - component: {fileID: 2968942442754923143}
+  - component: {fileID: 5399118655245873536}
   m_Layer: 0
   m_Name: Background
   m_TagString: Untagged
@@ -5085,6 +5449,20 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!114 &5399118655245873536
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1901954332726555205}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0dc2c4230e405e247b7395d0c87762c9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Game.Conquest::Game.Conquest.ThemedGraphic
+  theme: {fileID: 11400000, guid: 7190fbeaa29ca9f4ba0c8d5829f9c1f5, type: 2}
+  role: 9
 --- !u!1 &1906673592972626080
 GameObject:
   m_ObjectHideFlags: 0
@@ -5098,6 +5476,7 @@ GameObject:
   - component: {fileID: 5288142890777942931}
   - component: {fileID: 1610506913265501269}
   - component: {fileID: 7656099938393292675}
+  - component: {fileID: 3390673173463879589}
   m_Layer: 0
   m_Name: Btn_HOST
   m_TagString: Untagged
@@ -5168,7 +5547,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.854902, g: 0.6470588, b: 0.1254902, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -5206,13 +5585,13 @@ MonoBehaviour:
     m_SelectOnRight: {fileID: 0}
   m_Transition: 1
   m_Colors:
-    m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
-    m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
-    m_PressedColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
-    m_SelectedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
-    m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
+    m_NormalColor: {r: 0.2, g: 0.6, b: 1, a: 1}
+    m_HighlightedColor: {r: 0.35, g: 0.7, b: 1, a: 1}
+    m_PressedColor: {r: 0.12, g: 0.42, b: 0.78, a: 1}
+    m_SelectedColor: {r: 0.3, g: 0.66, b: 1, a: 1}
+    m_DisabledColor: {r: 0.2, g: 0.28, b: 0.38, a: 0.7}
     m_ColorMultiplier: 1
-    m_FadeDuration: 0.1
+    m_FadeDuration: 0.08
   m_SpriteState:
     m_HighlightedSprite: {fileID: 0}
     m_PressedSprite: {fileID: 0}
@@ -5229,6 +5608,20 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &3390673173463879589
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1906673592972626080}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5236410ae28f14946b71d34aa6d626b6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Game.Conquest::Game.Conquest.ThemedButton
+  theme: {fileID: 11400000, guid: 7190fbeaa29ca9f4ba0c8d5829f9c1f5, type: 2}
+  style: 0
 --- !u!1 &1948937095794029416
 GameObject:
   m_ObjectHideFlags: 0
@@ -5593,6 +5986,7 @@ GameObject:
   - component: {fileID: 8358421258500817342}
   - component: {fileID: 6956675071653148708}
   - component: {fileID: 1502462642093423812}
+  - component: {fileID: 3379512427780018437}
   m_Layer: 0
   m_Name: Btn_MULTIPLAYER OPERATIONS
   m_TagString: Untagged
@@ -5663,7 +6057,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.2, g: 0.75, b: 0.4, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -5701,13 +6095,13 @@ MonoBehaviour:
     m_SelectOnRight: {fileID: 0}
   m_Transition: 1
   m_Colors:
-    m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
-    m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
-    m_PressedColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
-    m_SelectedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
-    m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
+    m_NormalColor: {r: 0.2, g: 0.6, b: 1, a: 1}
+    m_HighlightedColor: {r: 0.35, g: 0.7, b: 1, a: 1}
+    m_PressedColor: {r: 0.12, g: 0.42, b: 0.78, a: 1}
+    m_SelectedColor: {r: 0.3, g: 0.66, b: 1, a: 1}
+    m_DisabledColor: {r: 0.2, g: 0.28, b: 0.38, a: 0.7}
     m_ColorMultiplier: 1
-    m_FadeDuration: 0.1
+    m_FadeDuration: 0.08
   m_SpriteState:
     m_HighlightedSprite: {fileID: 0}
     m_PressedSprite: {fileID: 0}
@@ -5724,6 +6118,20 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &3379512427780018437
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2244032520466874798}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5236410ae28f14946b71d34aa6d626b6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Game.Conquest::Game.Conquest.ThemedButton
+  theme: {fileID: 11400000, guid: 7190fbeaa29ca9f4ba0c8d5829f9c1f5, type: 2}
+  style: 0
 --- !u!1 &2299435191827625916
 GameObject:
   m_ObjectHideFlags: 0
@@ -5736,6 +6144,7 @@ GameObject:
   - component: {fileID: 8788545694923710507}
   - component: {fileID: 7487102265423816796}
   - component: {fileID: 5751568200339991335}
+  - component: {fileID: 258620496060627113}
   m_Layer: 0
   m_Name: TMP
   m_TagString: Untagged
@@ -5884,6 +6293,20 @@ MonoBehaviour:
   m_hasFontAssetChanged: 0
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
+--- !u!114 &258620496060627113
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2299435191827625916}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0dc2c4230e405e247b7395d0c87762c9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Game.Conquest::Game.Conquest.ThemedGraphic
+  theme: {fileID: 11400000, guid: 7190fbeaa29ca9f4ba0c8d5829f9c1f5, type: 2}
+  role: 4
 --- !u!1 &2357659964397421260
 GameObject:
   m_ObjectHideFlags: 0
@@ -5896,6 +6319,7 @@ GameObject:
   - component: {fileID: 7988556930078598854}
   - component: {fileID: 2135431561560876145}
   - component: {fileID: 8274309106670108417}
+  - component: {fileID: 7104797925451000495}
   m_Layer: 0
   m_Name: TMP
   m_TagString: Untagged
@@ -6044,6 +6468,20 @@ MonoBehaviour:
   m_hasFontAssetChanged: 0
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
+--- !u!114 &7104797925451000495
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2357659964397421260}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0dc2c4230e405e247b7395d0c87762c9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Game.Conquest::Game.Conquest.ThemedGraphic
+  theme: {fileID: 11400000, guid: 7190fbeaa29ca9f4ba0c8d5829f9c1f5, type: 2}
+  role: 4
 --- !u!1 &2459049306975661872
 GameObject:
   m_ObjectHideFlags: 0
@@ -6283,6 +6721,7 @@ GameObject:
   - component: {fileID: 3626167966328193498}
   - component: {fileID: 434210117067855723}
   - component: {fileID: 3324980356636084811}
+  - component: {fileID: 3555750987143408076}
   m_Layer: 0
   m_Name: Text
   m_TagString: Untagged
@@ -6409,6 +6848,20 @@ MonoBehaviour:
   m_hasFontAssetChanged: 0
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
+--- !u!114 &3555750987143408076
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2555688862346667154}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0dc2c4230e405e247b7395d0c87762c9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Game.Conquest::Game.Conquest.ThemedGraphic
+  theme: {fileID: 11400000, guid: 7190fbeaa29ca9f4ba0c8d5829f9c1f5, type: 2}
+  role: 4
 --- !u!1 &2614336246696524725
 GameObject:
   m_ObjectHideFlags: 0
@@ -6422,6 +6875,7 @@ GameObject:
   - component: {fileID: 8275616249924993923}
   - component: {fileID: 3902839733261994029}
   - component: {fileID: 1808346370255513354}
+  - component: {fileID: 4606491700042362063}
   m_Layer: 5
   m_Name: Btn_SetName
   m_TagString: Untagged
@@ -6470,7 +6924,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.2, g: 0.6, b: 1, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -6508,13 +6962,13 @@ MonoBehaviour:
     m_SelectOnRight: {fileID: 0}
   m_Transition: 1
   m_Colors:
-    m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
-    m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
-    m_PressedColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
-    m_SelectedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
-    m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
+    m_NormalColor: {r: 0.2, g: 0.6, b: 1, a: 1}
+    m_HighlightedColor: {r: 0.35, g: 0.7, b: 1, a: 1}
+    m_PressedColor: {r: 0.12, g: 0.42, b: 0.78, a: 1}
+    m_SelectedColor: {r: 0.3, g: 0.66, b: 1, a: 1}
+    m_DisabledColor: {r: 0.2, g: 0.28, b: 0.38, a: 0.7}
     m_ColorMultiplier: 1
-    m_FadeDuration: 0.1
+    m_FadeDuration: 0.08
   m_SpriteState:
     m_HighlightedSprite: {fileID: 0}
     m_PressedSprite: {fileID: 0}
@@ -6553,6 +7007,20 @@ MonoBehaviour:
   m_LayoutPriority: 1
   m_MaxWidth: -1
   m_MaxHeight: -1
+--- !u!114 &4606491700042362063
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2614336246696524725}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5236410ae28f14946b71d34aa6d626b6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Game.Conquest::Game.Conquest.ThemedButton
+  theme: {fileID: 11400000, guid: 7190fbeaa29ca9f4ba0c8d5829f9c1f5, type: 2}
+  style: 0
 --- !u!1 &2699733944882640420
 GameObject:
   m_ObjectHideFlags: 0
@@ -6564,6 +7032,7 @@ GameObject:
   - component: {fileID: 7264740926917611346}
   - component: {fileID: 6939567151992355765}
   - component: {fileID: 4979617763118112790}
+  - component: {fileID: 2227977226476927150}
   m_Layer: 0
   m_Name: Background
   m_TagString: Untagged
@@ -6628,6 +7097,20 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!114 &2227977226476927150
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2699733944882640420}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0dc2c4230e405e247b7395d0c87762c9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Game.Conquest::Game.Conquest.ThemedGraphic
+  theme: {fileID: 11400000, guid: 7190fbeaa29ca9f4ba0c8d5829f9c1f5, type: 2}
+  role: 9
 --- !u!1 &2737325412302391873
 GameObject:
   m_ObjectHideFlags: 0
@@ -6641,6 +7124,7 @@ GameObject:
   - component: {fileID: 7507737685562362423}
   - component: {fileID: 7249641103211197360}
   - component: {fileID: 5430992167914348426}
+  - component: {fileID: 8407087926720142988}
   m_Layer: 0
   m_Name: LobbyPanel
   m_TagString: Untagged
@@ -6695,7 +7179,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.08, g: 0.11, b: 0.16, a: 0.98}
+  m_Color: {r: 0.08, g: 0.11, b: 0.16, a: 0.96}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -6763,6 +7247,20 @@ MonoBehaviour:
   classPicker: {fileID: 2230120717290114745}
   tmp_PlayerName: {fileID: 4032103527586381459}
   btn_SetName: {fileID: 3902839733261994029}
+--- !u!114 &8407087926720142988
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2737325412302391873}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0dc2c4230e405e247b7395d0c87762c9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Game.Conquest::Game.Conquest.ThemedGraphic
+  theme: {fileID: 11400000, guid: 7190fbeaa29ca9f4ba0c8d5829f9c1f5, type: 2}
+  role: 1
 --- !u!1 &2755644362303891230
 GameObject:
   m_ObjectHideFlags: 0
@@ -6776,6 +7274,7 @@ GameObject:
   - component: {fileID: 435066207956102885}
   - component: {fileID: 7916985374750362969}
   - component: {fileID: 5973152907483787923}
+  - component: {fileID: 7836422657588323949}
   m_Layer: 0
   m_Name: InputField
   m_TagString: Untagged
@@ -6846,7 +7345,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.12, g: 0.16, b: 0.22, a: 1}
+  m_Color: {r: 0.08, g: 0.11, b: 0.16, a: 0.96}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -6964,6 +7463,20 @@ MonoBehaviour:
   isAlert: 0
   m_InputValidator: {fileID: 0}
   m_ShouldActivateOnSelect: 1
+--- !u!114 &7836422657588323949
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2755644362303891230}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0dc2c4230e405e247b7395d0c87762c9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Game.Conquest::Game.Conquest.ThemedGraphic
+  theme: {fileID: 11400000, guid: 7190fbeaa29ca9f4ba0c8d5829f9c1f5, type: 2}
+  role: 1
 --- !u!1 &2860831351374407641
 GameObject:
   m_ObjectHideFlags: 0
@@ -6976,6 +7489,7 @@ GameObject:
   - component: {fileID: 7657333505493935358}
   - component: {fileID: 1797172925943372610}
   - component: {fileID: 5963696142310018809}
+  - component: {fileID: 8881508142795638314}
   m_Layer: 0
   m_Name: TMP
   m_TagString: Untagged
@@ -7124,6 +7638,20 @@ MonoBehaviour:
   m_hasFontAssetChanged: 0
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
+--- !u!114 &8881508142795638314
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2860831351374407641}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0dc2c4230e405e247b7395d0c87762c9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Game.Conquest::Game.Conquest.ThemedGraphic
+  theme: {fileID: 11400000, guid: 7190fbeaa29ca9f4ba0c8d5829f9c1f5, type: 2}
+  role: 4
 --- !u!1 &2897779227211690100
 GameObject:
   m_ObjectHideFlags: 0
@@ -7547,6 +8075,7 @@ GameObject:
   - component: {fileID: 1351406988179563018}
   - component: {fileID: 4595680387812489543}
   - component: {fileID: 8520028717367203176}
+  - component: {fileID: 5664933889648320801}
   m_Layer: 0
   m_Name: Btn_HARD
   m_TagString: Untagged
@@ -7618,7 +8147,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 0.2, g: 0.25, b: 0.32, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -7683,6 +8212,20 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   m_IsOn: 0
+--- !u!114 &5664933889648320801
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3137300873246358588}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0dc2c4230e405e247b7395d0c87762c9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Game.Conquest::Game.Conquest.ThemedGraphic
+  theme: {fileID: 11400000, guid: 7190fbeaa29ca9f4ba0c8d5829f9c1f5, type: 2}
+  role: 9
 --- !u!1 &3239922281892665674
 GameObject:
   m_ObjectHideFlags: 0
@@ -7694,6 +8237,7 @@ GameObject:
   - component: {fileID: 1231496546326658556}
   - component: {fileID: 1235340155194018740}
   - component: {fileID: 6889981094709322527}
+  - component: {fileID: 5769176386912171210}
   m_Layer: 0
   m_Name: Text
   m_TagString: Untagged
@@ -7820,6 +8364,20 @@ MonoBehaviour:
   m_hasFontAssetChanged: 0
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
+--- !u!114 &5769176386912171210
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3239922281892665674}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0dc2c4230e405e247b7395d0c87762c9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Game.Conquest::Game.Conquest.ThemedGraphic
+  theme: {fileID: 11400000, guid: 7190fbeaa29ca9f4ba0c8d5829f9c1f5, type: 2}
+  role: 4
 --- !u!1 &3356585127561909153
 GameObject:
   m_ObjectHideFlags: 0
@@ -7833,6 +8391,7 @@ GameObject:
   - component: {fileID: 5862981905496049024}
   - component: {fileID: 3195061466368604827}
   - component: {fileID: 27137604247052936}
+  - component: {fileID: 2038367319214126989}
   m_Layer: 0
   m_Name: Btn_BACK
   m_TagString: Untagged
@@ -7903,7 +8462,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.3, g: 0.35, b: 0.4, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -7941,13 +8500,13 @@ MonoBehaviour:
     m_SelectOnRight: {fileID: 0}
   m_Transition: 1
   m_Colors:
-    m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
-    m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
-    m_PressedColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
-    m_SelectedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
-    m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
+    m_NormalColor: {r: 0.25, g: 0.3, b: 0.4, a: 1}
+    m_HighlightedColor: {r: 0.34, g: 0.41, b: 0.53, a: 1}
+    m_PressedColor: {r: 0.17, g: 0.21, b: 0.29, a: 1}
+    m_SelectedColor: {r: 0.3, g: 0.36, b: 0.47, a: 1}
+    m_DisabledColor: {r: 0.16, g: 0.18, b: 0.22, a: 0.7}
     m_ColorMultiplier: 1
-    m_FadeDuration: 0.1
+    m_FadeDuration: 0.08
   m_SpriteState:
     m_HighlightedSprite: {fileID: 0}
     m_PressedSprite: {fileID: 0}
@@ -7964,6 +8523,20 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &2038367319214126989
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3356585127561909153}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5236410ae28f14946b71d34aa6d626b6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Game.Conquest::Game.Conquest.ThemedButton
+  theme: {fileID: 11400000, guid: 7190fbeaa29ca9f4ba0c8d5829f9c1f5, type: 2}
+  style: 1
 --- !u!1 &3368956884665305210
 GameObject:
   m_ObjectHideFlags: 0
@@ -8114,6 +8687,7 @@ GameObject:
   - component: {fileID: 6717739120160288726}
   - component: {fileID: 4389357260606467540}
   - component: {fileID: 4228136834820623376}
+  - component: {fileID: 7369343275755942763}
   m_Layer: 0
   m_Name: InputField
   m_TagString: Untagged
@@ -8184,7 +8758,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.12, g: 0.16, b: 0.22, a: 1}
+  m_Color: {r: 0.08, g: 0.11, b: 0.16, a: 0.96}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -8302,6 +8876,20 @@ MonoBehaviour:
   isAlert: 0
   m_InputValidator: {fileID: 0}
   m_ShouldActivateOnSelect: 1
+--- !u!114 &7369343275755942763
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3479567979332229769}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0dc2c4230e405e247b7395d0c87762c9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Game.Conquest::Game.Conquest.ThemedGraphic
+  theme: {fileID: 11400000, guid: 7190fbeaa29ca9f4ba0c8d5829f9c1f5, type: 2}
+  role: 1
 --- !u!1 &3493392840620358037
 GameObject:
   m_ObjectHideFlags: 0
@@ -8501,6 +9089,7 @@ GameObject:
   - component: {fileID: 8426206892448161064}
   - component: {fileID: 1282527312287439742}
   - component: {fileID: 1472964988331028769}
+  - component: {fileID: 7516152170488819740}
   m_Layer: 0
   m_Name: TMP
   m_TagString: Untagged
@@ -8649,6 +9238,20 @@ MonoBehaviour:
   m_hasFontAssetChanged: 0
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
+--- !u!114 &7516152170488819740
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3600309253578928219}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0dc2c4230e405e247b7395d0c87762c9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Game.Conquest::Game.Conquest.ThemedGraphic
+  theme: {fileID: 11400000, guid: 7190fbeaa29ca9f4ba0c8d5829f9c1f5, type: 2}
+  role: 4
 --- !u!1 &3609080876191515847
 GameObject:
   m_ObjectHideFlags: 0
@@ -8662,6 +9265,7 @@ GameObject:
   - component: {fileID: 6296819014562144338}
   - component: {fileID: 1088914552129129806}
   - component: {fileID: 5734975138557080656}
+  - component: {fileID: 2719131169573795325}
   m_Layer: 0
   m_Name: Btn_BACK
   m_TagString: Untagged
@@ -8732,7 +9336,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.3, g: 0.35, b: 0.4, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -8770,13 +9374,13 @@ MonoBehaviour:
     m_SelectOnRight: {fileID: 0}
   m_Transition: 1
   m_Colors:
-    m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
-    m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
-    m_PressedColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
-    m_SelectedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
-    m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
+    m_NormalColor: {r: 0.25, g: 0.3, b: 0.4, a: 1}
+    m_HighlightedColor: {r: 0.34, g: 0.41, b: 0.53, a: 1}
+    m_PressedColor: {r: 0.17, g: 0.21, b: 0.29, a: 1}
+    m_SelectedColor: {r: 0.3, g: 0.36, b: 0.47, a: 1}
+    m_DisabledColor: {r: 0.16, g: 0.18, b: 0.22, a: 0.7}
     m_ColorMultiplier: 1
-    m_FadeDuration: 0.1
+    m_FadeDuration: 0.08
   m_SpriteState:
     m_HighlightedSprite: {fileID: 0}
     m_PressedSprite: {fileID: 0}
@@ -8793,6 +9397,20 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &2719131169573795325
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3609080876191515847}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5236410ae28f14946b71d34aa6d626b6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Game.Conquest::Game.Conquest.ThemedButton
+  theme: {fileID: 11400000, guid: 7190fbeaa29ca9f4ba0c8d5829f9c1f5, type: 2}
+  style: 1
 --- !u!1 &3621837217041097145
 GameObject:
   m_ObjectHideFlags: 0
@@ -8943,6 +9561,7 @@ GameObject:
   - component: {fileID: 6411162836527745740}
   - component: {fileID: 3670056944588570257}
   - component: {fileID: 4032103527586381459}
+  - component: {fileID: 7747687044867445893}
   m_Layer: 0
   m_Name: NameInput
   m_TagString: Untagged
@@ -9013,7 +9632,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.12, g: 0.16, b: 0.22, a: 1}
+  m_Color: {r: 0.08, g: 0.11, b: 0.16, a: 0.96}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -9131,6 +9750,20 @@ MonoBehaviour:
   isAlert: 0
   m_InputValidator: {fileID: 0}
   m_ShouldActivateOnSelect: 1
+--- !u!114 &7747687044867445893
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3712995942807755643}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0dc2c4230e405e247b7395d0c87762c9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Game.Conquest::Game.Conquest.ThemedGraphic
+  theme: {fileID: 11400000, guid: 7190fbeaa29ca9f4ba0c8d5829f9c1f5, type: 2}
+  role: 1
 --- !u!1 &3861543667123503929
 GameObject:
   m_ObjectHideFlags: 0
@@ -9772,6 +10405,7 @@ GameObject:
   - component: {fileID: 2698255845645836190}
   - component: {fileID: 2109979124175193745}
   - component: {fileID: 2827878502171616341}
+  - component: {fileID: 297497017616111103}
   m_Layer: 0
   m_Name: Fill
   m_TagString: Untagged
@@ -9819,7 +10453,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.3, g: 0.75, b: 1, a: 1}
+  m_Color: {r: 0.2, g: 0.6, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -9836,6 +10470,20 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!114 &297497017616111103
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4241795925921762875}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0dc2c4230e405e247b7395d0c87762c9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Game.Conquest::Game.Conquest.ThemedGraphic
+  theme: {fileID: 11400000, guid: 7190fbeaa29ca9f4ba0c8d5829f9c1f5, type: 2}
+  role: 10
 --- !u!1 &4260650739271276845
 GameObject:
   m_ObjectHideFlags: 0
@@ -10211,6 +10859,7 @@ GameObject:
   - component: {fileID: 234651828106041872}
   - component: {fileID: 863117781308223359}
   - component: {fileID: 2037930267659493316}
+  - component: {fileID: 3248603154952426015}
   m_Layer: 0
   m_Name: Btn_CREATE LOBBY & HOST
   m_TagString: Untagged
@@ -10281,7 +10930,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.2, g: 0.75, b: 0.4, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -10319,13 +10968,13 @@ MonoBehaviour:
     m_SelectOnRight: {fileID: 0}
   m_Transition: 1
   m_Colors:
-    m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
-    m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
-    m_PressedColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
-    m_SelectedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
-    m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
+    m_NormalColor: {r: 0.2, g: 0.6, b: 1, a: 1}
+    m_HighlightedColor: {r: 0.35, g: 0.7, b: 1, a: 1}
+    m_PressedColor: {r: 0.12, g: 0.42, b: 0.78, a: 1}
+    m_SelectedColor: {r: 0.3, g: 0.66, b: 1, a: 1}
+    m_DisabledColor: {r: 0.2, g: 0.28, b: 0.38, a: 0.7}
     m_ColorMultiplier: 1
-    m_FadeDuration: 0.1
+    m_FadeDuration: 0.08
   m_SpriteState:
     m_HighlightedSprite: {fileID: 0}
     m_PressedSprite: {fileID: 0}
@@ -10342,6 +10991,20 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &3248603154952426015
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4366629205836837486}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5236410ae28f14946b71d34aa6d626b6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Game.Conquest::Game.Conquest.ThemedButton
+  theme: {fileID: 11400000, guid: 7190fbeaa29ca9f4ba0c8d5829f9c1f5, type: 2}
+  style: 0
 --- !u!1 &4370580101419243385
 GameObject:
   m_ObjectHideFlags: 0
@@ -10529,6 +11192,7 @@ GameObject:
   - component: {fileID: 2784760888321361355}
   - component: {fileID: 6006792529767166817}
   - component: {fileID: 990714290229530756}
+  - component: {fileID: 709579376359352006}
   m_Layer: 0
   m_Name: Btn_LEAVE LOBBY
   m_TagString: Untagged
@@ -10599,7 +11263,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.85, g: 0.25, b: 0.25, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -10637,13 +11301,13 @@ MonoBehaviour:
     m_SelectOnRight: {fileID: 0}
   m_Transition: 1
   m_Colors:
-    m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
-    m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
-    m_PressedColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
-    m_SelectedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
-    m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
+    m_NormalColor: {r: 0.25, g: 0.3, b: 0.4, a: 1}
+    m_HighlightedColor: {r: 0.34, g: 0.41, b: 0.53, a: 1}
+    m_PressedColor: {r: 0.17, g: 0.21, b: 0.29, a: 1}
+    m_SelectedColor: {r: 0.3, g: 0.36, b: 0.47, a: 1}
+    m_DisabledColor: {r: 0.16, g: 0.18, b: 0.22, a: 0.7}
     m_ColorMultiplier: 1
-    m_FadeDuration: 0.1
+    m_FadeDuration: 0.08
   m_SpriteState:
     m_HighlightedSprite: {fileID: 0}
     m_PressedSprite: {fileID: 0}
@@ -10660,6 +11324,20 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &709579376359352006
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4466073517778033002}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5236410ae28f14946b71d34aa6d626b6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Game.Conquest::Game.Conquest.ThemedButton
+  theme: {fileID: 11400000, guid: 7190fbeaa29ca9f4ba0c8d5829f9c1f5, type: 2}
+  style: 1
 --- !u!1 &4529963386140136568
 GameObject:
   m_ObjectHideFlags: 0
@@ -10671,6 +11349,7 @@ GameObject:
   - component: {fileID: 6152481705030312089}
   - component: {fileID: 2353209418382564422}
   - component: {fileID: 5575661695585744088}
+  - component: {fileID: 6134631783778070454}
   m_Layer: 0
   m_Name: Image
   m_TagString: Untagged
@@ -10718,7 +11397,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.8, g: 0.6, b: 0.2, a: 1}
+  m_Color: {r: 0.2, g: 0.6, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -10735,6 +11414,20 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!114 &6134631783778070454
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4529963386140136568}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0dc2c4230e405e247b7395d0c87762c9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Game.Conquest::Game.Conquest.ThemedGraphic
+  theme: {fileID: 11400000, guid: 7190fbeaa29ca9f4ba0c8d5829f9c1f5, type: 2}
+  role: 12
 --- !u!1 &4534576107165856080
 GameObject:
   m_ObjectHideFlags: 0
@@ -10884,6 +11577,7 @@ GameObject:
   - component: {fileID: 6335281915935431853}
   - component: {fileID: 7292532356156576725}
   - component: {fileID: 6137553598004574854}
+  - component: {fileID: 8971616822993525511}
   m_Layer: 0
   m_Name: TMP
   m_TagString: Untagged
@@ -10970,7 +11664,7 @@ MonoBehaviour:
   m_fontColor32:
     serializedVersion: 2
     rgba: 4294952793
-  m_fontColor: {r: 0.35, g: 0.78, b: 1, a: 1}
+  m_fontColor: {r: 0.45, g: 0.75, b: 1, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -11032,6 +11726,20 @@ MonoBehaviour:
   m_hasFontAssetChanged: 0
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
+--- !u!114 &8971616822993525511
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4546959785809882547}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0dc2c4230e405e247b7395d0c87762c9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Game.Conquest::Game.Conquest.ThemedGraphic
+  theme: {fileID: 11400000, guid: 7190fbeaa29ca9f4ba0c8d5829f9c1f5, type: 2}
+  role: 3
 --- !u!1 &4596670188198342368
 GameObject:
   m_ObjectHideFlags: 0
@@ -11044,6 +11752,7 @@ GameObject:
   - component: {fileID: 6608505775484682949}
   - component: {fileID: 7665092176571324889}
   - component: {fileID: 5292754897769439368}
+  - component: {fileID: 440888517088348750}
   m_Layer: 0
   m_Name: CreditsBox
   m_TagString: Untagged
@@ -11114,7 +11823,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.12, g: 0.16, b: 0.24, a: 0.95}
+  m_Color: {r: 0.08, g: 0.11, b: 0.16, a: 0.96}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -11131,6 +11840,20 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!114 &440888517088348750
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4596670188198342368}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0dc2c4230e405e247b7395d0c87762c9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Game.Conquest::Game.Conquest.ThemedGraphic
+  theme: {fileID: 11400000, guid: 7190fbeaa29ca9f4ba0c8d5829f9c1f5, type: 2}
+  role: 1
 --- !u!1 &4637172847332996836
 GameObject:
   m_ObjectHideFlags: 0
@@ -11143,6 +11866,7 @@ GameObject:
   - component: {fileID: 5304229132388208139}
   - component: {fileID: 5114348074355592483}
   - component: {fileID: 3413706411025862482}
+  - component: {fileID: 4606999843739888324}
   m_Layer: 0
   m_Name: JoinCodePanel
   m_TagString: Untagged
@@ -11194,7 +11918,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.08, g: 0.11, b: 0.16, a: 0.98}
+  m_Color: {r: 0.08, g: 0.11, b: 0.16, a: 0.96}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -11237,6 +11961,20 @@ MonoBehaviour:
   m_ChildScaleWidth: 0
   m_ChildScaleHeight: 0
   m_ReverseArrangement: 0
+--- !u!114 &4606999843739888324
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4637172847332996836}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0dc2c4230e405e247b7395d0c87762c9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Game.Conquest::Game.Conquest.ThemedGraphic
+  theme: {fileID: 11400000, guid: 7190fbeaa29ca9f4ba0c8d5829f9c1f5, type: 2}
+  role: 1
 --- !u!1 &4697340830681765867
 GameObject:
   m_ObjectHideFlags: 0
@@ -11362,6 +12100,7 @@ GameObject:
   - component: {fileID: 4577697033515862584}
   - component: {fileID: 248258495380953160}
   - component: {fileID: 6046631003484240957}
+  - component: {fileID: 7091904683225257148}
   m_Layer: 0
   m_Name: CreditsPanel
   m_TagString: Untagged
@@ -11412,7 +12151,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.08, g: 0.11, b: 0.16, a: 0.98}
+  m_Color: {r: 0.08, g: 0.11, b: 0.16, a: 0.96}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -11468,6 +12207,20 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: '::'
   btn_Back: {fileID: 4524959879462158155}
+--- !u!114 &7091904683225257148
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4785394104168890043}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0dc2c4230e405e247b7395d0c87762c9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Game.Conquest::Game.Conquest.ThemedGraphic
+  theme: {fileID: 11400000, guid: 7190fbeaa29ca9f4ba0c8d5829f9c1f5, type: 2}
+  role: 1
 --- !u!1 &4864843079404176265
 GameObject:
   m_ObjectHideFlags: 0
@@ -11479,6 +12232,7 @@ GameObject:
   - component: {fileID: 3365596251523848333}
   - component: {fileID: 6702708984479364461}
   - component: {fileID: 2158397783214320410}
+  - component: {fileID: 1413738748358781004}
   m_Layer: 0
   m_Name: Fill
   m_TagString: Untagged
@@ -11526,7 +12280,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.3, g: 0.75, b: 1, a: 1}
+  m_Color: {r: 0.2, g: 0.6, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -11543,6 +12297,20 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!114 &1413738748358781004
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4864843079404176265}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0dc2c4230e405e247b7395d0c87762c9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Game.Conquest::Game.Conquest.ThemedGraphic
+  theme: {fileID: 11400000, guid: 7190fbeaa29ca9f4ba0c8d5829f9c1f5, type: 2}
+  role: 10
 --- !u!1 &4875640259499355230
 GameObject:
   m_ObjectHideFlags: 0
@@ -11555,6 +12323,7 @@ GameObject:
   - component: {fileID: 2652917695440091598}
   - component: {fileID: 3502418340440174017}
   - component: {fileID: 2357325986960091439}
+  - component: {fileID: 7142562869913654902}
   m_Layer: 0
   m_Name: TMP
   m_TagString: Untagged
@@ -11703,6 +12472,20 @@ MonoBehaviour:
   m_hasFontAssetChanged: 0
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
+--- !u!114 &7142562869913654902
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4875640259499355230}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0dc2c4230e405e247b7395d0c87762c9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Game.Conquest::Game.Conquest.ThemedGraphic
+  theme: {fileID: 11400000, guid: 7190fbeaa29ca9f4ba0c8d5829f9c1f5, type: 2}
+  role: 4
 --- !u!1 &4890699605547434088
 GameObject:
   m_ObjectHideFlags: 0
@@ -11715,6 +12498,7 @@ GameObject:
   - component: {fileID: 6894527202211169131}
   - component: {fileID: 5397593585520678505}
   - component: {fileID: 2260637912393491823}
+  - component: {fileID: 7958181179004705024}
   m_Layer: 0
   m_Name: TMP
   m_TagString: Untagged
@@ -11801,7 +12585,7 @@ MonoBehaviour:
   m_fontColor32:
     serializedVersion: 2
     rgba: 4294952793
-  m_fontColor: {r: 0.35, g: 0.78, b: 1, a: 1}
+  m_fontColor: {r: 0.45, g: 0.75, b: 1, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -11863,6 +12647,20 @@ MonoBehaviour:
   m_hasFontAssetChanged: 0
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
+--- !u!114 &7958181179004705024
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4890699605547434088}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0dc2c4230e405e247b7395d0c87762c9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Game.Conquest::Game.Conquest.ThemedGraphic
+  theme: {fileID: 11400000, guid: 7190fbeaa29ca9f4ba0c8d5829f9c1f5, type: 2}
+  role: 3
 --- !u!1 &4898259929587959435
 GameObject:
   m_ObjectHideFlags: 0
@@ -11876,6 +12674,7 @@ GameObject:
   - component: {fileID: 7209880377739248901}
   - component: {fileID: 7129061280728408936}
   - component: {fileID: 3634815827242402778}
+  - component: {fileID: 8132255123440319471}
   m_Layer: 0
   m_Name: Btn_GAME SETTINGS
   m_TagString: Untagged
@@ -11946,7 +12745,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.9, g: 0.6, b: 0.2, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -11984,13 +12783,13 @@ MonoBehaviour:
     m_SelectOnRight: {fileID: 0}
   m_Transition: 1
   m_Colors:
-    m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
-    m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
-    m_PressedColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
-    m_SelectedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
-    m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
+    m_NormalColor: {r: 0.25, g: 0.3, b: 0.4, a: 1}
+    m_HighlightedColor: {r: 0.34, g: 0.41, b: 0.53, a: 1}
+    m_PressedColor: {r: 0.17, g: 0.21, b: 0.29, a: 1}
+    m_SelectedColor: {r: 0.3, g: 0.36, b: 0.47, a: 1}
+    m_DisabledColor: {r: 0.16, g: 0.18, b: 0.22, a: 0.7}
     m_ColorMultiplier: 1
-    m_FadeDuration: 0.1
+    m_FadeDuration: 0.08
   m_SpriteState:
     m_HighlightedSprite: {fileID: 0}
     m_PressedSprite: {fileID: 0}
@@ -12007,6 +12806,20 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &8132255123440319471
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4898259929587959435}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5236410ae28f14946b71d34aa6d626b6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Game.Conquest::Game.Conquest.ThemedButton
+  theme: {fileID: 11400000, guid: 7190fbeaa29ca9f4ba0c8d5829f9c1f5, type: 2}
+  style: 1
 --- !u!1 &4913636558697114821
 GameObject:
   m_ObjectHideFlags: 0
@@ -12284,6 +13097,7 @@ GameObject:
   - component: {fileID: 5609754264039059081}
   - component: {fileID: 7595733430587586089}
   - component: {fileID: 3003880265277402421}
+  - component: {fileID: 1435969646824089175}
   m_Layer: 0
   m_Name: TMP
   m_TagString: Untagged
@@ -12432,6 +13246,20 @@ MonoBehaviour:
   m_hasFontAssetChanged: 0
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
+--- !u!114 &1435969646824089175
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5126959391907382414}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0dc2c4230e405e247b7395d0c87762c9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Game.Conquest::Game.Conquest.ThemedGraphic
+  theme: {fileID: 11400000, guid: 7190fbeaa29ca9f4ba0c8d5829f9c1f5, type: 2}
+  role: 4
 --- !u!1 &5158934977198193936
 GameObject:
   m_ObjectHideFlags: 0
@@ -12445,6 +13273,7 @@ GameObject:
   - component: {fileID: 2716542810886806464}
   - component: {fileID: 5864454252359545051}
   - component: {fileID: 8984471235726743090}
+  - component: {fileID: 2521056891252206081}
   m_Layer: 0
   m_Name: Btn_PROJECT CREDITS
   m_TagString: Untagged
@@ -12515,7 +13344,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.22, g: 0.28, b: 0.36, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -12553,13 +13382,13 @@ MonoBehaviour:
     m_SelectOnRight: {fileID: 0}
   m_Transition: 1
   m_Colors:
-    m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
-    m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
-    m_PressedColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
-    m_SelectedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
-    m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
+    m_NormalColor: {r: 0.25, g: 0.3, b: 0.4, a: 1}
+    m_HighlightedColor: {r: 0.34, g: 0.41, b: 0.53, a: 1}
+    m_PressedColor: {r: 0.17, g: 0.21, b: 0.29, a: 1}
+    m_SelectedColor: {r: 0.3, g: 0.36, b: 0.47, a: 1}
+    m_DisabledColor: {r: 0.16, g: 0.18, b: 0.22, a: 0.7}
     m_ColorMultiplier: 1
-    m_FadeDuration: 0.1
+    m_FadeDuration: 0.08
   m_SpriteState:
     m_HighlightedSprite: {fileID: 0}
     m_PressedSprite: {fileID: 0}
@@ -12576,6 +13405,20 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &2521056891252206081
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5158934977198193936}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5236410ae28f14946b71d34aa6d626b6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Game.Conquest::Game.Conquest.ThemedButton
+  theme: {fileID: 11400000, guid: 7190fbeaa29ca9f4ba0c8d5829f9c1f5, type: 2}
+  style: 1
 --- !u!1 &5169402939802068872
 GameObject:
   m_ObjectHideFlags: 0
@@ -12863,6 +13706,7 @@ GameObject:
   - component: {fileID: 2907860801125442931}
   - component: {fileID: 8386693919876009093}
   - component: {fileID: 60910330972143114}
+  - component: {fileID: 2298996643084505426}
   m_Layer: 0
   m_Name: Btn_START SOLO BATTLE
   m_TagString: Untagged
@@ -12933,7 +13777,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.2, g: 0.75, b: 0.4, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -12971,13 +13815,13 @@ MonoBehaviour:
     m_SelectOnRight: {fileID: 0}
   m_Transition: 1
   m_Colors:
-    m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
-    m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
-    m_PressedColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
-    m_SelectedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
-    m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
+    m_NormalColor: {r: 0.2, g: 0.6, b: 1, a: 1}
+    m_HighlightedColor: {r: 0.35, g: 0.7, b: 1, a: 1}
+    m_PressedColor: {r: 0.12, g: 0.42, b: 0.78, a: 1}
+    m_SelectedColor: {r: 0.3, g: 0.66, b: 1, a: 1}
+    m_DisabledColor: {r: 0.2, g: 0.28, b: 0.38, a: 0.7}
     m_ColorMultiplier: 1
-    m_FadeDuration: 0.1
+    m_FadeDuration: 0.08
   m_SpriteState:
     m_HighlightedSprite: {fileID: 0}
     m_PressedSprite: {fileID: 0}
@@ -12994,6 +13838,20 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &2298996643084505426
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5305118274193452588}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5236410ae28f14946b71d34aa6d626b6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Game.Conquest::Game.Conquest.ThemedButton
+  theme: {fileID: 11400000, guid: 7190fbeaa29ca9f4ba0c8d5829f9c1f5, type: 2}
+  style: 0
 --- !u!1 &5450357773074925959
 GameObject:
   m_ObjectHideFlags: 0
@@ -13006,6 +13864,7 @@ GameObject:
   - component: {fileID: 6827139202954023695}
   - component: {fileID: 7418156775872390354}
   - component: {fileID: 8243303461333434938}
+  - component: {fileID: 8565265566546339651}
   m_Layer: 0
   m_Name: TMP
   m_TagString: Untagged
@@ -13092,7 +13951,7 @@ MonoBehaviour:
   m_fontColor32:
     serializedVersion: 2
     rgba: 4294952793
-  m_fontColor: {r: 0.35, g: 0.78, b: 1, a: 1}
+  m_fontColor: {r: 0.45, g: 0.75, b: 1, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -13154,6 +14013,20 @@ MonoBehaviour:
   m_hasFontAssetChanged: 0
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
+--- !u!114 &8565265566546339651
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5450357773074925959}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0dc2c4230e405e247b7395d0c87762c9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Game.Conquest::Game.Conquest.ThemedGraphic
+  theme: {fileID: 11400000, guid: 7190fbeaa29ca9f4ba0c8d5829f9c1f5, type: 2}
+  role: 3
 --- !u!1 &5475729009336640528
 GameObject:
   m_ObjectHideFlags: 0
@@ -13165,6 +14038,7 @@ GameObject:
   - component: {fileID: 2989362271925450856}
   - component: {fileID: 5034416446046360794}
   - component: {fileID: 5081328327909122289}
+  - component: {fileID: 4009225908006588657}
   m_Layer: 0
   m_Name: Fill
   m_TagString: Untagged
@@ -13212,7 +14086,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.3, g: 0.75, b: 1, a: 1}
+  m_Color: {r: 0.2, g: 0.6, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -13229,6 +14103,20 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!114 &4009225908006588657
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5475729009336640528}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0dc2c4230e405e247b7395d0c87762c9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Game.Conquest::Game.Conquest.ThemedGraphic
+  theme: {fileID: 11400000, guid: 7190fbeaa29ca9f4ba0c8d5829f9c1f5, type: 2}
+  role: 10
 --- !u!1 &5479531793318148767
 GameObject:
   m_ObjectHideFlags: 0
@@ -13315,6 +14203,7 @@ GameObject:
   - component: {fileID: 5733447782662000592}
   - component: {fileID: 817931446536158632}
   - component: {fileID: 7808976363367035828}
+  - component: {fileID: 3158581259165516495}
   m_Layer: 0
   m_Name: TMP
   m_TagString: Untagged
@@ -13441,6 +14330,20 @@ MonoBehaviour:
   m_hasFontAssetChanged: 0
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
+--- !u!114 &3158581259165516495
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5573831066942814029}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0dc2c4230e405e247b7395d0c87762c9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Game.Conquest::Game.Conquest.ThemedGraphic
+  theme: {fileID: 11400000, guid: 7190fbeaa29ca9f4ba0c8d5829f9c1f5, type: 2}
+  role: 4
 --- !u!1 &5671583565833424708
 GameObject:
   m_ObjectHideFlags: 0
@@ -13454,6 +14357,7 @@ GameObject:
   - component: {fileID: 6635960599902357330}
   - component: {fileID: 5393701137125603515}
   - component: {fileID: 1140283472802619129}
+  - component: {fileID: 5885451198405744935}
   m_Layer: 0
   m_Name: Btn_PLAY SOLO (PRACTICE)
   m_TagString: Untagged
@@ -13524,7 +14428,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.2, g: 0.6, b: 1, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -13562,13 +14466,13 @@ MonoBehaviour:
     m_SelectOnRight: {fileID: 0}
   m_Transition: 1
   m_Colors:
-    m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
-    m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
-    m_PressedColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
-    m_SelectedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
-    m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
+    m_NormalColor: {r: 0.2, g: 0.6, b: 1, a: 1}
+    m_HighlightedColor: {r: 0.35, g: 0.7, b: 1, a: 1}
+    m_PressedColor: {r: 0.12, g: 0.42, b: 0.78, a: 1}
+    m_SelectedColor: {r: 0.3, g: 0.66, b: 1, a: 1}
+    m_DisabledColor: {r: 0.2, g: 0.28, b: 0.38, a: 0.7}
     m_ColorMultiplier: 1
-    m_FadeDuration: 0.1
+    m_FadeDuration: 0.08
   m_SpriteState:
     m_HighlightedSprite: {fileID: 0}
     m_PressedSprite: {fileID: 0}
@@ -13585,6 +14489,20 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &5885451198405744935
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5671583565833424708}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5236410ae28f14946b71d34aa6d626b6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Game.Conquest::Game.Conquest.ThemedButton
+  theme: {fileID: 11400000, guid: 7190fbeaa29ca9f4ba0c8d5829f9c1f5, type: 2}
+  style: 0
 --- !u!1 &5703246721665019695
 GameObject:
   m_ObjectHideFlags: 0
@@ -13695,6 +14613,7 @@ GameObject:
   - component: {fileID: 3039252225214639023}
   - component: {fileID: 6938273686411346099}
   - component: {fileID: 443697644024570193}
+  - component: {fileID: 7076921140937368950}
   m_Layer: 0
   m_Name: TMP
   m_TagString: Untagged
@@ -13843,6 +14762,20 @@ MonoBehaviour:
   m_hasFontAssetChanged: 0
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
+--- !u!114 &7076921140937368950
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5755952284627871542}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0dc2c4230e405e247b7395d0c87762c9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Game.Conquest::Game.Conquest.ThemedGraphic
+  theme: {fileID: 11400000, guid: 7190fbeaa29ca9f4ba0c8d5829f9c1f5, type: 2}
+  role: 4
 --- !u!1 &5781556075747780406
 GameObject:
   m_ObjectHideFlags: 0
@@ -14073,6 +15006,7 @@ GameObject:
   - component: {fileID: 7244244877841834855}
   - component: {fileID: 7793012345232230442}
   - component: {fileID: 8554106543397499070}
+  - component: {fileID: 8312651556858588248}
   m_Layer: 0
   m_Name: Btn_CONNECT
   m_TagString: Untagged
@@ -14143,7 +15077,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.2, g: 0.75, b: 0.4, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -14181,13 +15115,13 @@ MonoBehaviour:
     m_SelectOnRight: {fileID: 0}
   m_Transition: 1
   m_Colors:
-    m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
-    m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
-    m_PressedColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
-    m_SelectedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
-    m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
+    m_NormalColor: {r: 0.2, g: 0.6, b: 1, a: 1}
+    m_HighlightedColor: {r: 0.35, g: 0.7, b: 1, a: 1}
+    m_PressedColor: {r: 0.12, g: 0.42, b: 0.78, a: 1}
+    m_SelectedColor: {r: 0.3, g: 0.66, b: 1, a: 1}
+    m_DisabledColor: {r: 0.2, g: 0.28, b: 0.38, a: 0.7}
     m_ColorMultiplier: 1
-    m_FadeDuration: 0.1
+    m_FadeDuration: 0.08
   m_SpriteState:
     m_HighlightedSprite: {fileID: 0}
     m_PressedSprite: {fileID: 0}
@@ -14204,6 +15138,20 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &8312651556858588248
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5870299405267170697}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5236410ae28f14946b71d34aa6d626b6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Game.Conquest::Game.Conquest.ThemedButton
+  theme: {fileID: 11400000, guid: 7190fbeaa29ca9f4ba0c8d5829f9c1f5, type: 2}
+  style: 0
 --- !u!1 &6020407511265680499
 GameObject:
   m_ObjectHideFlags: 0
@@ -14354,6 +15302,7 @@ GameObject:
   - component: {fileID: 856226409524359101}
   - component: {fileID: 5420926619704268201}
   - component: {fileID: 1468419954081044765}
+  - component: {fileID: 2069022983876119655}
   m_Layer: 0
   m_Name: Btn_START BATTLE (AUTHORITATIVE)
   m_TagString: Untagged
@@ -14424,7 +15373,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.2, g: 0.8, b: 0.35, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -14462,13 +15411,13 @@ MonoBehaviour:
     m_SelectOnRight: {fileID: 0}
   m_Transition: 1
   m_Colors:
-    m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
-    m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
-    m_PressedColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
-    m_SelectedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
-    m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
+    m_NormalColor: {r: 0.2, g: 0.6, b: 1, a: 1}
+    m_HighlightedColor: {r: 0.35, g: 0.7, b: 1, a: 1}
+    m_PressedColor: {r: 0.12, g: 0.42, b: 0.78, a: 1}
+    m_SelectedColor: {r: 0.3, g: 0.66, b: 1, a: 1}
+    m_DisabledColor: {r: 0.2, g: 0.28, b: 0.38, a: 0.7}
     m_ColorMultiplier: 1
-    m_FadeDuration: 0.1
+    m_FadeDuration: 0.08
   m_SpriteState:
     m_HighlightedSprite: {fileID: 0}
     m_PressedSprite: {fileID: 0}
@@ -14485,6 +15434,20 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &2069022983876119655
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6021317344171603122}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5236410ae28f14946b71d34aa6d626b6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Game.Conquest::Game.Conquest.ThemedButton
+  theme: {fileID: 11400000, guid: 7190fbeaa29ca9f4ba0c8d5829f9c1f5, type: 2}
+  style: 0
 --- !u!1 &6083355746490237413
 GameObject:
   m_ObjectHideFlags: 0
@@ -14585,6 +15548,7 @@ GameObject:
   - component: {fileID: 7778007526808490678}
   - component: {fileID: 4190992619468991284}
   - component: {fileID: 4642089685763129568}
+  - component: {fileID: 3152639273868219138}
   m_Layer: 0
   m_Name: Btn_< PREV MAP
   m_TagString: Untagged
@@ -14693,13 +15657,13 @@ MonoBehaviour:
     m_SelectOnRight: {fileID: 0}
   m_Transition: 1
   m_Colors:
-    m_NormalColor: {r: 0.29803923, g: 0.34901962, b: 0.4509804, a: 1}
-    m_HighlightedColor: {r: 0.8, g: 0.6, b: 0.2, a: 1}
-    m_PressedColor: {r: 1, g: 0.8694969, b: 0.6084906, a: 1}
-    m_SelectedColor: {r: 0.8, g: 0.6, b: 0.2, a: 1}
-    m_DisabledColor: {r: 0.3679245, g: 0.3679245, b: 0.3679245, a: 0.5019608}
+    m_NormalColor: {r: 0.25, g: 0.3, b: 0.4, a: 1}
+    m_HighlightedColor: {r: 0.34, g: 0.41, b: 0.53, a: 1}
+    m_PressedColor: {r: 0.17, g: 0.21, b: 0.29, a: 1}
+    m_SelectedColor: {r: 0.3, g: 0.36, b: 0.47, a: 1}
+    m_DisabledColor: {r: 0.16, g: 0.18, b: 0.22, a: 0.7}
     m_ColorMultiplier: 1
-    m_FadeDuration: 0.1
+    m_FadeDuration: 0.08
   m_SpriteState:
     m_HighlightedSprite: {fileID: 0}
     m_PressedSprite: {fileID: 0}
@@ -14716,6 +15680,20 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &3152639273868219138
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6115676856081309067}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5236410ae28f14946b71d34aa6d626b6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Game.Conquest::Game.Conquest.ThemedButton
+  theme: {fileID: 11400000, guid: 7190fbeaa29ca9f4ba0c8d5829f9c1f5, type: 2}
+  style: 1
 --- !u!1 &6128233215790371160
 GameObject:
   m_ObjectHideFlags: 0
@@ -14728,6 +15706,7 @@ GameObject:
   - component: {fileID: 1758602046676613371}
   - component: {fileID: 2223501010132111358}
   - component: {fileID: 8979515387787469347}
+  - component: {fileID: 932953754496471445}
   m_Layer: 0
   m_Name: TMP
   m_TagString: Untagged
@@ -14876,6 +15855,20 @@ MonoBehaviour:
   m_hasFontAssetChanged: 0
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
+--- !u!114 &932953754496471445
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6128233215790371160}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0dc2c4230e405e247b7395d0c87762c9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Game.Conquest::Game.Conquest.ThemedGraphic
+  theme: {fileID: 11400000, guid: 7190fbeaa29ca9f4ba0c8d5829f9c1f5, type: 2}
+  role: 4
 --- !u!1 &6185091664019896108
 GameObject:
   m_ObjectHideFlags: 0
@@ -15026,6 +16019,7 @@ GameObject:
   - component: {fileID: 8528002464712435255}
   - component: {fileID: 3596923607389609123}
   - component: {fileID: 1488234643110506424}
+  - component: {fileID: 2436060412297659012}
   m_Layer: 0
   m_Name: Btn_BACK
   m_TagString: Untagged
@@ -15096,7 +16090,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.3, g: 0.35, b: 0.4, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -15134,13 +16128,13 @@ MonoBehaviour:
     m_SelectOnRight: {fileID: 0}
   m_Transition: 1
   m_Colors:
-    m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
-    m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
-    m_PressedColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
-    m_SelectedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
-    m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
+    m_NormalColor: {r: 0.25, g: 0.3, b: 0.4, a: 1}
+    m_HighlightedColor: {r: 0.34, g: 0.41, b: 0.53, a: 1}
+    m_PressedColor: {r: 0.17, g: 0.21, b: 0.29, a: 1}
+    m_SelectedColor: {r: 0.3, g: 0.36, b: 0.47, a: 1}
+    m_DisabledColor: {r: 0.16, g: 0.18, b: 0.22, a: 0.7}
     m_ColorMultiplier: 1
-    m_FadeDuration: 0.1
+    m_FadeDuration: 0.08
   m_SpriteState:
     m_HighlightedSprite: {fileID: 0}
     m_PressedSprite: {fileID: 0}
@@ -15157,6 +16151,20 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &2436060412297659012
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6250488995928977095}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5236410ae28f14946b71d34aa6d626b6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Game.Conquest::Game.Conquest.ThemedButton
+  theme: {fileID: 11400000, guid: 7190fbeaa29ca9f4ba0c8d5829f9c1f5, type: 2}
+  style: 1
 --- !u!1 &6262493421599031688
 GameObject:
   m_ObjectHideFlags: 0
@@ -15281,6 +16289,7 @@ GameObject:
   - component: {fileID: 3390973540778871131}
   - component: {fileID: 7283920285216177631}
   - component: {fileID: 182628734857975686}
+  - component: {fileID: 2752539282280443204}
   m_Layer: 0
   m_Name: TMP
   m_TagString: Untagged
@@ -15367,7 +16376,7 @@ MonoBehaviour:
   m_fontColor32:
     serializedVersion: 2
     rgba: 4294952793
-  m_fontColor: {r: 0.35, g: 0.78, b: 1, a: 1}
+  m_fontColor: {r: 0.45, g: 0.75, b: 1, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -15429,6 +16438,20 @@ MonoBehaviour:
   m_hasFontAssetChanged: 0
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
+--- !u!114 &2752539282280443204
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6274836520039837573}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0dc2c4230e405e247b7395d0c87762c9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Game.Conquest::Game.Conquest.ThemedGraphic
+  theme: {fileID: 11400000, guid: 7190fbeaa29ca9f4ba0c8d5829f9c1f5, type: 2}
+  role: 3
 --- !u!1 &6300236938001000831
 GameObject:
   m_ObjectHideFlags: 0
@@ -15577,6 +16600,7 @@ GameObject:
   - component: {fileID: 7609971029806520250}
   - component: {fileID: 8191006056307835822}
   - component: {fileID: 5348606434439615372}
+  - component: {fileID: 3100651228182519917}
   m_Layer: 0
   m_Name: Text
   m_TagString: Untagged
@@ -15703,6 +16727,20 @@ MonoBehaviour:
   m_hasFontAssetChanged: 0
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
+--- !u!114 &3100651228182519917
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6355978592417049157}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0dc2c4230e405e247b7395d0c87762c9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Game.Conquest::Game.Conquest.ThemedGraphic
+  theme: {fileID: 11400000, guid: 7190fbeaa29ca9f4ba0c8d5829f9c1f5, type: 2}
+  role: 4
 --- !u!1 &6415953504483635617
 GameObject:
   m_ObjectHideFlags: 0
@@ -15943,6 +16981,7 @@ GameObject:
   - component: {fileID: 2086946162671787167}
   - component: {fileID: 6866754986647240838}
   - component: {fileID: 8361966416437598300}
+  - component: {fileID: 126999387643887441}
   m_Layer: 0
   m_Name: Btn_QUIT TO DESKTOP
   m_TagString: Untagged
@@ -16013,7 +17052,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.85, g: 0.25, b: 0.25, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -16051,13 +17090,13 @@ MonoBehaviour:
     m_SelectOnRight: {fileID: 0}
   m_Transition: 1
   m_Colors:
-    m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
-    m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
-    m_PressedColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
-    m_SelectedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
-    m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
+    m_NormalColor: {r: 0.25, g: 0.3, b: 0.4, a: 1}
+    m_HighlightedColor: {r: 0.34, g: 0.41, b: 0.53, a: 1}
+    m_PressedColor: {r: 0.17, g: 0.21, b: 0.29, a: 1}
+    m_SelectedColor: {r: 0.3, g: 0.36, b: 0.47, a: 1}
+    m_DisabledColor: {r: 0.16, g: 0.18, b: 0.22, a: 0.7}
     m_ColorMultiplier: 1
-    m_FadeDuration: 0.1
+    m_FadeDuration: 0.08
   m_SpriteState:
     m_HighlightedSprite: {fileID: 0}
     m_PressedSprite: {fileID: 0}
@@ -16074,6 +17113,20 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &126999387643887441
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6470229613472284824}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5236410ae28f14946b71d34aa6d626b6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Game.Conquest::Game.Conquest.ThemedButton
+  theme: {fileID: 11400000, guid: 7190fbeaa29ca9f4ba0c8d5829f9c1f5, type: 2}
+  style: 1
 --- !u!1 &6556743035528565987
 GameObject:
   m_ObjectHideFlags: 0
@@ -16087,6 +17140,7 @@ GameObject:
   - component: {fileID: 5178731148945391134}
   - component: {fileID: 563026454446042303}
   - component: {fileID: 8894068192064487832}
+  - component: {fileID: 5981948206387692270}
   m_Layer: 0
   m_Name: Btn_HOST NEW GAME
   m_TagString: Untagged
@@ -16157,7 +17211,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.2, g: 0.65, b: 1, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -16195,13 +17249,13 @@ MonoBehaviour:
     m_SelectOnRight: {fileID: 0}
   m_Transition: 1
   m_Colors:
-    m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
-    m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
-    m_PressedColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
-    m_SelectedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
-    m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
+    m_NormalColor: {r: 0.2, g: 0.6, b: 1, a: 1}
+    m_HighlightedColor: {r: 0.35, g: 0.7, b: 1, a: 1}
+    m_PressedColor: {r: 0.12, g: 0.42, b: 0.78, a: 1}
+    m_SelectedColor: {r: 0.3, g: 0.66, b: 1, a: 1}
+    m_DisabledColor: {r: 0.2, g: 0.28, b: 0.38, a: 0.7}
     m_ColorMultiplier: 1
-    m_FadeDuration: 0.1
+    m_FadeDuration: 0.08
   m_SpriteState:
     m_HighlightedSprite: {fileID: 0}
     m_PressedSprite: {fileID: 0}
@@ -16218,6 +17272,20 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &5981948206387692270
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6556743035528565987}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5236410ae28f14946b71d34aa6d626b6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Game.Conquest::Game.Conquest.ThemedButton
+  theme: {fileID: 11400000, guid: 7190fbeaa29ca9f4ba0c8d5829f9c1f5, type: 2}
+  style: 0
 --- !u!1 &6590789274613802162
 GameObject:
   m_ObjectHideFlags: 0
@@ -16405,6 +17473,7 @@ GameObject:
   - component: {fileID: 3069647647863284131}
   - component: {fileID: 8345489988297114935}
   - component: {fileID: 8348214033890634639}
+  - component: {fileID: 4590928069948824471}
   m_Layer: 0
   m_Name: Text
   m_TagString: Untagged
@@ -16531,6 +17600,20 @@ MonoBehaviour:
   m_hasFontAssetChanged: 0
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
+--- !u!114 &4590928069948824471
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6629686567478460777}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0dc2c4230e405e247b7395d0c87762c9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Game.Conquest::Game.Conquest.ThemedGraphic
+  theme: {fileID: 11400000, guid: 7190fbeaa29ca9f4ba0c8d5829f9c1f5, type: 2}
+  role: 4
 --- !u!1 &6665817941280348070
 GameObject:
   m_ObjectHideFlags: 0
@@ -16542,6 +17625,7 @@ GameObject:
   - component: {fileID: 256479908662579710}
   - component: {fileID: 7384654802695726820}
   - component: {fileID: 2729860633169053931}
+  - component: {fileID: 8563699721104948120}
   m_Layer: 0
   m_Name: Background
   m_TagString: Untagged
@@ -16606,6 +17690,20 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!114 &8563699721104948120
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6665817941280348070}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0dc2c4230e405e247b7395d0c87762c9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Game.Conquest::Game.Conquest.ThemedGraphic
+  theme: {fileID: 11400000, guid: 7190fbeaa29ca9f4ba0c8d5829f9c1f5, type: 2}
+  role: 9
 --- !u!1 &6685244010793173710
 GameObject:
   m_ObjectHideFlags: 0
@@ -16803,6 +17901,7 @@ GameObject:
   - component: {fileID: 4747528163292736496}
   - component: {fileID: 7033168508016295487}
   - component: {fileID: 8119002879332937108}
+  - component: {fileID: 8443634383831045008}
   m_Layer: 0
   m_Name: Btn_Next Map >
   m_TagString: Untagged
@@ -16873,7 +17972,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.25, g: 0.3, b: 0.4, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -16911,13 +18010,13 @@ MonoBehaviour:
     m_SelectOnRight: {fileID: 0}
   m_Transition: 1
   m_Colors:
-    m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
-    m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
-    m_PressedColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
-    m_SelectedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
-    m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
+    m_NormalColor: {r: 0.25, g: 0.3, b: 0.4, a: 1}
+    m_HighlightedColor: {r: 0.34, g: 0.41, b: 0.53, a: 1}
+    m_PressedColor: {r: 0.17, g: 0.21, b: 0.29, a: 1}
+    m_SelectedColor: {r: 0.3, g: 0.36, b: 0.47, a: 1}
+    m_DisabledColor: {r: 0.16, g: 0.18, b: 0.22, a: 0.7}
     m_ColorMultiplier: 1
-    m_FadeDuration: 0.1
+    m_FadeDuration: 0.08
   m_SpriteState:
     m_HighlightedSprite: {fileID: 0}
     m_PressedSprite: {fileID: 0}
@@ -16934,6 +18033,20 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &8443634383831045008
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6774034024521648389}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5236410ae28f14946b71d34aa6d626b6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Game.Conquest::Game.Conquest.ThemedButton
+  theme: {fileID: 11400000, guid: 7190fbeaa29ca9f4ba0c8d5829f9c1f5, type: 2}
+  style: 1
 --- !u!1 &6806017456153828353
 GameObject:
   m_ObjectHideFlags: 0
@@ -17073,6 +18186,7 @@ GameObject:
   - component: {fileID: 4980506723311856327}
   - component: {fileID: 175106267463670091}
   - component: {fileID: 4699464922711090177}
+  - component: {fileID: 6266555745607913566}
   m_Layer: 0
   m_Name: TMP
   m_TagString: Untagged
@@ -17137,7 +18251,7 @@ MonoBehaviour:
   m_fontColor32:
     serializedVersion: 2
     rgba: 4294952793
-  m_fontColor: {r: 0.35, g: 0.78, b: 1, a: 1}
+  m_fontColor: {r: 0.45, g: 0.75, b: 1, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -17199,6 +18313,20 @@ MonoBehaviour:
   m_hasFontAssetChanged: 0
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
+--- !u!114 &6266555745607913566
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6847777386245686506}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0dc2c4230e405e247b7395d0c87762c9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Game.Conquest::Game.Conquest.ThemedGraphic
+  theme: {fileID: 11400000, guid: 7190fbeaa29ca9f4ba0c8d5829f9c1f5, type: 2}
+  role: 3
 --- !u!1 &6860674822964575349
 GameObject:
   m_ObjectHideFlags: 0
@@ -17374,6 +18502,7 @@ GameObject:
   - component: {fileID: 3041359961267177249}
   - component: {fileID: 4799882263041149677}
   - component: {fileID: 5068165435320757880}
+  - component: {fileID: 1827189361965722636}
   m_Layer: 0
   m_Name: Btn_SWITCH TEAM
   m_TagString: Untagged
@@ -17444,7 +18573,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.25, g: 0.35, b: 0.5, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -17482,13 +18611,13 @@ MonoBehaviour:
     m_SelectOnRight: {fileID: 0}
   m_Transition: 1
   m_Colors:
-    m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
-    m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
-    m_PressedColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
-    m_SelectedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
-    m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
+    m_NormalColor: {r: 0.25, g: 0.3, b: 0.4, a: 1}
+    m_HighlightedColor: {r: 0.34, g: 0.41, b: 0.53, a: 1}
+    m_PressedColor: {r: 0.17, g: 0.21, b: 0.29, a: 1}
+    m_SelectedColor: {r: 0.3, g: 0.36, b: 0.47, a: 1}
+    m_DisabledColor: {r: 0.16, g: 0.18, b: 0.22, a: 0.7}
     m_ColorMultiplier: 1
-    m_FadeDuration: 0.1
+    m_FadeDuration: 0.08
   m_SpriteState:
     m_HighlightedSprite: {fileID: 0}
     m_PressedSprite: {fileID: 0}
@@ -17505,6 +18634,20 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &1827189361965722636
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7129368550675317860}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5236410ae28f14946b71d34aa6d626b6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Game.Conquest::Game.Conquest.ThemedButton
+  theme: {fileID: 11400000, guid: 7190fbeaa29ca9f4ba0c8d5829f9c1f5, type: 2}
+  style: 1
 --- !u!1 &7176675426031749378
 GameObject:
   m_ObjectHideFlags: 0
@@ -17518,6 +18661,7 @@ GameObject:
   - component: {fileID: 1922488617927277477}
   - component: {fileID: 6856504496944172989}
   - component: {fileID: 8878311418378899586}
+  - component: {fileID: 4732322855602672464}
   m_Layer: 0
   m_Name: BrowserPanel
   m_TagString: Untagged
@@ -17568,7 +18712,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.08, g: 0.11, b: 0.16, a: 0.98}
+  m_Color: {r: 0.08, g: 0.11, b: 0.16, a: 0.96}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -17631,6 +18775,20 @@ MonoBehaviour:
   btn_ConnectDirect: {fileID: 4652345075905006680}
   serverCardPrefab: {fileID: 7023634811828590914, guid: 45488af607a024e4d9b0b8574803bb1f, type: 3}
   serverCardContainer: {fileID: 8549927280041798044}
+--- !u!114 &4732322855602672464
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7176675426031749378}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0dc2c4230e405e247b7395d0c87762c9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Game.Conquest::Game.Conquest.ThemedGraphic
+  theme: {fileID: 11400000, guid: 7190fbeaa29ca9f4ba0c8d5829f9c1f5, type: 2}
+  role: 1
 --- !u!1 &7231066576135795456
 GameObject:
   m_ObjectHideFlags: 0
@@ -17643,6 +18801,7 @@ GameObject:
   - component: {fileID: 8268674800559736960}
   - component: {fileID: 2605049269934232210}
   - component: {fileID: 3980731824872942255}
+  - component: {fileID: 4548442947114692915}
   m_Layer: 0
   m_Name: TMP
   m_TagString: Untagged
@@ -17729,7 +18888,7 @@ MonoBehaviour:
   m_fontColor32:
     serializedVersion: 2
     rgba: 4294952793
-  m_fontColor: {r: 0.35, g: 0.78, b: 1, a: 1}
+  m_fontColor: {r: 0.45, g: 0.75, b: 1, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -17791,6 +18950,20 @@ MonoBehaviour:
   m_hasFontAssetChanged: 0
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
+--- !u!114 &4548442947114692915
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7231066576135795456}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0dc2c4230e405e247b7395d0c87762c9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Game.Conquest::Game.Conquest.ThemedGraphic
+  theme: {fileID: 11400000, guid: 7190fbeaa29ca9f4ba0c8d5829f9c1f5, type: 2}
+  role: 3
 --- !u!1 &7370323870603817214
 GameObject:
   m_ObjectHideFlags: 0
@@ -17803,6 +18976,7 @@ GameObject:
   - component: {fileID: 5666977898080601269}
   - component: {fileID: 3097298204601180292}
   - component: {fileID: 6201564984553745543}
+  - component: {fileID: 8692415413960410555}
   m_Layer: 0
   m_Name: HeaderBanner
   m_TagString: Untagged
@@ -17853,7 +19027,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.08, g: 0.12, b: 0.18, a: 0.95}
+  m_Color: {r: 0.08, g: 0.11, b: 0.16, a: 0.96}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -17885,6 +19059,20 @@ MonoBehaviour:
   txt_Title: {fileID: 4699464922711090177}
   txt_SubTitle: {fileID: 8875533244204709259}
   txt_StatusBadge: {fileID: 7238647090652201220}
+--- !u!114 &8692415413960410555
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7370323870603817214}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0dc2c4230e405e247b7395d0c87762c9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Game.Conquest::Game.Conquest.ThemedGraphic
+  theme: {fileID: 11400000, guid: 7190fbeaa29ca9f4ba0c8d5829f9c1f5, type: 2}
+  role: 1
 --- !u!1 &7484046559964664579
 GameObject:
   m_ObjectHideFlags: 0
@@ -17897,6 +19085,7 @@ GameObject:
   - component: {fileID: 3209615172287266023}
   - component: {fileID: 3751124557145462514}
   - component: {fileID: 7649722646456343121}
+  - component: {fileID: 8507472393581724818}
   m_Layer: 0
   m_Name: DescBox
   m_TagString: Untagged
@@ -17967,7 +19156,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.12, g: 0.16, b: 0.24, a: 0.9}
+  m_Color: {r: 0.08, g: 0.11, b: 0.16, a: 0.96}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -17984,6 +19173,20 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!114 &8507472393581724818
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7484046559964664579}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0dc2c4230e405e247b7395d0c87762c9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Game.Conquest::Game.Conquest.ThemedGraphic
+  theme: {fileID: 11400000, guid: 7190fbeaa29ca9f4ba0c8d5829f9c1f5, type: 2}
+  role: 1
 --- !u!1 &7580878429608221132
 GameObject:
   m_ObjectHideFlags: 0
@@ -18418,6 +19621,7 @@ GameObject:
   - component: {fileID: 950706230456198323}
   - component: {fileID: 1886011506766456559}
   - component: {fileID: 1017544022207501737}
+  - component: {fileID: 652064321241822449}
   m_Layer: 0
   m_Name: TMP
   m_TagString: Untagged
@@ -18504,7 +19708,7 @@ MonoBehaviour:
   m_fontColor32:
     serializedVersion: 2
     rgba: 4294952793
-  m_fontColor: {r: 0.35, g: 0.78, b: 1, a: 1}
+  m_fontColor: {r: 0.45, g: 0.75, b: 1, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -18566,6 +19770,20 @@ MonoBehaviour:
   m_hasFontAssetChanged: 0
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
+--- !u!114 &652064321241822449
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7745949137811364058}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0dc2c4230e405e247b7395d0c87762c9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Game.Conquest::Game.Conquest.ThemedGraphic
+  theme: {fileID: 11400000, guid: 7190fbeaa29ca9f4ba0c8d5829f9c1f5, type: 2}
+  role: 3
 --- !u!1 &7765581297637466587
 GameObject:
   m_ObjectHideFlags: 0
@@ -18665,6 +19883,7 @@ GameObject:
   - component: {fileID: 7421613522528532625}
   - component: {fileID: 5861563493287927421}
   - component: {fileID: 7299412902459542932}
+  - component: {fileID: 4180193627977644346}
   m_Layer: 0
   m_Name: TMP
   m_TagString: Untagged
@@ -18813,6 +20032,20 @@ MonoBehaviour:
   m_hasFontAssetChanged: 0
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
+--- !u!114 &4180193627977644346
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7846899166918148283}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0dc2c4230e405e247b7395d0c87762c9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Game.Conquest::Game.Conquest.ThemedGraphic
+  theme: {fileID: 11400000, guid: 7190fbeaa29ca9f4ba0c8d5829f9c1f5, type: 2}
+  role: 4
 --- !u!1 &8040972013271690528
 GameObject:
   m_ObjectHideFlags: 0
@@ -18824,6 +20057,7 @@ GameObject:
   - component: {fileID: 5771459209331946041}
   - component: {fileID: 5947658039001577381}
   - component: {fileID: 7392969357287333477}
+  - component: {fileID: 2918942263212908399}
   m_Layer: 0
   m_Name: Text
   m_TagString: Untagged
@@ -18950,6 +20184,20 @@ MonoBehaviour:
   m_hasFontAssetChanged: 0
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
+--- !u!114 &2918942263212908399
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8040972013271690528}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0dc2c4230e405e247b7395d0c87762c9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Game.Conquest::Game.Conquest.ThemedGraphic
+  theme: {fileID: 11400000, guid: 7190fbeaa29ca9f4ba0c8d5829f9c1f5, type: 2}
+  role: 4
 --- !u!1 &8046640811974211904
 GameObject:
   m_ObjectHideFlags: 0
@@ -19237,6 +20485,7 @@ GameObject:
   - component: {fileID: 8774865658266596873}
   - component: {fileID: 534155530705758858}
   - component: {fileID: 6109463854820152394}
+  - component: {fileID: 5422010592300866921}
   m_Layer: 0
   m_Name: TitlePanel
   m_TagString: Untagged
@@ -19290,7 +20539,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.08, g: 0.11, b: 0.16, a: 0.98}
+  m_Color: {r: 0.08, g: 0.11, b: 0.16, a: 0.96}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -19350,6 +20599,20 @@ MonoBehaviour:
   btn_Settings: {fileID: 3634815827242402778}
   btn_Credits: {fileID: 8984471235726743090}
   btn_Quit: {fileID: 8361966416437598300}
+--- !u!114 &5422010592300866921
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8116005469467856038}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0dc2c4230e405e247b7395d0c87762c9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Game.Conquest::Game.Conquest.ThemedGraphic
+  theme: {fileID: 11400000, guid: 7190fbeaa29ca9f4ba0c8d5829f9c1f5, type: 2}
+  role: 1
 --- !u!1 &8125505883698676711
 GameObject:
   m_ObjectHideFlags: 0
@@ -19716,7 +20979,7 @@ MonoBehaviour:
   classButtonPrefab: {fileID: 7552327949960596410, guid: cdace1ded9119004c84443b444cbed54, type: 3}
   container: {fileID: 6574992425817392023}
   normalColor: {r: 0.25, g: 0.3, b: 0.4, a: 1}
-  selectedColor: {r: 0.2, g: 0.8, b: 0.35, a: 1}
+  selectedColor: {r: 0.2, g: 0.6, b: 1, a: 1}
 --- !u!1 &8244976634069893718
 GameObject:
   m_ObjectHideFlags: 0
@@ -19730,6 +20993,7 @@ GameObject:
   - component: {fileID: 6043626764993235081}
   - component: {fileID: 1501189073341687741}
   - component: {fileID: 1763199324319204535}
+  - component: {fileID: 4227120036693589577}
   m_Layer: 0
   m_Name: InputField
   m_TagString: Untagged
@@ -19800,7 +21064,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.12, g: 0.16, b: 0.22, a: 1}
+  m_Color: {r: 0.08, g: 0.11, b: 0.16, a: 0.96}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -19918,6 +21182,20 @@ MonoBehaviour:
   isAlert: 0
   m_InputValidator: {fileID: 0}
   m_ShouldActivateOnSelect: 1
+--- !u!114 &4227120036693589577
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8244976634069893718}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0dc2c4230e405e247b7395d0c87762c9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Game.Conquest::Game.Conquest.ThemedGraphic
+  theme: {fileID: 11400000, guid: 7190fbeaa29ca9f4ba0c8d5829f9c1f5, type: 2}
+  role: 1
 --- !u!1 &8259259523417753332
 GameObject:
   m_ObjectHideFlags: 0
@@ -20241,6 +21519,7 @@ GameObject:
   - component: {fileID: 1630874653108697814}
   - component: {fileID: 722350225248398980}
   - component: {fileID: 7296097390338333279}
+  - component: {fileID: 1120169601036705246}
   m_Layer: 0
   m_Name: Btn_BACK TO MAIN MENU
   m_TagString: Untagged
@@ -20311,7 +21590,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.3, g: 0.35, b: 0.4, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -20349,13 +21628,13 @@ MonoBehaviour:
     m_SelectOnRight: {fileID: 0}
   m_Transition: 1
   m_Colors:
-    m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
-    m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
-    m_PressedColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
-    m_SelectedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
-    m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
+    m_NormalColor: {r: 0.25, g: 0.3, b: 0.4, a: 1}
+    m_HighlightedColor: {r: 0.34, g: 0.41, b: 0.53, a: 1}
+    m_PressedColor: {r: 0.17, g: 0.21, b: 0.29, a: 1}
+    m_SelectedColor: {r: 0.3, g: 0.36, b: 0.47, a: 1}
+    m_DisabledColor: {r: 0.16, g: 0.18, b: 0.22, a: 0.7}
     m_ColorMultiplier: 1
-    m_FadeDuration: 0.1
+    m_FadeDuration: 0.08
   m_SpriteState:
     m_HighlightedSprite: {fileID: 0}
     m_PressedSprite: {fileID: 0}
@@ -20372,6 +21651,20 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &1120169601036705246
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8502892023985235957}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5236410ae28f14946b71d34aa6d626b6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Game.Conquest::Game.Conquest.ThemedButton
+  theme: {fileID: 11400000, guid: 7190fbeaa29ca9f4ba0c8d5829f9c1f5, type: 2}
+  style: 1
 --- !u!1 &8548841721112336914
 GameObject:
   m_ObjectHideFlags: 0
@@ -20385,6 +21678,7 @@ GameObject:
   - component: {fileID: 8943093874777601278}
   - component: {fileID: 5334643112458522575}
   - component: {fileID: 4005484798808824393}
+  - component: {fileID: 7868208918327255703}
   m_Layer: 0
   m_Name: SoloPanel
   m_TagString: Untagged
@@ -20442,7 +21736,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.08, g: 0.11, b: 0.16, a: 0.98}
+  m_Color: {r: 0.08, g: 0.11, b: 0.16, a: 0.96}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -20511,6 +21805,20 @@ MonoBehaviour:
   tgl_Hard: {fileID: 8520028717367203176}
   sld_TargetTeamSize: {fileID: 1748664283454134867}
   sld_TeamTickets: {fileID: 8537192492090188062}
+--- !u!114 &7868208918327255703
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8548841721112336914}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0dc2c4230e405e247b7395d0c87762c9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Game.Conquest::Game.Conquest.ThemedGraphic
+  theme: {fileID: 11400000, guid: 7190fbeaa29ca9f4ba0c8d5829f9c1f5, type: 2}
+  role: 1
 --- !u!1 &8570184818669443652
 GameObject:
   m_ObjectHideFlags: 0
@@ -20524,6 +21832,7 @@ GameObject:
   - component: {fileID: 7938393703615534236}
   - component: {fileID: 2173374359969997139}
   - component: {fileID: 1828031131958810722}
+  - component: {fileID: 4132669337546651553}
   m_Layer: 0
   m_Name: Btn_NEXT MAP >
   m_TagString: Untagged
@@ -20632,13 +21941,13 @@ MonoBehaviour:
     m_SelectOnRight: {fileID: 0}
   m_Transition: 1
   m_Colors:
-    m_NormalColor: {r: 0.29803923, g: 0.34901962, b: 0.4509804, a: 1}
-    m_HighlightedColor: {r: 0.8, g: 0.6, b: 0.2, a: 1}
-    m_PressedColor: {r: 1, g: 0.8694969, b: 0.6084906, a: 1}
-    m_SelectedColor: {r: 0.8, g: 0.6, b: 0.2, a: 1}
-    m_DisabledColor: {r: 0.3679245, g: 0.3679245, b: 0.3679245, a: 0.5019608}
+    m_NormalColor: {r: 0.25, g: 0.3, b: 0.4, a: 1}
+    m_HighlightedColor: {r: 0.34, g: 0.41, b: 0.53, a: 1}
+    m_PressedColor: {r: 0.17, g: 0.21, b: 0.29, a: 1}
+    m_SelectedColor: {r: 0.3, g: 0.36, b: 0.47, a: 1}
+    m_DisabledColor: {r: 0.16, g: 0.18, b: 0.22, a: 0.7}
     m_ColorMultiplier: 1
-    m_FadeDuration: 0.1
+    m_FadeDuration: 0.08
   m_SpriteState:
     m_HighlightedSprite: {fileID: 0}
     m_PressedSprite: {fileID: 0}
@@ -20655,6 +21964,20 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &4132669337546651553
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8570184818669443652}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5236410ae28f14946b71d34aa6d626b6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Game.Conquest::Game.Conquest.ThemedButton
+  theme: {fileID: 11400000, guid: 7190fbeaa29ca9f4ba0c8d5829f9c1f5, type: 2}
+  style: 1
 --- !u!1 &8594340420157978978
 GameObject:
   m_ObjectHideFlags: 0
@@ -20703,6 +22026,7 @@ GameObject:
   - component: {fileID: 6314993922482524972}
   - component: {fileID: 2463204039582754263}
   - component: {fileID: 3540164130010615486}
+  - component: {fileID: 1244662226444685162}
   m_Layer: 0
   m_Name: TMP
   m_TagString: Untagged
@@ -20851,6 +22175,20 @@ MonoBehaviour:
   m_hasFontAssetChanged: 0
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
+--- !u!114 &1244662226444685162
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8655665286163529421}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0dc2c4230e405e247b7395d0c87762c9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Game.Conquest::Game.Conquest.ThemedGraphic
+  theme: {fileID: 11400000, guid: 7190fbeaa29ca9f4ba0c8d5829f9c1f5, type: 2}
+  role: 4
 --- !u!1 &8675071469421189503
 GameObject:
   m_ObjectHideFlags: 0
@@ -20864,6 +22202,7 @@ GameObject:
   - component: {fileID: 6661821085155907454}
   - component: {fileID: 548126171373066138}
   - component: {fileID: 6616456412270112565}
+  - component: {fileID: 718717754668830212}
   m_Layer: 0
   m_Name: Btn_NORMAL
   m_TagString: Untagged
@@ -20935,7 +22274,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 0.2, g: 0.25, b: 0.32, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -21000,6 +22339,20 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   m_IsOn: 0
+--- !u!114 &718717754668830212
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8675071469421189503}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0dc2c4230e405e247b7395d0c87762c9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Game.Conquest::Game.Conquest.ThemedGraphic
+  theme: {fileID: 11400000, guid: 7190fbeaa29ca9f4ba0c8d5829f9c1f5, type: 2}
+  role: 9
 --- !u!1 &8689800276547953597
 GameObject:
   m_ObjectHideFlags: 0
@@ -21287,6 +22640,7 @@ GameObject:
   - component: {fileID: 5667827341381155579}
   - component: {fileID: 17882512344276716}
   - component: {fileID: 6091277691098556993}
+  - component: {fileID: 7139518587219825914}
   m_Layer: 0
   m_Name: Btn_< Prev Map
   m_TagString: Untagged
@@ -21357,7 +22711,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.25, g: 0.3, b: 0.4, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -21395,13 +22749,13 @@ MonoBehaviour:
     m_SelectOnRight: {fileID: 0}
   m_Transition: 1
   m_Colors:
-    m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
-    m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
-    m_PressedColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
-    m_SelectedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
-    m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
+    m_NormalColor: {r: 0.25, g: 0.3, b: 0.4, a: 1}
+    m_HighlightedColor: {r: 0.34, g: 0.41, b: 0.53, a: 1}
+    m_PressedColor: {r: 0.17, g: 0.21, b: 0.29, a: 1}
+    m_SelectedColor: {r: 0.3, g: 0.36, b: 0.47, a: 1}
+    m_DisabledColor: {r: 0.16, g: 0.18, b: 0.22, a: 0.7}
     m_ColorMultiplier: 1
-    m_FadeDuration: 0.1
+    m_FadeDuration: 0.08
   m_SpriteState:
     m_HighlightedSprite: {fileID: 0}
     m_PressedSprite: {fileID: 0}
@@ -21418,6 +22772,20 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &7139518587219825914
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8759098300141949591}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5236410ae28f14946b71d34aa6d626b6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Game.Conquest::Game.Conquest.ThemedButton
+  theme: {fileID: 11400000, guid: 7190fbeaa29ca9f4ba0c8d5829f9c1f5, type: 2}
+  style: 1
 --- !u!1 &8799060312945497436
 GameObject:
   m_ObjectHideFlags: 0
@@ -21430,6 +22798,7 @@ GameObject:
   - component: {fileID: 7719497478209512003}
   - component: {fileID: 1142970509019106853}
   - component: {fileID: 2938576952332808906}
+  - component: {fileID: 1947336792708017504}
   m_Layer: 0
   m_Name: TMP
   m_TagString: Untagged
@@ -21578,6 +22947,20 @@ MonoBehaviour:
   m_hasFontAssetChanged: 0
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
+--- !u!114 &1947336792708017504
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8799060312945497436}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0dc2c4230e405e247b7395d0c87762c9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Game.Conquest::Game.Conquest.ThemedGraphic
+  theme: {fileID: 11400000, guid: 7190fbeaa29ca9f4ba0c8d5829f9c1f5, type: 2}
+  role: 4
 --- !u!1 &8803104158766183813
 GameObject:
   m_ObjectHideFlags: 0
@@ -22044,6 +23427,7 @@ GameObject:
   - component: {fileID: 1096013151950565296}
   - component: {fileID: 428049170154435285}
   - component: {fileID: 7850308196007887223}
+  - component: {fileID: 4637421742395813769}
   m_Layer: 0
   m_Name: Background
   m_TagString: Untagged
@@ -22108,6 +23492,20 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!114 &4637421742395813769
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9190925067488236122}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0dc2c4230e405e247b7395d0c87762c9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Game.Conquest::Game.Conquest.ThemedGraphic
+  theme: {fileID: 11400000, guid: 7190fbeaa29ca9f4ba0c8d5829f9c1f5, type: 2}
+  role: 9
 --- !u!1 &9206118029103896094
 GameObject:
   m_ObjectHideFlags: 0
@@ -22230,6 +23628,7 @@ GameObject:
   - component: {fileID: 2305382453740644072}
   - component: {fileID: 6105345382340934695}
   - component: {fileID: 2001871106983799367}
+  - component: {fileID: 2328685221953395232}
   m_Layer: 0
   m_Name: Btn_EASY
   m_TagString: Untagged
@@ -22301,7 +23700,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 0.2, g: 0.25, b: 0.32, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -22366,6 +23765,20 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   m_IsOn: 1
+--- !u!114 &2328685221953395232
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9222637873653842292}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0dc2c4230e405e247b7395d0c87762c9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Game.Conquest::Game.Conquest.ThemedGraphic
+  theme: {fileID: 11400000, guid: 7190fbeaa29ca9f4ba0c8d5829f9c1f5, type: 2}
+  role: 9
 --- !u!1001 &2488035935405147453
 PrefabInstance:
   m_ObjectHideFlags: 0

@@ -18,7 +18,32 @@ namespace Game.Conquest.UI
         ButtonDanger = 8,
         Track = 9,
         Fill = 10,
-        Divider = 11
+        Divider = 11,
+        Primary = 12,
+        Secondary = 13
+    }
+
+    /// <summary>Which palette a button takes its state colours from.</summary>
+    public enum UIButtonStyle
+    {
+        Primary = 0,
+        Secondary = 1
+    }
+
+    /// <summary>A button's colour in each state. Applied as the Button's colour tint over a white graphic.</summary>
+    [System.Serializable]
+    public struct UIButtonColors
+    {
+        public Color normal;
+        public Color hover;
+        public Color pressed;
+        public Color selected;
+        public Color disabled;
+
+        public UIButtonColors(Color normal, Color hover, Color pressed, Color selected, Color disabled)
+        {
+            this.normal = normal; this.hover = hover; this.pressed = pressed; this.selected = selected; this.disabled = disabled;
+        }
     }
 
     /// <summary>
@@ -30,6 +55,22 @@ namespace Game.Conquest.UI
     {
         [Header("Font")]
         public TMP_FontAsset font;
+
+        [Header("Palette")]
+        [Tooltip("Main call-to-action colour: primary buttons, highlights, slider fills, selected items.")]
+        public Color primary = new Color(0.2f, 0.6f, 1f);
+        [Tooltip("Supporting colour: ordinary buttons, steppers and secondary controls.")]
+        public Color secondary = new Color(0.25f, 0.30f, 0.40f);
+
+        [Header("Buttons")]
+        public UIButtonColors primaryButton = new UIButtonColors(
+            new Color(0.2f, 0.6f, 1f), new Color(0.35f, 0.7f, 1f), new Color(0.12f, 0.42f, 0.78f),
+            new Color(0.3f, 0.66f, 1f), new Color(0.2f, 0.28f, 0.38f, 0.7f));
+        public UIButtonColors secondaryButton = new UIButtonColors(
+            new Color(0.25f, 0.30f, 0.40f), new Color(0.34f, 0.41f, 0.53f), new Color(0.17f, 0.21f, 0.29f),
+            new Color(0.3f, 0.36f, 0.47f), new Color(0.16f, 0.18f, 0.22f, 0.7f));
+        public Color buttonText = Color.white;
+        public Color buttonTextDisabled = new Color(0.55f, 0.58f, 0.62f);
 
         [Header("Surfaces")]
         public Color backdrop = new Color(0.04f, 0.06f, 0.09f, 0.85f);
@@ -43,9 +84,6 @@ namespace Game.Conquest.UI
         public Color textMuted = new Color(0.55f, 0.62f, 0.72f);
 
         [Header("Controls")]
-        public Color button = new Color(0.25f, 0.30f, 0.40f);
-        public Color buttonPrimary = new Color(0.2f, 0.6f, 1f);
-        public Color buttonDanger = new Color(0.85f, 0.3f, 0.2f);
         public Color track = new Color(0.2f, 0.25f, 0.32f);
         public Color fill = new Color(0.3f, 0.75f, 1.0f);
 
@@ -83,6 +121,8 @@ namespace Game.Conquest.UI
             return neutralIcon;
         }
 
+        public UIButtonColors Button(UIButtonStyle style) => style == UIButtonStyle.Primary ? primaryButton : secondaryButton;
+
         public Color Get(UIColorRole role, bool highContrast)
         {
             switch (role)
@@ -93,9 +133,11 @@ namespace Game.Conquest.UI
                 case UIColorRole.Accent: return accent;
                 case UIColorRole.Text: return text;
                 case UIColorRole.TextMuted: return highContrast ? textMutedHighContrast : textMuted;
-                case UIColorRole.Button: return button;
-                case UIColorRole.ButtonPrimary: return buttonPrimary;
-                case UIColorRole.ButtonDanger: return buttonDanger;
+                case UIColorRole.Button: return secondaryButton.normal;
+                case UIColorRole.ButtonPrimary: return primaryButton.normal;
+                case UIColorRole.ButtonDanger: return secondaryButton.normal;
+                case UIColorRole.Primary: return primary;
+                case UIColorRole.Secondary: return secondary;
                 case UIColorRole.Track: return track;
                 case UIColorRole.Fill: return fill;
                 case UIColorRole.Divider: return divider;

@@ -39,7 +39,10 @@ namespace Game.Conquest.Classes
 
         [Header("Special / Equipment")]
         public bool hasZoom = false;
-        public float zoomFOV = 40.0f;
+        [Tooltip("Placeholder: how much aiming magnifies the view (1.25 = slight, 3 = long scope). Scales with the player's FOV setting.")]
+        public float zoomMagnification = 1.25f;
+        [Tooltip("Aiming shows a full-screen scope overlay instead of the crosshair.")]
+        public bool hasScope = false;
         public bool hasSupportStation = false; // Deployable station for Engineer
 
         [Header("Audio")]

@@ -56,7 +56,9 @@ namespace Game.Conquest.UI
             On(m_UI.btn_Resume, () => SetPause(false));
             On(m_UI.btn_Settings, () => m_UI.ShowScreen(PauseMenuUI.PauseScreen.Settings));
             On(m_UI.btn_Leave, () => m_UI.ShowScreen(PauseMenuUI.PauseScreen.LeaveConfirm));
-            On(m_UI.btn_Quit, QuitApplication);
+            On(m_UI.btn_Quit, () => m_UI.ShowScreen(PauseMenuUI.PauseScreen.QuitConfirm));
+            On(m_UI.btn_ConfirmQuit, QuitApplication);
+            On(m_UI.btn_CancelQuit, () => m_UI.ShowScreen(PauseMenuUI.PauseScreen.Main));
             On(m_UI.btn_CancelLeave, () => m_UI.ShowScreen(PauseMenuUI.PauseScreen.Main));
             On(m_UI.btn_ConfirmLeave, () =>
             {
