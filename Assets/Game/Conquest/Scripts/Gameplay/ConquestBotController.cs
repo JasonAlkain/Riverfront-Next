@@ -110,6 +110,7 @@ namespace Game.Conquest.Gameplay
         private ConquestSupportStation m_RetreatStation;
         private bool m_FacingManually;
         private const int CoverProbeCount = 6;
+        private const float RepathDistance = 0.5f;
         // Map geometry is all on the Default layer; players and stations don't count as cover.
         private const int CoverMask = 1 << 0;
 
@@ -338,8 +339,10 @@ namespace Game.Conquest.Gameplay
             if (Time.time < m_RecoverUntil) return;
             if (m_Agent.isActiveAndEnabled && m_Agent.isOnNavMesh)
             {
+                // Chasing calls this every frame: only re-path when the goal has really moved.
+                bool sameGoal = m_Agent.hasPath && (m_Agent.destination - destination).sqrMagnitude < RepathDistance * RepathDistance;
                 m_Agent.isStopped = false;
-                m_Agent.SetDestination(destination);
+                if (!sameGoal) m_Agent.SetDestination(destination);
             }
         }
 
