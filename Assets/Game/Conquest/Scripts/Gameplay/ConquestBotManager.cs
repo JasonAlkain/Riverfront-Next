@@ -19,8 +19,18 @@ namespace Game.Conquest.Gameplay
         [SerializeField] private GameObject botPrefab;
         [SerializeField] private float populationCheckInterval = 2.0f;
 
+        [Header("Objectives")]
+        [Tooltip("Placeholder: seconds between objective assignments. A bot that finishes its post asks for one sooner.")]
+        [SerializeField] private float objectiveAssignInterval = 1.5f;
+        [SerializeField] private ConquestBotObjectivePlanner objectivePlanner = new ConquestBotObjectivePlanner();
+
         private readonly List<ConquestBotController> m_ActiveBots = new List<ConquestBotController>();
         private float m_NextCheckTime;
+        private float m_NextAssignTime;
+        private float m_LastAssignTime;
+        private const float MinReassignGap = 0.25f;
+
+        public ConquestBotObjectivePlanner ObjectivePlanner => objectivePlanner;
         private int m_AssignedClassCounter = 0;
 
         public int TargetParticipantsPerTeam
@@ -76,17 +86,33 @@ namespace Game.Conquest.Gameplay
 
         private void Update()
         {
-            if (!IsServer || !enableBotFilling) return;
+            if (!IsServer) return;
             if (NetworkManager.Singleton == null || !NetworkManager.Singleton.IsServer || !NetworkManager.Singleton.IsListening) return;
 
             // Stop bot spawning if match is over
-            if (ConquestMatchManager.Instance != null && ConquestMatchManager.Instance.IsMatchOver) return;
+            var match = ConquestMatchManager.Instance;
+            if (match != null && match.IsMatchOver) return;
 
-            if (Time.time >= m_NextCheckTime)
+            if (enableBotFilling && Time.time >= m_NextCheckTime)
             {
                 m_NextCheckTime = Time.time + populationCheckInterval;
                 MaintainTeamPopulations();
             }
+
+            if (match != null && Time.time >= m_NextAssignTime)
+            {
+                m_LastAssignTime = Time.time;
+                m_NextAssignTime = Time.time + objectiveAssignInterval;
+                objectivePlanner.AssignTeam(Team.Red, m_ActiveBots, match.CommandPosts);
+                objectivePlanner.AssignTeam(Team.Blue, m_ActiveBots, match.CommandPosts);
+            }
+        }
+
+        /// <summary>Server: a bot has finished its post (or has none); hand out objectives on the next frame.</summary>
+        public void RequestReassignment()
+        {
+            // Several bots finishing together still cause only one pass.
+            m_NextAssignTime = Mathf.Min(m_NextAssignTime, m_LastAssignTime + MinReassignGap);
         }
 
         private void MaintainTeamPopulations()

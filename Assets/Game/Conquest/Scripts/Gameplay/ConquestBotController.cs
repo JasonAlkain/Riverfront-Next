@@ -46,6 +46,10 @@ namespace Game.Conquest.Gameplay
         [SerializeField] private float bestAimErrorDegrees = 0.6f;
         [SerializeField] private LayerMask visionMask = ConquestPhysics.ShotMask;
 
+        [Header("Defending")]
+        [Tooltip("Placeholder: average seconds a defender stands at one guard spot before moving to another in the zone.")]
+        [SerializeField] private float guardRepositionSeconds = 6f;
+
         [Header("Behavior Intervals")]
         [SerializeField] private float decisionInterval = 1.0f;
         [Tooltip("Seconds of too little progress, while the bot is trying to move, before it counts as stuck.")]
@@ -64,6 +68,8 @@ namespace Game.Conquest.Gameplay
         private ConquestPlayerAnimator m_Animator;
 
         private ConquestCommandPost m_TargetPost;
+        private bool m_IsDefender;
+        private float m_NextGuardMoveTime;
         private ConquestPlayer m_CurrentEnemy;
         private float m_NextDecisionTime;
         private float m_NextFireCheckTime;
@@ -215,111 +221,62 @@ namespace Game.Conquest.Gameplay
                 currentState = BotState.EngageEnemy;
                 return;
             }
-            else
-            {
-                m_CurrentEnemy = null;
-            }
+            m_CurrentEnemy = null;
 
-            // 2. If we are currently engaging an enemy but lost line of sight/enemy died, return to objective
-            if (currentState == BotState.EngageEnemy)
+            // 2. Back to the post the bot manager assigned.
+            if (m_TargetPost == null)
             {
                 currentState = BotState.Idle;
+                ConquestBotManager.Instance?.RequestReassignment();
+                return;
             }
 
-            // 3. Check current objective status: push to next capture point if current is already captured & uncontested
-            if (m_TargetPost != null)
+            if (IsPostSecure(m_TargetPost))
             {
-                // If our team already owns this post fully and it's not contested, push to next objective!
-                if (m_TargetPost.CurrentOwner == m_Player.CurrentTeam && !m_TargetPost.IsContested && m_TargetPost.CaptureProgress >= 0.99f)
-                {
-                    SelectBestObjective();
-                }
-                else
-                {
-                    float distToPost = Vector3.Distance(transform.position, m_TargetPost.transform.position);
-                    if (distToPost <= m_TargetPost.CaptureRadius * 0.9f)
-                    {
-                        if (m_TargetPost.CurrentOwner == m_Player.CurrentTeam && !m_TargetPost.IsContested)
-                        {
-                            // Already secured, select next objective to push forward
-                            SelectBestObjective();
-                        }
-                        else
-                        {
-                            currentState = BotState.Capture;
-                            return;
-                        }
-                    }
-                }
+                // An attacker whose post is taken holds it until the manager sends it on.
+                if (!m_IsDefender) ConquestBotManager.Instance?.RequestReassignment();
+                EnterDefend();
+            }
+            else if (m_TargetPost.IsInCaptureZone(transform.position))
+            {
+                currentState = BotState.Capture;
             }
             else
-            {
-                SelectBestObjective();
-            }
-
-            // 4. Move to selected objective
-            if (m_TargetPost != null)
             {
                 currentState = BotState.MoveToObjective;
-                Vector3 dest = m_TargetPost.GetCaptureTargetPosition(transform.position);
-                MoveToTarget(dest);
-            }
-            else
-            {
-                currentState = BotState.Idle;
+                MoveToTarget(m_TargetPost.GetCaptureTargetPosition(transform.position));
             }
         }
 
-        private void SelectBestObjective()
+        /// <summary>Server: the bot manager's order. A defender holds the post; an attacker takes it.</summary>
+        public void AssignObjective(ConquestCommandPost post, bool defend)
         {
-            var mm = ConquestMatchManager.Instance;
-            if (mm == null || mm.CommandPosts == null || mm.CommandPosts.Count == 0) return;
+            if (post == m_TargetPost && defend == m_IsDefender) return;
+            m_TargetPost = post;
+            m_IsDefender = defend;
+            m_NextGuardMoveTime = 0f;
 
-            ConquestCommandPost bestTarget = null;
-            float bestScore = float.MinValue;
+            // A fight carries on; anything else re-plans straight away.
+            if (currentState != BotState.EngageEnemy) m_NextDecisionTime = Time.time;
+        }
 
-            foreach (var post in mm.CommandPosts)
-            {
-                if (post == null) continue;
+        /// <summary>Alive and spawned, so the bot manager may give it a post.</summary>
+        public bool IsAvailableForOrders => IsSpawned && currentState != BotState.Dead && !m_Health.IsDead;
+        public Team Team => m_Player.CurrentTeam;
+        public bool IsDefender => m_IsDefender;
+        /// <summary>Metres a defending slot counts as closer for this bot: above zero for classes suited to holding ground.</summary>
+        public float DefendPreference => 0f;
 
-                float dist = Vector3.Distance(transform.position, post.transform.position);
-                float score = -dist * 0.8f; // Distance weight
+        // Owned by this team, fully captured, and no enemy standing on it.
+        private bool IsPostSecure(ConquestCommandPost post)
+        {
+            return post.CurrentOwner == m_Player.CurrentTeam && !post.IsSpawnBlocked && post.CaptureProgress >= 0.99f;
+        }
 
-                // High priority: Uncaptured / Enemy command posts to continuously push forward
-                if (post.CurrentOwner != m_Player.CurrentTeam)
-                {
-                    score += 150.0f; // Strongly incentivize pushing enemy / neutral points
-                    if (post.CurrentOwner == Team.Neutral)
-                    {
-                        score += 50.0f; // Neutral points are easy grabs
-                    }
-                }
-                else
-                {
-                    // Only stay or look back at a friendly post if it is actively being captured or contested!
-                    if (post.IsContested)
-                    {
-                        score += 120.0f;
-                    }
-                    else if (post.CaptureProgress < 1.0f)
-                    {
-                        score += 70.0f;
-                    }
-                    else
-                    {
-                        // Already 100% captured friendly post: very low score so bots don't linger
-                        score -= 200.0f;
-                    }
-                }
-
-                if (score > bestScore)
-                {
-                    bestScore = score;
-                    bestTarget = post;
-                }
-            }
-
-            m_TargetPost = bestTarget;
+        private void EnterDefend()
+        {
+            if (currentState != BotState.Defend) m_NextGuardMoveTime = 0f;
+            currentState = BotState.Defend;
         }
 
         private void MoveToTarget(Vector3 destination)
@@ -341,22 +298,10 @@ namespace Game.Conquest.Gameplay
                 return;
             }
 
-            float dist = Vector3.Distance(transform.position, m_TargetPost.transform.position);
-            if (dist <= m_TargetPost.CaptureRadius * 0.85f)
+            if (m_TargetPost.IsInCaptureZone(transform.position))
             {
-                if (m_TargetPost.CurrentOwner == m_Player.CurrentTeam && !m_TargetPost.IsContested && m_TargetPost.CaptureProgress >= 0.99f)
-                {
-                    // Secured, select next objective to push forward
-                    SelectBestObjective();
-                    if (m_TargetPost != null)
-                    {
-                        MoveToTarget(m_TargetPost.GetCaptureTargetPosition(transform.position));
-                    }
-                }
-                else
-                {
-                    currentState = BotState.Capture;
-                }
+                if (IsPostSecure(m_TargetPost)) EnterDefend();
+                else currentState = BotState.Capture;
             }
         }
 
@@ -370,7 +315,7 @@ namespace Game.Conquest.Gameplay
 
             // Remain in capture zone but at safe standoff position from center pillar
             float dist = Vector3.Distance(transform.position, m_TargetPost.transform.position);
-            if (dist > m_TargetPost.CaptureRadius * 0.9f || dist < 2.0f)
+            if (!m_TargetPost.IsInCaptureZone(transform.position) || dist > m_TargetPost.CaptureRadius * 0.9f || dist < 2.0f)
             {
                 MoveToTarget(m_TargetPost.GetCaptureTargetPosition(transform.position));
             }
@@ -379,15 +324,11 @@ namespace Game.Conquest.Gameplay
                 TryDeployStationAtPost();
             }
 
-            // Once fully captured and secured, push immediately to next objective!
-            if (m_TargetPost.CurrentOwner == m_Player.CurrentTeam && !m_TargetPost.IsContested && m_TargetPost.CaptureProgress >= 0.99f)
+            // Taken: hold it, and let an attacker be sent on to the next post.
+            if (IsPostSecure(m_TargetPost))
             {
-                SelectBestObjective();
-                if (m_TargetPost != null)
-                {
-                    currentState = BotState.MoveToObjective;
-                    MoveToTarget(m_TargetPost.GetCaptureTargetPosition(transform.position));
-                }
+                if (!m_IsDefender) ConquestBotManager.Instance?.RequestReassignment();
+                EnterDefend();
             }
         }
 
@@ -401,6 +342,8 @@ namespace Game.Conquest.Gameplay
             m_Weapon.ServerTryDeployStation();
         }
 
+        // Hold the post: stand at a guard spot inside the zone, move to a new one now and then,
+        // and face the nearest enemy approaching the post so a threat is seen early.
         private void UpdateDefend()
         {
             if (m_TargetPost == null)
@@ -409,23 +352,55 @@ namespace Game.Conquest.Gameplay
                 return;
             }
 
-            // If post is secured and uncontested, push to the next point
-            if (m_TargetPost.CurrentOwner == m_Player.CurrentTeam && !m_TargetPost.IsContested && m_TargetPost.CaptureProgress >= 0.99f)
+            // Enemies on the post, or it was lost: get into the zone and contest it.
+            if (!IsPostSecure(m_TargetPost))
             {
-                SelectBestObjective();
-                if (m_TargetPost != null)
-                {
-                    currentState = BotState.MoveToObjective;
-                    MoveToTarget(m_TargetPost.GetCaptureTargetPosition(transform.position));
-                }
+                currentState = BotState.Capture;
                 return;
             }
 
-            // If enemy started capturing, contest it
-            if (m_TargetPost.CurrentOwner != m_Player.CurrentTeam || m_TargetPost.IsContested)
+            if (Time.time >= m_NextGuardMoveTime)
             {
-                currentState = BotState.Capture;
+                m_NextGuardMoveTime = Time.time + Random.Range(guardRepositionSeconds * 0.75f, guardRepositionSeconds * 1.25f);
+                Vector2 offset = Random.insideUnitCircle * (m_TargetPost.CaptureRadius * 0.8f);
+                Vector3 guardSpot = m_TargetPost.transform.position + new Vector3(offset.x, 0f, offset.y);
+                if (NavMesh.SamplePosition(guardSpot, out NavMeshHit hit, 3f, NavMesh.AllAreas)) MoveToTarget(hit.position);
             }
+
+            TryDeployStationAtPost();
+
+            if (!WantsToMove() && TryFindThreatDirection(out Vector3 threatDir))
+            {
+                FaceDirection(threatDir);
+            }
+        }
+
+        // Direction from the bot to the living enemy nearest the post, within the planner's threat radius.
+        private bool TryFindThreatDirection(out Vector3 direction)
+        {
+            direction = Vector3.zero;
+            float threatRadius = ConquestBotManager.Instance != null ? ConquestBotManager.Instance.ObjectivePlanner.ThreatRadius : 30f;
+            float bestSqr = threatRadius * threatRadius;
+            Vector3 postPos = m_TargetPost.transform.position;
+            var all = ConquestPlayer.All;
+            for (int i = 0; i < all.Count; i++)
+            {
+                ConquestPlayer p = all[i];
+                if (p == null || p.Health.IsDead || p.CurrentTeam == m_Player.CurrentTeam || p.CurrentTeam == Team.Neutral) continue;
+                float sqr = (p.transform.position - postPos).sqrMagnitude;
+                if (sqr > bestSqr) continue;
+                bestSqr = sqr;
+                direction = p.transform.position - transform.position;
+            }
+            direction.y = 0f;
+            return direction.sqrMagnitude > 0.01f;
+        }
+
+        private void FaceDirection(Vector3 direction)
+        {
+            direction.y = 0f;
+            if (direction.sqrMagnitude < 0.01f) return;
+            transform.rotation = Quaternion.RotateTowards(transform.rotation, Quaternion.LookRotation(direction), 180.0f * Time.deltaTime);
         }
 
         private void UpdateEngageEnemy()
