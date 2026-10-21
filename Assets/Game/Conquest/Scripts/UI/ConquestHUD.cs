@@ -490,31 +490,40 @@ namespace Game.Conquest.UI
                 playerStatsUI.SetHints("");
                 return;
             }
-            playerStatsUI.SetAmmo(weapon.CurrentAmmo, weapon.MagazineCapacity, weapon.IsReloading);
+            // Red weapons show a heat gauge, blue ones a magazine. Both read the local prediction,
+            // so they respond the moment the trigger is pulled.
+            bool heat = weapon.UsesHeat;
+            playerStatsUI.SetWeaponModel(heat);
+            if (heat) playerStatsUI.SetHeat(Mathf.CeilToInt(weapon.Heat01 * 100f), weapon.IsOverheated);
+            else playerStatsUI.SetAmmo(weapon.CurrentAmmo, weapon.MagazineCapacity, weapon.IsReloading);
             UpdateHints(weapon);
         }
 
         // "[R] Reload | [Q] Station | [RMB] Scope". Rebuilt only when the station cooldown second, the
-        // refusal message or the key labels change, not every frame.
+        // refusal message, the weapon model or the key labels change, not every frame.
         private void UpdateHints(ConquestWeapon weapon)
         {
             string refusal = weapon.HasSupportStation ? weapon.StationRefusal : "";
             int cooldown = weapon.HasSupportStation ? Mathf.CeilToInt(weapon.StationCooldownRemaining) : 0;
-            int key = (weapon.HasSupportStation ? 1 : 0) | (weapon.HasZoom ? 2 : 0) | (weapon.HasScope ? 4 : 0) | (cooldown << 3);
+            bool heat = weapon.UsesHeat;
+            int key = (weapon.HasSupportStation ? 1 : 0) | (weapon.HasZoom ? 2 : 0) | (weapon.HasScope ? 4 : 0) | (heat ? 8 : 0) | (cooldown << 4);
             if (key == m_HintsKey && refusal == m_HintsRefusal) return;
             m_HintsKey = key;
             m_HintsRefusal = refusal;
 
-            string hints = $"[{m_ReloadKey}] Reload";
+            // Heat weapons vent by themselves, so there is no reload hint for them.
+            string hints = heat ? "" : $"[{m_ReloadKey}] Reload";
             if (weapon.HasSupportStation)
             {
-                if (refusal.Length > 0) hints += $"  |  {refusal}";
-                else if (cooldown > 0) hints += $"  |  Station {cooldown}s";
-                else hints += $"  |  [{m_DeployKey}] Station";
+                if (refusal.Length > 0) hints = Join(hints, refusal);
+                else if (cooldown > 0) hints = Join(hints, $"Station {cooldown}s");
+                else hints = Join(hints, $"[{m_DeployKey}] Station");
             }
-            if (weapon.HasZoom) hints += weapon.HasScope ? $"  |  [{m_AimKey}] Scope" : $"  |  [{m_AimKey}] Aim";
+            if (weapon.HasZoom) hints = Join(hints, weapon.HasScope ? $"[{m_AimKey}] Scope" : $"[{m_AimKey}] Aim");
             playerStatsUI.SetHints(hints);
         }
+
+        private static string Join(string line, string part) => line.Length == 0 ? part : $"{line}  |  {part}";
 
         private void UpdateRespawnPanel(ConquestMatchManager match, ConquestPlayer player)
         {

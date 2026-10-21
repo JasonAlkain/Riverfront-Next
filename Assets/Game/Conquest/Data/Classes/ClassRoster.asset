@@ -17,3 +17,6 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 777c2aa2627146647bac681489201f86, type: 2}
   - {fileID: 11400000, guid: 6b1752d948fb8d34d970c537710baf69, type: 2}
   - {fileID: 11400000, guid: 8a7e10d367ddddc44a94f6c1588dd677, type: 2}
+  redFaction: {fileID: 11400000, guid: eda192c5a7ac4b446850bff8a1bfbed4, type: 2}
+  blueFaction: {fileID: 11400000, guid: 56cef29947f338640976996e6f967ec4, type: 2}
+  boltSettings: {fileID: 11400000, guid: 848b15e11c9fad0449364a05f8e6b8d7, type: 2}

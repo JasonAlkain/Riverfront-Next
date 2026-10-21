@@ -2398,8 +2398,16 @@ MonoBehaviour:
   hitLayers:
     serializedVersion: 2
     m_Bits: 193
+  boltSpeed: 120
+  boltRadius: 0
+  shotsToOverheat: 30
+  coolDelaySeconds: 0.25
+  fullCoolSeconds: 1.6
+  overheatLockoutSeconds: 1.6
+  heatAfterOverheat: 0
   hasZoom: 0
-  zoomFOV: 35
+  zoomMagnification: 1.25
+  hasScope: 0
   hasSupportStation: 0
   supportStationPrefab: {fileID: 6656634446336126747, guid: 7a4757459bd50b54d93ea7c9ece0b483, type: 3}
   stationCooldown: 15
@@ -2413,11 +2421,6 @@ MonoBehaviour:
   characterImpactPrefab: {fileID: 5192824054049741679, guid: eb569fff252055b45bab9337994c08db, type: 3}
   muzzleFlashSeconds: 0.06
   impactSeconds: 0.6
-  redTracerMaterial: {fileID: 2100000, guid: 424978d382571fd448c834b38fef21c5, type: 2}
-  blueTracerMaterial: {fileID: 2100000, guid: 538c161c5d4f98e458343f2ec3d836e6, type: 2}
-  redTracerMaterialColorBlind: {fileID: 2100000, guid: 87f66b5effcaa8e41a5ca7f71edba9b3, type: 2}
-  tracerWidth: 0.05
-  tracerDuration: 0.06
   weaponAudioSource: {fileID: 1954870533503147489}
   fireSoundClip: {fileID: 0}
   reloadSoundClip: {fileID: 0}
@@ -2426,16 +2429,20 @@ MonoBehaviour:
   firePitchMin: 0.95
   firePitchMax: 1.05
   fireVolume: 1
-  currentAmmo:
-    UpdateTraits:
-      MinSecondsBetweenUpdates: 0
-      MaxSecondsBetweenUpdates: 0
-    m_InternalValue: 32
   isReloading:
     UpdateTraits:
       MinSecondsBetweenUpdates: 0
       MaxSecondsBetweenUpdates: 0
     m_InternalValue: 0
+  isOverheated:
+    UpdateTraits:
+      MinSecondsBetweenUpdates: 0
+      MaxSecondsBetweenUpdates: 0
+    m_InternalValue: 0
+  ownerState:
+    UpdateTraits:
+      MinSecondsBetweenUpdates: 0
+      MaxSecondsBetweenUpdates: 0
 --- !u!114 &1235089571414227828
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2698,6 +2705,10 @@ MonoBehaviour:
   stuckSampleInterval: 0.5
   stuckMinProgress: 0.5
   stuckRecoverySeconds: 1.2
+  leadSkill: 0.8
+  leadNoise: 0.15
+  ventStartHeat: 0.9
+  ventResumeHeat: 0.4
 --- !u!136 &5359286594393080228
 CapsuleCollider:
   m_ObjectHideFlags: 0

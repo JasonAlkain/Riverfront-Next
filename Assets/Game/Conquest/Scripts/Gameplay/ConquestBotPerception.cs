@@ -40,6 +40,12 @@ namespace Game.Conquest.Gameplay
         /// <summary>When the current target was first noticed; the bot's reaction delay counts from here.</summary>
         public float TargetAcquiredTime { get; private set; }
 
+        /// <summary>
+        /// The visible enemy's velocity as the server sees it, sampled once per tick (zero for
+        /// stations and targets out of sight). A target that changes direction between ticks dodges.
+        /// </summary>
+        public Vector3 EnemyVelocity { get; private set; }
+
         public bool HasTarget => Enemy != null || Station != null;
         /// <summary>Seconds since the target was last in sight (or last hit this bot).</summary>
         public float SecondsSinceSeen => Time.time - m_LastSeenTime;
@@ -60,6 +66,7 @@ namespace Game.Conquest.Gameplay
             Enemy = null;
             Station = null;
             TargetVisible = false;
+            EnemyVelocity = Vector3.zero;
         }
 
         /// <summary>Server: the bot was hit by <paramref name="attacker"/>. It turns on them, whatever it was doing.</summary>
@@ -72,6 +79,7 @@ namespace Game.Conquest.Gameplay
             Enemy = attacker;
             Station = null;
             TargetVisible = false;
+            EnemyVelocity = Vector3.zero;
             LastKnownPosition = attacker.transform.position;
             m_LastSeenTime = Time.time;
         }
@@ -115,8 +123,13 @@ namespace Game.Conquest.Gameplay
             if (Enemy != null)
             {
                 if (!TargetVisible && Time.time - m_LastSeenTime > memorySeconds) Clear();
-                if (Enemy != null) return;
+                if (Enemy != null)
+                {
+                    EnemyVelocity = TargetVisible && Enemy.Movement != null ? Enemy.Movement.ServerVelocity : Vector3.zero;
+                    return;
+                }
             }
+            EnemyVelocity = Vector3.zero;
 
             // Nobody to fight: shoot at an enemy station in sight instead.
             ConquestSupportStation station = FindEnemyStation(self, eyePos, range, fieldOfView, visionMask);

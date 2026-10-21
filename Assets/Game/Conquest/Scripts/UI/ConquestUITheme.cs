@@ -103,6 +103,14 @@ namespace Game.Conquest.UI
         public Sprite blueTeamIcon;
         public Sprite neutralIcon;
 
+        [Header("Weapon heat")]
+        [Tooltip("Placeholder: heat gauge colour when cold.")]
+        public Color heatCool = new Color(0.95f, 0.8f, 0.3f);
+        [Tooltip("Placeholder: heat gauge colour near overheating.")]
+        public Color heatHot = new Color(1f, 0.45f, 0.1f);
+        [Tooltip("Placeholder: heat gauge colour while overheated.")]
+        public Color overheated = new Color(0.95f, 0.2f, 0.15f);
+
         [Header("High contrast")]
         public Color panelHighContrast = new Color(0f, 0f, 0f, 1f);
         public Color textMutedHighContrast = new Color(0.9f, 0.92f, 0.95f);
@@ -113,6 +121,8 @@ namespace Game.Conquest.UI
             if (team == Team.Blue) return colorBlind ? blueTeamColorBlind : blueTeam;
             return neutral;
         }
+
+        public Color HeatColor(float heat01) => Color.Lerp(heatCool, heatHot, Mathf.Clamp01(heat01));
 
         public Sprite TeamIcon(Team team)
         {

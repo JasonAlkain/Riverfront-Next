@@ -71,6 +71,8 @@ namespace Game.Conquest.Player
         public int CurrentClassIndex => selectedClassIndex.Value;
         public IReadOnlyList<ConquestClassData> AvailableClasses => classRoster != null ? classRoster.Classes : System.Array.Empty<ConquestClassData>();
         public ConquestClassRoster ClassRoster => classRoster;
+        /// <summary>This player's team's faction (weapon model, bolt look); null while Neutral. Resolved every time, never cached.</summary>
+        public ConquestFactionData CurrentFaction => classRoster != null ? classRoster.FactionFor(CurrentTeam) : null;
         /// <summary>The class this player is currently playing, or null if the index is out of range.</summary>
         public ConquestClassData CurrentClassData => classRoster != null ? classRoster.Get(selectedClassIndex.Value) : null;
 
@@ -151,6 +153,9 @@ namespace Game.Conquest.Player
         private void HandleTeamChanged(Team oldTeam, Team newTeam)
         {
             ApplyTeamVisuals(newTeam);
+            // The faction (magazine or heat) changed with the team: start the weapon fresh. Not
+            // ApplyClass, which would also reset health.
+            if (IsServer && m_Weapon != null) m_Weapon.ServerResetAmmo();
         }
 
         private void HandleClassChanged(int oldClass, int newClass)

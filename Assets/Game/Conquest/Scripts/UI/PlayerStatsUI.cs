@@ -5,8 +5,8 @@ using UnityEngine.UI;
 namespace Game.Conquest
 {
     /// <summary>
-    /// Bottom-left card: team and class, a health bar and a magazine bar with their numbers, and the
-    /// action hints line. Every setter only touches the UI when its value changes, so the HUD can
+    /// Bottom-left card: team and class, a health bar, a magazine bar (or a heat gauge for teams
+    /// whose weapons overheat) with their numbers, and the action hints line. Every setter only touches the UI when its value changes, so the HUD can
     /// call them every frame without allocating strings.
     /// </summary>
     public class PlayerStatsUI : MonoBehaviour
@@ -27,6 +27,12 @@ namespace Game.Conquest
         [Tooltip("Reload / station / scope key hints.")]
         public TextMeshProUGUI txt_Hints;
 
+        [Header("Weapon model")]
+        [Tooltip("Shown for magazine weapons (the ammo bar and its count).")]
+        public GameObject[] magazineNodes;
+        [Tooltip("Shown instead for weapons that overheat.")]
+        public HeatGaugeUI heatGauge;
+
         [Header("Colors")]
         public Color healthyColor = new Color(0.3f, 0.85f, 0.4f);
         public Color lowHealthColor = new Color(0.95f, 0.25f, 0.2f);
@@ -42,6 +48,7 @@ namespace Game.Conquest
         private string m_TeamName;
         private string m_TeamClass;
         private string m_Hints;
+        private int m_UsesHeat = -1;
 
         public void SetTeamColor(Color color)
         {
@@ -94,6 +101,31 @@ namespace Game.Conquest
                 img_AmmoFill.fillAmount = magazine > 0 ? Mathf.Clamp01((float)current / magazine) : 0f;
                 img_AmmoFill.color = reloading ? reloadingColor : ammoColor;
             }
+        }
+
+        /// <summary>Swaps the magazine bar for the heat gauge (or back). Only acts when the model changes.</summary>
+        public void SetWeaponModel(bool usesHeat)
+        {
+            int state = usesHeat ? 1 : 0;
+            if (state == m_UsesHeat) return;
+            m_UsesHeat = state;
+            if (magazineNodes != null)
+            {
+                for (int i = 0; i < magazineNodes.Length; i++)
+                {
+                    if (magazineNodes[i] != null) magazineNodes[i].SetActive(!usesHeat);
+                }
+            }
+            if (heatGauge != null)
+            {
+                if (usesHeat) heatGauge.Show();
+                else heatGauge.Hide();
+            }
+        }
+
+        public void SetHeat(int percent, bool overheated)
+        {
+            if (heatGauge != null) heatGauge.SetHeat(percent, overheated);
         }
 
         public void SetHints(string text)

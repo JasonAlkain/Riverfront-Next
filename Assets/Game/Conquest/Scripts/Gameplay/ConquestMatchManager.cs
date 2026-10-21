@@ -336,6 +336,8 @@ namespace Game.Conquest.Gameplay
         {
             isMatchOver.Value = true;
             winningTeam.Value = winner;
+            // Bolts still in flight can't change the result (no damage after the match ends).
+            Game.Conquest.Combat.ConquestBoltSimulator.ServerClearAll();
             Debug.Log($"[ConquestMatchManager] MATCH OVER! Winning team: {winner}");
 
             var session = ConquestSessionManager.Instance;

@@ -28,6 +28,13 @@ MonoBehaviour:
   magazineCapacity: 32
   reloadDuration: 1.6
   isAutomatic: 1
+  boltSpeed: 120
+  boltRadius: 0
+  shotsToOverheat: 32
+  coolDelaySeconds: 0.25
+  fullCoolSeconds: 1.6
+  overheatLockoutSeconds: 1.6
+  heatAfterOverheat: 0
   hasZoom: 1
   zoomMagnification: 1.25
   hasScope: 0

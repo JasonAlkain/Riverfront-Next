@@ -15,6 +15,10 @@ namespace Game.Conquest.Combat
 
         /// <summary>World geometry, characters and deployables: what shots and bot sight lines stop at.</summary>
         public const int ShotMask = (1 << 0) | (1 << PlayerLayer) | (1 << DeployableLayer);
+        /// <summary>Everything that stops a bolt except characters: map geometry and deployables.</summary>
+        public const int WorldMask = (1 << 0) | (1 << DeployableLayer);
+        /// <summary>Characters only.</summary>
+        public const int CharacterMask = 1 << PlayerLayer;
 
         // Shared by every query on the main thread; results are consumed before the next call.
         private static readonly RaycastHit[] s_Hits = new RaycastHit[32];
@@ -43,6 +47,33 @@ namespace Game.Conquest.Combat
             }
 
             nearest = best >= 0 ? hits[best] : default;
+            return best >= 0;
+        }
+
+        /// <summary>
+        /// Nearest hit of a sphere swept along the ray that isn't part of <paramref name="ignoreRoot"/>.
+        /// A sphere that already overlaps something at the start reports the start as the hit point.
+        /// </summary>
+        public static bool SphereCastIgnoring(Transform ignoreRoot, Vector3 origin, float radius, Vector3 direction,
+                                              float maxDistance, int layerMask, out RaycastHit nearest)
+        {
+            RaycastHit[] hits = s_Hits;
+            int count = Physics.SphereCastNonAlloc(origin, radius, direction, hits, maxDistance, layerMask, QueryTriggerInteraction.Ignore);
+            if (count == hits.Length)
+            {
+                hits = Physics.SphereCastAll(origin, radius, direction, maxDistance, layerMask, QueryTriggerInteraction.Ignore);
+                count = hits.Length;
+            }
+
+            int best = -1;
+            for (int i = 0; i < count; i++)
+            {
+                if (ignoreRoot != null && hits[i].collider.transform.IsChildOf(ignoreRoot)) continue;
+                if (best < 0 || hits[i].distance < hits[best].distance) best = i;
+            }
+
+            nearest = best >= 0 ? hits[best] : default;
+            if (best >= 0 && nearest.distance <= 0f && nearest.point == Vector3.zero) nearest.point = origin;
             return best >= 0;
         }
 
