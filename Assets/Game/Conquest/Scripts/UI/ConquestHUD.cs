@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
+using Game.Conquest.Combat;
 using Game.Conquest.Controls;
 using Game.Conquest.Gameplay;
 using Game.Conquest.Networking;
@@ -32,6 +33,10 @@ namespace Game.Conquest.UI
         [SerializeField] private KillFeedUI killFeedUI;
         [SerializeField] private ScoreboardUI scoreboardUI;
         [SerializeField] private DamageIndicatorUI damageIndicatorUI;
+        [SerializeField] private LowHealthUI lowHealthUI;
+        [SerializeField] private WorldMarkersUI worldMarkersUI;
+        [Tooltip("Small command map in the corner while alive.")]
+        [SerializeField] private CommandMapUI commandMapUI;
 
         [Header("Team Colors")]
         [SerializeField] private Color redColor = new Color(0.85f, 0.2f, 0.2f, 0.9f);
@@ -50,6 +55,11 @@ namespace Game.Conquest.UI
         [Header("Hitmarker")]
         [SerializeField] private float hitmarkerDuration = 0.15f;
 
+        [Header("Health")]
+        [Tooltip("Placeholder: health fraction at or below which the health bar turns red.")]
+        [Range(0f, 1f)]
+        [SerializeField] private float lowHealthFraction = 0.35f;
+
         private float m_HitmarkerEndTime;
         private bool m_HitmarkerKill;
         // Current key labels for the HUD hints, refreshed when the player rebinds.
@@ -59,6 +69,12 @@ namespace Game.Conquest.UI
         private ConquestMatchManager m_StatsSource;
         private bool m_ScoreboardDirty = true;
         private readonly List<MatchResultRow> m_StatsCopy = new List<MatchResultRow>();
+        // Delegates made once so the per-frame marker and map updates don't allocate closures.
+        private System.Func<ConquestCommandPost, Color> m_PostColor;
+        private System.Func<ConquestCommandPost, Color> m_CaptureColor;
+        // Inputs of the last hints line, so it is only rebuilt when one of them changes.
+        private int m_HintsKey = int.MinValue;
+        private string m_HintsRefusal = "";
 
         private void Awake()
         {
@@ -93,6 +109,8 @@ namespace Game.Conquest.UI
                 respawnPanelUI.SpawnPostSelected += HandleSpawnPostSelected;
                 respawnPanelUI.DeployClicked += HandleDeployClicked;
             }
+            m_PostColor = PostColor;
+            m_CaptureColor = post => post.IsContested ? contestedColor : TeamColor(post.capturingTeam.Value);
             ConquestMatchManager.KillReported += HandleKillReported;
             ConquestInput.BindingsChanged += RefreshKeyLabels;
             RefreshKeyLabels();
@@ -138,6 +156,7 @@ namespace Game.Conquest.UI
             m_ReloadKey = ConquestInput.KeyLabel(ConquestInput.Gameplay.Reload);
             m_DeployKey = ConquestInput.KeyLabel(ConquestInput.Gameplay.Deploy);
             m_AimKey = ConquestInput.KeyLabel(ConquestInput.Gameplay.Aim);
+            m_HintsKey = int.MinValue;
         }
 
         // The server applies a class picked while dead to this respawn; while alive it is queued.
@@ -182,6 +201,7 @@ namespace Game.Conquest.UI
             if (matchResultPanelUI != null) matchResultPanelUI.Hide();
             if (allPostsAlertUI != null) allPostsAlertUI.Hide();
             if (scoreboardUI != null) scoreboardUI.Hide();
+            if (worldMarkersUI != null) worldMarkersUI.HideAll();
         }
 
         private void Update()
@@ -205,6 +225,8 @@ namespace Game.Conquest.UI
                 damageIndicatorUI.Tick(player != null && !player.Health.IsDead ? player.transform : null);
             }
             UpdatePlayerStats(player);
+            UpdateWorldMarkers(match, player);
+            UpdateCommandMap(match, player);
             UpdateRespawnPanel(match, player);
             UpdateMatchResult(match, player);
             UpdateAllPostsAlert(match, player);
@@ -263,6 +285,19 @@ namespace Game.Conquest.UI
         private void HandleStatsChanged(NetworkListEvent<MatchResultRow> change)
         {
             m_ScoreboardDirty = true;
+        }
+
+        private Color PostColor(ConquestCommandPost post)
+        {
+            return post.IsContested ? contestedColor : TeamColor(post.CurrentOwner);
+        }
+
+        // Literals, so callers can compare by reference instead of formatting the enum each frame.
+        private static string TeamName(Team team)
+        {
+            if (team == Team.Red) return "RED";
+            if (team == Team.Blue) return "BLUE";
+            return "";
         }
 
         private Color TeamColor(Team team)
@@ -348,10 +383,51 @@ namespace Game.Conquest.UI
             crosshairUI.Show();
             bool showing = Time.time < m_HitmarkerEndTime;
             crosshairUI.SetHitmarker(showing, showing && m_HitmarkerKill);
+
+            // Open the lines to the spread cone: its half-angle projected onto the screen at the
+            // camera's current field of view, in canvas pixels.
+            var weapon = player.Weapon;
+            var cam = player.Movement != null ? player.Movement.PlayerCamera : null;
+            float gap = 0f;
+            if (weapon != null && cam != null)
+            {
+                float halfHeight = ((RectTransform)hudCanvas.transform).rect.height * 0.5f;
+                gap = Mathf.Tan(weapon.SpreadAngle * Mathf.Deg2Rad) / Mathf.Tan(cam.fieldOfView * 0.5f * Mathf.Deg2Rad) * halfHeight;
+            }
+            crosshairUI.SetSpread(gap);
+            crosshairUI.SetLinesHidden(weapon != null && weapon.IsZoomed);
+        }
+
+        private void UpdateWorldMarkers(ConquestMatchManager match, ConquestPlayer player)
+        {
+            if (worldMarkersUI == null) return;
+            bool alive = player != null && !player.Health.IsDead && match != null && !match.IsMatchOver;
+            var cam = alive && player.Movement != null ? player.Movement.PlayerCamera : null;
+            if (cam == null)
+            {
+                worldMarkersUI.HideAll();
+                return;
+            }
+            worldMarkersUI.Tick(cam, player, match.CommandPosts, m_PostColor, m_CaptureColor, TeamColor(player.CurrentTeam));
+        }
+
+        private void UpdateCommandMap(ConquestMatchManager match, ConquestPlayer player)
+        {
+            if (commandMapUI == null) return;
+            bool show = match != null && player != null && !player.Health.IsDead && !match.IsMatchOver;
+            if (commandMapUI.gameObject.activeSelf != show) commandMapUI.gameObject.SetActive(show);
+            if (show) commandMapUI.Tick(match.CommandPosts, player, m_PostColor, TeamColor(player.CurrentTeam));
         }
 
         private void UpdatePlayerStats(ConquestPlayer player)
         {
+            float healthFraction = -1f;
+            if (player != null && !player.Health.IsDead && player.Health.MaxHealth > 0)
+            {
+                healthFraction = (float)player.Health.CurrentHealth / player.Health.MaxHealth;
+            }
+            if (lowHealthUI != null) lowHealthUI.Tick(healthFraction);
+
             if (playerStatsUI == null) return;
 
             if (player == null || player.Health.IsDead)
@@ -363,33 +439,41 @@ namespace Game.Conquest.UI
             playerStatsUI.Show();
             playerStatsUI.SetTeamColor(TeamColor(player.CurrentTeam));
 
-            string className = "Standard";
-            var classes = player.AvailableClasses;
-            if (classes != null && player.CurrentClassIndex >= 0 && player.CurrentClassIndex < classes.Count && classes[player.CurrentClassIndex] != null)
-            {
-                className = classes[player.CurrentClassIndex].className;
-            }
+            var classData = player.CurrentClassData;
+            playerStatsUI.SetTeamClass(TeamName(player.CurrentTeam), classData != null ? classData.className : "");
+            playerStatsUI.SetHealth(player.Health.CurrentHealth, player.Health.MaxHealth, healthFraction <= lowHealthFraction);
 
-            string ammo = "";
             var weapon = player.Weapon;
-            if (weapon != null)
+            if (weapon == null)
             {
-                ammo = weapon.IsReloading ? "AMMO: RELOADING..." : $"AMMO: {weapon.CurrentAmmo} / {weapon.MagazineCapacity} [{m_ReloadKey}]";
-                if (weapon.HasSupportStation)
-                {
-                    string refusal = weapon.StationRefusal;
-                    float cooldown = weapon.StationCooldownRemaining;
-                    if (refusal.Length > 0) ammo += $"  |  {refusal}";
-                    else if (cooldown > 0f) ammo += $"  |  Station {Mathf.CeilToInt(cooldown)}s";
-                    else ammo += $"  |  [{m_DeployKey}] Station";
-                }
-                if (weapon.HasZoom) ammo += $"  |  [{m_AimKey}] Scope";
+                playerStatsUI.SetAmmo(0, 0, false);
+                playerStatsUI.SetHints("");
+                return;
             }
+            playerStatsUI.SetAmmo(weapon.CurrentAmmo, weapon.MagazineCapacity, weapon.IsReloading);
+            UpdateHints(weapon);
+        }
 
-            playerStatsUI.SetStats(
-                $"{player.CurrentTeam}  |  {className}",
-                $"HEALTH: {player.Health.CurrentHealth} / {player.Health.MaxHealth}",
-                ammo);
+        // "[R] Reload | [Q] Station | [RMB] Scope". Rebuilt only when the station cooldown second, the
+        // refusal message or the key labels change, not every frame.
+        private void UpdateHints(ConquestWeapon weapon)
+        {
+            string refusal = weapon.HasSupportStation ? weapon.StationRefusal : "";
+            int cooldown = weapon.HasSupportStation ? Mathf.CeilToInt(weapon.StationCooldownRemaining) : 0;
+            int key = (weapon.HasSupportStation ? 1 : 0) | (weapon.HasZoom ? 2 : 0) | (cooldown << 2);
+            if (key == m_HintsKey && refusal == m_HintsRefusal) return;
+            m_HintsKey = key;
+            m_HintsRefusal = refusal;
+
+            string hints = $"[{m_ReloadKey}] Reload";
+            if (weapon.HasSupportStation)
+            {
+                if (refusal.Length > 0) hints += $"  |  {refusal}";
+                else if (cooldown > 0) hints += $"  |  Station {cooldown}s";
+                else hints += $"  |  [{m_DeployKey}] Station";
+            }
+            if (weapon.HasZoom) hints += $"  |  [{m_AimKey}] Scope";
+            playerStatsUI.SetHints(hints);
         }
 
         private void UpdateRespawnPanel(ConquestMatchManager match, ConquestPlayer player)
@@ -410,6 +494,10 @@ namespace Game.Conquest.UI
             respawnPanelUI.SetSpawnPosts(posts, player.SelectedPostName);
             bool canDeploy = CanDeploy(match, player, posts);
             respawnPanelUI.SetDeployInteractable(canDeploy);
+            if (respawnPanelUI.commandMap != null)
+            {
+                respawnPanelUI.commandMap.Tick(match.CommandPosts, player, m_PostColor, TeamColor(player.CurrentTeam), posts, player.SelectedPostName);
+            }
 
             float wait = player.RemainingRespawnTime;
             if (wait > 0f) respawnPanelUI.SetTimer($"Deploy in {wait:0.0} seconds");

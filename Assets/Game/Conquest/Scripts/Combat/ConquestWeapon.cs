@@ -95,6 +95,9 @@ namespace Game.Conquest.Combat
         public int MagazineCapacity => magazineCapacity;
         public bool IsReloading => isReloading.Value;
         public bool HasZoom => hasZoom;
+        /// <summary>Random cone, in degrees, each pellet can stray from the aim; the HUD crosshair opens to match.</summary>
+        public float SpreadAngle => spreadAngle;
+        public bool IsZoomed => m_IsZoomed;
         public bool HasSupportStation => hasSupportStation;
         /// <summary>Server: when this weapon last fired (Time.time). Bots use it to hear nearby gunfire.</summary>
         public float ServerLastShotTime { get; private set; } = float.NegativeInfinity;

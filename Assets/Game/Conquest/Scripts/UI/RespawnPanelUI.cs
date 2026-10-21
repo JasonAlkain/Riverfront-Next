@@ -23,6 +23,10 @@ namespace Game.Conquest
         public SpawnPostButtonUI spawnPostButtonPrefab;
         public Transform spawnPostContainer;
 
+        [Header("Spawn Map")]
+        [Tooltip("Command map where clicking a friendly post picks it, same as its list button.")]
+        public CommandMapUI commandMap;
+
         [Header("Colors")]
         public Color normalColor = new Color(0.25f, 0.30f, 0.40f);
         public Color selectedColor = new Color(0.2f, 0.8f, 0.35f);
@@ -39,6 +43,7 @@ namespace Game.Conquest
 
         private void Awake()
         {
+            if (commandMap != null) commandMap.PostClicked += postName => SpawnPostSelected?.Invoke(postName);
             if (btn_Deploy != null) btn_Deploy.onClick.AddListener(() => DeployClicked?.Invoke());
             if (btn_Classes == null) return;
             for (int i = 0; i < btn_Classes.Length; i++)
