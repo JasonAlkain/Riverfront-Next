@@ -99,6 +99,14 @@ namespace Game.Conquest.Gameplay
             {
                 m_Player.Movement.isBot = true;
             }
+
+            // Only the server steers bots. The prefab ships the agent enabled, and on a client it
+            // would write the transform (and fight NetworkTransform) before OnNetworkSpawn runs.
+            var network = NetworkManager.Singleton;
+            if (network != null && network.IsListening && !network.IsServer)
+            {
+                m_Agent.enabled = false;
+            }
         }
 
         public override void OnNetworkSpawn()
@@ -548,8 +556,10 @@ namespace Game.Conquest.Gameplay
             m_RecoverUntil = 0f;
         }
 
+        // The agent only ever runs on the server; clients keep theirs disabled for good.
         private void HandleDeath(ulong killerId)
         {
+            if (!IsServer) return;
             currentState = BotState.Dead;
             if (m_Agent.isActiveAndEnabled && m_Agent.isOnNavMesh)
             {
@@ -560,6 +570,7 @@ namespace Game.Conquest.Gameplay
 
         private void HandleRespawn()
         {
+            if (!IsServer) return;
             if (m_Agent != null)
             {
                 m_Agent.enabled = true;
