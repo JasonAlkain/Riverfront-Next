@@ -17,6 +17,8 @@ namespace Game.Conquest
         public Image img_HealthFill;
         [Tooltip("Image Type Filled (Horizontal): fillAmount is the magazine fraction.")]
         public Image img_AmmoFill;
+        [Tooltip("Team shape, so the team doesn't depend on colour alone.")]
+        public Image img_TeamIcon;
 
         [Header("Text Elements")]
         public TextMeshProUGUI txt_TeamClass;
@@ -47,6 +49,11 @@ namespace Game.Conquest
         }
 
         /// <summary>"RED  |  Assault". Pass the same string instances each frame; only a change rebuilds it.</summary>
+        public void SetTeamIcon(Sprite icon)
+        {
+            if (img_TeamIcon != null && img_TeamIcon.sprite != icon) img_TeamIcon.sprite = icon;
+        }
+
         public void SetTeamClass(string teamName, string className)
         {
             if (ReferenceEquals(teamName, m_TeamName) && ReferenceEquals(className, m_TeamClass)) return;

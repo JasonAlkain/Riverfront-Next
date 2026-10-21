@@ -52,6 +52,8 @@ namespace Game.Conquest.Combat
         [Tooltip("Shared tracer materials per team. Assets, never instanced at runtime.")]
         [SerializeField] private Material redTracerMaterial;
         [SerializeField] private Material blueTracerMaterial;
+        [Tooltip("Used for the red team instead when the colour-blind team palette is on.")]
+        [SerializeField] private Material redTracerMaterialColorBlind;
         [SerializeField] private float tracerWidth = 0.05f;
         [SerializeField] private float tracerDuration = 0.06f;
         [SerializeField] private AudioSource weaponAudioSource;
@@ -627,7 +629,8 @@ namespace Game.Conquest.Combat
 
         private void SpawnLocalTracer(Vector3 from, Vector3 to)
         {
-            Material tracerMaterial = m_Player != null && m_Player.CurrentTeam == Team.Blue ? blueTracerMaterial : redTracerMaterial;
+            Material tracerMaterial = m_Player != null && m_Player.CurrentTeam == Team.Blue ? blueTracerMaterial
+                : (Game.Conquest.Settings.ConquestSettingsManager.ColorBlindTeams && redTracerMaterialColorBlind != null ? redTracerMaterialColorBlind : redTracerMaterial);
             ConquestTracerPool.Show(from, to, tracerMaterial, tracerWidth, tracerDuration);
         }
 

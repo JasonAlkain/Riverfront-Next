@@ -31,5 +31,8 @@ MonoBehaviour:
   contested: {r: 0.9, g: 0.75, b: 0.1, a: 0.95}
   redTeamColorBlind: {r: 0.95, g: 0.55, b: 0.1, a: 0.9}
   blueTeamColorBlind: {r: 0.25, g: 0.55, b: 1, a: 0.9}
+  redTeamIcon: {fileID: 21300000, guid: f05cbda1450d1144897217ca5bddf9c7, type: 3}
+  blueTeamIcon: {fileID: 21300000, guid: 80d64f30349e7a84ab3721849f440794, type: 3}
+  neutralIcon: {fileID: 21300000, guid: 1ce38012c8ff1534bb93147c2e1766f3, type: 3}
   panelHighContrast: {r: 0, g: 0, b: 0, a: 1}
   textMutedHighContrast: {r: 0.9, g: 0.92, b: 0.95, a: 1}

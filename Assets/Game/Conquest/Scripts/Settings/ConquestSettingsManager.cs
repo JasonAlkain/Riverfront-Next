@@ -23,6 +23,10 @@ namespace Game.Conquest.Settings
 
         /// <summary>The live settings. Treat as read-only: change a Clone() and pass it to ApplySettings.</summary>
         public ConquestSettingsData CurrentSettings => m_CurrentSettings;
+
+        /// <summary>Colour-blind team palette on (orange vs blue). False before settings exist.</summary>
+        public static bool ColorBlindTeams => Instance != null && Instance.m_CurrentSettings.colorBlindTeams;
+        public static bool ReduceMotion => Instance != null && Instance.m_CurrentSettings.reduceMotion;
         public event Action<ConquestSettingsData> OnSettingsChanged;
 
         private void Awake()

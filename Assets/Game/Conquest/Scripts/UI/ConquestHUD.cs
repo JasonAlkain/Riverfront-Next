@@ -7,6 +7,7 @@ using Game.Conquest.Gameplay;
 using Game.Conquest.Networking;
 using Game.Conquest.Objectives;
 using Game.Conquest.Player;
+using Game.Conquest.Settings;
 
 namespace Game.Conquest.UI
 {
@@ -38,11 +39,9 @@ namespace Game.Conquest.UI
         [Tooltip("Small command map in the corner while alive.")]
         [SerializeField] private CommandMapUI commandMapUI;
 
-        [Header("Team Colors")]
-        [SerializeField] private Color redColor = new Color(0.85f, 0.2f, 0.2f, 0.9f);
-        [SerializeField] private Color blueColor = new Color(0.2f, 0.5f, 0.9f, 0.9f);
-        [SerializeField] private Color neutralColor = new Color(0.4f, 0.4f, 0.45f, 0.9f);
-        [SerializeField] private Color contestedColor = new Color(0.9f, 0.75f, 0.1f, 0.95f);
+        [Header("Theme")]
+        [Tooltip("Team colours (and the colour-blind palette), contested colour and team icons.")]
+        [SerializeField] private ConquestUITheme theme;
 
         [Header("Result Colors")]
         [SerializeField] private Color victoryColor = Color.green;
@@ -110,7 +109,7 @@ namespace Game.Conquest.UI
                 respawnPanelUI.DeployClicked += HandleDeployClicked;
             }
             m_PostColor = PostColor;
-            m_CaptureColor = post => post.IsContested ? contestedColor : TeamColor(post.capturingTeam.Value);
+            m_CaptureColor = post => post.IsContested ? ContestedColor : TeamColor(post.capturingTeam.Value);
             ConquestMatchManager.KillReported += HandleKillReported;
             ConquestInput.BindingsChanged += RefreshKeyLabels;
             RefreshKeyLabels();
@@ -268,9 +267,9 @@ namespace Game.Conquest.UI
             m_StatsCopy.Clear();
             for (int i = 0; i < match.liveStats.Count; i++) m_StatsCopy.Add(match.liveStats[i]);
             if (scoreboardUI.redTeamPanel != null)
-                scoreboardUI.redTeamPanel.ShowTeam(m_StatsCopy, Team.Red, "RED TEAM", redColor, rowColor, botRowColor);
+                scoreboardUI.redTeamPanel.ShowTeam(m_StatsCopy, Team.Red, "RED TEAM", TeamColor(Team.Red), rowColor, botRowColor);
             if (scoreboardUI.blueTeamPanel != null)
-                scoreboardUI.blueTeamPanel.ShowTeam(m_StatsCopy, Team.Blue, "BLUE TEAM", blueColor, rowColor, botRowColor);
+                scoreboardUI.blueTeamPanel.ShowTeam(m_StatsCopy, Team.Blue, "BLUE TEAM", TeamColor(Team.Blue), rowColor, botRowColor);
         }
 
         private void WatchStats(ConquestMatchManager match)
@@ -289,8 +288,10 @@ namespace Game.Conquest.UI
 
         private Color PostColor(ConquestCommandPost post)
         {
-            return post.IsContested ? contestedColor : TeamColor(post.CurrentOwner);
+            return post.IsContested ? ContestedColor : TeamColor(post.CurrentOwner);
         }
+
+        private Color ContestedColor => theme != null ? theme.contested : new Color(0.9f, 0.75f, 0.1f, 0.95f);
 
         // Literals, so callers can compare by reference instead of formatting the enum each frame.
         private static string TeamName(Team team)
@@ -302,15 +303,17 @@ namespace Game.Conquest.UI
 
         private Color TeamColor(Team team)
         {
-            if (team == Team.Red) return redColor;
-            if (team == Team.Blue) return blueColor;
-            return neutralColor;
+            if (theme != null) return theme.TeamColor(team, ConquestSettingsManager.ColorBlindTeams);
+            return team == Team.Red ? Color.red : team == Team.Blue ? Color.blue : Color.gray;
         }
+
+        private Sprite TeamIcon(Team team) => theme != null ? theme.TeamIcon(team) : null;
 
         private void UpdateTicketBar(ConquestMatchManager match)
         {
             if (ticketBarUI == null || match == null) return;
             ticketBarUI.SetTickets(match.RedTickets, match.BlueTickets);
+            ticketBarUI.SetTeamColors(TeamColor(Team.Red), TeamColor(Team.Blue));
         }
 
         private void UpdateCommandPosts(ConquestMatchManager match)
@@ -331,7 +334,7 @@ namespace Game.Conquest.UI
                 if (post.IsContested) label += " (!)";
                 else if (post.CaptureProgress > 0f && post.CaptureProgress < 1f) label += $" {(int)(post.CaptureProgress * 100)}%";
 
-                icon.SetPost(label, post.IsContested ? contestedColor : TeamColor(post.CurrentOwner));
+                icon.SetPost(label, PostColor(post), TeamIcon(post.CurrentOwner));
                 shown++;
             }
             commandPostsRowUI.SetVisibleCount(shown);
@@ -363,7 +366,7 @@ namespace Game.Conquest.UI
 
             captureBarUI.Show();
             float progress = Mathf.Clamp01(nearbyPost.CaptureProgress);
-            Color color = nearbyPost.IsContested ? contestedColor : TeamColor(nearbyPost.capturingTeam.Value);
+            Color color = nearbyPost.IsContested ? ContestedColor : TeamColor(nearbyPost.capturingTeam.Value);
             string status = nearbyPost.IsContested
                 ? $"[CONTESTED] {nearbyPost.PostName}"
                 : $"Capturing {nearbyPost.PostName} ({(int)(progress * 100)}%)";
@@ -426,7 +429,11 @@ namespace Game.Conquest.UI
             {
                 healthFraction = (float)player.Health.CurrentHealth / player.Health.MaxHealth;
             }
-            if (lowHealthUI != null) lowHealthUI.Tick(healthFraction);
+            if (lowHealthUI != null)
+            {
+                lowHealthUI.ReduceMotion = ConquestSettingsManager.ReduceMotion;
+                lowHealthUI.Tick(healthFraction);
+            }
 
             if (playerStatsUI == null) return;
 
@@ -438,6 +445,7 @@ namespace Game.Conquest.UI
 
             playerStatsUI.Show();
             playerStatsUI.SetTeamColor(TeamColor(player.CurrentTeam));
+            playerStatsUI.SetTeamIcon(TeamIcon(player.CurrentTeam));
 
             var classData = player.CurrentClassData;
             playerStatsUI.SetTeamClass(TeamName(player.CurrentTeam), classData != null ? classData.className : "");

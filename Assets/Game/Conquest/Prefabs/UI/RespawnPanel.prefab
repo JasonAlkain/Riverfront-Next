@@ -629,6 +629,7 @@ MonoBehaviour:
   mapArea: {fileID: 9075056277700378487}
   viewerArrow: {fileID: 5681271980673259950}
   boundsPadding: 40
+  theme: {fileID: 11400000, guid: 7190fbeaa29ca9f4ba0c8d5829f9c1f5, type: 2}
   showTeammates: 1
 --- !u!1 &4488162099486386392
 GameObject:

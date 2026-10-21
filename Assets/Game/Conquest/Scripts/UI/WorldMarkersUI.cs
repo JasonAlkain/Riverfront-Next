@@ -22,6 +22,10 @@ namespace Game.Conquest
         public RectTransform postContainer;
         public RectTransform nameplateContainer;
 
+        [Header("Theme")]
+        [Tooltip("Owner shapes for the post markers.")]
+        public Game.Conquest.UI.ConquestUITheme theme;
+
         [Header("Placement")]
         [Tooltip("Placeholder: metres above a post's centre where its marker sits.")]
         public float postMarkerHeight = 6f;
@@ -69,7 +73,7 @@ namespace Game.Conquest
                     Vector3 world = post.transform.position + Vector3.up * postMarkerHeight;
                     marker.Rect.anchoredPosition = ToCanvas(cam, canvasRect, world, true);
                     int meters = Mathf.RoundToInt(Vector3.Distance(viewerPos, post.transform.position));
-                    marker.SetPost(post.PostName, postColor(post), meters, post.CaptureProgress, captureColor(post));
+                    marker.SetPost(post.PostName, postColor(post), theme != null ? theme.TeamIcon(post.CurrentOwner) : null, meters, post.CaptureProgress, captureColor(post));
                 }
             }
             SetActiveCount(m_PostMarkers, shown);

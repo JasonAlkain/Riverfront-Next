@@ -30,8 +30,9 @@ namespace Game.Conquest
             if (selectedRing != null) selectedRing.SetActive(false);
         }
 
-        public void SetPost(string postName, Color color, bool selectable, bool selected)
+        public void SetPost(string postName, Color color, Sprite ownerIcon, bool selectable, bool selected)
         {
+            if (img_Icon != null && ownerIcon != null && img_Icon.sprite != ownerIcon) img_Icon.sprite = ownerIcon;
             if (postName != m_PostName)
             {
                 m_PostName = postName;

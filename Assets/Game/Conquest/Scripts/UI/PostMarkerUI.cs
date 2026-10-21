@@ -23,8 +23,9 @@ namespace Game.Conquest
 
         public RectTransform Rect => (RectTransform)transform;
 
-        public void SetPost(string label, Color color, int meters, float progress, Color progressColor)
+        public void SetPost(string label, Color color, Sprite ownerIcon, int meters, float progress, Color progressColor)
         {
+            if (img_Icon != null && ownerIcon != null && img_Icon.sprite != ownerIcon) img_Icon.sprite = ownerIcon;
             if (label != m_Label)
             {
                 m_Label = label;

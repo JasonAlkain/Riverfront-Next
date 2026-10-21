@@ -1,5 +1,6 @@
 using TMPro;
 using UnityEngine;
+using Game.Conquest.Gameplay;
 
 namespace Game.Conquest.UI
 {
@@ -59,9 +60,28 @@ namespace Game.Conquest.UI
         public Color redTeamColorBlind = new Color(0.95f, 0.55f, 0.1f, 0.9f);
         public Color blueTeamColorBlind = new Color(0.25f, 0.55f, 1f, 0.9f);
 
+        [Header("Team icons (shape cue, so team never depends on colour alone)")]
+        public Sprite redTeamIcon;
+        public Sprite blueTeamIcon;
+        public Sprite neutralIcon;
+
         [Header("High contrast")]
         public Color panelHighContrast = new Color(0f, 0f, 0f, 1f);
         public Color textMutedHighContrast = new Color(0.9f, 0.92f, 0.95f);
+
+        public Color TeamColor(Team team, bool colorBlind)
+        {
+            if (team == Team.Red) return colorBlind ? redTeamColorBlind : redTeam;
+            if (team == Team.Blue) return colorBlind ? blueTeamColorBlind : blueTeam;
+            return neutral;
+        }
+
+        public Sprite TeamIcon(Team team)
+        {
+            if (team == Team.Red) return redTeamIcon;
+            if (team == Team.Blue) return blueTeamIcon;
+            return neutralIcon;
+        }
 
         public Color Get(UIColorRole role, bool highContrast)
         {

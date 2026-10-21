@@ -36,6 +36,8 @@ namespace Game.Conquest.Objectives
         [SerializeField] private Color zoneRedColor = new Color(1f, 0.25f, 0.2f, 0.22f);
         [SerializeField] private Color zoneBlueColor = new Color(0.25f, 0.55f, 1f, 0.22f);
         [SerializeField] private Color zoneNeutralColor = new Color(0.85f, 0.85f, 0.85f, 0.16f);
+        [Tooltip("Colour-blind palette: replaces red on the post body and the zone disc.")]
+        [SerializeField] private Color colorBlindRedColor = new Color(0.95f, 0.55f, 0.1f, 1f);
 
         [Header("Audio")]
         [SerializeField] private AudioSource postAudioSource;
@@ -91,6 +93,8 @@ namespace Game.Conquest.Objectives
         {
             currentOwner.OnValueChanged += HandleOwnerChanged;
             UpdateVisuals(currentOwner.Value);
+            m_Settings = Game.Conquest.Settings.ConquestSettingsManager.Instance;
+            if (m_Settings != null) m_Settings.OnSettingsChanged += HandleSettingsChanged;
 
             if (IsServer)
             {
@@ -104,6 +108,15 @@ namespace Game.Conquest.Objectives
         public override void OnNetworkDespawn()
         {
             currentOwner.OnValueChanged -= HandleOwnerChanged;
+            if (m_Settings != null) m_Settings.OnSettingsChanged -= HandleSettingsChanged;
+            m_Settings = null;
+        }
+
+        private Game.Conquest.Settings.ConquestSettingsManager m_Settings;
+
+        private void HandleSettingsChanged(Game.Conquest.Settings.ConquestSettingsData settings)
+        {
+            UpdateVisuals(currentOwner.Value);
         }
 
         private void HandleOwnerChanged(Team oldOwner, Team newOwner)
@@ -277,12 +290,19 @@ namespace Game.Conquest.Objectives
             Material mat = (owner == Team.Red) ? redMaterial : (owner == Team.Blue ? blueMaterial : neutralMaterial);
             if (mat != null)
             {
-                postRenderer.material = mat;
+                postRenderer.sharedMaterial = mat;
             }
+            // Colour-blind red goes through a property block so the shared material stays untouched.
+            if (m_BodyBlock == null) m_BodyBlock = new MaterialPropertyBlock();
+            postRenderer.GetPropertyBlock(m_BodyBlock);
+            if (owner == Team.Red && Game.Conquest.Settings.ConquestSettingsManager.ColorBlindTeams) m_BodyBlock.SetColor(s_BaseColorId, colorBlindRedColor);
+            else m_BodyBlock.Clear();
+            postRenderer.SetPropertyBlock(m_BodyBlock);
         }
 
         private static readonly int s_BaseColorId = Shader.PropertyToID("_BaseColor");
         private MaterialPropertyBlock m_ZoneBlock;
+        private MaterialPropertyBlock m_BodyBlock;
 
         // The disc matches the real capture radius (a unit cylinder is 1 m across) and takes the
         // owner's colour through a property block, so all posts share one material asset.
@@ -296,7 +316,8 @@ namespace Game.Conquest.Objectives
 
             if (m_ZoneBlock == null) m_ZoneBlock = new MaterialPropertyBlock();
             zoneRenderer.GetPropertyBlock(m_ZoneBlock);
-            m_ZoneBlock.SetColor(s_BaseColorId, owner == Team.Red ? zoneRedColor : owner == Team.Blue ? zoneBlueColor : zoneNeutralColor);
+            Color red = Game.Conquest.Settings.ConquestSettingsManager.ColorBlindTeams ? new Color(colorBlindRedColor.r, colorBlindRedColor.g, colorBlindRedColor.b, zoneRedColor.a) : zoneRedColor;
+            m_ZoneBlock.SetColor(s_BaseColorId, owner == Team.Red ? red : owner == Team.Blue ? zoneBlueColor : zoneNeutralColor);
             zoneRenderer.SetPropertyBlock(m_ZoneBlock);
         }
 

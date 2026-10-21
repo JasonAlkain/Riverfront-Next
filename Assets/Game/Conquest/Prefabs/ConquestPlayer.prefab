@@ -3966,6 +3966,7 @@ MonoBehaviour:
   impactSeconds: 0.6
   redTracerMaterial: {fileID: 2100000, guid: 424978d382571fd448c834b38fef21c5, type: 2}
   blueTracerMaterial: {fileID: 2100000, guid: 538c161c5d4f98e458343f2ec3d836e6, type: 2}
+  redTracerMaterialColorBlind: {fileID: 2100000, guid: 87f66b5effcaa8e41a5ca7f71edba9b3, type: 2}
   tracerWidth: 0.05
   tracerDuration: 0.06
   weaponAudioSource: {fileID: 1789184866688534137}

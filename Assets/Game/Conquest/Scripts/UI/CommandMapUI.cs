@@ -29,6 +29,10 @@ namespace Game.Conquest
         [Tooltip("Placeholder: metres of padding around the outermost posts.")]
         public float boundsPadding = 40f;
 
+        [Header("Theme")]
+        [Tooltip("Owner shapes for the posts.")]
+        public Game.Conquest.UI.ConquestUITheme theme;
+
         [Header("Options")]
         public bool showTeammates = true;
 
@@ -66,7 +70,7 @@ namespace Game.Conquest
                     ui.Rect.anchoredPosition = ToMap(post.transform.position);
                     string postName = post.PostName;
                     bool canPick = selectable != null && selectable.Contains(postName);
-                    ui.SetPost(postName, postColor(post), canPick, canPick && postName == selected);
+                    ui.SetPost(postName, postColor(post), theme != null ? theme.TeamIcon(post.CurrentOwner) : null, canPick, canPick && postName == selected);
                 }
             }
             for (int i = shown; i < m_Posts.Count; i++) m_Posts[i].gameObject.SetActive(false);
