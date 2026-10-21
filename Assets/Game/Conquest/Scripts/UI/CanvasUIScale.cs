@@ -21,8 +21,21 @@ namespace Game.Conquest
             m_BaseResolution = m_Scaler.referenceResolution;
         }
 
+        // Start as well as OnEnable: a menu opened directly creates the settings manager in another
+        // object's Awake, which may run after this OnEnable.
+        private void Start()
+        {
+            if (m_Subscribed == null) Subscribe();
+        }
+
         private void OnEnable()
         {
+            Subscribe();
+        }
+
+        private void Subscribe()
+        {
+            if (m_Subscribed != null) m_Subscribed.OnSettingsChanged -= Apply;
             m_Subscribed = ConquestSettingsManager.Instance;
             if (m_Subscribed == null) return;
             m_Subscribed.OnSettingsChanged += Apply;
