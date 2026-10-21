@@ -48,7 +48,14 @@ namespace Game.Conquest.Gameplay
 
         [Header("Behavior Intervals")]
         [SerializeField] private float decisionInterval = 1.0f;
+        [Tooltip("Seconds of too little progress, while the bot is trying to move, before it counts as stuck.")]
         [SerializeField] private float stuckThresholdTime = 2.5f;
+        [Tooltip("Placeholder: how often the bot's position is sampled to measure progress.")]
+        [SerializeField] private float stuckSampleInterval = 0.5f;
+        [Tooltip("Placeholder: metres a moving bot must cover per sample to count as making progress.")]
+        [SerializeField] private float stuckMinProgress = 0.5f;
+        [Tooltip("Placeholder: seconds a stuck bot spends on its sidestep before resuming its route.")]
+        [SerializeField] private float stuckRecoverySeconds = 1.2f;
 
         private NavMeshAgent m_Agent;
         private ConquestPlayer m_Player;
@@ -61,8 +68,10 @@ namespace Game.Conquest.Gameplay
         private float m_NextDecisionTime;
         private float m_NextFireCheckTime;
         private float m_TargetDetectedTime;
-        private Vector3 m_LastPos;
+        private Vector3 m_LastStuckSample;
+        private float m_NextStuckSampleTime;
         private float m_StuckTimer;
+        private float m_RecoverUntil;
         private bool m_HasReacted;
         private float m_NextStationAttemptTime;
         private const float StationAttemptInterval = 3f;
@@ -100,6 +109,7 @@ namespace Game.Conquest.Gameplay
             {
                 currentState = BotState.Idle;
                 m_NextDecisionTime = Time.time + Random.Range(0.2f, 1.0f);
+                ResetStuckSampling();
             }
             else
             {
@@ -314,6 +324,8 @@ namespace Game.Conquest.Gameplay
 
         private void MoveToTarget(Vector3 destination)
         {
+            // Let a stuck bot finish its sidestep before steering it back into the obstacle.
+            if (Time.time < m_RecoverUntil) return;
             if (m_Agent.isActiveAndEnabled && m_Agent.isOnNavMesh)
             {
                 m_Agent.isStopped = false;
@@ -506,31 +518,59 @@ namespace Game.Conquest.Gameplay
             return closest;
         }
 
+        // Progress is measured between samples a fixed time apart, not between frames: one frame
+        // of even a sprinting bot is a few centimetres, which used to look "stuck" all the time.
         private void CheckStuck()
         {
-            if (currentState == BotState.MoveToObjective)
+            if (Time.time < m_NextStuckSampleTime) return;
+            m_NextStuckSampleTime = Time.time + stuckSampleInterval;
+
+            Vector3 position = transform.position;
+            float moved = Vector3.Distance(position, m_LastStuckSample);
+            m_LastStuckSample = position;
+
+            if (!WantsToMove() || moved >= stuckMinProgress)
             {
-                float moved = Vector3.Distance(transform.position, m_LastPos);
-                if (moved < 0.2f)
-                {
-                    m_StuckTimer += Time.deltaTime;
-                    if (m_StuckTimer >= stuckThresholdTime)
-                    {
-                        m_StuckTimer = 0f;
-                        // Recover: re-sample NavMesh and pick next objective
-                        if (NavMesh.SamplePosition(transform.position + Random.insideUnitSphere * 3f, out NavMeshHit navHit, 5f, NavMesh.AllAreas))
-                        {
-                            MoveToTarget(navHit.position);
-                        }
-                        SelectBestObjective();
-                    }
-                }
-                else
-                {
-                    m_StuckTimer = 0f;
-                }
+                m_StuckTimer = 0f;
+                return;
             }
-            m_LastPos = transform.position;
+
+            m_StuckTimer += stuckSampleInterval;
+            if (m_StuckTimer < stuckThresholdTime) return;
+
+            m_StuckTimer = 0f;
+            RecoverFromStuck();
+        }
+
+        // True when the agent has somewhere to go and nothing intends it to stand still.
+        private bool WantsToMove()
+        {
+            if (!m_Agent.isActiveAndEnabled || !m_Agent.isOnNavMesh) return false;
+            if (m_Agent.isStopped || m_Agent.pathPending || !m_Agent.hasPath) return false;
+            return m_Agent.remainingDistance > m_Agent.stoppingDistance + 0.25f;
+        }
+
+        // Step to a random nearby point on the NavMesh to get off whatever is blocking the bot,
+        // then carry on to the same destination once the detour is over.
+        private void RecoverFromStuck()
+        {
+            Vector2 offset = Random.insideUnitCircle.normalized * Random.Range(2f, 4f);
+            Vector3 probe = transform.position + new Vector3(offset.x, 0f, offset.y);
+            if (NavMesh.SamplePosition(probe, out NavMeshHit navHit, 3f, NavMesh.AllAreas))
+            {
+                m_Agent.isStopped = false;
+                m_Agent.SetDestination(navHit.position);
+                m_RecoverUntil = Time.time + stuckRecoverySeconds;
+            }
+        }
+
+        // Called after a teleport or respawn so the jump isn't read as progress (or the lack of it).
+        private void ResetStuckSampling()
+        {
+            m_StuckTimer = 0f;
+            m_LastStuckSample = transform.position;
+            m_NextStuckSampleTime = Time.time + stuckSampleInterval;
+            m_RecoverUntil = 0f;
         }
 
         private void HandleDeath(ulong killerId)
@@ -552,6 +592,7 @@ namespace Game.Conquest.Gameplay
             currentState = BotState.Idle;
             m_CurrentEnemy = null;
             m_NextDecisionTime = Time.time + Random.Range(0.2f, 0.6f);
+            ResetStuckSampling();
         }
     }
 }
