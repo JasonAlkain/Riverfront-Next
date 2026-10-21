@@ -37,6 +37,24 @@ namespace Game.Conquest.Classes
         public float reloadDuration = 1.8f;
         public bool isAutomatic = true;
 
+        [Header("Bolt")]
+        [Tooltip("Placeholder: bolt speed in m/s. A bolt flies for maxRange / boltSpeed seconds.")]
+        public float boltSpeed = 120f;
+        [Tooltip("Placeholder: bolt hit radius in metres. 0 is a thin ray (exact aim).")]
+        public float boltRadius = 0f;
+
+        [Header("Overheat (used when the team's faction overheats)")]
+        [Tooltip("Placeholder: shots fired without pause that overheat the weapon (1-255).")]
+        public int shotsToOverheat = 30;
+        [Tooltip("Placeholder: seconds after the last shot before the weapon starts cooling. Keep it above fireRate or the weapon never overheats.")]
+        public float coolDelaySeconds = 0.25f;
+        [Tooltip("Placeholder: seconds to cool from fully hot to cold once cooling starts.")]
+        public float fullCoolSeconds = 1.6f;
+        [Tooltip("Placeholder: seconds the weapon is locked after overheating.")]
+        public float overheatLockoutSeconds = 1.6f;
+        [Tooltip("Placeholder: share of the gauge still hot when the overheat lock ends (0 = cold).")]
+        [Range(0f, 1f)] public float heatAfterOverheat = 0f;
+
         [Header("Special / Equipment")]
         public bool hasZoom = false;
         [Tooltip("Placeholder: how much aiming magnifies the view (1.25 = slight, 3 = long scope). Scales with the player's FOV setting.")]
@@ -51,5 +69,18 @@ namespace Game.Conquest.Classes
         public float firePitchMin = 0.95f;
         public float firePitchMax = 1.05f;
         public float fireVolume = 1.0f;
+
+        private void OnValidate()
+        {
+            boltSpeed = Mathf.Max(0.1f, boltSpeed);
+            boltRadius = Mathf.Max(0f, boltRadius);
+            // Both travel to the owner as one byte.
+            shotsToOverheat = Mathf.Clamp(shotsToOverheat, 1, 255);
+            magazineCapacity = Mathf.Clamp(magazineCapacity, 1, 255);
+            if (coolDelaySeconds <= fireRate)
+            {
+                Debug.LogWarning($"[ConquestClassData] {name}: coolDelaySeconds ({coolDelaySeconds}) is not above fireRate ({fireRate}), so the weapon cools between shots and never overheats.", this);
+            }
+        }
     }
 }
