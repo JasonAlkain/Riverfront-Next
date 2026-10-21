@@ -84,6 +84,9 @@ namespace Game.Conquest.UI
         private const int MaxRecentServers = 3;
         private const string RecentServersPrefsKey = "Conquest.RecentServers";
 
+        private static readonly string[] k_OnOff = { "Off", "On" };
+        private static readonly string[] k_Difficulties = { "Easy", "Normal", "Hard" };
+
         // Lobby state
         private string m_LobbyJoinAddressLine = "";
         private bool m_LobbyNameSent = false;
@@ -338,6 +341,20 @@ namespace Game.Conquest.UI
                 m_HostTeamSize = Mathf.RoundToInt(val);
                 UpdateHostLabels();
             });
+            if (p.stp_BotFill != null)
+            {
+                p.stp_BotFill.SetOptions(k_OnOff, m_HostBotFilling ? 1 : 0);
+                p.stp_BotFill.Changed += index =>
+                {
+                    m_HostBotFilling = index == 1;
+                    UpdateHostLabels();
+                };
+            }
+            if (p.stp_BotDifficulty != null)
+            {
+                p.stp_BotDifficulty.SetOptions(k_Difficulties, m_HostBotDifficultyIndex);
+                p.stp_BotDifficulty.Changed += index => m_HostBotDifficultyIndex = index;
+            }
             UpdateHostLabels();
         }
 
@@ -454,7 +471,9 @@ namespace Game.Conquest.UI
             if (hostPanelUI == null) return;
             SetText(hostPanelUI.txt_MaxHumanConnections, $"Max Human Connections: {m_HostMaxPlayers}");
             SetText(hostPanelUI.txt_ReinforcementTickets, $"Reinforcement Tickets: {m_HostTickets}");
-            SetText(hostPanelUI.txt_TargetTeamSize, $"Target Team Size: {m_HostTeamSize} (AI Filled)");
+            SetText(hostPanelUI.txt_TargetTeamSize, m_HostBotFilling
+                ? $"Target Team Size: {m_HostTeamSize} (bots fill empty slots)"
+                : $"Target Team Size: {m_HostTeamSize} (humans only)");
         }
 
         private void UpdateSoloDisplay()
@@ -466,7 +485,7 @@ namespace Game.Conquest.UI
                 m_SelectedMapIndex = Mathf.Clamp(m_SelectedMapIndex, 0, maps.Count - 1);
                 var map = maps[m_SelectedMapIndex];
                 SetText(soloPanelUI.txt_MapName, $"<b>{map.displayName.ToUpper()}</b> ({map.commandPostsCount} CPs)");
-                SetText(soloPanelUI.txt_MapDescription, $"{map.description}\nRecommended: {map.recommendedPlayers} Players  |  Scene: {map.sceneName}");
+                SetText(soloPanelUI.txt_MapDescription, $"{map.description}\nRecommended: {map.recommendedPlayers} players");
             }
         }
 
