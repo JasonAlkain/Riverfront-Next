@@ -1,7 +1,6 @@
 using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using Game.Conquest.Settings;
 using Game.Conquest.Networking;
 
 namespace Game.Conquest.Scenes
@@ -47,18 +46,6 @@ namespace Game.Conquest.Scenes
                 return;
             }
             session.StartDedicatedServer(s_ServerArgs);
-        }
-
-        private void Start()
-        {
-            Debug.Log("[ConquestBootstrap] Initializing Conquest systems...");
-
-            // Initialize settings
-            if (ConquestSettingsManager.Instance != null)
-            {
-                ConquestSettingsManager.Instance.LoadSettings();
-                Debug.Log("[ConquestBootstrap] Settings initialized.");
-            }
         }
 
         private void Update()

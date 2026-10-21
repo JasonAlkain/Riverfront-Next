@@ -6882,6 +6882,7 @@ GameObject:
   - component: {fileID: 216503885711668159}
   - component: {fileID: 8039189957667672276}
   - component: {fileID: 2122613902704139147}
+  - component: {fileID: 6655756744211152727}
   m_Layer: 5
   m_Name: HUDCanvas
   m_TagString: Untagged
@@ -7024,6 +7025,18 @@ MonoBehaviour:
   botRowColor: {r: 0.1, g: 0.12, b: 0.16, a: 0.75}
   hitmarkerDuration: 0.15
   lowHealthFraction: 0.35
+--- !u!114 &6655756744211152727
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7167107709705714654}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1369296d1e40c1244ac3580849726b0d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Game.Conquest::Game.Conquest.CanvasUIScale
 --- !u!1 &7183749073377801828
 GameObject:
   m_ObjectHideFlags: 0

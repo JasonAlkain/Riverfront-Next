@@ -334,6 +334,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Game.Conquest::Game.Conquest.Scenes.ConquestSceneTransitionManager
   mapRegistry: {fileID: 11400000, guid: f47404bcd7af0d246a20b79ec95e19ac, type: 2}
+  loadingScreenPrefab: {fileID: 7528749164309140718, guid: 389da0bf7bda8ff438d9725c0a10ea38, type: 3}
   gameplayTips:
   - Command Posts serve as reinforcement spawn points and contest zones.
   - Every death costs your team a reinforcement ticket. Run out and you lose.
@@ -342,6 +343,7 @@ MonoBehaviour:
   - Press [R] to reload before entering a contested capture point.
   - Bots continuously push towards enemy and neutral command posts unless engaging hostiles.
   - Stick with your infantry squad to secure command posts faster.
+  loadTimeoutSeconds: 60
 --- !u!114 &629227548
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -356,6 +358,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Game.Conquest::Game.Conquest.Networking.ConquestSessionManager
   sessionName: Conquest Session
   selectedMapId: the_frontline
+  selectedMapScene: ConquestLargeBattlefield
   maxHumanPlayers: 16
   matchSettings:
     reinforcementTickets: 250
@@ -363,9 +366,20 @@ MonoBehaviour:
     botFilling: 1
     botDifficulty: 1
   isSoloMode: 0
+  isDedicatedServer: 0
+  minPlayersToStart: 2
+  autoStartCountdownSeconds: 10
   connectAddress: 127.0.0.1
   connectPort: 7777
+  hostPort: 7777
+  clientConnectTimeoutSeconds: 10
+  acceptingJoins: 1
   networkPrefabs: {fileID: 11400000, guid: 604d721117f82dd42b140bd4284be399, type: 2}
+  tickRate: 30
+  resultsSceneName: MatchResults
+  lobbySceneName: MainMenu
+  victoryBannerSeconds: 6
+  resultsScreenSeconds: 15
 --- !u!114 &629227549
 MonoBehaviour:
   m_ObjectHideFlags: 0

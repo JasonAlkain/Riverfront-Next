@@ -28,6 +28,8 @@ namespace Game.Conquest.Player
         [Header("Camera & Look Settings")]
         [SerializeField] private Transform cameraPivot;
         [SerializeField] private float mouseSensitivity = 0.15f;
+        private float m_ZoomedSensitivity = 1f;
+        private bool m_InvertY;
         [SerializeField] private float minPitch = -85.0f;
         [SerializeField] private float maxPitch = 85.0f;
 
@@ -141,6 +143,8 @@ namespace Game.Conquest.Player
         {
             if (settings == null) return;
             mouseSensitivity = settings.mouseSensitivity;
+            m_ZoomedSensitivity = settings.zoomSensitivity;
+            m_InvertY = settings.invertY;
             m_BaseFieldOfView = settings.fieldOfView;
             if (playerCamera != null)
             {
@@ -285,8 +289,7 @@ namespace Game.Conquest.Player
             // Vertical rotation on camera pivot
             if (cameraPivot != null)
             {
-                bool invert = Game.Conquest.Settings.ConquestSettingsManager.Instance != null && Game.Conquest.Settings.ConquestSettingsManager.Instance.CurrentSettings.invertY;
-                m_Pitch += (invert ? mouseDelta.y : -mouseDelta.y);
+                m_Pitch += (m_InvertY ? mouseDelta.y : -mouseDelta.y);
                 m_Pitch = Mathf.Clamp(m_Pitch, minPitch, maxPitch);
                 cameraPivot.localRotation = Quaternion.Euler(m_Pitch, 0f, 0f);
 
@@ -304,7 +307,9 @@ namespace Game.Conquest.Player
             if (playerCamera == null || m_BaseFieldOfView <= 1f) return 1f;
             float baseHalf = Mathf.Tan(m_BaseFieldOfView * 0.5f * Mathf.Deg2Rad);
             float currentHalf = Mathf.Tan(playerCamera.fieldOfView * 0.5f * Mathf.Deg2Rad);
-            return Mathf.Clamp(currentHalf / baseHalf, 0.05f, 1f);
+            float scale = Mathf.Clamp(currentHalf / baseHalf, 0.05f, 1f);
+            // The player's zoomed-sensitivity setting only applies while actually zoomed in.
+            return scale < 0.99f ? scale * m_ZoomedSensitivity : scale;
         }
 
         private void HandleMovement()

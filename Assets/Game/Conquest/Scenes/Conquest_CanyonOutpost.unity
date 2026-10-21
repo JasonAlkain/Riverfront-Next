@@ -2804,6 +2804,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 16496e762b4f893428830f7462c850eb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Game.Conquest::Game.Conquest.UI.ConquestPauseMenu
+  pauseMenuPrefab: {fileID: 7460697635624971013, guid: 203c0ae50d67815429a3197e867d6e19, type: 3}
 --- !u!1001 &1529319124
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -4159,6 +4160,16 @@ MonoBehaviour:
   ShowTopMostFoldoutHeaderGroup: 1
   botPrefab: {fileID: 2789805566391460537, guid: 1abfb84f92ae1b24da0841e961c4eb86, type: 3}
   populationCheckInterval: 2
+  spawnStaggerSeconds: 0.25
+  objectiveAssignInterval: 1.5
+  objectivePlanner:
+    respondersPerAttackedPost: 3
+    guardsPerThreatenedPost: 1
+    threatRadius: 30
+    maxDefenderShare: 0.5
+    attackSpreadPenalty: 40
+    neutralPostBonus: 15
+    stickiness: 20
 --- !u!114 &2035505701
 MonoBehaviour:
   m_ObjectHideFlags: 0
