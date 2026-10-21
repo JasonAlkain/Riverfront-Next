@@ -431,15 +431,19 @@ namespace Game.Conquest.Gameplay
 
         public List<string> GetFriendlyPostNames(Team team)
         {
-            List<string> list = new List<string>();
-            foreach (var post in commandPosts)
-            {
-                if (IsSpawnablePost(post, team))
-                {
-                    list.Add(post.PostName);
-                }
-            }
+            var list = new List<string>();
+            GetFriendlyPostNames(team, list);
             return list;
+        }
+
+        /// <summary>Fills <paramref name="into"/> (cleared first) so per-frame callers don't allocate a list.</summary>
+        public void GetFriendlyPostNames(Team team, List<string> into)
+        {
+            into.Clear();
+            for (int i = 0; i < commandPosts.Count; i++)
+            {
+                if (IsSpawnablePost(commandPosts[i], team)) into.Add(commandPosts[i].PostName);
+            }
         }
     }
 }

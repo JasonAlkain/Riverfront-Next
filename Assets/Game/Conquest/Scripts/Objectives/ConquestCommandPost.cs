@@ -76,7 +76,21 @@ namespace Game.Conquest.Objectives
             NetworkVariableReadPermission.Everyone,
             NetworkVariableWritePermission.Server);
 
-        public string PostName => postIdentifier.Value.ToString();
+        /// <summary>Cached: the HUD reads it every frame, and FixedString.ToString allocates.</summary>
+        public string PostName
+        {
+            get
+            {
+                if (m_PostNameCache == null || m_PostNameSource != postIdentifier.Value)
+                {
+                    m_PostNameSource = postIdentifier.Value;
+                    m_PostNameCache = m_PostNameSource.ToString();
+                }
+                return m_PostNameCache;
+            }
+        }
+        private string m_PostNameCache;
+        private FixedString32Bytes m_PostNameSource;
         public Team CurrentOwner => currentOwner.Value;
         public float CaptureProgress => captureProgress.Value;
         public bool IsContested => isContested.Value;

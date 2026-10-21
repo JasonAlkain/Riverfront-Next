@@ -73,6 +73,15 @@ namespace Game.Conquest.UI
         private System.Func<ConquestCommandPost, Color> m_CaptureColor;
         // Inputs of the last hints line, so it is only rebuilt when one of them changes.
         private int m_HintsKey = int.MinValue;
+        // Change keys for the per-frame text, so strings are only built when what they show changes.
+        private readonly List<int> m_PostLabelKeys = new List<int>();
+        private readonly List<string> m_PostLabels = new List<string>();
+        private readonly List<ConquestCommandPost> m_PostLabelPosts = new List<ConquestCommandPost>();
+        private readonly List<string> m_FriendlyPosts = new List<string>();
+        private ConquestCommandPost m_CapturePost;
+        private int m_CaptureKey = int.MinValue;
+        private string m_CaptureStatus = "";
+        private int m_TimerKey = int.MinValue;
         private string m_HintsRefusal = "";
 
         private void Awake()
@@ -175,7 +184,9 @@ namespace Game.Conquest.UI
         {
             var player = ConquestPlayer.Local;
             var match = ConquestMatchManager.Instance;
-            if (player == null || match == null || !CanDeploy(match, player, match.GetFriendlyPostNames(player.CurrentTeam))) return;
+            if (player == null || match == null) return;
+            match.GetFriendlyPostNames(player.CurrentTeam, m_FriendlyPosts);
+            if (!CanDeploy(match, player, m_FriendlyPosts)) return;
             player.Deploy(player.PendingClassIndex, player.SelectedPostName);
         }
 
@@ -330,11 +341,22 @@ namespace Game.Conquest.UI
                 var icon = commandPostsRowUI.GetIcon(shown);
                 if (icon == null) return;
 
-                string label = post.PostName;
-                if (post.IsContested) label += " (!)";
-                else if (post.CaptureProgress > 0f && post.CaptureProgress < 1f) label += $" {(int)(post.CaptureProgress * 100)}%";
+                // -2 contested, -1 settled, 0..99 capture percent.
+                int key = post.IsContested ? -2 : (post.CaptureProgress > 0f && post.CaptureProgress < 1f ? (int)(post.CaptureProgress * 100) : -1);
+                while (m_PostLabelKeys.Count <= shown)
+                {
+                    m_PostLabelKeys.Add(int.MinValue);
+                    m_PostLabels.Add("");
+                    m_PostLabelPosts.Add(null);
+                }
+                if (m_PostLabelKeys[shown] != key || m_PostLabelPosts[shown] != post)
+                {
+                    m_PostLabelKeys[shown] = key;
+                    m_PostLabelPosts[shown] = post;
+                    m_PostLabels[shown] = key == -2 ? post.PostName + " (!)" : key >= 0 ? $"{post.PostName} {key}%" : post.PostName;
+                }
 
-                icon.SetPost(label, PostColor(post), TeamIcon(post.CurrentOwner));
+                icon.SetPost(m_PostLabels[shown], PostColor(post), TeamIcon(post.CurrentOwner));
                 shown++;
             }
             commandPostsRowUI.SetVisibleCount(shown);
@@ -348,11 +370,12 @@ namespace Game.Conquest.UI
             if (match != null && player != null && !player.Health.IsDead)
             {
                 Vector3 playerPos = player.transform.position;
-                foreach (var post in match.CommandPosts)
+                var posts = match.CommandPosts;
+                for (int i = 0; i < posts.Count; i++)
                 {
-                    if (post != null && post.IsInCaptureZone(playerPos))
+                    if (posts[i] != null && posts[i].IsInCaptureZone(playerPos))
                     {
-                        nearbyPost = post;
+                        nearbyPost = posts[i];
                         break;
                     }
                 }
@@ -367,10 +390,14 @@ namespace Game.Conquest.UI
             captureBarUI.Show();
             float progress = Mathf.Clamp01(nearbyPost.CaptureProgress);
             Color color = nearbyPost.IsContested ? ContestedColor : TeamColor(nearbyPost.capturingTeam.Value);
-            string status = nearbyPost.IsContested
-                ? $"[CONTESTED] {nearbyPost.PostName}"
-                : $"Capturing {nearbyPost.PostName} ({(int)(progress * 100)}%)";
-            captureBarUI.SetProgress(progress, color, status);
+            int key = nearbyPost.IsContested ? -1 : (int)(progress * 100);
+            if (nearbyPost != m_CapturePost || key != m_CaptureKey)
+            {
+                m_CapturePost = nearbyPost;
+                m_CaptureKey = key;
+                m_CaptureStatus = key < 0 ? $"[CONTESTED] {nearbyPost.PostName}" : $"Capturing {nearbyPost.PostName} ({key}%)";
+            }
+            captureBarUI.SetProgress(progress, color, m_CaptureStatus);
         }
 
         private void UpdateCrosshair(ConquestPlayer player)
@@ -498,7 +525,8 @@ namespace Game.Conquest.UI
             respawnPanelUI.SetClasses(player.AvailableClasses, player.CurrentClassIndex);
             if (match == null) return;
 
-            var posts = match.GetFriendlyPostNames(player.CurrentTeam);
+            var posts = m_FriendlyPosts;
+            match.GetFriendlyPostNames(player.CurrentTeam, posts);
             respawnPanelUI.SetSpawnPosts(posts, player.SelectedPostName);
             bool canDeploy = CanDeploy(match, player, posts);
             respawnPanelUI.SetDeployInteractable(canDeploy);
@@ -507,10 +535,17 @@ namespace Game.Conquest.UI
                 respawnPanelUI.commandMap.Tick(match.CommandPosts, player, m_PostColor, TeamColor(player.CurrentTeam), posts, player.SelectedPostName);
             }
 
+            // Tenths of a second while waiting; negative codes for the three ready states.
             float wait = player.RemainingRespawnTime;
-            if (wait > 0f) respawnPanelUI.SetTimer($"Deploy in {wait:0.0} seconds");
-            else if (canDeploy) respawnPanelUI.SetTimer(posts.Count == 0 ? "No safe command post: deploy at base" : "Ready to deploy");
-            else respawnPanelUI.SetTimer("Choose a command post to deploy");
+            int timerKey = wait > 0f ? Mathf.CeilToInt(wait * 10f) : (canDeploy ? (posts.Count == 0 ? -1 : -2) : -3);
+            if (timerKey != m_TimerKey)
+            {
+                m_TimerKey = timerKey;
+                if (timerKey > 0) respawnPanelUI.SetTimer($"Deploy in {timerKey / 10f:0.0} seconds");
+                else if (timerKey == -1) respawnPanelUI.SetTimer("No safe command post: deploy at base");
+                else if (timerKey == -2) respawnPanelUI.SetTimer("Ready to deploy");
+                else respawnPanelUI.SetTimer("Choose a command post to deploy");
+            }
         }
 
         private void UpdateAllPostsAlert(ConquestMatchManager match, ConquestPlayer player)
