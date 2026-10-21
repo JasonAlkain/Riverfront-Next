@@ -1,0 +1,520 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5b11a58205ec3474ca216360e9fa74a8, type: 3}
+  m_Name: UI Shared Data
+  m_EditorClassIdentifier: Unity.Localization::UnityEngine.Localization.Tables.SharedTableData
+  m_TableCollectionName: UI
+  m_TableCollectionNameGuidString: c308dc868259d92408b506e1b2c3f6ad
+  m_Entries:
+  - m_Id: 1973391360
+    m_Key: PlayerCard/Toggle_Ready/Label
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2397016064
+    m_Key: ServerCard/Btn_CONNECT/Text
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3349123072
+    m_Key: RespawnPanel/Header
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3349123073
+    m_Key: RespawnPanel/Label
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3349123074
+    m_Key: RespawnPanel/Btn_Deploy/Label
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3349123075
+    m_Key: RespawnPanel/SpawnMap/Hint
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3839856640
+    m_Key: SettingsScreen/SettingsPanel/Header
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3839856641
+    m_Key: SettingsScreen/SettingsPanel/LeftColumn/Section_DISPLAY
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3839856642
+    m_Key: SettingsScreen/Row_Window_Mode
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3839856643
+    m_Key: SettingsScreen/Row_Resolution
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3839856644
+    m_Key: SettingsScreen/Row_Quality
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3839856645
+    m_Key: SettingsScreen/Row_V-Sync
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3839856646
+    m_Key: SettingsScreen/Row_Frame_Rate_Cap
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3839856647
+    m_Key: SettingsScreen/Row_Field_of_View
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3844050944
+    m_Key: SettingsScreen/SettingsPanel/LeftColumn/Section_AUDIO
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3844050945
+    m_Key: SettingsScreen/Row_Master_Volume
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3844050946
+    m_Key: SettingsScreen/Row_Music_Volume
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3844050947
+    m_Key: SettingsScreen/Row_Effects_Volume
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3844050948
+    m_Key: SettingsScreen/SettingsPanel/RightColumn/Section_CONTROLS
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3844050949
+    m_Key: SettingsScreen/Row_Mouse_Sensitivity
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3844050950
+    m_Key: SettingsScreen/Row_Scoped_Sensitivity
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3844050951
+    m_Key: SettingsScreen/Row_Invert_Look_Y
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3844050952
+    m_Key: SettingsScreen/SettingsPanel/RightColumn/Section_ACCESSIBILITY
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3844050953
+    m_Key: SettingsScreen/Row_Interface_Scale
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3844050954
+    m_Key: SettingsScreen/Row_High_Contrast_UI
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3844050955
+    m_Key: SettingsScreen/Row_Reduce_Motion
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3844050956
+    m_Key: SettingsScreen/Row_Colour-blind_Teams
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3844050957
+    m_Key: SettingsScreen/SettingsPanel/Buttons/Btn_Back/Label
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3844050958
+    m_Key: SettingsScreen/SettingsPanel/Buttons/Btn_Defaults/Label
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3844050959
+    m_Key: SettingsScreen/SettingsPanel/Buttons/Btn_Controls/Label
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3844050960
+    m_Key: SettingsScreen/SettingsPanel/Buttons/Btn_Apply/Label
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3844050961
+    m_Key: SettingsScreen/SettingsPanel/ConfirmDisplay/Box/Btn_Keep/Label
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3844050962
+    m_Key: SettingsScreen/SettingsPanel/ConfirmDisplay/Box/Btn_Revert/Label
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3844050963
+    m_Key: SettingsScreen/ControlsPanel/txt_Title
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3844050964
+    m_Key: SettingsScreen/ControlsPanel/txt_Hint
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3844050965
+    m_Key: SettingsScreen/ControlsPanel/Columns/MovementColumn/txt_Header
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3848245248
+    m_Key: SettingsScreen/ControlsPanel/Columns/CombatColumn/txt_Header
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3848245249
+    m_Key: SettingsScreen/ControlsPanel/ButtonRow/Btn_RESET/Text
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3848245250
+    m_Key: SettingsScreen/ControlsPanel/ButtonRow/Btn_BACK/Text
+    m_Metadata:
+      m_Items: []
+  - m_Id: 4905209856
+    m_Key: MainMenuCanvas/TitlePanel/TMP
+    m_Metadata:
+      m_Items: []
+  - m_Id: 4909404160
+    m_Key: MainMenuCanvas/TitlePanel/Btn_PLAY_SOLO_PRACTICE_/Text
+    m_Metadata:
+      m_Items: []
+  - m_Id: 4909404161
+    m_Key: MainMenuCanvas/TitlePanel/Btn_MULTIPLAYER_OPERATIONS/Text
+    m_Metadata:
+      m_Items: []
+  - m_Id: 4909404162
+    m_Key: MainMenuCanvas/TitlePanel/Btn_GAME_SETTINGS/Text
+    m_Metadata:
+      m_Items: []
+  - m_Id: 4909404163
+    m_Key: MainMenuCanvas/TitlePanel/Btn_PROJECT_CREDITS/Text
+    m_Metadata:
+      m_Items: []
+  - m_Id: 4909404164
+    m_Key: MainMenuCanvas/TitlePanel/Btn_QUIT_TO_DESKTOP/Text
+    m_Metadata:
+      m_Items: []
+  - m_Id: 4909404165
+    m_Key: MainMenuCanvas/SoloPanel/TMP
+    m_Metadata:
+      m_Items: []
+  - m_Id: 4909404166
+    m_Key: MainMenuCanvas/SoloPanel/MapRow/Btn__PREV_MAP/Text
+    m_Metadata:
+      m_Items: []
+  - m_Id: 4909404167
+    m_Key: MainMenuCanvas/SoloPanel/MapRow/Btn_NEXT_MAP_/Text
+    m_Metadata:
+      m_Items: []
+  - m_Id: 4909404168
+    m_Key: MainMenuCanvas/SoloPanel/DiffRow/Btn_EASY/Text
+    m_Metadata:
+      m_Items: []
+  - m_Id: 4909404169
+    m_Key: MainMenuCanvas/SoloPanel/DiffRow/Btn_NORMAL/Text
+    m_Metadata:
+      m_Items: []
+  - m_Id: 4909404170
+    m_Key: MainMenuCanvas/SoloPanel/DiffRow/Btn_HARD/Text
+    m_Metadata:
+      m_Items: []
+  - m_Id: 4909404171
+    m_Key: MainMenuCanvas/SoloPanel/ActionRow/Btn_START_SOLO_BATTLE/Text
+    m_Metadata:
+      m_Items: []
+  - m_Id: 4909404172
+    m_Key: MainMenuCanvas/SoloPanel/ActionRow/Btn_BACK/Text
+    m_Metadata:
+      m_Items: []
+  - m_Id: 4909404173
+    m_Key: MainMenuCanvas/MultiplayerPanel/TMP
+    m_Metadata:
+      m_Items: []
+  - m_Id: 4909404174
+    m_Key: MainMenuCanvas/MultiplayerPanel/Btn_HOST_NEW_GAME/Text
+    m_Metadata:
+      m_Items: []
+  - m_Id: 4909404175
+    m_Key: MainMenuCanvas/MultiplayerPanel/Btn_BROWSE_PUBLIC_GAMES/Text
+    m_Metadata:
+      m_Items: []
+  - m_Id: 4909404176
+    m_Key: MainMenuCanvas/MultiplayerPanel/Btn_JOIN_BY_CODE_/_IP/Text
+    m_Metadata:
+      m_Items: []
+  - m_Id: 4909404177
+    m_Key: MainMenuCanvas/MultiplayerPanel/Btn_BACK_TO_MAIN_MENU/Text
+    m_Metadata:
+      m_Items: []
+  - m_Id: 4909404178
+    m_Key: MainMenuCanvas/HostPanel/TMP
+    m_Metadata:
+      m_Items: []
+  - m_Id: 4909404179
+    m_Key: MainMenuCanvas/HostPanel/TMP_2
+    m_Metadata:
+      m_Items: []
+  - m_Id: 4913598464
+    m_Key: MainMenuCanvas/HostPanel/HostMapRow/Btn__Prev_Map/Text
+    m_Metadata:
+      m_Items: []
+  - m_Id: 4913598465
+    m_Key: MainMenuCanvas/HostPanel/HostMapRow/Btn_Next_Map_/Text
+    m_Metadata:
+      m_Items: []
+  - m_Id: 4913598466
+    m_Key: MainMenuCanvas/Row_Bot_Fill
+    m_Metadata:
+      m_Items: []
+  - m_Id: 4913598467
+    m_Key: MainMenuCanvas/Row_Bot_Difficulty
+    m_Metadata:
+      m_Items: []
+  - m_Id: 4913598468
+    m_Key: MainMenuCanvas/HostPanel/HostActRow/Btn_CREATE_LOBBY_HOST/Text
+    m_Metadata:
+      m_Items: []
+  - m_Id: 4913598469
+    m_Key: MainMenuCanvas/HostPanel/HostActRow/Btn_BACK/Text
+    m_Metadata:
+      m_Items: []
+  - m_Id: 4913598470
+    m_Key: MainMenuCanvas/BrowserPanel/TMP
+    m_Metadata:
+      m_Items: []
+  - m_Id: 4913598471
+    m_Key: MainMenuCanvas/BrowserPanel/Panel/Panel_1_/TMP
+    m_Metadata:
+      m_Items: []
+  - m_Id: 4913598472
+    m_Key: MainMenuCanvas/BrowserPanel/Panel/Panel_1_/Btn_CONNECT_TO_ENTERED_IP/Text
+    m_Metadata:
+      m_Items: []
+  - m_Id: 4917792768
+    m_Key: MainMenuCanvas/BrowserPanel/BrowserActRow/Btn_CONNECT/Text
+    m_Metadata:
+      m_Items: []
+  - m_Id: 4917792769
+    m_Key: MainMenuCanvas/BrowserPanel/BrowserActRow/Btn_HOST/Text
+    m_Metadata:
+      m_Items: []
+  - m_Id: 4917792770
+    m_Key: MainMenuCanvas/BrowserPanel/BrowserActRow/Btn_REFRESH/Text
+    m_Metadata:
+      m_Items: []
+  - m_Id: 4917792771
+    m_Key: MainMenuCanvas/BrowserPanel/BrowserActRow/Btn_BACK/Text
+    m_Metadata:
+      m_Items: []
+  - m_Id: 4917792772
+    m_Key: MainMenuCanvas/JoinCodePanel/TMP
+    m_Metadata:
+      m_Items: []
+  - m_Id: 4917792773
+    m_Key: MainMenuCanvas/JoinCodePanel/TMP_2
+    m_Metadata:
+      m_Items: []
+  - m_Id: 4917792774
+    m_Key: MainMenuCanvas/JoinCodePanel/CodeActRow/Btn_CONNECT/Text
+    m_Metadata:
+      m_Items: []
+  - m_Id: 4917792775
+    m_Key: MainMenuCanvas/JoinCodePanel/CodeActRow/Btn_BACK/Text
+    m_Metadata:
+      m_Items: []
+  - m_Id: 4917792776
+    m_Key: MainMenuCanvas/LobbyPanel/NameRow/Label
+    m_Metadata:
+      m_Items: []
+  - m_Id: 4917792777
+    m_Key: MainMenuCanvas/LobbyPanel/NameRow/Btn_SetName/Label
+    m_Metadata:
+      m_Items: []
+  - m_Id: 4917792778
+    m_Key: MainMenuCanvas/LobbyPanel/TeamsRow/RedBox/TMP
+    m_Metadata:
+      m_Items: []
+  - m_Id: 4917792779
+    m_Key: MainMenuCanvas/LobbyPanel/TeamsRow/BlueBox/TMP
+    m_Metadata:
+      m_Items: []
+  - m_Id: 4917792780
+    m_Key: MainMenuCanvas/LobbyPanel/CtrlRow/Btn_SWITCH_TEAM/Text
+    m_Metadata:
+      m_Items: []
+  - m_Id: 4917792781
+    m_Key: MainMenuCanvas/LobbyPanel/CtrlRow/Btn_TOGGLE_READY/Text
+    m_Metadata:
+      m_Items: []
+  - m_Id: 4917792782
+    m_Key: MainMenuCanvas/LobbyPanel/HostLaunchRow/Btn_START_BATTLE_AUTHORITATIVE_/Text
+    m_Metadata:
+      m_Items: []
+  - m_Id: 4917792783
+    m_Key: MainMenuCanvas/LobbyPanel/HostLaunchRow/Btn_CYCLE_MAP/Text
+    m_Metadata:
+      m_Items: []
+  - m_Id: 4917792784
+    m_Key: MainMenuCanvas/LobbyPanel/HostLaunchRow/Btn_LEAVE_LOBBY/Text
+    m_Metadata:
+      m_Items: []
+  - m_Id: 4917792785
+    m_Key: MainMenuCanvas/CreditsPanel/TMP
+    m_Metadata:
+      m_Items: []
+  - m_Id: 4917792786
+    m_Key: MainMenuCanvas/CreditsPanel/CreditsBox/Scroll_View/Viewport/TMP
+    m_Metadata:
+      m_Items: []
+  - m_Id: 4917792787
+    m_Key: MainMenuCanvas/CreditsPanel/Btn_BACK_TO_MAIN_MENU/Text
+    m_Metadata:
+      m_Items: []
+  - m_Id: 5647601664
+    m_Key: HUDCanvas/TicketBar/Label/Text
+    m_Metadata:
+      m_Items: []
+  - m_Id: 5651795968
+    m_Key: HUDCanvas/Scoreboard/TeamsRow/RedTeamPanel/ColumnLabels/Player
+    m_Metadata:
+      m_Items: []
+  - m_Id: 5651795969
+    m_Key: HUDCanvas/Scoreboard/TeamsRow/RedTeamPanel/ColumnLabels/Class
+    m_Metadata:
+      m_Items: []
+  - m_Id: 5651795970
+    m_Key: HUDCanvas/Scoreboard/TeamsRow/RedTeamPanel/ColumnLabels/Kills
+    m_Metadata:
+      m_Items: []
+  - m_Id: 5651795971
+    m_Key: HUDCanvas/Scoreboard/TeamsRow/RedTeamPanel/ColumnLabels/Deaths
+    m_Metadata:
+      m_Items: []
+  - m_Id: 5651795972
+    m_Key: HUDCanvas/Scoreboard/TeamsRow/BlueTeamPanel/ColumnLabels/Player
+    m_Metadata:
+      m_Items: []
+  - m_Id: 5668573184
+    m_Key: HUDCanvas/Scoreboard/TeamsRow/BlueTeamPanel/ColumnLabels/Class
+    m_Metadata:
+      m_Items: []
+  - m_Id: 5668573185
+    m_Key: HUDCanvas/Scoreboard/TeamsRow/BlueTeamPanel/ColumnLabels/Kills
+    m_Metadata:
+      m_Items: []
+  - m_Id: 5668573186
+    m_Key: HUDCanvas/Scoreboard/TeamsRow/BlueTeamPanel/ColumnLabels/Deaths
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6129946624
+    m_Key: MatchResultsCanvas/SummaryPanel/CountdownRow/Btn_ReturnNow/Text
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6129946625
+    m_Key: MatchResultsCanvas/TeamsRow/RedTeamPanel/ColumnLabels/Player
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6129946626
+    m_Key: MatchResultsCanvas/TeamsRow/RedTeamPanel/ColumnLabels/Class
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6129946627
+    m_Key: MatchResultsCanvas/TeamsRow/RedTeamPanel/ColumnLabels/Kills
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6129946628
+    m_Key: MatchResultsCanvas/TeamsRow/RedTeamPanel/ColumnLabels/Deaths
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6129946629
+    m_Key: MatchResultsCanvas/TeamsRow/BlueTeamPanel/ColumnLabels/Player
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6129946630
+    m_Key: MatchResultsCanvas/TeamsRow/BlueTeamPanel/ColumnLabels/Class
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6129946631
+    m_Key: MatchResultsCanvas/TeamsRow/BlueTeamPanel/ColumnLabels/Kills
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6129946632
+    m_Key: MatchResultsCanvas/TeamsRow/BlueTeamPanel/ColumnLabels/Deaths
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6549377024
+    m_Key: PauseMenuCanvas/MainPausePanel/Title
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6549377025
+    m_Key: PauseMenuCanvas/MainPausePanel/Subtitle
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6549377026
+    m_Key: PauseMenuCanvas/MainPausePanel/Btn_Resume/Label
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6549377027
+    m_Key: PauseMenuCanvas/MainPausePanel/Btn_Settings/Label
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6549377028
+    m_Key: PauseMenuCanvas/MainPausePanel/Btn_Leave/Label
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6549377029
+    m_Key: PauseMenuCanvas/MainPausePanel/Btn_Quit/Label
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6549377030
+    m_Key: PauseMenuCanvas/LeaveConfirmPanel/Title
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6549377031
+    m_Key: PauseMenuCanvas/LeaveConfirmPanel/Message
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6549377032
+    m_Key: PauseMenuCanvas/LeaveConfirmPanel/Btn_ConfirmLeave/Label
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6549377033
+    m_Key: PauseMenuCanvas/LeaveConfirmPanel/Btn_CancelLeave/Label
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6549377034
+    m_Key: PauseMenuCanvas/QuitConfirmPanel/Title
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6549377035
+    m_Key: PauseMenuCanvas/QuitConfirmPanel/Message
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6549377036
+    m_Key: PauseMenuCanvas/QuitConfirmPanel/Btn_ConfirmQuit/Label
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6549377037
+    m_Key: PauseMenuCanvas/QuitConfirmPanel/Btn_CancelQuit/Label
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6549377038
+    m_Key: PauseMenuCanvas/MatchEndPanel/Btn_LeaveGame/Label
+    m_Metadata:
+      m_Items: []
+  - m_Id: 7027527680
+    m_Key: LoadingScreenCanvas/CenterPanel/TipBox/TipHeader
+    m_Metadata:
+      m_Items: []
+  m_Metadata:
+    m_Items: []
+  m_KeyGenerator:
+    rid: 5006381498450051096
+  references:
+    version: 2
+    RefIds:
+    - rid: 5006381498450051096
+      type: {class: DistributedUIDGenerator, ns: UnityEngine.Localization.Tables, asm: Unity.Localization}
+      data:
+        m_CustomEpoch: 1792605006234

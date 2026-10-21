@@ -27,5 +27,7 @@ EditorBuildSettings:
     path: Assets/Game/Conquest/Scenes/MatchResults.unity
     guid: 0a7c45fb173ed564b9e02da590d3b3ba
   m_configObjects:
+    com.unity.addressableassets: {fileID: 11400000, guid: 8a359052d73013046af0cccc79347d43, type: 2}
     com.unity.dt.app-ui: {fileID: 11400000, guid: 1b1c20d82303e4b5781c3ef50ac1449f, type: 2}
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
+    com.unity.localization.settings: {fileID: 11400000, guid: d3d2a21cc89a94e41b18a5db9cf7d19e, type: 2}
