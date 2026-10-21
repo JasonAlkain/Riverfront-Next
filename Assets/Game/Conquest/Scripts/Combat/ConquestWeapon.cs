@@ -96,6 +96,8 @@ namespace Game.Conquest.Combat
         public bool IsReloading => isReloading.Value;
         public bool HasZoom => hasZoom;
         public bool HasSupportStation => hasSupportStation;
+        /// <summary>Server: when this weapon last fired (Time.time). Bots use it to hear nearby gunfire.</summary>
+        public float ServerLastShotTime { get; private set; } = float.NegativeInfinity;
 
         private void Awake()
         {
@@ -324,6 +326,7 @@ namespace Game.Conquest.Combat
         private void ServerResolveShot(Vector3 origin, Vector3 direction, Vector3 muzzlePos)
         {
             if (m_Health != null) m_Health.EndSpawnProtection();
+            ServerLastShotTime = Time.time;
             currentAmmo.Value = Mathf.Max(0, currentAmmo.Value - 1);
 
             Team myTeam = m_Player != null ? m_Player.CurrentTeam : Team.Neutral;

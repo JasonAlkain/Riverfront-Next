@@ -51,6 +51,9 @@ namespace Game.Conquest.Combat
         /// (or <see cref="NoAttacker"/>). A hold for deploy also raises it, with NoAttacker.</summary>
         public event Action<ulong> OnDied;
         public event Action OnRespawned;
+        /// <summary>Server only: raised when a shooter hurts this player, with the shooter's
+        /// NetworkObjectId and where the shot came from. Not raised for falls.</summary>
+        public event Action<ulong, Vector3> OnServerDamaged;
 
         public int MaxHealth => maxHealth;
         public int CurrentHealth => currentHealth.Value;
@@ -125,6 +128,7 @@ namespace Game.Conquest.Combat
             currentHealth.Value = newHealth;
 
             TakeDamageClientRpc(damage, attackerObjectId, sourcePosition);
+            if (attackerObjectId != NoAttacker) OnServerDamaged?.Invoke(attackerObjectId, sourcePosition);
 
             if (newHealth <= 0)
             {

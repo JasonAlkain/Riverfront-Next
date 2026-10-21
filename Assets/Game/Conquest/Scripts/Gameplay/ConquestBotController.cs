@@ -45,6 +45,9 @@ namespace Game.Conquest.Gameplay
         [Tooltip("Placeholder: aim error in degrees at aimAccuracy 1. About the old 0.2 m wobble at 18 m.")]
         [SerializeField] private float bestAimErrorDegrees = 0.6f;
         [SerializeField] private LayerMask visionMask = ConquestPhysics.ShotMask;
+        [Tooltip("Seconds between perception updates. Set by difficulty.")]
+        [SerializeField] private float perceptionInterval = 0.25f;
+        [SerializeField] private ConquestBotPerception perception = new ConquestBotPerception();
 
         [Header("Defending")]
         [Tooltip("Placeholder: average seconds a defender stands at one guard spot before moving to another in the zone.")]
@@ -70,15 +73,12 @@ namespace Game.Conquest.Gameplay
         private ConquestCommandPost m_TargetPost;
         private bool m_IsDefender;
         private float m_NextGuardMoveTime;
-        private ConquestPlayer m_CurrentEnemy;
         private float m_NextDecisionTime;
-        private float m_NextFireCheckTime;
-        private float m_TargetDetectedTime;
+        private float m_NextPerceptionTime;
         private Vector3 m_LastStuckSample;
         private float m_NextStuckSampleTime;
         private float m_StuckTimer;
         private float m_RecoverUntil;
-        private bool m_HasReacted;
         private float m_NextStationAttemptTime;
         private const float StationAttemptInterval = 3f;
 
@@ -121,8 +121,10 @@ namespace Game.Conquest.Gameplay
 
             if (IsServer)
             {
+                m_Health.OnServerDamaged += HandleServerDamaged;
                 currentState = BotState.Idle;
                 m_NextDecisionTime = Time.time + Random.Range(0.2f, 1.0f);
+                m_NextPerceptionTime = Time.time + Random.Range(0f, perceptionInterval);
                 ResetStuckSampling();
             }
             else
@@ -138,6 +140,7 @@ namespace Game.Conquest.Gameplay
             {
                 m_Health.OnDied -= HandleDeath;
                 m_Health.OnRespawned -= HandleRespawn;
+                m_Health.OnServerDamaged -= HandleServerDamaged;
             }
         }
 
@@ -156,18 +159,21 @@ namespace Game.Conquest.Gameplay
                     fieldOfView = 110.0f;
                     aimAccuracy = 0.55f;
                     reactionDelay = 0.65f;
+                    perceptionInterval = 0.35f; // Placeholder
                     break;
                 case BotDifficulty.Normal:
                     detectionRange = 45.0f;
                     fieldOfView = 135.0f;
                     aimAccuracy = 0.75f;
                     reactionDelay = 0.35f;
+                    perceptionInterval = 0.25f; // Placeholder
                     break;
                 case BotDifficulty.Hard:
                     detectionRange = 60.0f;
                     fieldOfView = 160.0f;
                     aimAccuracy = 0.90f;
                     reactionDelay = 0.18f;
+                    perceptionInterval = 0.2f; // Placeholder
                     break;
             }
         }
@@ -186,6 +192,8 @@ namespace Game.Conquest.Gameplay
                 currentState = BotState.Idle;
                 return;
             }
+
+            TickPerception();
 
             // Periodic tactical evaluation
             if (Time.time >= m_NextDecisionTime)
@@ -216,20 +224,12 @@ namespace Game.Conquest.Gameplay
 
         private void EvaluateBattlefield()
         {
-            // 1. Scan for visible enemies
-            ConquestPlayer nearestEnemy = ScanForEnemy();
-            if (nearestEnemy != null)
+            // 1. A known enemy comes first (perception updates on its own, faster tick).
+            if (perception.HasTarget)
             {
-                if (m_CurrentEnemy != nearestEnemy)
-                {
-                    m_CurrentEnemy = nearestEnemy;
-                    m_TargetDetectedTime = Time.time;
-                    m_HasReacted = false;
-                }
                 currentState = BotState.EngageEnemy;
                 return;
             }
-            m_CurrentEnemy = null;
 
             // 2. Back to the post the bot manager assigned.
             if (m_TargetPost == null)
@@ -411,94 +411,71 @@ namespace Game.Conquest.Gameplay
             transform.rotation = Quaternion.RotateTowards(transform.rotation, Quaternion.LookRotation(direction), 180.0f * Time.deltaTime);
         }
 
+        // Fight what perception has: shoot it while it's in sight, otherwise go to where it was last seen.
         private void UpdateEngageEnemy()
         {
-            if (m_CurrentEnemy == null || m_CurrentEnemy.Health.IsDead)
+            if (!perception.HasTarget)
             {
-                m_CurrentEnemy = null;
                 currentState = BotState.Idle;
+                m_NextDecisionTime = Time.time;
                 return;
             }
 
-            Vector3 toEnemy = m_CurrentEnemy.transform.position - transform.position;
-            float dist = toEnemy.magnitude;
+            Vector3 targetPos = perception.Enemy != null && perception.TargetVisible
+                ? perception.Enemy.transform.position
+                : perception.LastKnownPosition;
+            Vector3 toTarget = targetPos - transform.position;
+            FaceDirection(toTarget);
 
-            // Turn towards enemy
-            Vector3 lookDir = new Vector3(toEnemy.x, 0f, toEnemy.z);
-            if (lookDir.sqrMagnitude > 0.01f)
+            if (!perception.TargetVisible)
             {
-                transform.rotation = Quaternion.RotateTowards(
-                    transform.rotation,
-                    Quaternion.LookRotation(lookDir),
-                    180.0f * Time.deltaTime);
+                MoveToTarget(perception.LastKnownPosition);
+                return;
             }
 
             // Move closer if outside optimal range, or stop to shoot
-            if (dist > 18.0f)
+            if (toTarget.magnitude > 18.0f)
             {
-                MoveToTarget(m_CurrentEnemy.transform.position);
+                MoveToTarget(targetPos);
             }
             else if (m_Agent.isActiveAndEnabled && m_Agent.isOnNavMesh)
             {
                 m_Agent.isStopped = true;
             }
 
-            // Reaction delay check
-            if (!m_HasReacted)
-            {
-                if (Time.time - m_TargetDetectedTime >= reactionDelay)
-                {
-                    m_HasReacted = true;
-                }
-                else
-                {
-                    return;
-                }
-            }
+            if (Time.time - perception.TargetAcquiredTime < reactionDelay) return;
 
             // Aim error is an angle, so a bot misses by more at long range, like a person would.
-            Vector3 targetAimPoint = m_CurrentEnemy.transform.position + Vector3.up * 1.3f;
             float aimErrorDegrees = Mathf.Lerp(worstAimErrorDegrees, bestAimErrorDegrees, aimAccuracy);
-
             if (m_Weapon != null)
             {
-                m_Weapon.FireFromAI(targetAimPoint, aimErrorDegrees);
+                m_Weapon.FireFromAI(perception.AimPoint, aimErrorDegrees);
             }
         }
 
-        private ConquestPlayer ScanForEnemy()
+        // Staggered perception: each bot looks around on its own short timer, so a full server
+        // doesn't run every bot's line-of-sight checks in the same frame.
+        private void TickPerception()
         {
-            ConquestPlayer closest = null;
-            float closestSqrDist = detectionRange * detectionRange;
-            Vector3 eyePos = transform.position + Vector3.up * 1.6f;
+            if (Time.time < m_NextPerceptionTime) return;
+            m_NextPerceptionTime = Time.time + perceptionInterval;
 
-            // The roster of spawned players, not an OverlapSphere: no allocation, and range is
-            // measured to the target's position rather than to whichever collider overlapped.
-            var all = ConquestPlayer.All;
-            for (int i = 0; i < all.Count; i++)
+            perception.Tick(m_Player, detectionRange, fieldOfView, visionMask);
+            if (perception.HasTarget && currentState != BotState.EngageEnemy)
             {
-                ConquestPlayer candidate = all[i];
-                if (candidate == null || candidate == m_Player || candidate.Health.IsDead) continue;
-                if (candidate.CurrentTeam == m_Player.CurrentTeam || candidate.CurrentTeam == Team.Neutral) continue;
-
-                Vector3 toTarget = candidate.transform.position - transform.position;
-                float sqrDist = toTarget.sqrMagnitude;
-                if (sqrDist > closestSqrDist) continue;
-                if (Vector3.Angle(transform.forward, toTarget) > fieldOfView * 0.5f) continue;
-
-                // Line of sight: the bot's own body never blocks it, and hitting the target counts as seeing it.
-                Vector3 targetPos = candidate.transform.position + Vector3.up * 1.3f;
-                if (ConquestPhysics.LinecastIgnoring(transform, eyePos, targetPos, visionMask, out RaycastHit hit) &&
-                    !hit.collider.transform.IsChildOf(candidate.transform))
-                {
-                    continue;
-                }
-
-                closestSqrDist = sqrDist;
-                closest = candidate;
+                currentState = BotState.EngageEnemy;
             }
+        }
 
-            return closest;
+        // Shot by someone: turn on them even if they were behind the bot.
+        private void HandleServerDamaged(ulong attackerObjectId, Vector3 sourcePosition)
+        {
+            if (m_Health.IsDead || NetworkManager == null) return;
+            if (!NetworkManager.SpawnManager.SpawnedObjects.TryGetValue(attackerObjectId, out NetworkObject attackerObject)) return;
+            if (!attackerObject.TryGetComponent(out ConquestPlayer attacker)) return;
+
+            perception.NotifyAttackedBy(m_Player, attacker);
+            if (perception.HasTarget) currentState = BotState.EngageEnemy;
         }
 
         // Progress is measured between samples a fixed time apart, not between frames: one frame
@@ -561,6 +538,7 @@ namespace Game.Conquest.Gameplay
         {
             if (!IsServer) return;
             currentState = BotState.Dead;
+            perception.Clear();
             if (m_Agent.isActiveAndEnabled && m_Agent.isOnNavMesh)
             {
                 m_Agent.isStopped = true;
@@ -576,7 +554,7 @@ namespace Game.Conquest.Gameplay
                 m_Agent.enabled = true;
             }
             currentState = BotState.Idle;
-            m_CurrentEnemy = null;
+            perception.Clear();
             m_NextDecisionTime = Time.time + Random.Range(0.2f, 0.6f);
             ResetStuckSampling();
         }
