@@ -18,10 +18,25 @@ namespace Game.Conquest.Gameplay
         [Header("Bot Prefab & Timing")]
         [SerializeField] private GameObject botPrefab;
         [SerializeField] private float populationCheckInterval = 2.0f;
+        [Tooltip("Placeholder: seconds between two bot spawns while teams are filling, so a full team doesn't arrive in one frame.")]
+        [SerializeField] private float spawnStaggerSeconds = 0.25f;
+
+        [Header("Objectives")]
+        [Tooltip("Placeholder: seconds between objective assignments. A bot that finishes its post asks for one sooner.")]
+        [SerializeField] private float objectiveAssignInterval = 1.5f;
+        [SerializeField] private ConquestBotObjectivePlanner objectivePlanner = new ConquestBotObjectivePlanner();
 
         private readonly List<ConquestBotController> m_ActiveBots = new List<ConquestBotController>();
         private float m_NextCheckTime;
-        private int m_AssignedClassCounter = 0;
+        private float m_NextAssignTime;
+        private float m_LastAssignTime;
+        private const float MinReassignGap = 0.25f;
+
+        // Bot names count up for the whole match, so two bots never share one.
+        private int m_NextBotNumber = 1;
+        private readonly int[] m_ClassCounts = new int[8];
+
+        public ConquestBotObjectivePlanner ObjectivePlanner => objectivePlanner;
 
         public int TargetParticipantsPerTeam
         {
@@ -76,60 +91,87 @@ namespace Game.Conquest.Gameplay
 
         private void Update()
         {
-            if (!IsServer || !enableBotFilling) return;
+            if (!IsServer) return;
             if (NetworkManager.Singleton == null || !NetworkManager.Singleton.IsServer || !NetworkManager.Singleton.IsListening) return;
 
             // Stop bot spawning if match is over
-            if (ConquestMatchManager.Instance != null && ConquestMatchManager.Instance.IsMatchOver) return;
+            var match = ConquestMatchManager.Instance;
+            if (match != null && match.IsMatchOver) return;
 
-            if (Time.time >= m_NextCheckTime)
+            if (enableBotFilling && Time.time >= m_NextCheckTime)
             {
-                m_NextCheckTime = Time.time + populationCheckInterval;
-                MaintainTeamPopulations();
+                // Short wait after a spawn while a team is still short, the normal check interval otherwise.
+                bool spawned = SpawnOneMissingBot();
+                m_NextCheckTime = Time.time + (spawned ? spawnStaggerSeconds : populationCheckInterval);
+            }
+
+            if (match != null && Time.time >= m_NextAssignTime)
+            {
+                m_LastAssignTime = Time.time;
+                m_NextAssignTime = Time.time + objectiveAssignInterval;
+                objectivePlanner.AssignTeam(Team.Red, m_ActiveBots, match.CommandPosts);
+                objectivePlanner.AssignTeam(Team.Blue, m_ActiveBots, match.CommandPosts);
             }
         }
 
-        private void MaintainTeamPopulations()
+        /// <summary>Server: a bot has finished its post (or has none); hand out objectives on the next frame.</summary>
+        public void RequestReassignment()
         {
-            if (botPrefab == null) return;
+            // Several bots finishing together still cause only one pass.
+            m_NextAssignTime = Mathf.Min(m_NextAssignTime, m_LastAssignTime + MinReassignGap);
+        }
 
-            int redHumans = 0;
-            int blueHumans = 0;
-            int redBots = 0;
-            int blueBots = 0;
+        /// <summary>Server: if a team is below its size, spawn one bot for the team that is shortest. Returns true if it spawned one.</summary>
+        private bool SpawnOneMissingBot()
+        {
+            if (botPrefab == null) return false;
+            for (int i = m_ActiveBots.Count - 1; i >= 0; i--)
+            {
+                if (m_ActiveBots[i] == null || !m_ActiveBots[i].IsSpawned) m_ActiveBots.RemoveAt(i);
+            }
 
-            // Count existing participants
+            int red = 0;
+            int blue = 0;
             foreach (var p in ConquestPlayer.All)
             {
                 if (p == null) continue;
-                if (p.isBot)
-                {
-                    if (p.CurrentTeam == Team.Red) redBots++;
-                    else if (p.CurrentTeam == Team.Blue) blueBots++;
-                }
-                else
-                {
-                    if (p.CurrentTeam == Team.Red) redHumans++;
-                    else if (p.CurrentTeam == Team.Blue) blueHumans++;
-                }
+                if (p.CurrentTeam == Team.Red) red++;
+                else if (p.CurrentTeam == Team.Blue) blue++;
             }
 
-            int redTotal = redHumans + redBots;
-            int blueTotal = blueHumans + blueBots;
+            int redMissing = targetParticipantsPerTeam - red;
+            int blueMissing = targetParticipantsPerTeam - blue;
+            if (redMissing <= 0 && blueMissing <= 0) return false;
 
-            // Fill Red team
-            while (redTotal < targetParticipantsPerTeam)
+            // The shorter team first, so both teams fill side by side and neither sits empty.
+            SpawnBot(redMissing >= blueMissing ? Team.Red : Team.Blue);
+            return true;
+        }
+
+        /// <summary>Server: a bot left the match (retired or the match ended).</summary>
+        public void Unregister(ConquestBotController bot)
+        {
+            m_ActiveBots.Remove(bot);
+        }
+
+        // The class the team has fewest of, humans included, so each team gets a balanced mix.
+        private int PickClassForTeam(Team team, ConquestPlayer newBot, int classCount)
+        {
+            classCount = Mathf.Clamp(classCount, 1, m_ClassCounts.Length);
+            System.Array.Clear(m_ClassCounts, 0, m_ClassCounts.Length);
+            foreach (var p in ConquestPlayer.All)
             {
-                SpawnBot(Team.Red);
-                redTotal++;
+                if (p == null || p == newBot || p.CurrentTeam != team) continue;
+                int index = p.CurrentClassIndex;
+                if (index >= 0 && index < classCount) m_ClassCounts[index]++;
             }
 
-            // Fill Blue team
-            while (blueTotal < targetParticipantsPerTeam)
+            int best = 0;
+            for (int i = 1; i < classCount; i++)
             {
-                SpawnBot(Team.Blue);
-                blueTotal++;
+                if (m_ClassCounts[i] < m_ClassCounts[best]) best = i;
             }
+            return best;
         }
 
         public bool ShouldRetireBot(Team team)
@@ -170,12 +212,9 @@ namespace Game.Conquest.Gameplay
             if (botPlayer != null)
             {
                 botPlayer.playerTeam.Value = team;
-                botPlayer.playerName.Value = $"Bot_{team}_{Random.Range(10, 99)}";
+                botPlayer.playerName.Value = $"Bot_{team}_{m_NextBotNumber++:00}";
                 botPlayer.isBot = true;
-
-                // Cycle assigned class (0=Assault, 1=Heavy, 2=Engineer, 3=Recon) for balanced class spread
-                int classIdx = (m_AssignedClassCounter++) % 4;
-                botPlayer.ServerSetClass(classIdx);
+                botPlayer.ServerSetClass(PickClassForTeam(team, botPlayer, botPlayer.AvailableClasses.Count));
                 botPlayer.ApplyTeamVisuals(team);
             }
 
