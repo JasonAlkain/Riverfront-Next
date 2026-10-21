@@ -173,6 +173,7 @@ namespace Game.Conquest.Gameplay
                 m_Health.OnRespawned -= HandleRespawn;
                 m_Health.OnServerDamaged -= HandleServerDamaged;
             }
+            if (IsServer) ConquestBotManager.Instance?.Unregister(this);
         }
 
         public void SetDifficulty(BotDifficulty diff)
