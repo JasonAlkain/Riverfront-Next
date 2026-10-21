@@ -41,6 +41,8 @@ namespace Game.Conquest.Gameplay
         public float TargetAcquiredTime { get; private set; }
 
         public bool HasTarget => Enemy != null || Station != null;
+        /// <summary>Seconds since the target was last in sight (or last hit this bot).</summary>
+        public float SecondsSinceSeen => Time.time - m_LastSeenTime;
 
         /// <summary>Where to aim: the target's chest (or a station's body), or where it was last seen.</summary>
         public Vector3 AimPoint

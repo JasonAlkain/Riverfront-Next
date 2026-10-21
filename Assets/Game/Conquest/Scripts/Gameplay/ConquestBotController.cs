@@ -5,6 +5,7 @@ using UnityEngine.AI;
 using Game.Conquest.Player;
 using Game.Conquest.Combat;
 using Game.Conquest.Objectives;
+using Game.Conquest.Classes;
 
 namespace Game.Conquest.Gameplay
 {
@@ -15,7 +16,8 @@ namespace Game.Conquest.Gameplay
         Capture,
         Defend,
         EngageEnemy,
-        Dead
+        Dead,
+        Retreat
     }
 
     public enum BotDifficulty
@@ -49,6 +51,28 @@ namespace Game.Conquest.Gameplay
         [SerializeField] private float perceptionInterval = 0.25f;
         [SerializeField] private ConquestBotPerception perception = new ConquestBotPerception();
 
+        [Header("Combat Movement")]
+        [Tooltip("How each class fights. Looked up by the bot's current class.")]
+        [SerializeField] private ConquestBotClassRole[] classRoles = ConquestBotClassRole.Defaults;
+        [Tooltip("Placeholder: share of the class sprint speed bots travel at (players sprint between posts).")]
+        [SerializeField] private float travelSpeedShare = 0.6f;
+        [Tooltip("Placeholder: share of the class walk speed bots strafe at while shooting.")]
+        [SerializeField] private float strafeSpeedShare = 0.6f;
+        [Tooltip("Placeholder: average seconds between side-steps while fighting.")]
+        [SerializeField] private float strafeIntervalSeconds = 1.5f;
+        [Tooltip("Placeholder: metres of the longest side-step.")]
+        [SerializeField] private float strafeDistance = 3.5f;
+        [Tooltip("Placeholder: metres around the bot searched for cover while it reloads.")]
+        [SerializeField] private float coverSearchRadius = 6f;
+        [Tooltip("Placeholder: share of max health below which a bot falls back to a friendly station.")]
+        [Range(0f, 1f)]
+        [SerializeField] private float retreatHealthShare = 0.35f;
+        [Tooltip("Placeholder: share of max health at which a retreating bot returns to the fight.")]
+        [Range(0f, 1f)]
+        [SerializeField] private float retreatUntilHealthShare = 0.8f;
+        [Tooltip("Placeholder: metres a bot will go to reach a friendly station.")]
+        [SerializeField] private float retreatSearchRange = 40f;
+
         [Header("Defending")]
         [Tooltip("Placeholder: average seconds a defender stands at one guard spot before moving to another in the zone.")]
         [SerializeField] private float guardRepositionSeconds = 6f;
@@ -81,6 +105,13 @@ namespace Game.Conquest.Gameplay
         private float m_RecoverUntil;
         private float m_NextStationAttemptTime;
         private const float StationAttemptInterval = 3f;
+        private float m_NextStrafeTime;
+        private bool m_CoverSoughtThisReload;
+        private ConquestSupportStation m_RetreatStation;
+        private bool m_FacingManually;
+        private const int CoverProbeCount = 6;
+        // Map geometry is all on the Default layer; players and stations don't count as cover.
+        private const int CoverMask = 1 << 0;
 
         public BotState CurrentState => currentState;
         public BotDifficulty Difficulty => difficulty;
@@ -193,6 +224,9 @@ namespace Game.Conquest.Gameplay
                 return;
             }
 
+            m_FacingManually = false;
+            if (m_Weapon != null && !m_Weapon.IsReloading) m_CoverSoughtThisReload = false;
+
             TickPerception();
 
             // Periodic tactical evaluation
@@ -217,13 +251,22 @@ namespace Game.Conquest.Gameplay
                 case BotState.EngageEnemy:
                     UpdateEngageEnemy();
                     break;
+                case BotState.Retreat:
+                    UpdateRetreat();
+                    break;
             }
+
+            // The agent turns the bot toward where it walks, except while the bot faces a target itself.
+            if (m_Agent.isActiveAndEnabled) m_Agent.updateRotation = !m_FacingManually;
 
             CheckStuck();
         }
 
         private void EvaluateBattlefield()
         {
+            // A hurt bot keeps heading for its station until healed.
+            if (currentState == BotState.Retreat) return;
+
             // 1. A known enemy comes first (perception updates on its own, faster tick).
             if (perception.HasTarget)
             {
@@ -252,6 +295,7 @@ namespace Game.Conquest.Gameplay
             else
             {
                 currentState = BotState.MoveToObjective;
+                SetAgentSpeed(TravelSpeed);
                 MoveToTarget(m_TargetPost.GetCaptureTargetPosition(transform.position));
             }
         }
@@ -273,7 +317,7 @@ namespace Game.Conquest.Gameplay
         public Team Team => m_Player.CurrentTeam;
         public bool IsDefender => m_IsDefender;
         /// <summary>Metres a defending slot counts as closer for this bot: above zero for classes suited to holding ground.</summary>
-        public float DefendPreference => 0f;
+        public float DefendPreference => CurrentRole.defendPreference;
 
         // Owned by this team, fully captured, and no enemy standing on it.
         private bool IsPostSecure(ConquestCommandPost post)
@@ -325,6 +369,7 @@ namespace Game.Conquest.Gameplay
             float dist = Vector3.Distance(transform.position, m_TargetPost.transform.position);
             if (!m_TargetPost.IsInCaptureZone(transform.position) || dist > m_TargetPost.CaptureRadius * 0.9f || dist < 2.0f)
             {
+                SetAgentSpeed(TravelSpeed);
                 MoveToTarget(m_TargetPost.GetCaptureTargetPosition(transform.position));
             }
             else
@@ -372,7 +417,11 @@ namespace Game.Conquest.Gameplay
                 m_NextGuardMoveTime = Time.time + Random.Range(guardRepositionSeconds * 0.75f, guardRepositionSeconds * 1.25f);
                 Vector2 offset = Random.insideUnitCircle * (m_TargetPost.CaptureRadius * 0.8f);
                 Vector3 guardSpot = m_TargetPost.transform.position + new Vector3(offset.x, 0f, offset.y);
-                if (NavMesh.SamplePosition(guardSpot, out NavMeshHit hit, 3f, NavMesh.AllAreas)) MoveToTarget(hit.position);
+                if (NavMesh.SamplePosition(guardSpot, out NavMeshHit hit, 3f, NavMesh.AllAreas))
+                {
+                    SetAgentSpeed(WalkSpeed);
+                    MoveToTarget(hit.position);
+                }
             }
 
             TryDeployStationAtPost();
@@ -408,10 +457,12 @@ namespace Game.Conquest.Gameplay
         {
             direction.y = 0f;
             if (direction.sqrMagnitude < 0.01f) return;
+            m_FacingManually = true;
             transform.rotation = Quaternion.RotateTowards(transform.rotation, Quaternion.LookRotation(direction), 180.0f * Time.deltaTime);
         }
 
-        // Fight what perception has: shoot it while it's in sight, otherwise go to where it was last seen.
+        // Fight what perception has: shoot it while it's in sight, otherwise go to where it was
+        // last seen. The class role decides the range, and whether the bot closes in or holds.
         private void UpdateEngageEnemy()
         {
             if (!perception.HasTarget)
@@ -421,6 +472,9 @@ namespace Game.Conquest.Gameplay
                 return;
             }
 
+            if (TryStartRetreat()) return;
+
+            ConquestBotClassRole role = CurrentRole;
             Vector3 targetPos = perception.Enemy != null && perception.TargetVisible
                 ? perception.Enemy.transform.position
                 : perception.LastKnownPosition;
@@ -429,28 +483,177 @@ namespace Game.Conquest.Gameplay
 
             if (!perception.TargetVisible)
             {
+                // Heavies keep firing where the target vanished, to pin it down.
+                if (perception.SecondsSinceSeen <= role.suppressSeconds) FireAt(perception.AimPoint);
+                SetAgentSpeed(TravelSpeed);
                 MoveToTarget(perception.LastKnownPosition);
                 return;
             }
 
-            // Move closer if outside optimal range, or stop to shoot
-            if (toTarget.magnitude > 18.0f)
+            float distance = toTarget.magnitude;
+            if (m_Weapon != null && m_Weapon.IsReloading)
             {
+                SeekCover(targetPos);
+            }
+            else if (distance > role.preferredRange && role.advancesOnTarget)
+            {
+                SetAgentSpeed(TravelSpeed);
                 MoveToTarget(targetPos);
             }
-            else if (m_Agent.isActiveAndEnabled && m_Agent.isOnNavMesh)
+            else if (role.advancesOnTarget)
             {
-                m_Agent.isStopped = true;
+                Strafe(toTarget);
+            }
+            else
+            {
+                StopAgent();
             }
 
             if (Time.time - perception.TargetAcquiredTime < reactionDelay) return;
+            FireAt(perception.AimPoint);
+        }
 
-            // Aim error is an angle, so a bot misses by more at long range, like a person would.
+        // Aim error is an angle, so a bot misses by more at long range, like a person would.
+        private void FireAt(Vector3 aimPoint)
+        {
+            if (m_Weapon == null) return;
             float aimErrorDegrees = Mathf.Lerp(worstAimErrorDegrees, bestAimErrorDegrees, aimAccuracy);
-            if (m_Weapon != null)
+            m_Weapon.FireFromAI(aimPoint, aimErrorDegrees);
+        }
+
+        // Side-step across the line of fire every so often instead of standing still.
+        private void Strafe(Vector3 toTarget)
+        {
+            if (Time.time < m_NextStrafeTime) return;
+            m_NextStrafeTime = Time.time + Random.Range(strafeIntervalSeconds * 0.6f, strafeIntervalSeconds * 1.4f);
+
+            Vector3 side = Vector3.Cross(Vector3.up, toTarget.normalized);
+            if (Random.value < 0.5f) side = -side;
+            Vector3 probe = transform.position + side * Random.Range(strafeDistance * 0.5f, strafeDistance);
+            if (NavMesh.SamplePosition(probe, out NavMeshHit hit, 2f, NavMesh.AllAreas))
             {
-                m_Weapon.FireFromAI(perception.AimPoint, aimErrorDegrees);
+                SetAgentSpeed(WalkSpeed * strafeSpeedShare);
+                MoveToTarget(hit.position);
             }
+        }
+
+        // While reloading, move to a nearby spot the target can't see, if there is one.
+        // A handful of line checks once per reload, not a search of the level.
+        private void SeekCover(Vector3 targetPos)
+        {
+            if (m_CoverSoughtThisReload) return;
+            m_CoverSoughtThisReload = true;
+
+            Vector3 targetEye = targetPos + Vector3.up * 1.6f;
+            for (int i = 0; i < CoverProbeCount; i++)
+            {
+                float angle = (i + Random.value) * (360f / CoverProbeCount);
+                Vector3 probe = transform.position + Quaternion.Euler(0f, angle, 0f) * Vector3.forward * coverSearchRadius;
+                if (!NavMesh.SamplePosition(probe, out NavMeshHit hit, 2f, NavMesh.AllAreas)) continue;
+                if (!Physics.Linecast(hit.position + Vector3.up * 1.2f, targetEye, CoverMask)) continue;
+
+                SetAgentSpeed(TravelSpeed);
+                MoveToTarget(hit.position);
+                return;
+            }
+        }
+
+        // Low on health: an Engineer drops a station where it stands; anyone else falls back to a
+        // friendly station nearby. Returns true if the bot is now retreating.
+        private bool TryStartRetreat()
+        {
+            if (m_Health.CurrentHealth > m_Health.MaxHealth * retreatHealthShare) return false;
+
+            if (m_Weapon != null && m_Weapon.HasSupportStation && !m_Weapon.ServerOwnStationCovers(transform.position))
+            {
+                m_Weapon.ServerTryDeployStation();
+            }
+
+            m_RetreatStation = FindFriendlyStation();
+            if (m_RetreatStation == null) return false;
+            if ((m_RetreatStation.transform.position - transform.position).sqrMagnitude <= m_RetreatStation.Radius * m_RetreatStation.Radius * 0.5f) return false;
+
+            currentState = BotState.Retreat;
+            return true;
+        }
+
+        private void UpdateRetreat()
+        {
+            bool healed = m_Health.CurrentHealth >= m_Health.MaxHealth * retreatUntilHealthShare;
+            if (healed || m_RetreatStation == null || !m_RetreatStation.IsSpawned)
+            {
+                m_RetreatStation = null;
+                currentState = BotState.Idle;
+                m_NextDecisionTime = Time.time;
+                return;
+            }
+
+            float sqrRadius = m_RetreatStation.Radius * m_RetreatStation.Radius;
+            if ((m_RetreatStation.transform.position - transform.position).sqrMagnitude > sqrRadius * 0.5f)
+            {
+                SetAgentSpeed(TravelSpeed);
+                MoveToTarget(m_RetreatStation.transform.position);
+            }
+            else
+            {
+                StopAgent();
+            }
+
+            // Shoot back on the way if the enemy is in sight.
+            if (perception.TargetVisible)
+            {
+                FaceDirection(perception.AimPoint - transform.position);
+                if (Time.time - perception.TargetAcquiredTime >= reactionDelay) FireAt(perception.AimPoint);
+            }
+        }
+
+        private ConquestSupportStation FindFriendlyStation()
+        {
+            ConquestSupportStation best = null;
+            float bestSqr = retreatSearchRange * retreatSearchRange;
+            var stations = ConquestSupportStation.Active;
+            for (int i = 0; i < stations.Count; i++)
+            {
+                ConquestSupportStation station = stations[i];
+                if (station == null || !station.IsSpawned || station.stationTeam.Value != m_Player.CurrentTeam) continue;
+                float sqr = (station.transform.position - transform.position).sqrMagnitude;
+                if (sqr >= bestSqr) continue;
+                bestSqr = sqr;
+                best = station;
+            }
+            return best;
+        }
+
+        private ConquestBotClassRole CurrentRole
+        {
+            get
+            {
+                ConquestClassData data = m_Player.CurrentClassData;
+                if (data != null && classRoles != null)
+                {
+                    for (int i = 0; i < classRoles.Length; i++)
+                    {
+                        if (classRoles[i].classType == data.classType) return classRoles[i];
+                    }
+                }
+                return DefaultRole;
+            }
+        }
+
+        private static readonly ConquestBotClassRole DefaultRole = ConquestBotClassRole.Defaults[0];
+
+        // Class speeds, so a Heavy bot is slower than a Recon one, as for players.
+        private float WalkSpeed => m_Player.CurrentClassData != null ? m_Player.CurrentClassData.walkSpeed : m_Agent.speed;
+        private float TravelSpeed => m_Player.CurrentClassData != null ? m_Player.CurrentClassData.sprintSpeed * travelSpeedShare : m_Agent.speed;
+
+        private void SetAgentSpeed(float speed)
+        {
+            if (m_Agent.isActiveAndEnabled) m_Agent.speed = speed;
+        }
+
+        private void StopAgent()
+        {
+            if (m_Agent.isActiveAndEnabled && m_Agent.isOnNavMesh) m_Agent.isStopped = true;
         }
 
         // Staggered perception: each bot looks around on its own short timer, so a full server
@@ -461,7 +664,7 @@ namespace Game.Conquest.Gameplay
             m_NextPerceptionTime = Time.time + perceptionInterval;
 
             perception.Tick(m_Player, detectionRange, fieldOfView, visionMask);
-            if (perception.HasTarget && currentState != BotState.EngageEnemy)
+            if (perception.HasTarget && currentState != BotState.EngageEnemy && currentState != BotState.Retreat)
             {
                 currentState = BotState.EngageEnemy;
             }
@@ -475,7 +678,7 @@ namespace Game.Conquest.Gameplay
             if (!attackerObject.TryGetComponent(out ConquestPlayer attacker)) return;
 
             perception.NotifyAttackedBy(m_Player, attacker);
-            if (perception.HasTarget) currentState = BotState.EngageEnemy;
+            if (perception.HasTarget && currentState != BotState.Retreat) currentState = BotState.EngageEnemy;
         }
 
         // Progress is measured between samples a fixed time apart, not between frames: one frame
@@ -555,6 +758,7 @@ namespace Game.Conquest.Gameplay
             }
             currentState = BotState.Idle;
             perception.Clear();
+            m_RetreatStation = null;
             m_NextDecisionTime = Time.time + Random.Range(0.2f, 0.6f);
             ResetStuckSampling();
         }
