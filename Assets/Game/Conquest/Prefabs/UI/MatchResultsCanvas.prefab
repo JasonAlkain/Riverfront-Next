@@ -459,6 +459,7 @@ MonoBehaviour:
   img_Header: {fileID: 846256916736346784}
   rowsContainer: {fileID: 5743572367979837118}
   rowPrefab: {fileID: 3885531697644433457, guid: db53768c9bf47c9499593f2ddfe7fec6, type: 3}
+  classRoster: {fileID: 11400000, guid: 6835e3588f5c1ff41ad90090d1a1791b, type: 2}
 --- !u!1 &1164978300955943064
 GameObject:
   m_ObjectHideFlags: 0
@@ -1488,6 +1489,7 @@ MonoBehaviour:
   img_Header: {fileID: 318423758964561013}
   rowsContainer: {fileID: 1711372623844615537}
   rowPrefab: {fileID: 3885531697644433457, guid: db53768c9bf47c9499593f2ddfe7fec6, type: 3}
+  classRoster: {fileID: 11400000, guid: 6835e3588f5c1ff41ad90090d1a1791b, type: 2}
 --- !u!1 &4467859603930535453
 GameObject:
   m_ObjectHideFlags: 0

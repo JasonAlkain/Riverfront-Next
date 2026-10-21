@@ -393,7 +393,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Game.Conquest::Game.Conquest.UI.ConquestMainMenuController
   mapRegistry: {fileID: 11400000, guid: f47404bcd7af0d246a20b79ec95e19ac, type: 2}
+  classRoster: {fileID: 11400000, guid: 6835e3588f5c1ff41ad90090d1a1791b, type: 2}
   currentMenuState: 0
+  headerBannerUI: {fileID: 0}
   titlePanelUI: {fileID: 604313421}
   soloPanelUI: {fileID: 604313420}
   multiplayerPanelUI: {fileID: 604313419}
@@ -1263,6 +1265,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Game.Conquest::Game.Conquest.Lobby.ConquestLobbyManager
   ShowTopMostFoldoutHeaderGroup: 1
   mapRegistry: {fileID: 11400000, guid: f47404bcd7af0d246a20b79ec95e19ac, type: 2}
+  classRoster: {fileID: 11400000, guid: 6835e3588f5c1ff41ad90090d1a1791b, type: 2}
   sessionName:
     UpdateTraits:
       MinSecondsBetweenUpdates: 0
@@ -1431,6 +1434,11 @@ MonoBehaviour:
     UpdateTraits:
       MinSecondsBetweenUpdates: 0
       MaxSecondsBetweenUpdates: 0
+  autoStartCountdown:
+    UpdateTraits:
+      MinSecondsBetweenUpdates: 0
+      MaxSecondsBetweenUpdates: 0
+    m_InternalValue: -1
 --- !u!114 &2030829318
 MonoBehaviour:
   m_ObjectHideFlags: 0

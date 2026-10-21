@@ -2536,11 +2536,7 @@ MonoBehaviour:
       MaxSecondsBetweenUpdates: 0
     m_InternalValue: 0
   isBot: 1
-  availableClasses:
-  - {fileID: 11400000, guid: 7eefa2a0581f40d45b171bbb635fd187, type: 2}
-  - {fileID: 11400000, guid: 777c2aa2627146647bac681489201f86, type: 2}
-  - {fileID: 11400000, guid: 6b1752d948fb8d34d970c537710baf69, type: 2}
-  - {fileID: 11400000, guid: 8a7e10d367ddddc44a94f6c1588dd677, type: 2}
+  classRoster: {fileID: 11400000, guid: 6835e3588f5c1ff41ad90090d1a1791b, type: 2}
   bodyRenderers:
   - {fileID: 984957424734370526}
   redTeamMaterial: {fileID: 2100000, guid: 8114b202c9ffb6d4fa0910b3bfd4629e, type: 2}
@@ -2655,11 +2651,52 @@ MonoBehaviour:
   fieldOfView: 120
   aimAccuracy: 0.6
   reactionDelay: 0.5
+  worstAimErrorDegrees: 7
+  bestAimErrorDegrees: 0.6
   visionMask:
     serializedVersion: 2
     m_Bits: 193
+  perceptionInterval: 0.25
+  perception:
+    hearingRange: 25
+    shotHeardSeconds: 1
+    memorySeconds: 3
+    switchTargetMargin: 5
+  classRoles:
+  - classType: 0
+    preferredRange: 18
+    advancesOnTarget: 1
+    suppressSeconds: 0
+    defendPreference: 0
+  - classType: 1
+    preferredRange: 15
+    advancesOnTarget: 1
+    suppressSeconds: 1.5
+    defendPreference: 0
+  - classType: 2
+    preferredRange: 18
+    advancesOnTarget: 1
+    suppressSeconds: 0
+    defendPreference: 0
+  - classType: 3
+    preferredRange: 35
+    advancesOnTarget: 0
+    suppressSeconds: 0
+    defendPreference: 25
+  travelSpeedShare: 0.6
+  strafeSpeedShare: 0.6
+  strafeIntervalSeconds: 1.5
+  strafeDistance: 3.5
+  coverSearchRadius: 6
+  retreatHealthShare: 0.35
+  retreatUntilHealthShare: 0.8
+  retreatSearchRange: 40
+  guardRepositionSeconds: 6
   decisionInterval: 1
   stuckThresholdTime: 2.5
+  stuckSampleInterval: 0.5
+  stuckMinProgress: 0.5
+  stuckRecoverySeconds: 1.2
 --- !u!136 &5359286594393080228
 CapsuleCollider:
   m_ObjectHideFlags: 0

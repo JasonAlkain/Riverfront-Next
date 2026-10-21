@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using Game.Conquest.Classes;
 
 namespace Game.Conquest
 {
@@ -11,9 +12,9 @@ namespace Game.Conquest
         [Header("Text Elements")]
         public TextMeshProUGUI txt_Timer;
 
-        [Header("Class Buttons")]
-        [Tooltip("Class select buttons, ordered by class index (Assault, Heavy, Engineer, Recon).")]
-        public Button[] btn_Classes;
+        [Header("Classes")]
+        [Tooltip("Builds one button per class from the class list.")]
+        public ClassPickerUI classPicker;
 
         [Header("Deploy")]
         [Tooltip("Spawns the player with the selected class at the selected post.")]
@@ -39,19 +40,12 @@ namespace Game.Conquest
         public event Action DeployClicked;
 
         private readonly List<SpawnPostButtonUI> m_SpawnPostButtons = new List<SpawnPostButtonUI>();
-        private int m_SelectedClass = -1;
 
         private void Awake()
         {
             if (commandMap != null) commandMap.PostClicked += postName => SpawnPostSelected?.Invoke(postName);
             if (btn_Deploy != null) btn_Deploy.onClick.AddListener(() => DeployClicked?.Invoke());
-            if (btn_Classes == null) return;
-            for (int i = 0; i < btn_Classes.Length; i++)
-            {
-                if (btn_Classes[i] == null) continue;
-                int classIndex = i;
-                btn_Classes[i].onClick.AddListener(() => ClassSelected?.Invoke(classIndex));
-            }
+            if (classPicker != null) classPicker.ClassSelected += index => ClassSelected?.Invoke(index);
         }
 
         public void SetTimer(string text)
@@ -64,18 +58,11 @@ namespace Game.Conquest
             if (btn_Deploy != null && btn_Deploy.interactable != interactable) btn_Deploy.interactable = interactable;
         }
 
-        public void SetSelectedClass(int classIndex)
+        public void SetClasses(IReadOnlyList<ConquestClassData> classes, int selectedIndex)
         {
-            if (classIndex == m_SelectedClass || btn_Classes == null) return;
-            m_SelectedClass = classIndex;
-
-            for (int i = 0; i < btn_Classes.Length; i++)
-            {
-                if (btn_Classes[i] != null && btn_Classes[i].targetGraphic != null)
-                {
-                    btn_Classes[i].targetGraphic.color = i == classIndex ? selectedColor : normalColor;
-                }
-            }
+            if (classPicker == null) return;
+            classPicker.SetClasses(classes);
+            classPicker.SetSelected(selectedIndex);
         }
 
         /// <summary>Shows one button per friendly post, creating buttons from the prefab as needed.</summary>

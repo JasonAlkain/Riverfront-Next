@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Unity.Collections;
 using Unity.Netcode;
 using UnityEngine;
+using Game.Conquest.Classes;
 using Game.Conquest.Gameplay;
 using Game.Conquest.Maps;
 using Game.Conquest.Networking;
@@ -46,6 +47,8 @@ namespace Game.Conquest.Lobby
 
         [Header("Registry Reference")]
         [SerializeField] private ConquestMapRegistry mapRegistry;
+        [Tooltip("Shared class list; lobby class picks are clamped to it.")]
+        [SerializeField] private ConquestClassRoster classRoster;
 
         // Networked Lobby State
         public NetworkVariable<FixedString64Bytes> sessionName = new NetworkVariable<FixedString64Bytes>(
@@ -291,7 +294,7 @@ namespace Game.Conquest.Lobby
                 if (lobbyPlayers[i].clientId == sender)
                 {
                     var p = lobbyPlayers[i];
-                    p.classIndex = classIdx;
+                    p.classIndex = classRoster != null ? classRoster.ClampIndex(classIdx) : 0;
                     lobbyPlayers[i] = p;
                     break;
                 }

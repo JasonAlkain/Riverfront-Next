@@ -39,7 +39,8 @@ namespace Game.Conquest.Player
         public bool isBot = false;
 
         [Header("Classes")]
-        [SerializeField] private List<ConquestClassData> availableClasses = new List<ConquestClassData>();
+        [Tooltip("Shared class list; a class index is a position in it.")]
+        [SerializeField] private ConquestClassRoster classRoster;
 
         [Header("Visuals")]
         [SerializeField] private Renderer[] bodyRenderers;
@@ -68,12 +69,10 @@ namespace Game.Conquest.Player
         /// <summary>Class this player will deploy as (the local choice, before the server confirms it).</summary>
         public int PendingClassIndex => m_PendingClassIndex;
         public int CurrentClassIndex => selectedClassIndex.Value;
-        public IReadOnlyList<ConquestClassData> AvailableClasses => availableClasses;
+        public IReadOnlyList<ConquestClassData> AvailableClasses => classRoster != null ? classRoster.Classes : System.Array.Empty<ConquestClassData>();
+        public ConquestClassRoster ClassRoster => classRoster;
         /// <summary>The class this player is currently playing, or null if the index is out of range.</summary>
-        public ConquestClassData CurrentClassData =>
-            availableClasses != null && selectedClassIndex.Value >= 0 && selectedClassIndex.Value < availableClasses.Count
-                ? availableClasses[selectedClassIndex.Value]
-                : null;
+        public ConquestClassData CurrentClassData => classRoster != null ? classRoster.Get(selectedClassIndex.Value) : null;
 
         /// <summary>This peer's own (non-bot) player once it has spawned; null before that and after despawn.</summary>
         public static ConquestPlayer Local { get; private set; }
@@ -128,12 +127,6 @@ namespace Game.Conquest.Player
             }
         }
 
-        public void SetAvailableClasses(List<ConquestClassData> classes)
-        {
-            availableClasses = classes;
-            ApplyClass(selectedClassIndex.Value);
-        }
-
         private void ConfigureLocalPerspective()
         {
             if (isBot)
@@ -167,15 +160,12 @@ namespace Game.Conquest.Player
 
         public void ApplyClass(int classIdx)
         {
-            if (availableClasses != null && classIdx >= 0 && classIdx < availableClasses.Count)
+            ConquestClassData data = classRoster != null ? classRoster.Get(classIdx) : null;
+            if (data != null)
             {
-                ConquestClassData data = availableClasses[classIdx];
-                if (data != null)
-                {
-                    if (m_Health != null) m_Health.SetMaxHealth(data.maxHealth);
-                    if (m_Movement != null) m_Movement.SetSpeed(data.walkSpeed, data.sprintSpeed);
-                    if (m_Weapon != null) m_Weapon.ApplyClass(data);
-                }
+                if (m_Health != null) m_Health.SetMaxHealth(data.maxHealth);
+                if (m_Movement != null) m_Movement.SetSpeed(data.walkSpeed, data.sprintSpeed);
+                if (m_Weapon != null) m_Weapon.ApplyClass(data);
             }
         }
 
@@ -213,8 +203,7 @@ namespace Game.Conquest.Player
 
         private int ClampClassIndex(int classIndex)
         {
-            int maxIndex = availableClasses != null ? availableClasses.Count - 1 : 0;
-            return Mathf.Clamp(classIndex, 0, Mathf.Max(0, maxIndex));
+            return classRoster != null ? classRoster.ClampIndex(classIndex) : 0;
         }
 
         public void SelectClass(int classIndex)

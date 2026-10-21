@@ -4087,11 +4087,7 @@ MonoBehaviour:
       MaxSecondsBetweenUpdates: 0
     m_InternalValue: 0
   isBot: 0
-  availableClasses:
-  - {fileID: 11400000, guid: 7eefa2a0581f40d45b171bbb635fd187, type: 2}
-  - {fileID: 11400000, guid: 777c2aa2627146647bac681489201f86, type: 2}
-  - {fileID: 11400000, guid: 6b1752d948fb8d34d970c537710baf69, type: 2}
-  - {fileID: 11400000, guid: 8a7e10d367ddddc44a94f6c1588dd677, type: 2}
+  classRoster: {fileID: 11400000, guid: 6835e3588f5c1ff41ad90090d1a1791b, type: 2}
   bodyRenderers:
   - {fileID: 1027638722978375713}
   redTeamMaterial: {fileID: 2100000, guid: 8114b202c9ffb6d4fa0910b3bfd4629e, type: 2}

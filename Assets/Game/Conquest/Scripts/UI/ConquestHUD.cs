@@ -487,7 +487,7 @@ namespace Game.Conquest.UI
             }
 
             respawnPanelUI.Show();
-            respawnPanelUI.SetSelectedClass(player.CurrentClassIndex);
+            respawnPanelUI.SetClasses(player.AvailableClasses, player.CurrentClassIndex);
             if (match == null) return;
 
             var posts = match.GetFriendlyPostNames(player.CurrentTeam);

@@ -3,6 +3,7 @@ using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using Game.Conquest.Classes;
 using Game.Conquest.Maps;
 using Game.Conquest.Networking;
 using Game.Conquest.Settings;
@@ -35,6 +36,10 @@ namespace Game.Conquest.UI
 
         [Header("Map Registry")]
         [SerializeField] private ConquestMapRegistry mapRegistry;
+
+        [Header("Classes")]
+        [Tooltip("Shared class list; the lobby class buttons are built from it.")]
+        [SerializeField] private ConquestClassRoster classRoster;
 
         [Header("Active Screen")]
         [SerializeField] private MenuState currentMenuState = MenuState.Title;
@@ -116,8 +121,6 @@ namespace Game.Conquest.UI
         private bool m_LobbyNameSent = false;
         private int m_LobbyDisplayHash;
         private bool m_LobbyDisplayValid;
-
-        private static readonly string[] k_ClassNames = { "Assault", "Heavy", "Engineer", "Recon" };
 
         private void Awake()
         {
@@ -401,13 +404,10 @@ namespace Game.Conquest.UI
             Bind(p.btn_CycleMap, CycleLobbyMap);
             Bind(p.btn_SetName, SubmitLobbyName);
 
-            if (p.btn_Classes != null)
+            if (p.classPicker != null)
             {
-                for (int i = 0; i < p.btn_Classes.Length; i++)
-                {
-                    int classIndex = i;
-                    Bind(p.btn_Classes[i], () => ConquestLobbyManager.Instance?.SelectClassServerRpc(classIndex));
-                }
+                p.classPicker.ClassSelected += classIndex => ConquestLobbyManager.Instance?.SelectClassServerRpc(classIndex);
+                if (classRoster != null) p.classPicker.SetClasses(classRoster.Classes);
             }
 
             if (p.tmp_PlayerName != null)
@@ -604,10 +604,14 @@ namespace Game.Conquest.UI
                 if (player.team != Team.Red && player.team != Team.Blue) continue;
 
                 string hostTag = player.isHost ? " (Host)" : "";
-                string className = player.classIndex >= 0 && player.classIndex < k_ClassNames.Length ? k_ClassNames[player.classIndex] : $"Class {player.classIndex}";
+                string className = classRoster != null ? classRoster.NameOf(player.classIndex) : "";
                 // Only your own card's ready toggle is clickable; the server flips the state.
                 System.Action onReadyToggled = null;
-                if (player.clientId == localClientId) onReadyToggled = () => ConquestLobbyManager.Instance?.ToggleReadyServerRpc();
+                if (player.clientId == localClientId)
+                {
+                    onReadyToggled = () => ConquestLobbyManager.Instance?.ToggleReadyServerRpc();
+                    if (p.classPicker != null) p.classPicker.SetSelected(player.classIndex);
+                }
                 p.AddPlayerCard($"{player.playerName}{hostTag} - {className}", player.isReady, player.team == Team.Red, onReadyToggled);
             }
         }
