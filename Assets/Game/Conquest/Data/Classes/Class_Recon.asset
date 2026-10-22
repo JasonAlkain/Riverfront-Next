@@ -19,7 +19,7 @@ MonoBehaviour:
   maxHealth: 80
   walkSpeed: 6.8
   sprintSpeed: 11
-  weaponName: Valken-38X Sniper
+  weaponName: Longwatch Marksman Rifle
   damagePerShot: 85
   fireRate: 0.85
   maxRange: 200

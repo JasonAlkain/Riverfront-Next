@@ -19,7 +19,7 @@ MonoBehaviour:
   maxHealth: 140
   walkSpeed: 4.8
   sprintSpeed: 8
-  weaponName: Z-6 Rotary Cannon
+  weaponName: Sledge Rotary Repeater
   damagePerShot: 26
   fireRate: 0.11
   maxRange: 90
