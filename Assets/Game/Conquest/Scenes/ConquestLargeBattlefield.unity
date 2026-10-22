@@ -133,7 +133,7 @@ GameObject:
   - component: {fileID: 11156517}
   - component: {fileID: 11156520}
   m_Layer: 0
-  m_Name: Delta_Wall_N2
+  m_Name: Charlie_Wall_N2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1169,7 +1169,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7991206829405015860, guid: 3be9ffc10f8c309419d6359da85b223e, type: 3}
       propertyPath: postName
-      value: Bravo
+      value: Alpha
       objectReference: {fileID: 0}
     - target: {fileID: 7991206829405015860, guid: 3be9ffc10f8c309419d6359da85b223e, type: 3}
       propertyPath: initialOwner
@@ -1181,7 +1181,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8599012730835969856, guid: 3be9ffc10f8c309419d6359da85b223e, type: 3}
       propertyPath: m_Name
-      value: CommandPost_Bravo
+      value: CommandPost_Alpha
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -1261,7 +1261,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7991206829405015860, guid: 3be9ffc10f8c309419d6359da85b223e, type: 3}
       propertyPath: postName
-      value: Delta
+      value: Charlie
       objectReference: {fileID: 0}
     - target: {fileID: 7991206829405015860, guid: 3be9ffc10f8c309419d6359da85b223e, type: 3}
       propertyPath: captureRadius
@@ -1269,7 +1269,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8599012730835969856, guid: 3be9ffc10f8c309419d6359da85b223e, type: 3}
       propertyPath: m_Name
-      value: CommandPost_Delta
+      value: CommandPost_Charlie
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -1461,7 +1461,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6230798411359211557, guid: abb398bdcf9303c45819d88408e14bd2, type: 3}
       propertyPath: m_Name
-      value: SupplyDroid_CommandPost_Delta_Health
+      value: SupplyDroid_CommandPost_Charlie_Health
       objectReference: {fileID: 0}
     - target: {fileID: 8945211284375868061, guid: abb398bdcf9303c45819d88408e14bd2, type: 3}
       propertyPath: m_InScenePlaced
@@ -2675,7 +2675,7 @@ GameObject:
   - component: {fileID: 446520106}
   - component: {fileID: 446520109}
   m_Layer: 0
-  m_Name: Charlie_Bunker_N
+  m_Name: Bravo_Bunker_N
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2883,7 +2883,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7991206829405015860, guid: 3be9ffc10f8c309419d6359da85b223e, type: 3}
       propertyPath: postName
-      value: Charlie
+      value: Bravo
       objectReference: {fileID: 0}
     - target: {fileID: 7991206829405015860, guid: 3be9ffc10f8c309419d6359da85b223e, type: 3}
       propertyPath: captureRadius
@@ -2891,7 +2891,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8599012730835969856, guid: 3be9ffc10f8c309419d6359da85b223e, type: 3}
       propertyPath: m_Name
-      value: CommandPost_Charlie
+      value: CommandPost_Bravo
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -2923,7 +2923,7 @@ GameObject:
   - component: {fileID: 498497984}
   - component: {fileID: 498497987}
   m_Layer: 0
-  m_Name: Echo_Parapet
+  m_Name: Delta_Parapet
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -3258,7 +3258,7 @@ GameObject:
   - component: {fileID: 618390006}
   - component: {fileID: 618390009}
   m_Layer: 0
-  m_Name: Delta_Wall_E2
+  m_Name: Charlie_Wall_E2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -3387,7 +3387,7 @@ GameObject:
   - component: {fileID: 619652869}
   - component: {fileID: 619652872}
   m_Layer: 0
-  m_Name: Delta_Wall_N1
+  m_Name: Charlie_Wall_N1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -3502,94 +3502,6 @@ NavMeshObstacle:
   m_CarveOnlyStationary: 1
   m_Center: {x: 0, y: 0, z: 0}
   m_TimeToStationary: 0.5
---- !u!1001 &644839791
-PrefabInstance:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    serializedVersion: 3
-    m_TransformParent: {fileID: 0}
-    m_Modifications:
-    - target: {fileID: 781552704580274106, guid: 3be9ffc10f8c309419d6359da85b223e, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: -75
-      objectReference: {fileID: 0}
-    - target: {fileID: 781552704580274106, guid: 3be9ffc10f8c309419d6359da85b223e, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 781552704580274106, guid: 3be9ffc10f8c309419d6359da85b223e, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: -20
-      objectReference: {fileID: 0}
-    - target: {fileID: 781552704580274106, guid: 3be9ffc10f8c309419d6359da85b223e, type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 781552704580274106, guid: 3be9ffc10f8c309419d6359da85b223e, type: 3}
-      propertyPath: m_LocalRotation.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 781552704580274106, guid: 3be9ffc10f8c309419d6359da85b223e, type: 3}
-      propertyPath: m_LocalRotation.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 781552704580274106, guid: 3be9ffc10f8c309419d6359da85b223e, type: 3}
-      propertyPath: m_LocalRotation.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 781552704580274106, guid: 3be9ffc10f8c309419d6359da85b223e, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 781552704580274106, guid: 3be9ffc10f8c309419d6359da85b223e, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 781552704580274106, guid: 3be9ffc10f8c309419d6359da85b223e, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1758878797926588056, guid: 3be9ffc10f8c309419d6359da85b223e, type: 3}
-      propertyPath: m_InScenePlaced
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 1758878797926588056, guid: 3be9ffc10f8c309419d6359da85b223e, type: 3}
-      propertyPath: GlobalObjectIdHash
-      value: 1508541935
-      objectReference: {fileID: 0}
-    - target: {fileID: 1758878797926588056, guid: 3be9ffc10f8c309419d6359da85b223e, type: 3}
-      propertyPath: InScenePlacedSourceGlobalObjectIdHash
-      value: 428973798
-      objectReference: {fileID: 0}
-    - target: {fileID: 7991206829405015860, guid: 3be9ffc10f8c309419d6359da85b223e, type: 3}
-      propertyPath: initialOwner
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 7991206829405015860, guid: 3be9ffc10f8c309419d6359da85b223e, type: 3}
-      propertyPath: captureRadius
-      value: 8.5
-      objectReference: {fileID: 0}
-    - target: {fileID: 8599012730835969856, guid: 3be9ffc10f8c309419d6359da85b223e, type: 3}
-      propertyPath: m_Name
-      value: CommandPost_Alpha
-      objectReference: {fileID: 0}
-    m_RemovedComponents: []
-    m_RemovedGameObjects: []
-    m_AddedGameObjects: []
-    m_AddedComponents: []
-  m_SourcePrefab: {fileID: 100100000, guid: 3be9ffc10f8c309419d6359da85b223e, type: 3}
---- !u!114 &644839792 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 7991206829405015860, guid: 3be9ffc10f8c309419d6359da85b223e, type: 3}
-  m_PrefabInstance: {fileID: 644839791}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3e90b91491689fe49a0a91298b3187e0, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Game.Conquest::Game.Conquest.Objectives.ConquestCommandPost
 --- !u!1001 &673492783
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -3728,8 +3640,6 @@ MonoBehaviour:
   - {fileID: 1874832342}
   - {fileID: 2096819868}
   - {fileID: 238765086}
-  - {fileID: 1827651482}
-  - {fileID: 644839792}
   - {fileID: 482912013}
   - {fileID: 231391356}
   - {fileID: 2118837235}
@@ -3825,7 +3735,7 @@ GameObject:
   - component: {fileID: 738730712}
   - component: {fileID: 738730715}
   m_Layer: 0
-  m_Name: Echo_Bunker_S
+  m_Name: Delta_Bunker_S
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -3954,7 +3864,7 @@ GameObject:
   - component: {fileID: 743541824}
   - component: {fileID: 743541827}
   m_Layer: 0
-  m_Name: Echo_Bunker_E
+  m_Name: Delta_Bunker_E
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -4734,7 +4644,7 @@ GameObject:
   - component: {fileID: 941663713}
   - component: {fileID: 941663716}
   m_Layer: 0
-  m_Name: Delta_Wall_E1
+  m_Name: Charlie_Wall_E1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -4992,7 +4902,7 @@ GameObject:
   - component: {fileID: 1014170193}
   - component: {fileID: 1014170196}
   m_Layer: 0
-  m_Name: Delta_Wall_W1
+  m_Name: Charlie_Wall_W1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -5987,7 +5897,7 @@ GameObject:
   - component: {fileID: 1197244534}
   - component: {fileID: 1197244537}
   m_Layer: 0
-  m_Name: Delta_Wall_S2
+  m_Name: Charlie_Wall_S2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -6245,7 +6155,7 @@ GameObject:
   - component: {fileID: 1233544998}
   - component: {fileID: 1233545001}
   m_Layer: 0
-  m_Name: Delta_Wall_W2
+  m_Name: Charlie_Wall_W2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -6526,7 +6436,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6230798411359211557, guid: abb398bdcf9303c45819d88408e14bd2, type: 3}
       propertyPath: m_Name
-      value: SupplyDroid_CommandPost_Delta_Ammo
+      value: SupplyDroid_CommandPost_Charlie_Ammo
       objectReference: {fileID: 0}
     - target: {fileID: 8945211284375868061, guid: abb398bdcf9303c45819d88408e14bd2, type: 3}
       propertyPath: m_InScenePlaced
@@ -6933,7 +6843,7 @@ GameObject:
   - component: {fileID: 1496932689}
   - component: {fileID: 1496932692}
   m_Layer: 0
-  m_Name: Charlie_Parapet
+  m_Name: Bravo_Parapet
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -7190,7 +7100,7 @@ GameObject:
   - component: {fileID: 1537590441}
   - component: {fileID: 1537590444}
   m_Layer: 0
-  m_Name: Delta_Cover_NW
+  m_Name: Charlie_Cover_NW
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -7769,98 +7679,6 @@ NavMeshObstacle:
   m_CarveOnlyStationary: 1
   m_Center: {x: 0, y: 0, z: 0}
   m_TimeToStationary: 0.5
---- !u!1001 &1827651481
-PrefabInstance:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    serializedVersion: 3
-    m_TransformParent: {fileID: 0}
-    m_Modifications:
-    - target: {fileID: 781552704580274106, guid: 3be9ffc10f8c309419d6359da85b223e, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: 75
-      objectReference: {fileID: 0}
-    - target: {fileID: 781552704580274106, guid: 3be9ffc10f8c309419d6359da85b223e, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 781552704580274106, guid: 3be9ffc10f8c309419d6359da85b223e, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: 20
-      objectReference: {fileID: 0}
-    - target: {fileID: 781552704580274106, guid: 3be9ffc10f8c309419d6359da85b223e, type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 781552704580274106, guid: 3be9ffc10f8c309419d6359da85b223e, type: 3}
-      propertyPath: m_LocalRotation.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 781552704580274106, guid: 3be9ffc10f8c309419d6359da85b223e, type: 3}
-      propertyPath: m_LocalRotation.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 781552704580274106, guid: 3be9ffc10f8c309419d6359da85b223e, type: 3}
-      propertyPath: m_LocalRotation.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 781552704580274106, guid: 3be9ffc10f8c309419d6359da85b223e, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 781552704580274106, guid: 3be9ffc10f8c309419d6359da85b223e, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 781552704580274106, guid: 3be9ffc10f8c309419d6359da85b223e, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1758878797926588056, guid: 3be9ffc10f8c309419d6359da85b223e, type: 3}
-      propertyPath: m_InScenePlaced
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 1758878797926588056, guid: 3be9ffc10f8c309419d6359da85b223e, type: 3}
-      propertyPath: GlobalObjectIdHash
-      value: 553403247
-      objectReference: {fileID: 0}
-    - target: {fileID: 1758878797926588056, guid: 3be9ffc10f8c309419d6359da85b223e, type: 3}
-      propertyPath: InScenePlacedSourceGlobalObjectIdHash
-      value: 428973798
-      objectReference: {fileID: 0}
-    - target: {fileID: 7991206829405015860, guid: 3be9ffc10f8c309419d6359da85b223e, type: 3}
-      propertyPath: postName
-      value: Foxtrot
-      objectReference: {fileID: 0}
-    - target: {fileID: 7991206829405015860, guid: 3be9ffc10f8c309419d6359da85b223e, type: 3}
-      propertyPath: initialOwner
-      value: 2
-      objectReference: {fileID: 0}
-    - target: {fileID: 7991206829405015860, guid: 3be9ffc10f8c309419d6359da85b223e, type: 3}
-      propertyPath: captureRadius
-      value: 8.5
-      objectReference: {fileID: 0}
-    - target: {fileID: 8599012730835969856, guid: 3be9ffc10f8c309419d6359da85b223e, type: 3}
-      propertyPath: m_Name
-      value: CommandPost_Foxtrot
-      objectReference: {fileID: 0}
-    m_RemovedComponents: []
-    m_RemovedGameObjects: []
-    m_AddedGameObjects: []
-    m_AddedComponents: []
-  m_SourcePrefab: {fileID: 100100000, guid: 3be9ffc10f8c309419d6359da85b223e, type: 3}
---- !u!114 &1827651482 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 7991206829405015860, guid: 3be9ffc10f8c309419d6359da85b223e, type: 3}
-  m_PrefabInstance: {fileID: 1827651481}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3e90b91491689fe49a0a91298b3187e0, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Game.Conquest::Game.Conquest.Objectives.ConquestCommandPost
 --- !u!1 &1838004875
 GameObject:
   m_ObjectHideFlags: 0
@@ -8052,7 +7870,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7991206829405015860, guid: 3be9ffc10f8c309419d6359da85b223e, type: 3}
       propertyPath: postName
-      value: Golf
+      value: Echo
       objectReference: {fileID: 0}
     - target: {fileID: 7991206829405015860, guid: 3be9ffc10f8c309419d6359da85b223e, type: 3}
       propertyPath: initialOwner
@@ -8064,7 +7882,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8599012730835969856, guid: 3be9ffc10f8c309419d6359da85b223e, type: 3}
       propertyPath: m_Name
-      value: CommandPost_Golf
+      value: CommandPost_Echo
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -8325,7 +8143,7 @@ GameObject:
   - component: {fileID: 1988160255}
   - component: {fileID: 1988160258}
   m_Layer: 0
-  m_Name: Delta_Cover_SE
+  m_Name: Charlie_Cover_SE
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -8583,7 +8401,7 @@ GameObject:
   - component: {fileID: 2062539551}
   - component: {fileID: 2062539554}
   m_Layer: 0
-  m_Name: Delta_Wall_S1
+  m_Name: Charlie_Wall_S1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -8712,7 +8530,7 @@ GameObject:
   - component: {fileID: 2073161954}
   - component: {fileID: 2073161957}
   m_Layer: 0
-  m_Name: Charlie_Bunker_W
+  m_Name: Bravo_Bunker_W
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -8889,7 +8707,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7991206829405015860, guid: 3be9ffc10f8c309419d6359da85b223e, type: 3}
       propertyPath: postName
-      value: Echo
+      value: Delta
       objectReference: {fileID: 0}
     - target: {fileID: 7991206829405015860, guid: 3be9ffc10f8c309419d6359da85b223e, type: 3}
       propertyPath: captureRadius
@@ -8897,7 +8715,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8599012730835969856, guid: 3be9ffc10f8c309419d6359da85b223e, type: 3}
       propertyPath: m_Name
-      value: CommandPost_Echo
+      value: CommandPost_Delta
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -9033,12 +8851,10 @@ SceneRoots:
   m_Roots:
   - {fileID: 1505620688}
   - {fileID: 1142068606}
-  - {fileID: 644839791}
   - {fileID: 231391355}
   - {fileID: 482912012}
   - {fileID: 238765085}
   - {fileID: 2096819867}
-  - {fileID: 1827651481}
   - {fileID: 1874832341}
   - {fileID: 414174481}
   - {fileID: 1889216402}

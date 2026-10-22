@@ -20,6 +20,7 @@ MonoBehaviour:
   walkSpeed: 6
   sprintSpeed: 10
   weaponName: Arc-7 Carbine
+  weaponIcon: {fileID: 21300000, guid: abdbbfcbdf73a784988b91c20119d0e0, type: 3}
   damagePerShot: 22
   fireRate: 0.14
   maxRange: 110
@@ -42,6 +43,7 @@ MonoBehaviour:
   sidearm:
     kind: 1
     weaponName: Blaster Pistol
+    icon: {fileID: 21300000, guid: f86ea56b27670d0419350f3545c690bf, type: 3}
     damagePerShot: 18
     fireRate: 0.3
     maxRange: 60
@@ -55,7 +57,8 @@ MonoBehaviour:
     fullCoolSeconds: 1.2
     overheatLockoutSeconds: 1.2
     repairPerUse: 10
-    fireSound: {fileID: 0}
+    fireSound: {fileID: 8300000, guid: 1522324874c7dbd4591dad1a91daec57, type: 3}
+    reloadSound: {fileID: 8300000, guid: 9a683371da5e46349b42f101433665e0, type: 3}
   throwable: 1
   throwableName: Grenade
   throwablePrefab: {fileID: 9010834273791252027, guid: 277a319556f7c904aa250177843232fa, type: 3}

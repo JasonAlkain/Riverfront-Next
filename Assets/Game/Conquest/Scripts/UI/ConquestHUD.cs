@@ -499,13 +499,16 @@ namespace Game.Conquest.UI
             bool tool = weapon.IsRepairTool;
             bool heat = weapon.UsesHeat && !tool;
             playerStatsUI.SetWeaponModel(heat);
-            if (tool) playerStatsUI.SetAmmoLabel(weapon.ActiveWeaponName);
+            playerStatsUI.SetWeapon(weapon.ActiveWeaponName, weapon.ActiveWeaponIcon);
+            if (tool) playerStatsUI.SetAmmoLabel(RepairToolAmmoLabel);
             else if (heat) playerStatsUI.SetHeat(Mathf.CeilToInt(weapon.Heat01 * 100f), weapon.IsOverheated);
             else playerStatsUI.SetAmmo(weapon.CurrentAmmo, weapon.MagazineCapacity, weapon.IsReloading);
             UpdateHints(weapon, player.Throwables);
         }
 
-        // "[R] Reload | [E] Blaster Pistol | [Q] Grenade x2 | [RMB] Scope". Rebuilt only when the
+        private const string RepairToolAmmoLabel = "REPAIR";
+
+        // "[R] Reload | [E] Switch | [Q] Grenade x2 | [RMB] Scope". Rebuilt only when the
         // weapon in hand, a count or cooldown second, the refusal message, the weapon model or the
         // key labels change, not every frame.
         private void UpdateHints(ConquestWeapon weapon, ConquestThrowables throwables)
@@ -524,7 +527,7 @@ namespace Game.Conquest.UI
 
             // Heat weapons vent by themselves, so there is no reload hint for them; the tool has no ammo.
             string hints = heat || tool ? "" : $"[{m_ReloadKey}] Reload";
-            if (weapon.HasSidearm) hints = Join(hints, $"[{m_SwitchKey}] {weapon.HolsteredWeaponName}");
+            if (weapon.HasSidearm) hints = Join(hints, $"[{m_SwitchKey}] Switch");
             if (throws) hints = Join(hints, $"[{m_DeployKey}] {throwables.ThrowableName} x{grenades}");
             if (weapon.HasSupportStation)
             {

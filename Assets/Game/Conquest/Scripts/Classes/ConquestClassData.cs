@@ -37,6 +37,8 @@ namespace Game.Conquest.Classes
     {
         public SidearmKind kind = SidearmKind.None;
         public string weaponName = "Sidearm";
+        [Tooltip("Shown on the HUD while the sidearm is in hand.")]
+        public Sprite icon;
         [Tooltip("Placeholder.")] public int damagePerShot = 18;
         [Tooltip("Placeholder.")] public float fireRate = 0.3f;
         [Tooltip("Placeholder. For a repair tool, its reach in metres.")] public float maxRange = 60f;
@@ -51,7 +53,9 @@ namespace Game.Conquest.Classes
         [Tooltip("Placeholder.")] public float overheatLockoutSeconds = 1.2f;
         [Tooltip("Repair tool only. Placeholder: droid health restored per use (one per Fire Rate seconds).")]
         public int repairPerUse = 10;
+        [Tooltip("Played on every shot (or every use of a repair tool). Empty is silent: a sidearm never borrows the primary's sounds.")]
         public AudioClip fireSound;
+        public AudioClip reloadSound;
     }
 
     [CreateAssetMenu(fileName = "NewConquestClass", menuName = "Conquest/Class Data")]
@@ -71,6 +75,8 @@ namespace Game.Conquest.Classes
 
         [Header("Primary Weapon")]
         public string weaponName = "Blaster Rifle";
+        [Tooltip("Shown on the HUD while the primary is in hand.")]
+        public Sprite weaponIcon;
         public int damagePerShot = 24;
         public float fireRate = 0.15f;
         public float maxRange = 100.0f;

@@ -20,6 +20,7 @@ MonoBehaviour:
   walkSpeed: 5.8
   sprintSpeed: 9.5
   weaponName: Scatter Blaster
+  weaponIcon: {fileID: 21300000, guid: abdbbfcbdf73a784988b91c20119d0e0, type: 3}
   damagePerShot: 12
   fireRate: 0.65
   maxRange: 40
@@ -42,6 +43,7 @@ MonoBehaviour:
   sidearm:
     kind: 2
     weaponName: Repair Tool
+    icon: {fileID: 21300000, guid: fb5389a4af7b16449844add279d3c3e1, type: 3}
     damagePerShot: 18
     fireRate: 0.2
     maxRange: 4
@@ -56,6 +58,7 @@ MonoBehaviour:
     overheatLockoutSeconds: 1.2
     repairPerUse: 10
     fireSound: {fileID: 0}
+    reloadSound: {fileID: 0}
   throwable: 0
   throwableName: 
   throwablePrefab: {fileID: 0}

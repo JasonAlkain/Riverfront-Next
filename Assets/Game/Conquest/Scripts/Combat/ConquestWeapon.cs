@@ -52,9 +52,16 @@ namespace Game.Conquest.Combat
         [Tooltip("Placeholder: most stations one team may have out at once (each player still has at most one).")]
         [SerializeField] private int maxStationsPerTeam = 3;
 
-        [Header("Sidearm")]
-        [Tooltip("Placeholder: seconds after a switch before the other weapon can fire.")]
-        [SerializeField] private float switchSeconds = 0.35f;
+        [Header("Weapon Switch")]
+        [Tooltip("Placeholder: seconds to lower the weapon in hand. Nothing fires until the drawn weapon is raised.")]
+        [SerializeField] private float lowerSeconds = 0.2f;
+        [Tooltip("Placeholder: seconds to raise the drawn weapon.")]
+        [SerializeField] private float raiseSeconds = 0.25f;
+        [Tooltip("Played on every peer when a weapon is put away and when one is drawn.")]
+        [SerializeField] private AudioClip switchClip;
+        [SerializeField] private float switchVolume = 0.5f;
+        [Tooltip("Where a sidearm's shots and muzzle flash start. Empty uses the primary's Muzzle Point.")]
+        [SerializeField] private Transform sidearmMuzzlePoint;
 
         [Header("Server Validation")]
         [Tooltip("Shots may arrive this much earlier than the fire rate allows (network jitter) without being dropped. Also how early a lock may be ended for an arriving shot.")]
@@ -138,8 +145,16 @@ namespace Game.Conquest.Combat
 
         private ConquestClassData m_ClassData;
         private AudioClip m_DefaultFireClip;
+        private AudioClip m_DefaultReloadClip;
         private string m_WeaponName = "";
+        private Sprite m_WeaponIcon;
         private int m_RepairPerUse;
+
+        // Owner: lower the weapon in hand, wait for the server's switch, raise the drawn one.
+        private enum SwitchPhase : byte { None, Lowering, Waiting, Raising }
+        private SwitchPhase m_SwitchPhase;
+        private float m_SwitchPhaseStart;
+        private byte m_ShownSlot = (byte)WeaponSlot.Primary;
         // Owner: the slot asked for and not yet confirmed by the server (NoPendingSlot when none).
         private const byte NoPendingSlot = 255;
         private byte m_PendingSlot = NoPendingSlot;
@@ -201,11 +216,37 @@ namespace Game.Conquest.Combat
         public bool HasSidearm => m_ClassData != null && m_ClassData.sidearm != null && m_ClassData.sidearm.kind != SidearmKind.None;
         /// <summary>The weapon in hand fires no bolts: it repairs supply droids.</summary>
         public bool IsRepairTool => ActiveSlot == WeaponSlot.Sidearm && HasSidearm && m_ClassData.sidearm.kind == SidearmKind.RepairTool;
+        public SidearmKind SidearmKind => HasSidearm ? m_ClassData.sidearm.kind : SidearmKind.None;
         /// <summary>Name of the weapon in hand, for the HUD and the kill feed.</summary>
         public string ActiveWeaponName => m_WeaponName;
-        /// <summary>Name of the weapon the Switch Weapon key would draw; empty without a sidearm.</summary>
-        public string HolsteredWeaponName =>
-            !HasSidearm ? "" : ActiveSlot == WeaponSlot.Primary ? m_ClassData.sidearm.weaponName : m_ClassData.weaponName;
+        /// <summary>Icon of the weapon in hand, for the HUD. May be null.</summary>
+        public Sprite ActiveWeaponIcon => m_WeaponIcon;
+        /// <summary>
+        /// The weapon whose model is up. On the switching player's own screen it changes when the old
+        /// weapon is fully lowered; everyone else sees it change with the server's switch.
+        /// </summary>
+        public WeaponSlot ShownSlot => PredictsLocally ? (WeaponSlot)m_ShownSlot : ActiveSlot;
+        /// <summary>Owner: a switch is under way (lowering, waiting for the server, or raising). Nothing fires.</summary>
+        public bool IsSwitching => m_SwitchPhase != SwitchPhase.None;
+        /// <summary>Owner: how far the viewmodel is lowered, 0 (ready) to 1 (out of sight).</summary>
+        public float Lowered01
+        {
+            get
+            {
+                float elapsed = Time.time - m_SwitchPhaseStart;
+                switch (m_SwitchPhase)
+                {
+                    case SwitchPhase.Lowering: return lowerSeconds > 0f ? Mathf.Clamp01(elapsed / lowerSeconds) : 1f;
+                    case SwitchPhase.Waiting: return 1f;
+                    case SwitchPhase.Raising: return raiseSeconds > 0f ? 1f - Mathf.Clamp01(elapsed / raiseSeconds) : 0f;
+                    default: return 0f;
+                }
+            }
+        }
+
+        // The server blocks a drawn weapon for the whole animation, so a quick client can't fire early.
+        private float SwitchSeconds => Mathf.Max(0f, lowerSeconds) + Mathf.Max(0f, raiseSeconds);
+        private Transform ActiveMuzzle => ActiveSlot == WeaponSlot.Sidearm && sidearmMuzzlePoint != null ? sidearmMuzzlePoint : muzzlePoint;
         /// <summary>Server: when this weapon last fired (Time.time). Bots use it to hear nearby gunfire.</summary>
         public float ServerLastShotTime { get; private set; } = float.NegativeInfinity;
         public float BoltSpeed => boltSpeed;
@@ -221,6 +262,7 @@ namespace Game.Conquest.Combat
             m_Player = GetComponent<ConquestPlayer>();
             m_Animator = GetComponent<ConquestPlayerAnimator>();
             m_DefaultFireClip = fireSoundClip;
+            m_DefaultReloadClip = reloadSoundClip;
         }
 
         public override void OnNetworkDespawn()
@@ -275,6 +317,8 @@ namespace Game.Conquest.Combat
             m_ClassData = data;
             hasSupportStation = data.hasSupportStation;
             m_PendingSlot = NoPendingSlot;
+            m_SwitchPhase = SwitchPhase.None;
+            m_ShownSlot = (byte)WeaponSlot.Primary;
             // A new class, or a respawn: back to the primary. The slot handler applies its stats.
             if (IsServer && IsSpawned && activeSlot.Value != (byte)WeaponSlot.Primary) activeSlot.Value = (byte)WeaponSlot.Primary;
             ApplySlotStats(IsSpawned ? ActiveSlot : WeaponSlot.Primary);
@@ -295,6 +339,7 @@ namespace Game.Conquest.Combat
             if (slot == WeaponSlot.Sidearm && side != null && side.kind != SidearmKind.None)
             {
                 m_WeaponName = side.weaponName;
+                m_WeaponIcon = side.icon;
                 damagePerShot = side.damagePerShot;
                 fireRate = side.fireRate;
                 maxRange = side.maxRange;
@@ -313,11 +358,15 @@ namespace Game.Conquest.Combat
                 hasZoom = false;
                 hasScope = false;
                 m_RepairPerUse = side.repairPerUse;
-                fireSoundClip = side.fireSound != null ? side.fireSound : data.fireSound != null ? data.fireSound : m_DefaultFireClip;
+                // A sidearm only ever plays its own sounds; an unassigned one stays silent rather
+                // than borrowing the primary's.
+                fireSoundClip = side.fireSound;
+                reloadSoundClip = side.reloadSound;
             }
             else
             {
                 m_WeaponName = data.weaponName;
+                m_WeaponIcon = data.weaponIcon;
                 damagePerShot = data.damagePerShot;
                 fireRate = data.fireRate;
                 maxRange = data.maxRange;
@@ -338,9 +387,9 @@ namespace Game.Conquest.Combat
                 hasScope = data.hasScope;
                 m_RepairPerUse = 0;
                 fireSoundClip = data.fireSound != null ? data.fireSound : m_DefaultFireClip;
+                reloadSoundClip = data.reloadSound != null ? data.reloadSound : m_DefaultReloadClip;
             }
 
-            if (data.reloadSound != null) reloadSoundClip = data.reloadSound;
             firePitchMin = data.firePitchMin;
             firePitchMax = data.firePitchMax;
             fireVolume = data.fireVolume;
@@ -352,7 +401,12 @@ namespace Game.Conquest.Combat
         {
             ApplySlotStats((WeaponSlot)current);
             if (m_PendingSlot == current) m_PendingSlot = NoPendingSlot;
-            if (!PredictsLocally) return;
+            if (!PredictsLocally)
+            {
+                // The switching player hears their own holster and draw from the animation.
+                PlaySwitchAudio();
+                return;
+            }
             m_Predictor.Reset(Params);
             m_Predictor.OnSnapshot(Params, ownerState.Value, Time.timeAsDouble, OneWaySeconds());
         }
@@ -362,9 +416,44 @@ namespace Game.Conquest.Combat
             byte target = activeSlot.Value == (byte)WeaponSlot.Primary ? (byte)WeaponSlot.Sidearm : (byte)WeaponSlot.Primary;
             m_PendingSlot = target;
             m_PendingSlotUntil = Time.time + 2f;
-            // The server lets the drawn weapon fire switchSeconds after the request reaches it.
-            m_NextFireTime = Mathf.Max(m_NextFireTime, Time.time + switchSeconds);
+            m_SwitchPhase = SwitchPhase.Lowering;
+            m_SwitchPhaseStart = Time.time;
+            m_IsZoomed = false;
+            PlaySwitchAudio();
             SwitchWeaponServerRpc(target);
+        }
+
+        // Owner, every frame: lowered, then (once the server has switched, or the request timed
+        // out) the drawn weapon comes up. The fire time is pushed to the end of the raise.
+        private void TickSwitch()
+        {
+            if (m_SwitchPhase == SwitchPhase.None) return;
+            if (m_PendingSlot != NoPendingSlot && Time.time > m_PendingSlotUntil) m_PendingSlot = NoPendingSlot;
+
+            if (m_SwitchPhase == SwitchPhase.Lowering && Time.time - m_SwitchPhaseStart >= lowerSeconds)
+            {
+                m_SwitchPhase = SwitchPhase.Waiting;
+            }
+            if (m_SwitchPhase == SwitchPhase.Waiting && m_PendingSlot == NoPendingSlot)
+            {
+                m_ShownSlot = activeSlot.Value;
+                m_SwitchPhase = SwitchPhase.Raising;
+                m_SwitchPhaseStart = Time.time;
+                m_NextFireTime = Mathf.Max(m_NextFireTime, Time.time + raiseSeconds);
+                PlaySwitchAudio();
+            }
+            if (m_SwitchPhase == SwitchPhase.Raising && Time.time - m_SwitchPhaseStart >= raiseSeconds)
+            {
+                m_SwitchPhase = SwitchPhase.None;
+            }
+        }
+
+        private void PlaySwitchAudio()
+        {
+            if (weaponAudioSource != null && switchClip != null && weaponAudioSource.isActiveAndEnabled)
+            {
+                weaponAudioSource.PlayOneShot(switchClip, switchVolume);
+            }
         }
 
         [ServerRpc]
@@ -409,7 +498,7 @@ namespace Game.Conquest.Combat
             float overheatLeft = drawnValid ? drawnOverheatLeft - (float)(now - drawnCoolFrom) : 0f;
             if (overheatLeft > 0f) ServerStartLock(WeaponLock.Overheat, overheatLeft);
             m_ServerEpoch = (byte)((m_ServerEpoch + 1) & 0x0F);
-            m_ServerNextFireTime = Mathf.Max(m_ServerNextFireTime, Time.time + switchSeconds);
+            m_ServerNextFireTime = Mathf.Max(m_ServerNextFireTime, Time.time + SwitchSeconds);
             m_OwnerStateDirty = true;
         }
 
@@ -425,6 +514,7 @@ namespace Game.Conquest.Combat
             // The host owns every bot, so IsOwner alone would let the host's keys drive bot weapons.
             if (!PredictsLocally) return;
             m_Predictor.Tick(Params, Time.timeAsDouble);
+            TickSwitch();
             bool canAct = !(m_Health != null && m_Health.IsDead) && !IsMatchOver &&
                           !(ConquestPauseMenu.Instance != null && ConquestPauseMenu.Instance.IsPaused);
 
@@ -464,11 +554,10 @@ namespace Game.Conquest.Combat
             double now = Time.timeAsDouble;
             bool fireRequested = isAutomatic ? ConquestInput.FireHeld : ConquestInput.FirePressed;
 
-            if (m_PendingSlot != NoPendingSlot && Time.time > m_PendingSlotUntil) m_PendingSlot = NoPendingSlot;
-            if (HasSidearm && m_PendingSlot == NoPendingSlot && ConquestInput.SwitchWeaponPressed) RequestSwitch();
+            if (HasSidearm && !IsSwitching && ConquestInput.SwitchWeaponPressed) RequestSwitch();
 
-            // Nothing fires until the server confirms a switch, so no shot uses the wrong stats.
-            bool switching = m_PendingSlot != NoPendingSlot;
+            // Nothing fires from the moment a switch starts until the drawn weapon is up.
+            bool switching = IsSwitching;
             if (IsRepairTool)
             {
                 if (!switching && fireRequested && Time.time >= m_NextFireTime) TryRepairLocal();
@@ -496,7 +585,7 @@ namespace Game.Conquest.Combat
         {
             if (m_Movement == null || m_Movement.PlayerCamera == null) return;
 
-            m_IsZoomed = canAct && hasZoom && ConquestInput.AimHeld;
+            m_IsZoomed = canAct && hasZoom && !IsSwitching && ConquestInput.AimHeld;
 
             // The unzoomed FOV follows the settings, even when they change mid-match; zoom divides
             // the view's half-angle tangent, so the magnification is the same at any base FOV.
@@ -517,7 +606,8 @@ namespace Game.Conquest.Combat
 
             // The shot number is the server's too, so the pellets drawn here are the ones it simulates.
             ushort seq = m_Predictor.OnShot(p, now);
-            Vector3 muzzle = muzzlePoint != null ? muzzlePoint.position : baseRay.origin;
+            Transform activeMuzzle = ActiveMuzzle;
+            Vector3 muzzle = activeMuzzle != null ? activeMuzzle.position : baseRay.origin;
             SpawnShotVisuals(baseRay.origin, baseRay.direction, muzzle, seq, true, now);
 
             PlayMuzzleFlash();
@@ -769,7 +859,8 @@ namespace Game.Conquest.Combat
             // host still needs to see and hear their fire.
             if (PredictsLocally) return;
 
-            Vector3 muzzle = muzzlePoint != null ? muzzlePoint.position : origin;
+            Transform activeMuzzle = ActiveMuzzle;
+            Vector3 muzzle = activeMuzzle != null ? activeMuzzle.position : origin;
             SpawnShotVisuals(origin, direction, muzzle, shotSeq, false, fireServerTime);
             PlayMuzzleFlash();
             PlayFireAudio();
@@ -1062,16 +1153,22 @@ namespace Game.Conquest.Combat
 
         private void PlayMuzzleFlash()
         {
-            if (muzzlePoint == null) return;
-            ConquestFxPool.Play(muzzleFlashPrefab, muzzlePoint.position, muzzlePoint.rotation, muzzleFlashSeconds);
+            Transform muzzle = ActiveMuzzle;
+            if (muzzle == null) return;
+            ConquestFxPool.Play(muzzleFlashPrefab, muzzle.position, muzzle.rotation, muzzleFlashSeconds);
         }
+
+        // Placeholder: gunshots from other players that may start in one 40 ms window.
+        private const int GunshotVoices = 4;
 
         private void PlayFireAudio()
         {
             if (weaponAudioSource != null && fireSoundClip != null)
             {
-                // Concurrency-limited fire sound with category cooldown
-                ConquestAudioLimiter.TryPlayOneShot(weaponAudioSource, fireSoundClip, "Gunshot", fireVolume, 0.04f, firePitchMin, firePitchMax);
+                // Your own shots always play; everyone else's share a few voices per 40 ms, so a
+                // firefight stays readable without dropping a shot just because someone else fired.
+                ConquestAudioLimiter.TryPlayOneShot(weaponAudioSource, fireSoundClip, "Gunshot", fireVolume, 0.04f, firePitchMin, firePitchMax,
+                    GunshotVoices, PredictsLocally);
             }
         }
     }
