@@ -117,6 +117,16 @@ namespace Game.Conquest.Combat
         /// <param name="sourcePosition">Where the damage came from (the shot's origin), for the victim's hit-direction indicator.</param>
         public void TakeDamage(int damage, ulong attackerObjectId, Vector3 sourcePosition)
         {
+            TakeDamage(damage, attackerObjectId, sourcePosition, transform.position, 0, NoPellet);
+        }
+
+        /// <summary>No bolt pellet (a fall, a kill volume): clients have no drawn bolt to end.</summary>
+        public const byte NoPellet = 255;
+
+        /// <param name="hitPoint">Where the bolt struck, so every client ends its drawn bolt there.</param>
+        /// <param name="shotSeq">The shooter's shot number and <paramref name="pellet"/> identify the drawn bolt.</param>
+        public void TakeDamage(int damage, ulong attackerObjectId, Vector3 sourcePosition, Vector3 hitPoint, ushort shotSeq, byte pellet)
+        {
             if (!IsServer || isDead.Value) return;
             // Nobody gets hurt once the match is decided.
             if (ConquestMatchManager.Instance != null && ConquestMatchManager.Instance.IsMatchOver) return;
@@ -127,7 +137,7 @@ namespace Game.Conquest.Combat
             int newHealth = Mathf.Max(0, currentHealth.Value - damage);
             currentHealth.Value = newHealth;
 
-            TakeDamageClientRpc(damage, attackerObjectId, sourcePosition);
+            TakeDamageClientRpc(damage, attackerObjectId, sourcePosition, hitPoint, shotSeq, pellet);
             if (attackerObjectId != NoAttacker) OnServerDamaged?.Invoke(attackerObjectId, sourcePosition);
 
             if (newHealth <= 0)
@@ -139,8 +149,10 @@ namespace Game.Conquest.Combat
         }
 
         [ClientRpc]
-        private void TakeDamageClientRpc(int damage, ulong attackerObjectId, Vector3 sourcePosition)
+        private void TakeDamageClientRpc(int damage, ulong attackerObjectId, Vector3 sourcePosition, Vector3 hitPoint, ushort shotSeq, byte pellet)
         {
+            if (attackerObjectId != NoAttacker && pellet != NoPellet) ConquestBoltPool.EndPellet(attackerObjectId, shotSeq, pellet, hitPoint);
+
             // Play subtle hurt sound with anti-stacking limiter
             ConquestAudioLimiter.TryPlayDamageHurt(audioSource, hitSoundClip, GetHashCode(), 0.18f);
 

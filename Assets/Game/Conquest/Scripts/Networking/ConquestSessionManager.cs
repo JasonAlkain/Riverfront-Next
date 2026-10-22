@@ -111,7 +111,6 @@ namespace Game.Conquest.Networking
         public static string BuildVersion => $"{Application.version}/p{ProtocolVersion}";
 
         private const string PayloadTag = "RF";
-        private const string PlayerNamePrefsKey = "Conquest.PlayerName";
 
         [Header("Connection Approval")]
         [Tooltip("When false the server refuses new connections (e.g. a match that does not allow late joiners).")]
@@ -120,15 +119,25 @@ namespace Game.Conquest.Networking
         // Server-side: names supplied in each client's connection payload, keyed by client id.
         private readonly Dictionary<ulong, string> m_ApprovedNames = new Dictionary<ulong, string>();
 
+        // The name this game instance chose in the lobby. Kept in memory for this run only:
+        // instances on one machine share PlayerPrefs, so a saved name made every new client join
+        // as whoever typed a name last. Empty means the server gives a generic one (Player_N).
+        private static string s_LocalPlayerName = "";
+
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+        private static void ResetLocalPlayerName()
+        {
+            s_LocalPlayerName = "";
+        }
+
         public static string LoadLocalPlayerName()
         {
-            return SanitizePlayerName(PlayerPrefs.GetString(PlayerNamePrefsKey, ""));
+            return s_LocalPlayerName;
         }
 
         public static void SaveLocalPlayerName(string name)
         {
-            PlayerPrefs.SetString(PlayerNamePrefsKey, SanitizePlayerName(name));
-            PlayerPrefs.Save();
+            s_LocalPlayerName = SanitizePlayerName(name);
         }
 
         public bool TryGetApprovedName(ulong clientId, out string playerName)

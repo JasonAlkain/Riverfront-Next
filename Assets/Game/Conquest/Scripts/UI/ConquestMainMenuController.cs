@@ -3,6 +3,7 @@ using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using Game.Conquest.Classes;
 using Game.Conquest.Maps;
 using Game.Conquest.Networking;
 using Game.Conquest.Settings;
@@ -36,6 +37,10 @@ namespace Game.Conquest.UI
         [Header("Map Registry")]
         [SerializeField] private ConquestMapRegistry mapRegistry;
 
+        [Header("Classes")]
+        [Tooltip("Shared class list, for the class names on the lobby player cards.")]
+        [SerializeField] private ConquestClassRoster classRoster;
+
         [Header("Active Screen")]
         [SerializeField] private MenuState currentMenuState = MenuState.Title;
 
@@ -51,41 +56,9 @@ namespace Game.Conquest.UI
         [SerializeField] private SettingsPanelUI settingsPanelUI;
         [SerializeField] private CreditsPanelUI creditsPanelUI;
 
-        // Color fields are no longer applied in code (the prefab owns visuals). They stay serialized
-        // so the values already saved in MainMenu.unity are preserved for the planned button theming.
-        [Header("Colors")]
-        [SerializeField] private Color primaryColor = new Color(0.35f, 0.78f, 1.0f, 1f);
-        [SerializeField] private Color secondaryColor = new Color(0.9f, 0.6f, 0.15f, 1f);
-
-        [Header("Title Colors")]
-        [SerializeField] Color playSoloColor = new Color(0.2f, 0.6f, 1.0f);
-        [SerializeField] Color multiplayerColor = new Color(0.2f, 0.75f, 0.4f);
-        [SerializeField] Color gameSettingsColor = new Color(0.9f, 0.6f, 0.2f);
-        [SerializeField] Color creditsColor = new Color(0.22f, 0.28f, 0.36f);
-        [SerializeField] Color quitColor = new Color(0.85f, 0.25f, 0.25f);
-
-        [Header("Solo Colors")]
-        [SerializeField] Color panelColor = new Color(0.12f, 0.16f, 0.24f, 0.9f);
-        [SerializeField] Color prevMapColor = new Color(0.25f, 0.30f, 0.40f);
-        [SerializeField] Color nextMapColor = new Color(0.25f, 0.30f, 0.40f);
-        [SerializeField] Color mapNameColor = Color.yellow;
-        [SerializeField] Color descBoxColor = new Color(0.12f, 0.16f, 0.24f, 0.9f);
-        [SerializeField] Color easyColor = new Color(0.3f, 0.35f, 0.45f);
-        [SerializeField] Color normalColor = new Color(0.8f, 0.6f, 0.2f);
-        [SerializeField] Color hardColor = new Color(0.3f, 0.35f, 0.45f);
-        [SerializeField] Color teamSizeColor = Color.white;
-        [SerializeField] Color ticketsColor = Color.white;
-        [SerializeField] Color startBattleColor = new Color(0.2f, 0.75f, 0.4f);
-        [SerializeField] Color backColor = new Color(0.3f, 0.35f, 0.4f);
-
-        // ToDO: Planned button color customization
-        [Header("Button Colors (WIP)")]
-        [SerializeField] Color btnNormal = new Color(0.25f, 0.30f, 0.40f);
-        [SerializeField] Color btnHover = new Color(0.35f, 0.45f, 0.55f);
-        [SerializeField] Color btnPressed = new Color(0.15f, 0.20f, 0.30f);
-        [SerializeField] Color btnDisabled = new Color(0.15f, 0.15f, 0.15f);
-        [SerializeField] Color btnTextNormal = Color.white;
-        [SerializeField] Color btnTextDisabled = new Color(0.5f, 0.5f, 0.5f);
+        [Header("Persistent Services Fallback")]
+        [Tooltip("Handed to the scene transition manager when the menu is opened directly, without Bootstrap.")]
+        [SerializeField] private LoadingScreenUI loadingScreenPrefab;
 
         // Configuration fields for Host / Solo
         private int m_SelectedMapIndex = 0;
@@ -111,13 +84,14 @@ namespace Game.Conquest.UI
         private const int MaxRecentServers = 3;
         private const string RecentServersPrefsKey = "Conquest.RecentServers";
 
+        private static readonly string[] k_OnOff = { "Off", "On" };
+        private static readonly string[] k_Difficulties = { "Easy", "Normal", "Hard" };
+
         // Lobby state
         private string m_LobbyJoinAddressLine = "";
         private bool m_LobbyNameSent = false;
         private int m_LobbyDisplayHash;
         private bool m_LobbyDisplayValid;
-
-        private static readonly string[] k_ClassNames = { "Assault", "Heavy", "Engineer", "Recon" };
 
         private void Awake()
         {
@@ -129,6 +103,7 @@ namespace Game.Conquest.UI
                 servicesGO.AddComponent<ConquestSessionManager>();
                 var stm = servicesGO.AddComponent<ConquestSceneTransitionManager>();
                 stm.SetMapRegistry(mapRegistry);
+                stm.SetLoadingScreenPrefab(loadingScreenPrefab);
             }
 
             // A dedicated server shows no menus. The lobby itself runs on ConquestLobbyManager,
@@ -236,7 +211,6 @@ namespace Game.Conquest.UI
             if (newState == MenuState.PlaySolo) UpdateSoloDisplay();
             if (newState == MenuState.HostGame) UpdateHostDisplay();
             if (newState == MenuState.ServerBrowser) RefreshBrowserPanel();
-            if (newState == MenuState.Settings) LoadSettingsIntoUI();
             if (newState == MenuState.Lobby)
             {
                 // Enumerating interfaces allocates, so resolve the join address once per lobby visit.
@@ -367,6 +341,20 @@ namespace Game.Conquest.UI
                 m_HostTeamSize = Mathf.RoundToInt(val);
                 UpdateHostLabels();
             });
+            if (p.stp_BotFill != null)
+            {
+                p.stp_BotFill.SetOptions(k_OnOff, m_HostBotFilling ? 1 : 0);
+                p.stp_BotFill.Changed += index =>
+                {
+                    m_HostBotFilling = index == 1;
+                    UpdateHostLabels();
+                };
+            }
+            if (p.stp_BotDifficulty != null)
+            {
+                p.stp_BotDifficulty.SetOptions(k_Difficulties, m_HostBotDifficultyIndex);
+                p.stp_BotDifficulty.Changed += index => m_HostBotDifficultyIndex = index;
+            }
             UpdateHostLabels();
         }
 
@@ -401,15 +389,6 @@ namespace Game.Conquest.UI
             Bind(p.btn_CycleMap, CycleLobbyMap);
             Bind(p.btn_SetName, SubmitLobbyName);
 
-            if (p.btn_Classes != null)
-            {
-                for (int i = 0; i < p.btn_Classes.Length; i++)
-                {
-                    int classIndex = i;
-                    Bind(p.btn_Classes[i], () => ConquestLobbyManager.Instance?.SelectClassServerRpc(classIndex));
-                }
-            }
-
             if (p.tmp_PlayerName != null)
             {
                 p.tmp_PlayerName.characterLimit = ConquestSessionManager.MaxPlayerNameLength;
@@ -417,22 +396,10 @@ namespace Game.Conquest.UI
             }
         }
 
+        // The Settings screen loads, applies and saves on its own; the menu only handles leaving it.
         private void BindSettingsPanel()
         {
-            var p = settingsPanelUI;
-            if (p == null) return;
-
-            BindSlider(p.masterVolume, false, 0.85f, _ => RefreshSettingsLabels());
-            BindSlider(p.sfxVolume, false, 0.80f, _ => RefreshSettingsLabels());
-            BindSlider(p.musicVolume, false, 0.70f, _ => RefreshSettingsLabels());
-            BindSlider(p.mouseSensitivity, false, 0.15f, _ => RefreshSettingsLabels());
-            BindSlider(p.fovSlider, false, 75f, _ => RefreshSettingsLabels());
-            RefreshSettingsLabels();
-
-            Bind(p.btn_Apply, SaveAndApplySettings);
-            Bind(p.btn_Defaults, RestoreSettingsDefaults);
-            Bind(p.btn_Controls, () => { if (p.controlsPanel != null) p.controlsPanel.Open(); });
-            Bind(p.btn_Back, () => SwitchScreen(MenuState.Title));
+            if (settingsPanelUI != null) settingsPanelUI.Closed += () => SwitchScreen(MenuState.Title);
         }
 
         private void BindCreditsPanel()
@@ -498,7 +465,9 @@ namespace Game.Conquest.UI
             if (hostPanelUI == null) return;
             SetText(hostPanelUI.txt_MaxHumanConnections, $"Max Human Connections: {m_HostMaxPlayers}");
             SetText(hostPanelUI.txt_ReinforcementTickets, $"Reinforcement Tickets: {m_HostTickets}");
-            SetText(hostPanelUI.txt_TargetTeamSize, $"Target Team Size: {m_HostTeamSize} (AI Filled)");
+            SetText(hostPanelUI.txt_TargetTeamSize, m_HostBotFilling
+                ? $"Target Team Size: {m_HostTeamSize} (bots fill empty slots)"
+                : $"Target Team Size: {m_HostTeamSize} (humans only)");
         }
 
         private void UpdateSoloDisplay()
@@ -510,7 +479,7 @@ namespace Game.Conquest.UI
                 m_SelectedMapIndex = Mathf.Clamp(m_SelectedMapIndex, 0, maps.Count - 1);
                 var map = maps[m_SelectedMapIndex];
                 SetText(soloPanelUI.txt_MapName, $"<b>{map.displayName.ToUpper()}</b> ({map.commandPostsCount} CPs)");
-                SetText(soloPanelUI.txt_MapDescription, $"{map.description}\nRecommended: {map.recommendedPlayers} Players  |  Scene: {map.sceneName}");
+                SetText(soloPanelUI.txt_MapDescription, $"{map.description}\nRecommended: {map.recommendedPlayers} players");
             }
         }
 
@@ -604,7 +573,7 @@ namespace Game.Conquest.UI
                 if (player.team != Team.Red && player.team != Team.Blue) continue;
 
                 string hostTag = player.isHost ? " (Host)" : "";
-                string className = player.classIndex >= 0 && player.classIndex < k_ClassNames.Length ? k_ClassNames[player.classIndex] : $"Class {player.classIndex}";
+                string className = classRoster != null ? classRoster.NameOf(player.classIndex) : "";
                 // Only your own card's ready toggle is clickable; the server flips the state.
                 System.Action onReadyToggled = null;
                 if (player.clientId == localClientId) onReadyToggled = () => ConquestLobbyManager.Instance?.ToggleReadyServerRpc();
@@ -865,57 +834,6 @@ namespace Game.Conquest.UI
                 m_SelectedMapIndex = (m_SelectedMapIndex + 1) % maps.Count;
                 ConquestLobbyManager.Instance?.SetMapSceneServerRpc(maps[m_SelectedMapIndex].sceneName);
             }
-        }
-
-        private void LoadSettingsIntoUI()
-        {
-            var sm = ConquestSettingsManager.Instance;
-            var p = settingsPanelUI;
-            if (sm == null || p == null) return;
-            var s = sm.CurrentSettings;
-
-            if (p.masterVolume != null) p.masterVolume.SetValueWithoutNotify(s.masterVolume);
-            if (p.sfxVolume != null) p.sfxVolume.SetValueWithoutNotify(s.sfxVolume);
-            if (p.musicVolume != null) p.musicVolume.SetValueWithoutNotify(s.musicVolume);
-            if (p.mouseSensitivity != null) p.mouseSensitivity.SetValueWithoutNotify(s.mouseSensitivity);
-            if (p.fovSlider != null) p.fovSlider.SetValueWithoutNotify(s.fieldOfView);
-            RefreshSettingsLabels();
-        }
-
-        private void RefreshSettingsLabels()
-        {
-            var p = settingsPanelUI;
-            if (p == null) return;
-            if (p.masterVolume != null) SetText(p.txt_MasterVolume, $"Master Volume: {(int)(p.masterVolume.value * 100)}%");
-            if (p.sfxVolume != null) SetText(p.txt_SfxVolume, $"SFX Volume: {(int)(p.sfxVolume.value * 100)}%");
-            if (p.musicVolume != null) SetText(p.txt_MusicVolume, $"Music Volume: {(int)(p.musicVolume.value * 100)}%");
-            if (p.mouseSensitivity != null) SetText(p.txt_MouseSensitivity, $"Mouse Sensitivity: {p.mouseSensitivity.value:F2}");
-            if (p.fovSlider != null) SetText(p.txt_Fov, $"Field of View: {(int)p.fovSlider.value}°");
-        }
-
-        private void SaveAndApplySettings()
-        {
-            var sm = ConquestSettingsManager.Instance;
-            var p = settingsPanelUI;
-            if (sm == null || p == null) return;
-            var s = sm.CurrentSettings;
-
-            if (p.masterVolume != null) s.masterVolume = p.masterVolume.value;
-            if (p.sfxVolume != null) s.sfxVolume = p.sfxVolume.value;
-            if (p.musicVolume != null) s.musicVolume = p.musicVolume.value;
-            if (p.mouseSensitivity != null) s.mouseSensitivity = p.mouseSensitivity.value;
-            if (p.fovSlider != null) s.fieldOfView = p.fovSlider.value;
-
-            sm.ApplySettings(s);
-            SwitchScreen(MenuState.Title);
-        }
-
-        private void RestoreSettingsDefaults()
-        {
-            var sm = ConquestSettingsManager.Instance;
-            if (sm == null) return;
-            sm.RestoreDefaults();
-            LoadSettingsIntoUI();
         }
 
         private void QuitApplication()

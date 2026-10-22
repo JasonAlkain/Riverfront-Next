@@ -20,6 +20,11 @@ namespace Game.Conquest
         public Slider sld_ReinforcementTickets;
         public Slider sld_TargetTeamSize;
 
+        [Header("Bots")]
+        [Tooltip("Off: only humans play. On: bots fill every team up to the target size.")]
+        public OptionStepperUI stp_BotFill;
+        public OptionStepperUI stp_BotDifficulty;
+
         [Header("Buttons")]
         public Button btn_PrevMap;
         public Button btn_NextMap;

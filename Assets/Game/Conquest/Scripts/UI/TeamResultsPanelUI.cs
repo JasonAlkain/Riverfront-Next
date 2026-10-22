@@ -22,6 +22,10 @@ namespace Game.Conquest
         public Transform rowsContainer;
         public MatchResultRowUI rowPrefab;
 
+        [Header("Classes")]
+        [Tooltip("Shared class list, for the class name on each row.")]
+        public ConquestClassRoster classRoster;
+
         private static readonly List<MatchResultRow> s_Sorted = new List<MatchResultRow>();
 
         public void SetHeader(string teamName, string totals, Color teamColor)
@@ -76,11 +80,9 @@ namespace Game.Conquest
             }
         }
 
-        private static string ClassLabel(int classIndex)
+        private string ClassLabel(int classIndex)
         {
-            return System.Enum.IsDefined(typeof(InfantryClassType), classIndex)
-                ? ((InfantryClassType)classIndex).ToString()
-                : $"Class {classIndex}";
+            return classRoster != null ? classRoster.NameOf(classIndex) : "";
         }
     }
 }

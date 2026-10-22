@@ -106,7 +106,21 @@ namespace Game.Conquest.Gameplay
         private float m_NextStationAttemptTime;
         private const float StationAttemptInterval = 3f;
         private float m_NextStrafeTime;
-        private bool m_CoverSoughtThisReload;
+        private bool m_CoverSoughtThisLock;
+        // Holding fire to let a hot weapon cool, before it locks.
+        private bool m_Venting;
+        // This perception tick's misjudgement of the target's speed (a share of it, plus or minus).
+        private float m_LeadError;
+
+        [Header("Bolts")]
+        [Tooltip("Placeholder: share of the target's movement the bot leads (0 aims at where it is, 1 leads exactly). Set per difficulty.")]
+        [SerializeField] private float leadSkill = 0.8f;
+        [Tooltip("Placeholder: random misjudgement of the target's speed, plus or minus this share, new each perception tick. Set per difficulty.")]
+        [SerializeField] private float leadNoise = 0.15f;
+        [Tooltip("Placeholder: heat gauge share at which a bot stops firing to cool (1 = fires into overheat). Set per difficulty.")]
+        [SerializeField] private float ventStartHeat = 0.9f;
+        [Tooltip("Placeholder: heat gauge share at which a venting bot fires again. Set per difficulty.")]
+        [SerializeField] private float ventResumeHeat = 0.4f;
         private ConquestSupportStation m_RetreatStation;
         private bool m_FacingManually;
         private const int CoverProbeCount = 6;
@@ -193,6 +207,10 @@ namespace Game.Conquest.Gameplay
                     aimAccuracy = 0.55f;
                     reactionDelay = 0.65f;
                     perceptionInterval = 0.35f; // Placeholder
+                    leadSkill = 0.5f; // Placeholder
+                    leadNoise = 0.3f; // Placeholder
+                    ventStartHeat = 1.0f; // Placeholder: fires into overheat
+                    ventResumeHeat = 0.3f; // Placeholder
                     break;
                 case BotDifficulty.Normal:
                     detectionRange = 45.0f;
@@ -200,6 +218,10 @@ namespace Game.Conquest.Gameplay
                     aimAccuracy = 0.75f;
                     reactionDelay = 0.35f;
                     perceptionInterval = 0.25f; // Placeholder
+                    leadSkill = 0.8f; // Placeholder
+                    leadNoise = 0.15f; // Placeholder
+                    ventStartHeat = 0.9f; // Placeholder
+                    ventResumeHeat = 0.4f; // Placeholder
                     break;
                 case BotDifficulty.Hard:
                     detectionRange = 60.0f;
@@ -207,6 +229,10 @@ namespace Game.Conquest.Gameplay
                     aimAccuracy = 0.90f;
                     reactionDelay = 0.18f;
                     perceptionInterval = 0.2f; // Placeholder
+                    leadSkill = 1.0f; // Placeholder
+                    leadNoise = 0.05f; // Placeholder
+                    ventStartHeat = 0.8f; // Placeholder
+                    ventResumeHeat = 0.5f; // Placeholder
                     break;
             }
         }
@@ -227,7 +253,7 @@ namespace Game.Conquest.Gameplay
             }
 
             m_FacingManually = false;
-            if (m_Weapon != null && !m_Weapon.IsReloading) m_CoverSoughtThisReload = false;
+            if (m_Weapon != null && !m_Weapon.IsWeaponLocked) m_CoverSoughtThisLock = false;
 
             TickPerception();
 
@@ -488,14 +514,15 @@ namespace Game.Conquest.Gameplay
             if (!perception.TargetVisible)
             {
                 // Heavies keep firing where the target vanished, to pin it down.
-                if (perception.SecondsSinceSeen <= role.suppressSeconds) FireAt(perception.AimPoint);
+                if (perception.SecondsSinceSeen <= role.suppressSeconds) FireAt(perception.AimPoint, Vector3.zero);
                 SetAgentSpeed(TravelSpeed);
                 MoveToTarget(perception.LastKnownPosition);
                 return;
             }
 
             float distance = toTarget.magnitude;
-            if (m_Weapon != null && m_Weapon.IsReloading)
+            // Reloading or overheated: take cover once per lock.
+            if (m_Weapon != null && m_Weapon.IsWeaponLocked)
             {
                 SeekCover(targetPos);
             }
@@ -514,15 +541,43 @@ namespace Game.Conquest.Gameplay
             }
 
             if (Time.time - perception.TargetAcquiredTime < reactionDelay) return;
-            FireAt(perception.AimPoint);
+            FireAt(perception.AimPoint, perception.EnemyVelocity);
         }
 
-        // Aim error is an angle, so a bot misses by more at long range, like a person would.
-        private void FireAt(Vector3 aimPoint)
+        // Bolts take time to arrive, so aim where a moving target will be (with this bot's skill
+        // and this tick's misjudgement). Aim error is an angle, so a bot misses by more at long
+        // range, like a person would.
+        private void FireAt(Vector3 aimPoint, Vector3 targetVelocity)
         {
-            if (m_Weapon == null) return;
+            if (m_Weapon == null || !ReadyToFire()) return;
+            if (targetVelocity.sqrMagnitude > 1e-4f && m_Weapon.BoltSpeed > 0f)
+            {
+                Vector3 judged = targetVelocity * (leadSkill * (1f + m_LeadError));
+                aimPoint = ConquestBallistics.InterceptPoint(m_Weapon.AIFireOrigin, aimPoint, judged, m_Weapon.BoltSpeed, m_Weapon.BoltLifetime);
+            }
             float aimErrorDegrees = Mathf.Lerp(worstAimErrorDegrees, bestAimErrorDegrees, aimAccuracy);
             m_Weapon.FireFromAI(aimPoint, aimErrorDegrees);
+        }
+
+        // Heat weapons: stop firing near the limit and wait for the gauge to fall, so the bot
+        // fires in bursts instead of locking up. The server still enforces the lock itself.
+        private bool ReadyToFire()
+        {
+            if (!m_Weapon.UsesHeat)
+            {
+                m_Venting = false;
+                return true;
+            }
+            float heat = m_Weapon.ServerHeat01;
+            if (m_Venting)
+            {
+                if (heat <= ventResumeHeat && !m_Weapon.IsOverheated) m_Venting = false;
+            }
+            else if (heat >= ventStartHeat)
+            {
+                m_Venting = true;
+            }
+            return !m_Venting;
         }
 
         // Side-step across the line of fire every so often instead of standing still.
@@ -545,8 +600,8 @@ namespace Game.Conquest.Gameplay
         // A handful of line checks once per reload, not a search of the level.
         private void SeekCover(Vector3 targetPos)
         {
-            if (m_CoverSoughtThisReload) return;
-            m_CoverSoughtThisReload = true;
+            if (m_CoverSoughtThisLock) return;
+            m_CoverSoughtThisLock = true;
 
             Vector3 targetEye = targetPos + Vector3.up * 1.6f;
             for (int i = 0; i < CoverProbeCount; i++)
@@ -607,7 +662,7 @@ namespace Game.Conquest.Gameplay
             if (perception.TargetVisible)
             {
                 FaceDirection(perception.AimPoint - transform.position);
-                if (Time.time - perception.TargetAcquiredTime >= reactionDelay) FireAt(perception.AimPoint);
+                if (Time.time - perception.TargetAcquiredTime >= reactionDelay) FireAt(perception.AimPoint, perception.EnemyVelocity);
             }
         }
 
@@ -668,6 +723,7 @@ namespace Game.Conquest.Gameplay
             m_NextPerceptionTime = Time.time + perceptionInterval;
 
             perception.Tick(m_Player, detectionRange, fieldOfView, visionMask);
+            m_LeadError = Random.Range(-leadNoise, leadNoise);
             if (perception.HasTarget && currentState != BotState.EngageEnemy && currentState != BotState.Retreat)
             {
                 currentState = BotState.EngageEnemy;
@@ -746,6 +802,7 @@ namespace Game.Conquest.Gameplay
             if (!IsServer) return;
             currentState = BotState.Dead;
             perception.Clear();
+            m_Venting = false;
             if (m_Agent.isActiveAndEnabled && m_Agent.isOnNavMesh)
             {
                 m_Agent.isStopped = true;
@@ -762,6 +819,7 @@ namespace Game.Conquest.Gameplay
             }
             currentState = BotState.Idle;
             perception.Clear();
+            m_Venting = false;
             m_RetreatStation = null;
             m_NextDecisionTime = Time.time + Random.Range(0.2f, 0.6f);
             ResetStuckSampling();

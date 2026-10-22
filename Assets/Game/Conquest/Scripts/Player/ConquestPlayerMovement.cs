@@ -28,6 +28,8 @@ namespace Game.Conquest.Player
         [Header("Camera & Look Settings")]
         [SerializeField] private Transform cameraPivot;
         [SerializeField] private float mouseSensitivity = 0.15f;
+        private float m_ZoomedSensitivity = 1f;
+        private bool m_InvertY;
         [SerializeField] private float minPitch = -85.0f;
         [SerializeField] private float maxPitch = 85.0f;
 
@@ -141,6 +143,8 @@ namespace Game.Conquest.Player
         {
             if (settings == null) return;
             mouseSensitivity = settings.mouseSensitivity;
+            m_ZoomedSensitivity = settings.zoomSensitivity;
+            m_InvertY = settings.invertY;
             m_BaseFieldOfView = settings.fieldOfView;
             if (playerCamera != null)
             {
@@ -211,6 +215,52 @@ namespace Game.Conquest.Player
 
             HandleLook();
             HandleMovement();
+        }
+
+        /// <summary>
+        /// Server: this combatant's horizontal velocity as the server sees it (smoothed). It is
+        /// exactly what server-side bolts are tested against, so bots lead with it directly.
+        /// </summary>
+        public Vector3 ServerVelocity { get; private set; }
+        private Vector3 m_ServerLastPos;
+        private bool m_ServerHadPos;
+
+        // Separate from Update, which returns early for bots and for players this peer doesn't own.
+        private void LateUpdate()
+        {
+            if (!IsServer || !IsSpawned) return;
+
+            Vector3 pos = transform.position;
+            Vector3 delta = pos - m_ServerLastPos;
+            delta.y = 0f;
+            float dt = Time.deltaTime;
+            var settings = BoltSettings;
+            bool dead = m_Health != null && m_Health.IsDead;
+            if (!m_ServerHadPos || dead || dt <= 0f || delta.magnitude > settings.teleportResetDistance)
+            {
+                // A respawn or teleport (which remote players do on their own peer) isn't movement.
+                ServerVelocity = Vector3.zero;
+            }
+            else
+            {
+                Vector3 v = delta / dt;
+                float blend = settings.velocitySmoothingSeconds > 0f ? 1f - Mathf.Exp(-dt / settings.velocitySmoothingSeconds) : 1f;
+                ServerVelocity = Vector3.ClampMagnitude(Vector3.Lerp(ServerVelocity, v, blend), sprintSpeed * settings.velocityClampFactor);
+            }
+            m_ServerLastPos = pos;
+            m_ServerHadPos = !dead;
+        }
+
+        private ConquestPlayer m_OwnerPlayer;
+
+        private Game.Conquest.Classes.ConquestBoltSettings BoltSettings
+        {
+            get
+            {
+                if (m_OwnerPlayer == null) m_OwnerPlayer = GetComponent<ConquestPlayer>();
+                var roster = m_OwnerPlayer != null ? m_OwnerPlayer.ClassRoster : null;
+                return roster != null ? roster.BoltSettings : Game.Conquest.Classes.ConquestBoltSettings.Fallback;
+            }
         }
 
         private void TriggerFallDeath()
@@ -285,8 +335,7 @@ namespace Game.Conquest.Player
             // Vertical rotation on camera pivot
             if (cameraPivot != null)
             {
-                bool invert = Game.Conquest.Settings.ConquestSettingsManager.Instance != null && Game.Conquest.Settings.ConquestSettingsManager.Instance.CurrentSettings.invertY;
-                m_Pitch += (invert ? mouseDelta.y : -mouseDelta.y);
+                m_Pitch += (m_InvertY ? mouseDelta.y : -mouseDelta.y);
                 m_Pitch = Mathf.Clamp(m_Pitch, minPitch, maxPitch);
                 cameraPivot.localRotation = Quaternion.Euler(m_Pitch, 0f, 0f);
 
@@ -304,7 +353,9 @@ namespace Game.Conquest.Player
             if (playerCamera == null || m_BaseFieldOfView <= 1f) return 1f;
             float baseHalf = Mathf.Tan(m_BaseFieldOfView * 0.5f * Mathf.Deg2Rad);
             float currentHalf = Mathf.Tan(playerCamera.fieldOfView * 0.5f * Mathf.Deg2Rad);
-            return Mathf.Clamp(currentHalf / baseHalf, 0.05f, 1f);
+            float scale = Mathf.Clamp(currentHalf / baseHalf, 0.05f, 1f);
+            // The player's zoomed-sensitivity setting only applies while actually zoomed in.
+            return scale < 0.99f ? scale * m_ZoomedSensitivity : scale;
         }
 
         private void HandleMovement()

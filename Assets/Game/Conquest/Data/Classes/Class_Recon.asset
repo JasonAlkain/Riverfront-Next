@@ -28,8 +28,16 @@ MonoBehaviour:
   magazineCapacity: 5
   reloadDuration: 2.2
   isAutomatic: 0
+  boltSpeed: 250
+  boltRadius: 0
+  shotsToOverheat: 5
+  coolDelaySeconds: 1
+  fullCoolSeconds: 2.2
+  overheatLockoutSeconds: 2.2
+  heatAfterOverheat: 0
   hasZoom: 1
-  zoomFOV: 35
+  zoomMagnification: 3
+  hasScope: 1
   hasSupportStation: 0
   fireSound: {fileID: 8300000, guid: c51d7ed470b9a0946bca31e4dff1d0bf, type: 3}
   reloadSound: {fileID: 8300000, guid: 9a683371da5e46349b42f101433665e0, type: 3}
