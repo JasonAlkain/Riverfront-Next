@@ -26,10 +26,14 @@ namespace Game.Conquest.Objectives
         [SerializeField] private float captureTime = 10.0f;
         [Tooltip("Placeholder: seconds for one player to drain an enemy post to neutral.")]
         [SerializeField] private float neutralizeTime = 10.0f;
-        [Tooltip("Placeholder: how much each extra player on the post adds. Every player adds this share of the one " +
-                 "before: at 0.6, two players capture 1.6x as fast, four 2.2x, and no crowd ever reaches 2.5x.")]
-        [Range(0f, 0.95f)]
-        [SerializeField] private float crowdFalloff = 0.6f;
+        [Tooltip("Placeholder: within the crowd, each extra player adds this share of what the one before added. " +
+                 "At 0.75, two players capture 1.75x as fast, three 2.3x and four 2.7x.")]
+        [Range(0f, 1f)]
+        [SerializeField] private float crowdFalloff = 0.75f;
+        [Tooltip("Placeholder: how many players count toward the diminishing curve above.")]
+        [SerializeField] private int crowdSize = 4;
+        [Tooltip("Placeholder: what each player past the crowd adds (1 = as much as the first player). No cap.")]
+        [SerializeField] private float crowdTailGain = 0.1f;
         [Tooltip("Progress per second an empty post drifts back toward its owner (or toward neutral). 0 holds partial progress.")]
         [SerializeField] private float idleRecoveryRate = 0f;
 
@@ -59,7 +63,7 @@ namespace Game.Conquest.Objectives
         [SerializeField] private float contestedPulseSpeed = 6f;
 
         [Header("Home Base Look")]
-        [Tooltip("Shown only on a home base, for example a team banner. Hidden on every other post.")]
+        [Tooltip("Shown only on a home base, for example a team banner. Hidden on every other post. Its renderers take the owner's material.")]
         [SerializeField] private GameObject homeBaseMarker;
         [Tooltip("Placeholder: a home base's beacon is this much bigger than a normal post's.")]
         [SerializeField] private float homeBaseBeaconScale = 1.8f;
@@ -140,6 +144,7 @@ namespace Game.Conquest.Objectives
         private Transform m_Beacon;
         private Vector3 m_BeaconRest;
         private Vector3 m_BeaconScale;
+        private Renderer[] m_MarkerRenderers;
 
         private void Awake()
         {
@@ -150,7 +155,11 @@ namespace Game.Conquest.Objectives
                 m_BeaconScale = m_Beacon.localScale * (isHomeBase ? homeBaseBeaconScale : 1f);
                 m_Beacon.localScale = m_BeaconScale;
             }
-            if (homeBaseMarker != null) homeBaseMarker.SetActive(isHomeBase);
+            if (homeBaseMarker != null)
+            {
+                homeBaseMarker.SetActive(isHomeBase);
+                if (isHomeBase) m_MarkerRenderers = homeBaseMarker.GetComponentsInChildren<Renderer>(true);
+            }
             if (isHomeBase && initialOwner == Team.Neutral)
             {
                 Debug.LogWarning($"[CommandPost {postName}] A home base needs a team as Initial Owner.", this);
@@ -290,8 +299,8 @@ namespace Game.Conquest.Objectives
                 return;
             }
 
-            // Diminishing returns: a crowd captures faster, but the fifth player adds far less than the second.
-            float crowd = ConquestCaptureRules.CrowdMultiplier(dominantCount, crowdFalloff) * Time.deltaTime;
+            // Diminishing returns: the first few players matter most; past the crowd each adds a little.
+            float crowd = ConquestCaptureRules.CrowdMultiplier(dominantCount, crowdFalloff, crowdSize, crowdTailGain) * Time.deltaTime;
             float captureStep = crowd / Mathf.Max(0.01f, captureTime);
             float neutralizeStep = crowd / Mathf.Max(0.01f, neutralizeTime);
 
@@ -384,6 +393,13 @@ namespace Game.Conquest.Objectives
             if (owner == Team.Red && Game.Conquest.Settings.ConquestSettingsManager.ColorBlindTeams) m_BodyBlock.SetColor(s_BaseColorId, colorBlindRedColor);
             else m_BodyBlock.Clear();
             postRenderer.SetPropertyBlock(m_BodyBlock);
+
+            if (m_MarkerRenderers == null) return;
+            for (int i = 0; i < m_MarkerRenderers.Length; i++)
+            {
+                if (mat != null) m_MarkerRenderers[i].sharedMaterial = mat;
+                m_MarkerRenderers[i].SetPropertyBlock(m_BodyBlock);
+            }
         }
 
         private static readonly int s_BaseColorId = Shader.PropertyToID("_BaseColor");
@@ -403,10 +419,10 @@ namespace Game.Conquest.Objectives
             if (m_ZoneBlock == null) m_ZoneBlock = new MaterialPropertyBlock();
             zoneRenderer.GetPropertyBlock(m_ZoneBlock);
             Color red = Game.Conquest.Settings.ConquestSettingsManager.ColorBlindTeams ? new Color(colorBlindRedColor.r, colorBlindRedColor.g, colorBlindRedColor.b, zoneRedColor.a) : zoneRedColor;
-            Color zone = owner == Team.Red ? red : owner == Team.Blue ? zoneBlueColor : zoneNeutralColor;
+            Color zoneColor = owner == Team.Red ? red : owner == Team.Blue ? zoneBlueColor : zoneNeutralColor;
             // A home base's disc is more solid, so it reads as a base and not a post to take.
-            if (isHomeBase) zone.a = homeBaseZoneAlpha;
-            m_ZoneBlock.SetColor(s_BaseColorId, zone);
+            if (isHomeBase) zoneColor.a = homeBaseZoneAlpha;
+            m_ZoneBlock.SetColor(s_BaseColorId, zoneColor);
             zoneRenderer.SetPropertyBlock(m_ZoneBlock);
         }
 
