@@ -62,6 +62,8 @@ namespace Game.Conquest.Classes
         [Tooltip("Aiming shows a full-screen scope overlay instead of the crosshair.")]
         public bool hasScope = false;
         public bool hasSupportStation = false; // Deployable station for Engineer
+        [Tooltip("Standing next to a damaged or broken supply droid repairs it.")]
+        public bool canRepair = false;
 
         [Header("Audio")]
         public AudioClip fireSound;

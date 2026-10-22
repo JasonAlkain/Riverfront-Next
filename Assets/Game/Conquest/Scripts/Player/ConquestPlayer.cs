@@ -234,6 +234,13 @@ namespace Game.Conquest.Player
             }
         }
 
+        /// <summary>Server: an ammo droid's pulse. Refills the weapon (a magazine, or vents heat).</summary>
+        public void ServerResupply()
+        {
+            if (!IsServer || m_Health.IsDead) return;
+            if (m_Weapon != null) m_Weapon.ResupplyAmmo();
+        }
+
         public void ApplyTeamVisuals(Team team)
         {
             Material targetMat = team == Team.Red ? redTeamMaterial : (team == Team.Blue ? blueTeamMaterial : null);

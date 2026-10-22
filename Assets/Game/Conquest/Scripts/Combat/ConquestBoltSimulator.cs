@@ -220,6 +220,7 @@ namespace Game.Conquest.Combat
 
         // The rules from the old hitscan shot, unchanged: no friendly fire (a teammate or a friendly
         // station soaks the bolt), enemy players and stations take damage, the world stops it.
+        // Supply droids take damage from any team they don't exclusively serve.
         private static void ApplyHit(in ServerBolt bolt, RaycastHit hit)
         {
             ConquestHealth targetHealth = hit.collider.GetComponentInParent<ConquestHealth>();
@@ -239,6 +240,14 @@ namespace Game.Conquest.Combat
             if (station != null && station.stationTeam.Value != bolt.team)
             {
                 station.TakeDamage(bolt.damage);
+                if (bolt.shooter != null) bolt.shooter.ServerNoteHit(false);
+                return;
+            }
+
+            ConquestSupplyDroid droid = hit.collider.GetComponentInParent<ConquestSupplyDroid>();
+            if (droid != null && !droid.IsBroken && droid.CanBeDamagedBy(bolt.team))
+            {
+                droid.TakeDamage(bolt.damage);
                 if (bolt.shooter != null) bolt.shooter.ServerNoteHit(false);
             }
         }
