@@ -102,6 +102,8 @@ namespace Game.Conquest.UI
         public Sprite redTeamIcon;
         public Sprite blueTeamIcon;
         public Sprite neutralIcon;
+        [Tooltip("Shown instead of the team icon on a team's home base. Empty uses the team icon.")]
+        public Sprite homeBaseIcon;
 
         [Header("Weapon heat")]
         [Tooltip("Placeholder: heat gauge colour when cold.")]
@@ -129,6 +131,13 @@ namespace Game.Conquest.UI
             if (team == Team.Red) return redTeamIcon;
             if (team == Team.Blue) return blueTeamIcon;
             return neutralIcon;
+        }
+
+        /// <summary>The icon for a command post: the home base icon on a home base, otherwise its owner's team icon.</summary>
+        public Sprite PostIcon(Game.Conquest.Objectives.ConquestCommandPost post)
+        {
+            if (post.IsHomeBase && homeBaseIcon != null) return homeBaseIcon;
+            return TeamIcon(post.CurrentOwner);
         }
 
         public UIButtonColors Button(UIButtonStyle style) => style == UIButtonStyle.Primary ? primaryButton : secondaryButton;

@@ -14,17 +14,31 @@ namespace Game.Conquest.Objectives
         [Header("Post Identity")]
         [SerializeField] private string postName = "Alpha";
         [SerializeField] private Team initialOwner = Team.Neutral;
+        [Tooltip("A team's home base: always owned by Initial Owner, never captured or neutralised, and always open " +
+                 "for that team to spawn at. It doesn't count toward holding every post, and bots don't attack it.")]
+        [SerializeField] private bool isHomeBase = false;
 
         [Header("Capture Rules")]
         [SerializeField] private float captureRadius = 8.0f;
         [Tooltip("How far above or below the post a player still counts, so a roof or a floor below doesn't capture.")]
         [SerializeField] private float captureHeight = 4.0f;
-        [SerializeField] private float captureTime = 10.0f; // Seconds to capture from 0 to 100%
+        [Tooltip("Placeholder: seconds for one player to take a neutral post to fully owned.")]
+        [SerializeField] private float captureTime = 10.0f;
+        [Tooltip("Placeholder: seconds for one player to drain an enemy post to neutral.")]
+        [SerializeField] private float neutralizeTime = 10.0f;
+        [Tooltip("Placeholder: how much each extra player on the post adds. Every player adds this share of the one " +
+                 "before: at 0.6, two players capture 1.6x as fast, four 2.2x, and no crowd ever reaches 2.5x.")]
+        [Range(0f, 0.95f)]
+        [SerializeField] private float crowdFalloff = 0.6f;
         [Tooltip("Progress per second an empty post drifts back toward its owner (or toward neutral). 0 holds partial progress.")]
         [SerializeField] private float idleRecoveryRate = 0f;
 
         [Header("Spawn Locations")]
         [SerializeField] private List<Transform> spawnPoints = new List<Transform>();
+        [Tooltip("Placeholder: relative chance of this post when a spawn names no post (bots, fallbacks). 0 never picks it that way.")]
+        [SerializeField] private float spawnWeight = 1f;
+        [Tooltip("Placeholder: a spawn point with a living player closer than this many metres is skipped while another one is clear.")]
+        [SerializeField] private float spawnClearance = 1.2f;
 
         [Header("Visuals")]
         [SerializeField] private Renderer postRenderer;
@@ -38,6 +52,20 @@ namespace Game.Conquest.Objectives
         [SerializeField] private Color zoneNeutralColor = new Color(0.85f, 0.85f, 0.85f, 0.16f);
         [Tooltip("Colour-blind palette: replaces red on the post body and the zone disc.")]
         [SerializeField] private Color colorBlindRedColor = new Color(0.95f, 0.55f, 0.1f, 1f);
+        [Tooltip("The beacon (the Post Renderer) sinks to this share of its height as the post drains, and rises as it is captured.")]
+        [Range(0f, 1f)]
+        [SerializeField] private float beaconLowFraction = 0.35f;
+        [Tooltip("Placeholder: how fast the beacon pulses while the post is contested.")]
+        [SerializeField] private float contestedPulseSpeed = 6f;
+
+        [Header("Home Base Look")]
+        [Tooltip("Shown only on a home base, for example a team banner. Hidden on every other post.")]
+        [SerializeField] private GameObject homeBaseMarker;
+        [Tooltip("Placeholder: a home base's beacon is this much bigger than a normal post's.")]
+        [SerializeField] private float homeBaseBeaconScale = 1.8f;
+        [Tooltip("Placeholder: opacity of a home base's zone disc (normal posts use the zone colours' own alpha).")]
+        [Range(0f, 1f)]
+        [SerializeField] private float homeBaseZoneAlpha = 0.4f;
 
         [Header("Audio")]
         [SerializeField] private AudioSource postAudioSource;
@@ -96,12 +124,38 @@ namespace Game.Conquest.Objectives
         public bool IsContested => isContested.Value;
         public bool IsSpawnBlocked => isSpawnBlocked.Value;
         public float CaptureRadius => captureRadius;
+        /// <summary>A team's uncapturable home base.</summary>
+        public bool IsHomeBase => isHomeBase;
+        /// <summary>Can be captured or neutralised: every post except a home base.</summary>
+        public bool IsCapturable => !isHomeBase;
+        public float SpawnWeight => Mathf.Max(0f, spawnWeight);
 
         public event Action<ConquestCommandPost, Team> OnOwnerChanged;
 
         // Server scratch lists of who is standing in the zone this frame, for capture credit.
         private readonly List<ConquestPlayer> m_RedInZone = new List<ConquestPlayer>();
         private readonly List<ConquestPlayer> m_BlueInZone = new List<ConquestPlayer>();
+
+        // The beacon's authored pose; it moves with capture progress from there.
+        private Transform m_Beacon;
+        private Vector3 m_BeaconRest;
+        private Vector3 m_BeaconScale;
+
+        private void Awake()
+        {
+            if (postRenderer != null)
+            {
+                m_Beacon = postRenderer.transform;
+                m_BeaconRest = m_Beacon.localPosition;
+                m_BeaconScale = m_Beacon.localScale * (isHomeBase ? homeBaseBeaconScale : 1f);
+                m_Beacon.localScale = m_BeaconScale;
+            }
+            if (homeBaseMarker != null) homeBaseMarker.SetActive(isHomeBase);
+            if (isHomeBase && initialOwner == Team.Neutral)
+            {
+                Debug.LogWarning($"[CommandPost {postName}] A home base needs a team as Initial Owner.", this);
+            }
+        }
 
         public override void OnNetworkSpawn()
         {
@@ -156,9 +210,24 @@ namespace Game.Conquest.Objectives
 
         private void Update()
         {
-            if (!IsServer) return;
+            // A home base keeps the owner and full progress it spawned with.
+            if (IsServer && !isHomeBase) EvaluateCaptureState();
+            UpdateBeacon();
+        }
 
-            EvaluateCaptureState();
+        // Every peer: the beacon stands as tall as the post is held and pulses while contested.
+        private void UpdateBeacon()
+        {
+            if (m_Beacon == null || isHomeBase) return;
+
+            Vector3 position = m_BeaconRest;
+            position.y = Mathf.Lerp(m_BeaconRest.y * beaconLowFraction, m_BeaconRest.y, Mathf.Clamp01(captureProgress.Value));
+            float pulse = isContested.Value && !Game.Conquest.Settings.ConquestSettingsManager.ReduceMotion
+                ? 1f + 0.15f * Mathf.Sin(Time.time * contestedPulseSpeed)
+                : 1f;
+            if (m_Beacon.localPosition != position) m_Beacon.localPosition = position;
+            Vector3 scale = m_BeaconScale * pulse;
+            if (m_Beacon.localScale != scale) m_Beacon.localScale = scale;
         }
 
         /// <summary>True if a point is inside the capture zone: a cylinder around the post, not a sphere.</summary>
@@ -221,21 +290,24 @@ namespace Game.Conquest.Objectives
                 return;
             }
 
-            float speed = (1.0f / captureTime) * Mathf.Max(1, dominantCount) * Time.deltaTime;
+            // Diminishing returns: a crowd captures faster, but the fifth player adds far less than the second.
+            float crowd = ConquestCaptureRules.CrowdMultiplier(dominantCount, crowdFalloff) * Time.deltaTime;
+            float captureStep = crowd / Mathf.Max(0.01f, captureTime);
+            float neutralizeStep = crowd / Mathf.Max(0.01f, neutralizeTime);
 
             if (currentOwner.Value == dominantTeam)
             {
                 // Dominant team already owns this post: reinforce to 1.0
                 if (captureProgress.Value < 1.0f)
                 {
-                    captureProgress.Value = Mathf.Min(1.0f, captureProgress.Value + speed);
+                    captureProgress.Value = Mathf.Min(1.0f, captureProgress.Value + captureStep);
                     capturingTeam.Value = dominantTeam;
                 }
             }
             else if (currentOwner.Value != Team.Neutral)
             {
                 // Opposing team is neutralizing current owner
-                captureProgress.Value -= speed;
+                captureProgress.Value -= neutralizeStep;
                 if (captureProgress.Value <= 0f)
                 {
                     captureProgress.Value = 0f;
@@ -249,7 +321,7 @@ namespace Game.Conquest.Objectives
             {
                 // Neutral post part-captured by the other team: undo their progress first,
                 // so neither team inherits the other's work.
-                captureProgress.Value = Mathf.Max(0f, captureProgress.Value - speed);
+                captureProgress.Value = Mathf.Max(0f, captureProgress.Value - neutralizeStep);
                 if (captureProgress.Value <= 0f)
                 {
                     capturingTeam.Value = dominantTeam;
@@ -259,7 +331,7 @@ namespace Game.Conquest.Objectives
             {
                 // Point is Neutral: dominant team captures it
                 capturingTeam.Value = dominantTeam;
-                captureProgress.Value += speed;
+                captureProgress.Value += captureStep;
 
                 if (captureProgress.Value >= 1.0f)
                 {
@@ -331,7 +403,10 @@ namespace Game.Conquest.Objectives
             if (m_ZoneBlock == null) m_ZoneBlock = new MaterialPropertyBlock();
             zoneRenderer.GetPropertyBlock(m_ZoneBlock);
             Color red = Game.Conquest.Settings.ConquestSettingsManager.ColorBlindTeams ? new Color(colorBlindRedColor.r, colorBlindRedColor.g, colorBlindRedColor.b, zoneRedColor.a) : zoneRedColor;
-            m_ZoneBlock.SetColor(s_BaseColorId, owner == Team.Red ? red : owner == Team.Blue ? zoneBlueColor : zoneNeutralColor);
+            Color zone = owner == Team.Red ? red : owner == Team.Blue ? zoneBlueColor : zoneNeutralColor;
+            // A home base's disc is more solid, so it reads as a base and not a post to take.
+            if (isHomeBase) zone.a = homeBaseZoneAlpha;
+            m_ZoneBlock.SetColor(s_BaseColorId, zone);
             zoneRenderer.SetPropertyBlock(m_ZoneBlock);
         }
 
@@ -339,7 +414,7 @@ namespace Game.Conquest.Objectives
         {
             if (spawnPoints != null && spawnPoints.Count > 0)
             {
-                Transform pt = spawnPoints[UnityEngine.Random.Range(0, spawnPoints.Count)];
+                Transform pt = PickClearSpawnPoint();
                 if (pt != null)
                 {
                     position = pt.position;
@@ -361,6 +436,36 @@ namespace Game.Conquest.Objectives
             }
             rotation = transform.rotation;
             return true;
+        }
+
+        // A random spawn point, skipping ones someone is standing on while another is clear, so
+        // simultaneous respawns don't stack players inside each other.
+        private Transform PickClearSpawnPoint()
+        {
+            int count = spawnPoints.Count;
+            int start = UnityEngine.Random.Range(0, count);
+            Transform fallback = null;
+            for (int i = 0; i < count; i++)
+            {
+                Transform pt = spawnPoints[(start + i) % count];
+                if (pt == null) continue;
+                if (fallback == null) fallback = pt;
+                if (!IsOccupied(pt.position)) return pt;
+            }
+            return fallback;
+        }
+
+        private bool IsOccupied(Vector3 point)
+        {
+            float sqrClearance = spawnClearance * spawnClearance;
+            var players = ConquestPlayer.All;
+            for (int i = 0; i < players.Count; i++)
+            {
+                ConquestPlayer p = players[i];
+                if (p == null || p.Health == null || p.Health.IsDead) continue;
+                if ((p.transform.position - point).sqrMagnitude < sqrClearance) return true;
+            }
+            return false;
         }
 
         /// <summary>

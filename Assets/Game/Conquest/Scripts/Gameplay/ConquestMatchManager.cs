@@ -228,13 +228,13 @@ namespace Game.Conquest.Gameplay
             allPostsWinAt.Value = winAtServerTime;
         }
 
-        /// <summary>The team owning every post, or Neutral when no team does (or there are no posts).</summary>
+        /// <summary>The team owning every capturable post (home bases don't count), or Neutral when no team does.</summary>
         public Team TeamHoldingAllPosts()
         {
             Team holder = Team.Neutral;
             foreach (var post in commandPosts)
             {
-                if (post == null) continue;
+                if (post == null || !post.IsCapturable) continue;
 
                 Team owner = post.CurrentOwner;
                 if (owner == Team.Neutral) return Team.Neutral;
@@ -396,19 +396,10 @@ namespace Game.Conquest.Gameplay
                 }
             }
 
-            // 2. Pick any friendly post
-            List<ConquestCommandPost> friendlyPosts = new List<ConquestCommandPost>();
-            foreach (var post in commandPosts)
+            // 2. Pick a friendly post, weighted by each post's spawn weight
+            ConquestCommandPost chosen = PickWeightedSpawnPost(team);
+            if (chosen != null)
             {
-                if (IsSpawnablePost(post, team))
-                {
-                    friendlyPosts.Add(post);
-                }
-            }
-
-            if (friendlyPosts.Count > 0)
-            {
-                var chosen = friendlyPosts[UnityEngine.Random.Range(0, friendlyPosts.Count)];
                 return chosen.GetSpawnPoint(out position, out rotation);
             }
 
@@ -418,7 +409,31 @@ namespace Game.Conquest.Gameplay
             return false;
         }
 
-        // Owned by the team and with no enemies in the zone, so nobody spawns into a fight.
+        private ConquestCommandPost PickWeightedSpawnPost(Team team)
+        {
+            float total = 0f;
+            ConquestCommandPost any = null;
+            for (int i = 0; i < commandPosts.Count; i++)
+            {
+                if (!IsSpawnablePost(commandPosts[i], team)) continue;
+                if (any == null) any = commandPosts[i];
+                total += commandPosts[i].SpawnWeight;
+            }
+            // Every spawnable post weighted 0: still spawn somewhere friendly.
+            if (total <= 0f) return any;
+
+            float roll = UnityEngine.Random.value * total;
+            for (int i = 0; i < commandPosts.Count; i++)
+            {
+                if (!IsSpawnablePost(commandPosts[i], team)) continue;
+                roll -= commandPosts[i].SpawnWeight;
+                if (roll <= 0f && commandPosts[i].SpawnWeight > 0f) return commandPosts[i];
+            }
+            return any;
+        }
+
+        // Owned by the team and with no enemies in the zone, so nobody spawns into a fight. A home
+        // base is never blocked (it doesn't track enemies), so a team can always spawn there.
         private static bool IsSpawnablePost(ConquestCommandPost post, Team team)
         {
             return post != null && post.CurrentOwner == team && !post.IsSpawnBlocked;

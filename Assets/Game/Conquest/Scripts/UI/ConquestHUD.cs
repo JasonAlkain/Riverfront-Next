@@ -337,7 +337,8 @@ namespace Game.Conquest.UI
             for (int i = 0; i < posts.Count; i++)
             {
                 var post = posts[i];
-                if (post == null) continue;
+                // The row lists posts to fight over; home bases are on the map and markers instead.
+                if (post == null || !post.IsCapturable) continue;
 
                 var icon = commandPostsRowUI.GetIcon(shown);
                 if (icon == null) return;
@@ -374,7 +375,7 @@ namespace Game.Conquest.UI
                 var posts = match.CommandPosts;
                 for (int i = 0; i < posts.Count; i++)
                 {
-                    if (posts[i] != null && posts[i].IsInCaptureZone(playerPos))
+                    if (posts[i] != null && posts[i].IsCapturable && posts[i].IsInCaptureZone(playerPos))
                     {
                         nearbyPost = posts[i];
                         break;
