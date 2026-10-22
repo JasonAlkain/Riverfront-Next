@@ -3784,6 +3784,7 @@ GameObject:
   - component: {fileID: 2647419184018916631}
   - component: {fileID: 6908469974121080739}
   - component: {fileID: 2342241160258518854}
+  - component: {fileID: 5162056924871996964}
   m_Layer: 6
   m_Name: ConquestPlayer
   m_TagString: Untagged
@@ -3963,6 +3964,7 @@ MonoBehaviour:
   supportStationPrefab: {fileID: 6656634446336126747, guid: 7a4757459bd50b54d93ea7c9ece0b483, type: 3}
   stationCooldown: 15
   maxStationsPerTeam: 3
+  switchSeconds: 0.35
   fireTimingTolerance: 0.1
   maxRayOriginOffset: 3
   stationDeployDistance: 1.5
@@ -3986,6 +3988,11 @@ MonoBehaviour:
       MaxSecondsBetweenUpdates: 0
     m_InternalValue: 0
   isOverheated:
+    UpdateTraits:
+      MinSecondsBetweenUpdates: 0
+      MaxSecondsBetweenUpdates: 0
+    m_InternalValue: 0
+  activeSlot:
     UpdateTraits:
       MinSecondsBetweenUpdates: 0
       MaxSecondsBetweenUpdates: 0
@@ -4266,6 +4273,27 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+--- !u!114 &5162056924871996964
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5097472735063044651}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0a81c384e033842429a55111a7b7c173, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Game.Conquest::Game.Conquest.Combat.ConquestThrowables
+  ShowTopMostFoldoutHeaderGroup: 1
+  maxOriginOffset: 3
+  spawnForward: 0.7
+  upwardSpeed: 3
+  count:
+    UpdateTraits:
+      MinSecondsBetweenUpdates: 0
+      MaxSecondsBetweenUpdates: 0
+    m_InternalValue: 0
 --- !u!1 &5267930989460614956
 GameObject:
   m_ObjectHideFlags: 0

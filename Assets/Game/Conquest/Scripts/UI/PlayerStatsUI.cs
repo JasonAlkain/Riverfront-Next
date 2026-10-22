@@ -45,6 +45,7 @@ namespace Game.Conquest
         private int m_Ammo = -1;
         private int m_Magazine = -1;
         private bool m_Reloading;
+        private string m_AmmoLabel;
         private string m_TeamName;
         private string m_TeamClass;
         private string m_Hints;
@@ -100,6 +101,20 @@ namespace Game.Conquest
             {
                 img_AmmoFill.fillAmount = magazine > 0 ? Mathf.Clamp01((float)current / magazine) : 0f;
                 img_AmmoFill.color = reloading ? reloadingColor : ammoColor;
+            }
+        }
+
+        /// <summary>A weapon without ammo (the repair tool): a full bar with a label instead of a count.</summary>
+        public void SetAmmoLabel(string label)
+        {
+            if (m_Ammo == int.MinValue && ReferenceEquals(label, m_AmmoLabel)) return;
+            m_Ammo = int.MinValue;
+            m_AmmoLabel = label;
+            if (txt_Ammo != null) txt_Ammo.text = label;
+            if (img_AmmoFill != null)
+            {
+                img_AmmoFill.fillAmount = 1f;
+                img_AmmoFill.color = ammoColor;
             }
         }
 

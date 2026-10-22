@@ -16,8 +16,8 @@ namespace Game.Conquest.Combat
     /// <summary>
     /// A map-placed health or ammo droid. Every pulse it heals (or resupplies) the living players
     /// in range that it serves. Bolts and grenades can break it; a broken droid stays where it is
-    /// (it never respawns) and does nothing until an engineer stands next to it long enough to
-    /// repair it. The server owns its health; every peer only draws it.
+    /// (it never respawns) and does nothing until an engineer's repair tool brings it back to
+    /// full health. The server owns its health; every peer only draws it.
     /// </summary>
     public class ConquestSupplyDroid : NetworkBehaviour
     {
@@ -35,10 +35,6 @@ namespace Game.Conquest.Combat
         [Header("Durability")]
         [Tooltip("Placeholder: damage it takes to break.")]
         [SerializeField] private int maxHealth = 150;
-        [Tooltip("Placeholder: health per second one engineer restores while standing in repair range.")]
-        [SerializeField] private float repairPerSecond = 30f;
-        [Tooltip("Placeholder: metres from the droid an engineer must stand to repair it.")]
-        [SerializeField] private float repairRange = 2.5f;
 
         [Header("Visuals")]
         [Tooltip("Tinted through a property block, so the shared material stays untouched.")]
@@ -59,7 +55,8 @@ namespace Game.Conquest.Combat
 
         private MaterialPropertyBlock m_Block;
         private float m_NextPulseTime;
-        private float m_RepairCarry;
+        // Server: repair put into a broken droid so far. It stays broken until this reaches max health.
+        private int m_RepairProgress;
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
         private static void ResetStatics()
@@ -75,7 +72,6 @@ namespace Game.Conquest.Combat
         public bool IsBroken => currentHealth.Value <= 0;
         public bool IsDamaged => currentHealth.Value < maxHealth;
         public float Health01 => maxHealth > 0 ? Mathf.Clamp01((float)currentHealth.Value / maxHealth) : 0f;
-        public float RepairRange => repairRange;
 
         public override void OnNetworkSpawn()
         {
@@ -125,7 +121,6 @@ namespace Game.Conquest.Combat
         {
             if (!IsServer || !IsSpawned) return;
 
-            ServerRepair();
             if (IsBroken || Time.time < m_NextPulseTime) return;
             m_NextPulseTime = Time.time + pulseInterval;
             ServerPulse();
@@ -147,38 +142,23 @@ namespace Game.Conquest.Combat
             }
         }
 
-        // Each living engineer of a served team in range adds repairPerSecond. Fractions are carried
-        // over between frames, so a slow repair still lands at a high frame rate.
-        private void ServerRepair()
+        /// <summary>Server: one use of a repair tool. A broken droid works again once it is back to full health.</summary>
+        public void ServerRepair(int amount)
         {
-            if (!IsDamaged) return;
-
-            int engineers = 0;
-            float sqrRange = repairRange * repairRange;
-            Vector3 center = transform.position;
-            var all = ConquestPlayer.All;
-            for (int i = 0; i < all.Count; i++)
+            if (!IsServer || !IsSpawned || !IsDamaged || amount <= 0) return;
+            if (!IsBroken)
             {
-                ConquestPlayer player = all[i];
-                if (player == null || player.Health == null || player.Health.IsDead || !Serves(player.CurrentTeam)) continue;
-                var data = player.CurrentClassData;
-                if (data == null || !data.canRepair) continue;
-                if ((player.transform.position - center).sqrMagnitude <= sqrRange) engineers++;
-            }
-            if (engineers == 0)
-            {
-                m_RepairCarry = 0f;
+                currentHealth.Value = Mathf.Min(maxHealth, currentHealth.Value + amount);
                 return;
             }
 
-            m_RepairCarry += engineers * repairPerSecond * Time.deltaTime;
-            int whole = Mathf.FloorToInt(m_RepairCarry);
-            if (whole <= 0) return;
-            m_RepairCarry -= whole;
-            bool wasBroken = IsBroken;
-            currentHealth.Value = Mathf.Min(maxHealth, currentHealth.Value + whole);
-            // Back in service: the first pulse waits a full interval, like a fresh droid.
-            if (wasBroken && !IsBroken) m_NextPulseTime = Time.time + pulseInterval;
+            // Half-repaired is still broken: it only comes back into service when fully fixed.
+            m_RepairProgress += amount;
+            if (m_RepairProgress < maxHealth) return;
+            m_RepairProgress = 0;
+            currentHealth.Value = maxHealth;
+            // The first pulse waits a full interval, like a fresh droid.
+            m_NextPulseTime = Time.time + pulseInterval;
         }
 
         private void UpdateVisuals()
@@ -196,8 +176,6 @@ namespace Game.Conquest.Combat
         {
             Gizmos.color = kind == SupplyKind.Health ? Color.green : Color.yellow;
             Gizmos.DrawWireSphere(transform.position, radius);
-            Gizmos.color = Color.cyan;
-            Gizmos.DrawWireSphere(transform.position, repairRange);
         }
     }
 }

@@ -75,7 +75,8 @@ namespace Game.Conquest
             AddRow(combatRows, "Fire", g.Fire);
             AddRow(combatRows, "Aim / scope", g.Aim);
             AddRow(combatRows, "Reload", g.Reload);
-            AddRow(combatRows, "Deploy station", g.Deploy);
+            AddRow(combatRows, "Switch weapon", g.SwitchWeapon);
+            AddRow(combatRows, "Throw / deploy station", g.Deploy);
             AddRow(combatRows, "Scoreboard", g.Scoreboard);
         }
 

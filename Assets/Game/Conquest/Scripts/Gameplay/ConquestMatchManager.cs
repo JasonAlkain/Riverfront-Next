@@ -288,8 +288,10 @@ namespace Game.Conquest.Gameplay
             {
                 report.killerName = killer.playerName.Value;
                 report.killerTeam = killer.CurrentTeam;
-                var weapon = killer.CurrentClassData;
-                if (weapon != null) report.weaponName = weapon.weaponName;
+                // A grenade names itself; otherwise it was the weapon in the killer's hand.
+                string source = victim.Health != null ? victim.Health.ServerLastDamageSource : null;
+                if (!string.IsNullOrEmpty(source)) report.weaponName = source;
+                else if (killer.Weapon != null) report.weaponName = killer.Weapon.ActiveWeaponName;
             }
             return report;
         }

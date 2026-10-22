@@ -185,6 +185,16 @@ namespace Game.Conquest.Controls
                     ""priority"": 0
                 },
                 {
+                    ""name"": ""SwitchWeapon"",
+                    ""type"": ""Button"",
+                    ""id"": ""e8f550f6-8db6-48c3-a0b6-989a9f352a51"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false,
+                    ""priority"": 0
+                },
+                {
                     ""name"": ""Scoreboard"",
                     ""type"": ""Button"",
                     ""id"": ""5f32f574-a27b-4ed8-950e-f229f46bf6ac"",
@@ -428,6 +438,28 @@ namespace Game.Conquest.Controls
                 },
                 {
                     ""name"": """",
+                    ""id"": ""029ae98f-9d37-472f-9eb5-7d718091166f"",
+                    ""path"": ""<Keyboard>/e"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": ""KeyboardMouse"",
+                    ""action"": ""SwitchWeapon"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""31053da8-22d6-4d5d-a97a-d0e9258d568c"",
+                    ""path"": ""<Gamepad>/buttonNorth"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": ""Gamepad"",
+                    ""action"": ""SwitchWeapon"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
                     ""id"": ""9f4d2e2d-e92a-4cdf-9cf4-c215a1a0eb10"",
                     ""path"": ""<Keyboard>/tab"",
                     ""interactions"": """",
@@ -514,6 +546,7 @@ namespace Game.Conquest.Controls
             m_Gameplay_Sprint = m_Gameplay.FindAction("Sprint", throwIfNotFound: true);
             m_Gameplay_Jump = m_Gameplay.FindAction("Jump", throwIfNotFound: true);
             m_Gameplay_Deploy = m_Gameplay.FindAction("Deploy", throwIfNotFound: true);
+            m_Gameplay_SwitchWeapon = m_Gameplay.FindAction("SwitchWeapon", throwIfNotFound: true);
             m_Gameplay_Scoreboard = m_Gameplay.FindAction("Scoreboard", throwIfNotFound: true);
             m_Gameplay_Pause = m_Gameplay.FindAction("Pause", throwIfNotFound: true);
         }
@@ -605,6 +638,7 @@ namespace Game.Conquest.Controls
         private readonly InputAction m_Gameplay_Sprint;
         private readonly InputAction m_Gameplay_Jump;
         private readonly InputAction m_Gameplay_Deploy;
+        private readonly InputAction m_Gameplay_SwitchWeapon;
         private readonly InputAction m_Gameplay_Scoreboard;
         private readonly InputAction m_Gameplay_Pause;
         /// <summary>
@@ -654,6 +688,10 @@ namespace Game.Conquest.Controls
             /// Provides access to the underlying input action "Gameplay/Deploy".
             /// </summary>
             public InputAction @Deploy => m_Wrapper.m_Gameplay_Deploy;
+            /// <summary>
+            /// Provides access to the underlying input action "Gameplay/SwitchWeapon".
+            /// </summary>
+            public InputAction @SwitchWeapon => m_Wrapper.m_Gameplay_SwitchWeapon;
             /// <summary>
             /// Provides access to the underlying input action "Gameplay/Scoreboard".
             /// </summary>
@@ -715,6 +753,9 @@ namespace Game.Conquest.Controls
                 @Deploy.started += instance.OnDeploy;
                 @Deploy.performed += instance.OnDeploy;
                 @Deploy.canceled += instance.OnDeploy;
+                @SwitchWeapon.started += instance.OnSwitchWeapon;
+                @SwitchWeapon.performed += instance.OnSwitchWeapon;
+                @SwitchWeapon.canceled += instance.OnSwitchWeapon;
                 @Scoreboard.started += instance.OnScoreboard;
                 @Scoreboard.performed += instance.OnScoreboard;
                 @Scoreboard.canceled += instance.OnScoreboard;
@@ -759,6 +800,9 @@ namespace Game.Conquest.Controls
                 @Deploy.started -= instance.OnDeploy;
                 @Deploy.performed -= instance.OnDeploy;
                 @Deploy.canceled -= instance.OnDeploy;
+                @SwitchWeapon.started -= instance.OnSwitchWeapon;
+                @SwitchWeapon.performed -= instance.OnSwitchWeapon;
+                @SwitchWeapon.canceled -= instance.OnSwitchWeapon;
                 @Scoreboard.started -= instance.OnScoreboard;
                 @Scoreboard.performed -= instance.OnScoreboard;
                 @Scoreboard.canceled -= instance.OnScoreboard;
@@ -894,6 +938,13 @@ namespace Game.Conquest.Controls
             /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
             /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
             void OnDeploy(InputAction.CallbackContext context);
+            /// <summary>
+            /// Method invoked when associated input action "SwitchWeapon" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+            /// </summary>
+            /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+            /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+            /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+            void OnSwitchWeapon(InputAction.CallbackContext context);
             /// <summary>
             /// Method invoked when associated input action "Scoreboard" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
             /// </summary>

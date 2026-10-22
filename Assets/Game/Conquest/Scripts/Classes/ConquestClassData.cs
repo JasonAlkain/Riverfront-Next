@@ -11,6 +11,49 @@ namespace Game.Conquest.Classes
         Recon = 3
     }
 
+    /// <summary>What a class's second weapon does. Values are stable: they are serialized.</summary>
+    public enum SidearmKind : byte
+    {
+        None = 0,
+        /// <summary>A second gun: fires bolts with its own stats, ammo and heat.</summary>
+        Blaster = 1,
+        /// <summary>Fires no bolts; repairs the supply droid it is aimed at.</summary>
+        RepairTool = 2
+    }
+
+    /// <summary>What a class throws with the throw key. Values are stable: they are serialized.</summary>
+    public enum ThrowableKind : byte
+    {
+        None = 0,
+        Grenade = 1
+    }
+
+    /// <summary>
+    /// A class's fixed sidearm. Players never pick weapons: every class carries exactly this one
+    /// next to its primary. Bolt and heat fields mean the same as the primary's.
+    /// </summary>
+    [System.Serializable]
+    public class ConquestSidearmData
+    {
+        public SidearmKind kind = SidearmKind.None;
+        public string weaponName = "Sidearm";
+        [Tooltip("Placeholder.")] public int damagePerShot = 18;
+        [Tooltip("Placeholder.")] public float fireRate = 0.3f;
+        [Tooltip("Placeholder. For a repair tool, its reach in metres.")] public float maxRange = 60f;
+        [Tooltip("Placeholder.")] public float spreadAngle = 0.8f;
+        [Tooltip("Placeholder.")] public int magazineCapacity = 12;
+        [Tooltip("Placeholder.")] public float reloadDuration = 1.2f;
+        public bool isAutomatic = false;
+        [Tooltip("Placeholder: bolt speed in m/s.")] public float boltSpeed = 110f;
+        [Tooltip("Placeholder: shots without pause that overheat it (heat factions).")] public int shotsToOverheat = 12;
+        [Tooltip("Placeholder.")] public float coolDelaySeconds = 0.4f;
+        [Tooltip("Placeholder.")] public float fullCoolSeconds = 1.2f;
+        [Tooltip("Placeholder.")] public float overheatLockoutSeconds = 1.2f;
+        [Tooltip("Repair tool only. Placeholder: droid health restored per use (one per Fire Rate seconds).")]
+        public int repairPerUse = 10;
+        public AudioClip fireSound;
+    }
+
     [CreateAssetMenu(fileName = "NewConquestClass", menuName = "Conquest/Class Data")]
     public class ConquestClassData : ScriptableObject
     {
@@ -61,9 +104,23 @@ namespace Game.Conquest.Classes
         public float zoomMagnification = 1.25f;
         [Tooltip("Aiming shows a full-screen scope overlay instead of the crosshair.")]
         public bool hasScope = false;
-        public bool hasSupportStation = false; // Deployable station for Engineer
-        [Tooltip("Standing next to a damaged or broken supply droid repairs it.")]
-        public bool canRepair = false;
+        [Tooltip("Deploys a support station with the throw key. A class with a station carries no other throwable.")]
+        public bool hasSupportStation = false;
+
+        [Header("Sidearm (fixed, switched to with the Switch Weapon key)")]
+        public ConquestSidearmData sidearm = new ConquestSidearmData();
+
+        [Header("Throwable")]
+        public ThrowableKind throwable = ThrowableKind.None;
+        public string throwableName = "Grenade";
+        [Tooltip("Thrown object: a NetworkObject with a ConquestGrenade, registered in the network prefab list.")]
+        public GameObject throwablePrefab;
+        [Tooltip("Placeholder: how many a fresh spawn carries. Supply droids and stations give them back one at a time.")]
+        public int throwableCount = 2;
+        [Tooltip("Placeholder: seconds between two throws.")]
+        public float throwCooldown = 1f;
+        [Tooltip("Placeholder: launch speed in m/s.")]
+        public float throwSpeed = 16f;
 
         [Header("Audio")]
         public AudioClip fireSound;
@@ -79,6 +136,13 @@ namespace Game.Conquest.Classes
             // Both travel to the owner as one byte.
             shotsToOverheat = Mathf.Clamp(shotsToOverheat, 1, 255);
             magazineCapacity = Mathf.Clamp(magazineCapacity, 1, 255);
+            if (sidearm != null)
+            {
+                sidearm.shotsToOverheat = Mathf.Clamp(sidearm.shotsToOverheat, 1, 255);
+                sidearm.magazineCapacity = Mathf.Clamp(sidearm.magazineCapacity, 1, 255);
+                sidearm.boltSpeed = Mathf.Max(0.1f, sidearm.boltSpeed);
+            }
+            throwableCount = Mathf.Clamp(throwableCount, 0, 255);
             if (coolDelaySeconds <= fireRate)
             {
                 Debug.LogWarning($"[ConquestClassData] {name}: coolDelaySeconds ({coolDelaySeconds}) is not above fireRate ({fireRate}), so the weapon cools between shots and never overheats.", this);

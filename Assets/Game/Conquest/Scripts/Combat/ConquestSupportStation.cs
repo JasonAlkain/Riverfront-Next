@@ -113,7 +113,7 @@ namespace Game.Conquest.Combat
                 if ((player.transform.position - center).sqrMagnitude > sqrRadius) continue;
 
                 player.Health.Heal(healAmount);
-                if (player.Weapon != null) player.Weapon.ResupplyAmmo();
+                player.ServerResupply();
             }
         }
 

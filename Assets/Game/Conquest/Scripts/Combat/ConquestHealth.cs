@@ -120,6 +120,17 @@ namespace Game.Conquest.Combat
             TakeDamage(damage, attackerObjectId, sourcePosition, transform.position, 0, NoPellet);
         }
 
+        /// <summary>Server: what dealt the killing blow when it wasn't the attacker's weapon in hand (a grenade). Null otherwise.</summary>
+        public string ServerLastDamageSource { get; private set; }
+        private string m_PendingDamageSource;
+
+        /// <param name="source">Shown in the kill feed if this kills, for example the grenade's name.</param>
+        public void TakeDamage(int damage, ulong attackerObjectId, Vector3 sourcePosition, string source)
+        {
+            m_PendingDamageSource = source;
+            TakeDamage(damage, attackerObjectId, sourcePosition, transform.position, 0, NoPellet);
+        }
+
         /// <summary>No bolt pellet (a fall, a kill volume): clients have no drawn bolt to end.</summary>
         public const byte NoPellet = 255;
 
@@ -127,6 +138,8 @@ namespace Game.Conquest.Combat
         /// <param name="shotSeq">The shooter's shot number and <paramref name="pellet"/> identify the drawn bolt.</param>
         public void TakeDamage(int damage, ulong attackerObjectId, Vector3 sourcePosition, Vector3 hitPoint, ushort shotSeq, byte pellet)
         {
+            string source = m_PendingDamageSource;
+            m_PendingDamageSource = null;
             if (!IsServer || isDead.Value) return;
             // Nobody gets hurt once the match is decided.
             if (ConquestMatchManager.Instance != null && ConquestMatchManager.Instance.IsMatchOver) return;
@@ -143,6 +156,7 @@ namespace Game.Conquest.Combat
             if (newHealth <= 0)
             {
                 lastAttackerId.Value = attackerObjectId;
+                ServerLastDamageSource = source;
                 isDead.Value = true;
                 OnDied?.Invoke(attackerObjectId);
             }

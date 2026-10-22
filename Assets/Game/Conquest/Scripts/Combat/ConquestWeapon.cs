@@ -15,9 +15,13 @@ namespace Game.Conquest.Combat
     /// firing depends on the team's faction: a magazine and reload, or heat and an overheat lock.
     /// The server owns ammo and heat; the shooting player's own peer predicts them
     /// (ConquestSustainPredictor) so the trigger and the HUD respond at once.
+    /// A class also carries a fixed sidearm. Switching swaps this component's stats in place;
+    /// the server keeps the holstered weapon's ammo and heat so switching back doesn't refill it.
     /// </summary>
     public class ConquestWeapon : NetworkBehaviour
     {
+        public enum WeaponSlot : byte { Primary = 0, Sidearm = 1 }
+
         [Header("Weapon Stats")]
         [SerializeField] private int damagePerShot = 22;
         [SerializeField] private float fireRate = 0.14f;
@@ -47,6 +51,10 @@ namespace Game.Conquest.Combat
         [SerializeField] private float stationCooldown = 15.0f;
         [Tooltip("Placeholder: most stations one team may have out at once (each player still has at most one).")]
         [SerializeField] private int maxStationsPerTeam = 3;
+
+        [Header("Sidearm")]
+        [Tooltip("Placeholder: seconds after a switch before the other weapon can fire.")]
+        [SerializeField] private float switchSeconds = 0.35f;
 
         [Header("Server Validation")]
         [Tooltip("Shots may arrive this much earlier than the fire rate allows (network jitter) without being dropped. Also how early a lock may be ended for an arriving shot.")]
@@ -86,6 +94,12 @@ namespace Game.Conquest.Combat
             NetworkVariableReadPermission.Everyone,
             NetworkVariableWritePermission.Server);
 
+        /// <summary>The weapon in hand (a WeaponSlot). Every peer applies its stats, so remote shots draw right.</summary>
+        public NetworkVariable<byte> activeSlot = new NetworkVariable<byte>(
+            (byte)WeaponSlot.Primary,
+            NetworkVariableReadPermission.Everyone,
+            NetworkVariableWritePermission.Server);
+
         /// <summary>The server's ammo, heat and lock, sent to the shooting player only, on events.</summary>
         public NetworkVariable<WeaponOwnerState> ownerState = new NetworkVariable<WeaponOwnerState>(
             default,
@@ -121,6 +135,20 @@ namespace Game.Conquest.Combat
         private bool m_PendingHit;
         private bool m_PendingKill;
         private bool m_IsZoomed = false;
+
+        private ConquestClassData m_ClassData;
+        private AudioClip m_DefaultFireClip;
+        private string m_WeaponName = "";
+        private int m_RepairPerUse;
+        // Owner: the slot asked for and not yet confirmed by the server (NoPendingSlot when none).
+        private const byte NoPendingSlot = 255;
+        private byte m_PendingSlot = NoPendingSlot;
+        private float m_PendingSlotUntil;
+        // Server: the holstered weapon's state. Invalid means full (never fired, or just resupplied).
+        private bool m_StashValid;
+        private int m_StashAmmo;
+        private float m_StashHeat;
+        private double m_StashCoolFrom;
 
         /// <summary>The team's weapon model, resolved from the replicated team every time (never cached).</summary>
         public ConquestWeaponModel Model
@@ -168,6 +196,15 @@ namespace Game.Conquest.Combat
         /// <summary>Zoomed with a scope weapon: the HUD swaps the crosshair for the scope overlay.</summary>
         public bool IsScoped => m_IsZoomed && hasScope;
         public bool HasSupportStation => hasSupportStation;
+        public WeaponSlot ActiveSlot => (WeaponSlot)activeSlot.Value;
+        public bool HasSidearm => m_ClassData != null && m_ClassData.sidearm != null && m_ClassData.sidearm.kind != SidearmKind.None;
+        /// <summary>The weapon in hand fires no bolts: it repairs supply droids.</summary>
+        public bool IsRepairTool => ActiveSlot == WeaponSlot.Sidearm && HasSidearm && m_ClassData.sidearm.kind == SidearmKind.RepairTool;
+        /// <summary>Name of the weapon in hand, for the HUD and the kill feed.</summary>
+        public string ActiveWeaponName => m_WeaponName;
+        /// <summary>Name of the weapon the Switch Weapon key would draw; empty without a sidearm.</summary>
+        public string HolsteredWeaponName =>
+            !HasSidearm ? "" : ActiveSlot == WeaponSlot.Primary ? m_ClassData.sidearm.weaponName : m_ClassData.weaponName;
         /// <summary>Server: when this weapon last fired (Time.time). Bots use it to hear nearby gunfire.</summary>
         public float ServerLastShotTime { get; private set; } = float.NegativeInfinity;
         public float BoltSpeed => boltSpeed;
@@ -182,6 +219,7 @@ namespace Game.Conquest.Combat
             m_Health = GetComponent<ConquestHealth>();
             m_Player = GetComponent<ConquestPlayer>();
             m_Animator = GetComponent<ConquestPlayerAnimator>();
+            m_DefaultFireClip = fireSoundClip;
         }
 
         public override void OnNetworkDespawn()
@@ -189,6 +227,7 @@ namespace Game.Conquest.Combat
             isReloading.OnValueChanged -= HandleReloadingChanged;
             isOverheated.OnValueChanged -= HandleOverheatedChanged;
             ownerState.OnValueChanged -= HandleOwnerStateChanged;
+            activeSlot.OnValueChanged -= HandleSlotChanged;
             if (IsServer && m_Health != null)
             {
                 m_Health.OnDied -= HandleServerDied;
@@ -207,6 +246,9 @@ namespace Game.Conquest.Combat
             isReloading.OnValueChanged += HandleReloadingChanged;
             isOverheated.OnValueChanged += HandleOverheatedChanged;
             ownerState.OnValueChanged += HandleOwnerStateChanged;
+            activeSlot.OnValueChanged += HandleSlotChanged;
+            // A late joiner may see someone holding their sidearm already.
+            if (m_ClassData != null) ApplySlotStats(ActiveSlot);
 
             if (IsServer)
             {
@@ -229,36 +271,139 @@ namespace Game.Conquest.Combat
         {
             if (data == null) return;
 
-            damagePerShot = data.damagePerShot;
-            fireRate = data.fireRate;
-            maxRange = data.maxRange;
-            bulletsPerShot = Mathf.Clamp(data.bulletsPerShot, 1, 254);
-            spreadAngle = data.spreadAngle;
-            magazineCapacity = Mathf.Clamp(data.magazineCapacity, 1, 255);
-            reloadDuration = data.reloadDuration;
-            isAutomatic = data.isAutomatic;
-            boltSpeed = Mathf.Max(0.1f, data.boltSpeed);
-            boltRadius = Mathf.Max(0f, data.boltRadius);
-            shotsToOverheat = Mathf.Clamp(data.shotsToOverheat, 1, 255);
-            coolDelaySeconds = data.coolDelaySeconds;
-            fullCoolSeconds = data.fullCoolSeconds;
-            overheatLockoutSeconds = data.overheatLockoutSeconds;
-            heatAfterOverheat = data.heatAfterOverheat;
-            hasZoom = data.hasZoom;
-            zoomMagnification = Mathf.Max(1f, data.zoomMagnification);
-            hasScope = data.hasScope;
+            m_ClassData = data;
             hasSupportStation = data.hasSupportStation;
-
-            if (data.fireSound != null) fireSoundClip = data.fireSound;
-            if (data.reloadSound != null) reloadSoundClip = data.reloadSound;
-            firePitchMin = data.firePitchMin;
-            firePitchMax = data.firePitchMax;
-            fireVolume = data.fireVolume;
+            m_PendingSlot = NoPendingSlot;
+            // A new class, or a respawn: back to the primary. The slot handler applies its stats.
+            if (IsServer && IsSpawned && activeSlot.Value != (byte)WeaponSlot.Primary) activeSlot.Value = (byte)WeaponSlot.Primary;
+            ApplySlotStats(IsSpawned ? ActiveSlot : WeaponSlot.Primary);
 
             // Also runs on every respawn (ConquestPlayer.HandleRespawn), which is what refills the
             // magazine and cools the weapon.
             ServerResetAmmo();
             if (PredictsLocally) m_Predictor.Reset(Params);
+        }
+
+        // Copies the primary's or the sidearm's stats into the fields every shot reads.
+        private void ApplySlotStats(WeaponSlot slot)
+        {
+            ConquestClassData data = m_ClassData;
+            if (data == null) return;
+
+            ConquestSidearmData side = data.sidearm;
+            if (slot == WeaponSlot.Sidearm && side != null && side.kind != SidearmKind.None)
+            {
+                m_WeaponName = side.weaponName;
+                damagePerShot = side.damagePerShot;
+                fireRate = side.fireRate;
+                maxRange = side.maxRange;
+                bulletsPerShot = 1;
+                spreadAngle = side.spreadAngle;
+                magazineCapacity = Mathf.Clamp(side.magazineCapacity, 1, 255);
+                reloadDuration = side.reloadDuration;
+                isAutomatic = side.isAutomatic;
+                boltSpeed = Mathf.Max(0.1f, side.boltSpeed);
+                boltRadius = 0f;
+                shotsToOverheat = Mathf.Clamp(side.shotsToOverheat, 1, 255);
+                coolDelaySeconds = side.coolDelaySeconds;
+                fullCoolSeconds = side.fullCoolSeconds;
+                overheatLockoutSeconds = side.overheatLockoutSeconds;
+                heatAfterOverheat = 0f;
+                hasZoom = false;
+                hasScope = false;
+                m_RepairPerUse = side.repairPerUse;
+                fireSoundClip = side.fireSound != null ? side.fireSound : data.fireSound != null ? data.fireSound : m_DefaultFireClip;
+            }
+            else
+            {
+                m_WeaponName = data.weaponName;
+                damagePerShot = data.damagePerShot;
+                fireRate = data.fireRate;
+                maxRange = data.maxRange;
+                bulletsPerShot = Mathf.Clamp(data.bulletsPerShot, 1, 254);
+                spreadAngle = data.spreadAngle;
+                magazineCapacity = Mathf.Clamp(data.magazineCapacity, 1, 255);
+                reloadDuration = data.reloadDuration;
+                isAutomatic = data.isAutomatic;
+                boltSpeed = Mathf.Max(0.1f, data.boltSpeed);
+                boltRadius = Mathf.Max(0f, data.boltRadius);
+                shotsToOverheat = Mathf.Clamp(data.shotsToOverheat, 1, 255);
+                coolDelaySeconds = data.coolDelaySeconds;
+                fullCoolSeconds = data.fullCoolSeconds;
+                overheatLockoutSeconds = data.overheatLockoutSeconds;
+                heatAfterOverheat = data.heatAfterOverheat;
+                hasZoom = data.hasZoom;
+                zoomMagnification = Mathf.Max(1f, data.zoomMagnification);
+                hasScope = data.hasScope;
+                m_RepairPerUse = 0;
+                fireSoundClip = data.fireSound != null ? data.fireSound : m_DefaultFireClip;
+            }
+
+            if (data.reloadSound != null) reloadSoundClip = data.reloadSound;
+            firePitchMin = data.firePitchMin;
+            firePitchMax = data.firePitchMax;
+            fireVolume = data.fireVolume;
+        }
+
+        // Every peer: the server switched weapons. The owner restarts its prediction from the
+        // server's state (the switch bumps the epoch, so the next snapshot is adopted whole).
+        private void HandleSlotChanged(byte previous, byte current)
+        {
+            ApplySlotStats((WeaponSlot)current);
+            if (m_PendingSlot == current) m_PendingSlot = NoPendingSlot;
+            if (!PredictsLocally) return;
+            m_Predictor.Reset(Params);
+            m_Predictor.OnSnapshot(Params, ownerState.Value, Time.timeAsDouble, OneWaySeconds());
+        }
+
+        private void RequestSwitch()
+        {
+            byte target = activeSlot.Value == (byte)WeaponSlot.Primary ? (byte)WeaponSlot.Sidearm : (byte)WeaponSlot.Primary;
+            m_PendingSlot = target;
+            m_PendingSlotUntil = Time.time + 2f;
+            // The server lets the drawn weapon fire switchSeconds after the request reaches it.
+            m_NextFireTime = Mathf.Max(m_NextFireTime, Time.time + switchSeconds);
+            SwitchWeaponServerRpc(target);
+        }
+
+        [ServerRpc]
+        private void SwitchWeaponServerRpc(byte slot)
+        {
+            ServerSwitchTo((WeaponSlot)slot);
+        }
+
+        /// <summary>
+        /// Server: holster the weapon in hand and draw the other. A reload or overheat in progress
+        /// is dropped; the holstered weapon keeps its rounds and heat, and keeps cooling.
+        /// </summary>
+        private void ServerSwitchTo(WeaponSlot slot)
+        {
+            if (m_Health != null && m_Health.IsDead) return;
+            if (IsMatchOver || (byte)slot == activeSlot.Value) return;
+            if (slot != WeaponSlot.Primary && (slot != WeaponSlot.Sidearm || !HasSidearm)) return;
+
+            double now = Time.timeAsDouble;
+            float heldHeat = ConquestHeatModel.HeatAt(m_ServerHeat, m_ServerCoolFrom, now, Params.CoolPerSecond);
+            int heldAmmo = m_ServerAmmo;
+            bool drawnValid = m_StashValid;
+            int drawnAmmo = m_StashAmmo;
+            float drawnHeat = m_StashHeat;
+            double drawnCoolFrom = m_StashCoolFrom;
+
+            m_StashValid = true;
+            m_StashAmmo = heldAmmo;
+            m_StashHeat = heldHeat;
+            m_StashCoolFrom = now;
+
+            m_ServerLock = WeaponLock.None;
+            ServerClearLockFlags();
+            activeSlot.Value = (byte)slot; // the handler applies the drawn weapon's stats here on the server too
+            m_ServerAmmo = drawnValid ? Mathf.Min(drawnAmmo, magazineCapacity) : magazineCapacity;
+            m_ServerHeat = drawnValid ? drawnHeat : 0f;
+            m_ServerCoolFrom = drawnValid ? drawnCoolFrom : 0.0;
+            m_ServerEpoch = (byte)((m_ServerEpoch + 1) & 0x0F);
+            m_ServerNextFireTime = Mathf.Max(m_ServerNextFireTime, Time.time + switchSeconds);
+            m_OwnerStateDirty = true;
         }
 
         private void HandleServerDied(ulong killerId)
@@ -312,7 +457,16 @@ namespace Game.Conquest.Combat
             double now = Time.timeAsDouble;
             bool fireRequested = isAutomatic ? ConquestInput.FireHeld : ConquestInput.FirePressed;
 
-            if (fireRequested && Time.time >= m_NextFireTime)
+            if (m_PendingSlot != NoPendingSlot && Time.time > m_PendingSlotUntil) m_PendingSlot = NoPendingSlot;
+            if (HasSidearm && m_PendingSlot == NoPendingSlot && ConquestInput.SwitchWeaponPressed) RequestSwitch();
+
+            // Nothing fires until the server confirms a switch, so no shot uses the wrong stats.
+            bool switching = m_PendingSlot != NoPendingSlot;
+            if (IsRepairTool)
+            {
+                if (!switching && fireRequested && Time.time >= m_NextFireTime) TryRepairLocal();
+            }
+            else if (!switching && fireRequested && Time.time >= m_NextFireTime)
             {
                 if (m_Predictor.CanFire(p, now)) TryFireLocal(p, now);
                 // An empty magazine the predictor didn't lock itself (adopted from the server): reload.
@@ -320,7 +474,7 @@ namespace Game.Conquest.Combat
             }
 
             // Heat weapons never reload; they vent by themselves.
-            if (!p.UsesHeat && ConquestInput.ReloadPressed)
+            if (!p.UsesHeat && !IsRepairTool && !switching && ConquestInput.ReloadPressed)
             {
                 TryStartReload(p, now);
             }
@@ -364,6 +518,29 @@ namespace Game.Conquest.Combat
             m_Animator?.TriggerFire();
 
             FireServerRpc(baseRay.origin, baseRay.direction, seq);
+        }
+
+        // The repair tool fires no bolts and spends no ammo, so it skips the prediction entirely.
+        private void TryRepairLocal()
+        {
+            m_NextFireTime = Time.time + fireRate;
+            Camera cam = m_Movement.PlayerCamera;
+            if (cam == null) return;
+            Ray ray = cam.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f));
+            PlayFireAudio();
+            RepairServerRpc(ray.origin, ray.direction);
+        }
+
+        [ServerRpc]
+        private void RepairServerRpc(Vector3 rayOrigin, Vector3 rayDirection)
+        {
+            if (!IsRepairTool || (m_Health != null && m_Health.IsDead) || IsMatchOver) return;
+            if (!ServerValidateShot(ref rayOrigin, ref rayDirection)) return;
+            if (!ConquestPhysics.RaycastIgnoring(transform, rayOrigin, rayDirection, maxRange, hitLayers, out RaycastHit hit)) return;
+
+            ConquestSupplyDroid droid = hit.collider.GetComponentInParent<ConquestSupplyDroid>();
+            Team team = m_Player != null ? m_Player.CurrentTeam : Team.Neutral;
+            if (droid != null && droid.Serves(team)) droid.ServerRepair(m_RepairPerUse);
         }
 
         private void SpawnShotVisuals(Vector3 origin, Vector3 direction, Vector3 muzzle, ushort seq, bool own, double t0)
@@ -704,6 +881,7 @@ namespace Game.Conquest.Combat
             m_ServerAmmo = magazineCapacity;
             m_ServerHeat = 0f;
             m_ServerCoolFrom = 0.0;
+            m_StashValid = false;
             m_ServerEpoch = (byte)((m_ServerEpoch + 1) & 0x0F);
             ServerClearLockFlags();
             m_OwnerStateDirty = true;
@@ -750,11 +928,13 @@ namespace Game.Conquest.Combat
 
         /// <summary>
         /// Server: a support station pulse. A magazine weapon gets a full magazine now (cutting a
-        /// reload short); a heat weapon vents the faction's share of a full gauge.
+        /// reload short); a heat weapon vents the faction's share of a full gauge. The holstered
+        /// weapon is refilled too.
         /// </summary>
         public void ResupplyAmmo()
         {
             if (!IsServer) return;
+            m_StashValid = false;
             if (!UsesHeat)
             {
                 if (m_ServerLock == WeaponLock.Reload || m_ServerAmmo < magazineCapacity) ServerResetAmmo();

@@ -55,6 +55,7 @@ namespace Game.Conquest.Player
         private ConquestPlayerMovement m_Movement;
         private ConquestHealth m_Health;
         private ConquestWeapon m_Weapon;
+        private ConquestThrowables m_Throwables;
         private string m_SelectedPostName = "";
         private int m_PendingClassIndex = 0;
 
@@ -62,6 +63,8 @@ namespace Game.Conquest.Player
         public ConquestHealth Health => m_Health;
         public ConquestPlayerMovement Movement => m_Movement;
         public ConquestWeapon Weapon => m_Weapon;
+        /// <summary>Grenades and other throwables; null on bots (they don't throw yet).</summary>
+        public ConquestThrowables Throwables => m_Throwables;
         public float RespawnWaitTime => respawnWaitTime;
         public float RemainingRespawnTime =>
             NetworkManager == null ? 0f : Mathf.Max(0f, (float)(deployAvailableAt.Value - NetworkManager.ServerTime.Time));
@@ -88,6 +91,7 @@ namespace Game.Conquest.Player
             m_Movement = GetComponent<ConquestPlayerMovement>();
             m_Health = GetComponent<ConquestHealth>();
             m_Weapon = GetComponent<ConquestWeapon>();
+            m_Throwables = GetComponent<ConquestThrowables>();
         }
 
         public override void OnNetworkSpawn()
@@ -171,6 +175,7 @@ namespace Game.Conquest.Player
                 if (m_Health != null) m_Health.SetMaxHealth(data.maxHealth);
                 if (m_Movement != null) m_Movement.SetSpeed(data.walkSpeed, data.sprintSpeed);
                 if (m_Weapon != null) m_Weapon.ApplyClass(data);
+                if (m_Throwables != null && IsServer) m_Throwables.ServerRefill(data);
             }
         }
 
@@ -234,11 +239,12 @@ namespace Game.Conquest.Player
             }
         }
 
-        /// <summary>Server: an ammo droid's pulse. Refills the weapon (a magazine, or vents heat).</summary>
+        /// <summary>Server: an ammo droid's or a station's pulse. Refills both weapons and gives back one throwable.</summary>
         public void ServerResupply()
         {
             if (!IsServer || m_Health.IsDead) return;
             if (m_Weapon != null) m_Weapon.ResupplyAmmo();
+            if (m_Throwables != null) m_Throwables.ServerGiveOne();
         }
 
         public void ApplyTeamVisuals(Team team)

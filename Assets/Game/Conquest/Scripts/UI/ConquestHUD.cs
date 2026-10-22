@@ -65,6 +65,7 @@ namespace Game.Conquest.UI
         // Current key labels for the HUD hints, refreshed when the player rebinds.
         private string m_ReloadKey = "R";
         private string m_DeployKey = "Q";
+        private string m_SwitchKey = "E";
         private string m_AimKey = "RMB";
         private ConquestMatchManager m_StatsSource;
         private bool m_ScoreboardDirty = true;
@@ -164,6 +165,7 @@ namespace Game.Conquest.UI
         {
             m_ReloadKey = ConquestInput.KeyLabel(ConquestInput.Gameplay.Reload);
             m_DeployKey = ConquestInput.KeyLabel(ConquestInput.Gameplay.Deploy);
+            m_SwitchKey = ConquestInput.KeyLabel(ConquestInput.Gameplay.SwitchWeapon);
             m_AimKey = ConquestInput.KeyLabel(ConquestInput.Gameplay.Aim);
             m_HintsKey = int.MinValue;
         }
@@ -493,27 +495,37 @@ namespace Game.Conquest.UI
             }
             // Red weapons show a heat gauge, blue ones a magazine. Both read the local prediction,
             // so they respond the moment the trigger is pulled.
-            bool heat = weapon.UsesHeat;
+            // The repair tool has no ammo or heat: it shows its name on a full bar.
+            bool tool = weapon.IsRepairTool;
+            bool heat = weapon.UsesHeat && !tool;
             playerStatsUI.SetWeaponModel(heat);
-            if (heat) playerStatsUI.SetHeat(Mathf.CeilToInt(weapon.Heat01 * 100f), weapon.IsOverheated);
+            if (tool) playerStatsUI.SetAmmoLabel(weapon.ActiveWeaponName);
+            else if (heat) playerStatsUI.SetHeat(Mathf.CeilToInt(weapon.Heat01 * 100f), weapon.IsOverheated);
             else playerStatsUI.SetAmmo(weapon.CurrentAmmo, weapon.MagazineCapacity, weapon.IsReloading);
-            UpdateHints(weapon);
+            UpdateHints(weapon, player.Throwables);
         }
 
-        // "[R] Reload | [Q] Station | [RMB] Scope". Rebuilt only when the station cooldown second, the
-        // refusal message, the weapon model or the key labels change, not every frame.
-        private void UpdateHints(ConquestWeapon weapon)
+        // "[R] Reload | [E] Blaster Pistol | [Q] Grenade x2 | [RMB] Scope". Rebuilt only when the
+        // weapon in hand, a count or cooldown second, the refusal message, the weapon model or the
+        // key labels change, not every frame.
+        private void UpdateHints(ConquestWeapon weapon, ConquestThrowables throwables)
         {
             string refusal = weapon.HasSupportStation ? weapon.StationRefusal : "";
             int cooldown = weapon.HasSupportStation ? Mathf.CeilToInt(weapon.StationCooldownRemaining) : 0;
+            bool tool = weapon.IsRepairTool;
             bool heat = weapon.UsesHeat;
-            int key = (weapon.HasSupportStation ? 1 : 0) | (weapon.HasZoom ? 2 : 0) | (weapon.HasScope ? 4 : 0) | (heat ? 8 : 0) | (cooldown << 4);
+            bool throws = throwables != null && throwables.HasThrowable;
+            int grenades = throws ? Mathf.Min(throwables.Count, 255) : 0;
+            int key = (weapon.HasSupportStation ? 1 : 0) | (weapon.HasZoom ? 2 : 0) | (weapon.HasScope ? 4 : 0) | (heat ? 8 : 0) |
+                      ((int)weapon.ActiveSlot << 4) | (weapon.HasSidearm ? 32 : 0) | (throws ? 64 : 0) | (grenades << 7) | (cooldown << 15);
             if (key == m_HintsKey && refusal == m_HintsRefusal) return;
             m_HintsKey = key;
             m_HintsRefusal = refusal;
 
-            // Heat weapons vent by themselves, so there is no reload hint for them.
-            string hints = heat ? "" : $"[{m_ReloadKey}] Reload";
+            // Heat weapons vent by themselves, so there is no reload hint for them; the tool has no ammo.
+            string hints = heat || tool ? "" : $"[{m_ReloadKey}] Reload";
+            if (weapon.HasSidearm) hints = Join(hints, $"[{m_SwitchKey}] {weapon.HolsteredWeaponName}");
+            if (throws) hints = Join(hints, $"[{m_DeployKey}] {throwables.ThrowableName} x{grenades}");
             if (weapon.HasSupportStation)
             {
                 if (refusal.Length > 0) hints = Join(hints, refusal);
