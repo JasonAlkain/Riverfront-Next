@@ -101,6 +101,7 @@ GameObject:
   - component: {fileID: 1791788391226760201}
   - component: {fileID: 8945211284375868061}
   - component: {fileID: 257469917053255401}
+  - component: {fileID: 1319696059072122941}
   m_Layer: 0
   m_Name: ConquestSupplyDroid
   m_TagString: Untagged
@@ -171,8 +172,6 @@ MonoBehaviour:
   pulseInterval: 1.5
   healPerPulse: 12
   maxHealth: 150
-  repairPerSecond: 30
-  repairRange: 2.5
   bodyRenderer: {fileID: 1816712074502125308}
   healthColor: {r: 0.3, g: 0.85, b: 0.4, a: 1}
   ammoColor: {r: 0.95, g: 0.8, b: 0.3, a: 1}
@@ -183,6 +182,22 @@ MonoBehaviour:
       MinSecondsBetweenUpdates: 0
       MaxSecondsBetweenUpdates: 0
     m_InternalValue: 150
+--- !u!208 &1319696059072122941
+NavMeshObstacle:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6230798411359211557}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Shape: 0
+  m_Extents: {x: 0.4, y: 0.65, z: 0.4}
+  m_MoveThreshold: 0.1
+  m_Carve: 1
+  m_CarveOnlyStationary: 1
+  m_Center: {x: 0, y: 0.65, z: 0}
+  m_TimeToStationary: 0.5
 --- !u!1 &6934726498775818594
 GameObject:
   m_ObjectHideFlags: 0

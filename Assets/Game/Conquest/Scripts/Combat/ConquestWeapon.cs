@@ -149,6 +149,7 @@ namespace Game.Conquest.Combat
         private int m_StashAmmo;
         private float m_StashHeat;
         private double m_StashCoolFrom;
+        private float m_StashOverheatLeft;
 
         /// <summary>The team's weapon model, resolved from the replicated team every time (never cached).</summary>
         public ConquestWeaponModel Model
@@ -373,8 +374,9 @@ namespace Game.Conquest.Combat
         }
 
         /// <summary>
-        /// Server: holster the weapon in hand and draw the other. A reload or overheat in progress
-        /// is dropped; the holstered weapon keeps its rounds and heat, and keeps cooling.
+        /// Server: holster the weapon in hand and draw the other. A reload in progress is dropped;
+        /// the holstered weapon keeps its rounds and heat, and keeps cooling. An overheat lock is
+        /// kept too, so switching away and back can't skip it.
         /// </summary>
         private void ServerSwitchTo(WeaponSlot slot)
         {
@@ -389,11 +391,13 @@ namespace Game.Conquest.Combat
             int drawnAmmo = m_StashAmmo;
             float drawnHeat = m_StashHeat;
             double drawnCoolFrom = m_StashCoolFrom;
+            float drawnOverheatLeft = m_StashOverheatLeft;
 
             m_StashValid = true;
             m_StashAmmo = heldAmmo;
             m_StashHeat = heldHeat;
             m_StashCoolFrom = now;
+            m_StashOverheatLeft = m_ServerLock == WeaponLock.Overheat ? Mathf.Max(0f, (float)(m_ServerLockEnd - now)) : 0f;
 
             m_ServerLock = WeaponLock.None;
             ServerClearLockFlags();
@@ -401,6 +405,9 @@ namespace Game.Conquest.Combat
             m_ServerAmmo = drawnValid ? Mathf.Min(drawnAmmo, magazineCapacity) : magazineCapacity;
             m_ServerHeat = drawnValid ? drawnHeat : 0f;
             m_ServerCoolFrom = drawnValid ? drawnCoolFrom : 0.0;
+            // The lock kept running while holstered: only what is left of it still applies.
+            float overheatLeft = drawnValid ? drawnOverheatLeft - (float)(now - drawnCoolFrom) : 0f;
+            if (overheatLeft > 0f) ServerStartLock(WeaponLock.Overheat, overheatLeft);
             m_ServerEpoch = (byte)((m_ServerEpoch + 1) & 0x0F);
             m_ServerNextFireTime = Mathf.Max(m_ServerNextFireTime, Time.time + switchSeconds);
             m_OwnerStateDirty = true;
@@ -527,7 +534,6 @@ namespace Game.Conquest.Combat
             Camera cam = m_Movement.PlayerCamera;
             if (cam == null) return;
             Ray ray = cam.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f));
-            PlayFireAudio();
             RepairServerRpc(ray.origin, ray.direction);
         }
 

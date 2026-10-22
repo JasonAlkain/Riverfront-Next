@@ -47,6 +47,7 @@ namespace Game.Conquest.Combat
         private Team m_Team;
         private string m_SourceName;
         private Vector3 m_LaunchVelocity;
+        private bool m_Launched;
         private float m_ExplodeAt;
         private float m_DespawnAt;
         private bool m_Exploded;
@@ -71,8 +72,6 @@ namespace Game.Conquest.Combat
         public override void OnNetworkSpawn()
         {
             if (!IsServer) return;
-            var body = GetComponent<Rigidbody>();
-            body.linearVelocity = m_LaunchVelocity;
             m_ExplodeAt = Time.time + fuseSeconds;
 
             // It leaves from inside the thrower's reach: don't let it bounce off their own body.
@@ -84,6 +83,16 @@ namespace Game.Conquest.Combat
                     if (own != null) Physics.IgnoreCollision(own, c);
                 }
             }
+        }
+
+        // The launch waits for the first physics step, once NetworkRigidbody has set the body up.
+        private void FixedUpdate()
+        {
+            if (!IsServer || !IsSpawned || m_Launched) return;
+            m_Launched = true;
+            var body = GetComponent<Rigidbody>();
+            body.isKinematic = false;
+            body.linearVelocity = m_LaunchVelocity;
         }
 
         private void Update()
