@@ -27,8 +27,6 @@ namespace Game.Conquest
         public Button btn_ToggleReady;
         public Button btn_StartMatch;   // host only
         public Button btn_CycleMap;     // host only
-        [Tooltip("Builds one button per class from the class list.")]
-        public ClassPickerUI classPicker;
         public TMP_InputField tmp_PlayerName;
         public Button btn_SetName;
 

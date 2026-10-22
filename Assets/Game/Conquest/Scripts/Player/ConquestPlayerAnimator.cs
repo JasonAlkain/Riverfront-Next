@@ -92,7 +92,7 @@ namespace Game.Conquest.Player
             m_CurrentStrafe = Mathf.Lerp(m_CurrentStrafe, targetStrafe, dt / speedDampTime);
             m_CurrentIsMoving = Mathf.Lerp(m_CurrentIsMoving, targetPlanar, dt / speedDampTime);
 
-            bool isGrounded = characterController != null && characterController.enabled ? characterController.isGrounded : true;
+            bool isGrounded = IsGrounded();
 
             // Update 1st Person Animator (if active)
             if (firstPersonAnimator != null && firstPersonAnimator.gameObject.activeInHierarchy)
@@ -129,6 +129,24 @@ namespace Game.Conquest.Player
 
             m_WasGrounded = isGrounded;
         }
+
+        // CharacterController.isGrounded is only meaningful where the controller actually moves the
+        // body (the owner for players). Everywhere else (the host or a client watching another
+        // player) the controller never moves, reports "in the air" forever and played the falling
+        // pose, so those peers probe the ground instead.
+        private bool IsGrounded()
+        {
+            bool drivesController = characterController != null && characterController.enabled &&
+                                    movement != null && movement.HasTransformAuthority && !movement.isBot;
+            if (drivesController) return characterController.isGrounded;
+            if (characterController == null || !characterController.enabled) return true;
+            Vector3 origin = transform.position + Vector3.up * GroundProbeLift;
+            return Physics.Raycast(origin, Vector3.down, GroundProbeLift + GroundProbeDepth, ConquestPhysics.WorldMask, QueryTriggerInteraction.Ignore);
+        }
+
+        private const float GroundProbeLift = 0.2f;
+        // Placeholder: how far below the feet still counts as standing.
+        private const float GroundProbeDepth = 0.3f;
 
         private void UpdatePitch()
         {

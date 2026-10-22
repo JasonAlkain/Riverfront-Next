@@ -38,7 +38,7 @@ namespace Game.Conquest.UI
         [SerializeField] private ConquestMapRegistry mapRegistry;
 
         [Header("Classes")]
-        [Tooltip("Shared class list; the lobby class buttons are built from it.")]
+        [Tooltip("Shared class list, for the class names on the lobby player cards.")]
         [SerializeField] private ConquestClassRoster classRoster;
 
         [Header("Active Screen")]
@@ -389,12 +389,6 @@ namespace Game.Conquest.UI
             Bind(p.btn_CycleMap, CycleLobbyMap);
             Bind(p.btn_SetName, SubmitLobbyName);
 
-            if (p.classPicker != null)
-            {
-                p.classPicker.ClassSelected += classIndex => ConquestLobbyManager.Instance?.SelectClassServerRpc(classIndex);
-                if (classRoster != null) p.classPicker.SetClasses(classRoster.Classes);
-            }
-
             if (p.tmp_PlayerName != null)
             {
                 p.tmp_PlayerName.characterLimit = ConquestSessionManager.MaxPlayerNameLength;
@@ -582,11 +576,7 @@ namespace Game.Conquest.UI
                 string className = classRoster != null ? classRoster.NameOf(player.classIndex) : "";
                 // Only your own card's ready toggle is clickable; the server flips the state.
                 System.Action onReadyToggled = null;
-                if (player.clientId == localClientId)
-                {
-                    onReadyToggled = () => ConquestLobbyManager.Instance?.ToggleReadyServerRpc();
-                    if (p.classPicker != null) p.classPicker.SetSelected(player.classIndex);
-                }
+                if (player.clientId == localClientId) onReadyToggled = () => ConquestLobbyManager.Instance?.ToggleReadyServerRpc();
                 p.AddPlayerCard($"{player.playerName}{hostTag} - {className}", player.isReady, player.team == Team.Red, onReadyToggled);
             }
         }

@@ -7764,14 +7764,13 @@ RectTransform:
   - {fileID: 6445436436388403059}
   - {fileID: 9134356928219620926}
   - {fileID: 4314898566098773812}
-  - {fileID: 6574992425817392023}
   - {fileID: 6332878140812113322}
   m_Father: {fileID: 3824785643717299225}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: -20}
-  m_SizeDelta: {x: 1200, y: 776}
+  m_SizeDelta: {x: 1200, y: 692}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &4684413432402138705
 CanvasRenderer:
@@ -7859,7 +7858,6 @@ MonoBehaviour:
   btn_ToggleReady: {fileID: 3546023560447680846}
   btn_StartMatch: {fileID: 1468419954081044765}
   btn_CycleMap: {fileID: 3667996784756370126}
-  classPicker: {fileID: 2230120717290114745}
   tmp_PlayerName: {fileID: 4032103527586381459}
   btn_SetName: {fileID: 3902839733261994029}
 --- !u!114 &8407087926720142988
@@ -22682,108 +22680,6 @@ MonoBehaviour:
   m_LayoutPriority: 1
   m_MaxWidth: 512
   m_MaxHeight: Infinity
---- !u!1 &8195704510712029560
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 6574992425817392023}
-  - component: {fileID: 1404802752384842463}
-  - component: {fileID: 2916399986386987702}
-  - component: {fileID: 2230120717290114745}
-  m_Layer: 5
-  m_Name: ClassRow
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!224 &6574992425817392023
-RectTransform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8195704510712029560}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 7603013693706317048}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 100, y: 100}
-  m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &1404802752384842463
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8195704510712029560}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 306cc8c2b49d7114eaa3623786fc2126, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.LayoutElement
-  m_IgnoreLayout: 0
-  m_MinWidth: -1
-  m_MinHeight: -1
-  m_PreferredWidth: -1
-  m_PreferredHeight: 84
-  m_FlexibleWidth: -1
-  m_FlexibleHeight: -1
-  m_LayoutPriority: 1
-  m_MaxWidth: -1
-  m_MaxHeight: -1
---- !u!114 &2916399986386987702
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8195704510712029560}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 30649d3a9faa99c48a7b1166b86bf2a0, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.HorizontalLayoutGroup
-  m_Padding:
-    m_Left: 0
-    m_Right: 0
-    m_Top: 0
-    m_Bottom: 0
-  m_ChildAlignment: 4
-  m_Spacing: 10
-  m_ChildForceExpandWidth: 1
-  m_ChildForceExpandHeight: 1
-  m_ChildControlWidth: 1
-  m_ChildControlHeight: 1
-  m_ChildScaleWidth: 0
-  m_ChildScaleHeight: 0
-  m_ReverseArrangement: 0
---- !u!114 &2230120717290114745
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8195704510712029560}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b1e8300325313894189a7ce7f66f1df5, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Game.Conquest::Game.Conquest.ClassPickerUI
-  classButtonPrefab: {fileID: 7552327949960596410, guid: cdace1ded9119004c84443b444cbed54, type: 3}
-  container: {fileID: 6574992425817392023}
-  normalColor: {r: 0.25, g: 0.3, b: 0.4, a: 1}
-  selectedColor: {r: 0.2, g: 0.6, b: 1, a: 1}
 --- !u!1 &8244976634069893718
 GameObject:
   m_ObjectHideFlags: 0
