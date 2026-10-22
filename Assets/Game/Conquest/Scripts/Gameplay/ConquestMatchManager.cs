@@ -13,10 +13,9 @@ namespace Game.Conquest.Gameplay
     {
         public static ConquestMatchManager Instance { get; private set; }
 
-        [Header("Match Settings")]
-        [Header("All Posts Win")]
-        [Tooltip("Seconds a team must hold every command post to win. 0 wins the moment the last post falls.")]
-        [SerializeField] private float allPostsHoldSeconds = 20f;
+        [Header("Game Mode")]
+        [Tooltip("Rules used when the match plays Conquest (the only mode so far).")]
+        [SerializeField] private ConquestModeRules conquestRules = new ConquestModeRules();
 
         [Header("Empty Team")]
         [Tooltip("Seconds after the match starts for both teams to get a player or bot. After that, " +
@@ -68,6 +67,7 @@ namespace Game.Conquest.Gameplay
         /// <summary>Raised on every peer for each death, for the kill feed.</summary>
         public static event Action<KillReport> KillReported;
 
+        private IConquestGameMode m_Mode;
         private float m_MatchStartTime;
         private float m_NextRosterRefresh;
         private bool m_BothTeamsPopulated;
@@ -81,6 +81,8 @@ namespace Game.Conquest.Gameplay
         public Team WinningTeam => winningTeam.Value;
         public IReadOnlyList<ConquestCommandPost> CommandPosts => commandPosts;
         public Team AllPostsHolder => allPostsHolder.Value;
+        /// <summary>Server: the rules this match is played with; null on clients.</summary>
+        public IConquestGameMode Mode => m_Mode;
         /// <summary>Seconds until the all-posts holder wins; 0 when no team holds every post.</summary>
         public float AllPostsSecondsLeft =>
             allPostsHolder.Value == Team.Neutral || NetworkManager == null
@@ -114,16 +116,13 @@ namespace Game.Conquest.Gameplay
             if (IsServer)
             {
                 m_MatchStartTime = Time.time;
-                // Tickets are only spent on deaths (SWBF2-style); holding posts doesn't bleed the enemy.
                 var settings = ConquestSessionManager.Instance != null
                     ? ConquestSessionManager.Instance.matchSettings
                     : ConquestMatchSettings.Default;
-                redTickets.Value = settings.reinforcementTickets;
-                blueTickets.Value = settings.reinforcementTickets;
                 isMatchOver.Value = false;
                 winningTeam.Value = Team.Neutral;
-                allPostsHolder.Value = Team.Neutral;
-                allPostsWinAt.Value = 0;
+                m_Mode = ConquestGameModes.Create(settings.gameMode, conquestRules);
+                m_Mode.ServerBegin(this, settings);
                 m_Stats.SetMirror(liveStats);
             }
         }
@@ -141,7 +140,8 @@ namespace Game.Conquest.Gameplay
             if (!IsServer || isMatchOver.Value) return;
 
             EvaluateFallLimits();
-            EvaluateAllPostsHeld();
+            m_Mode?.ServerTick(this);
+            if (isMatchOver.Value) return;
             RefreshRoster();
         }
 
@@ -212,26 +212,24 @@ namespace Game.Conquest.Gameplay
             for (int i = 0; i < capturers.Count; i++) m_Stats.RecordCapture(capturers[i]);
         }
 
-        // Second win condition: one team holds every post for allPostsHoldSeconds.
-        // Losing a single post (even to neutral) cancels the countdown.
-        private void EvaluateAllPostsHeld()
+        /// <summary>Server: set both teams' tickets (a mode's starting pool).</summary>
+        public void ServerSetTickets(int red, int blue)
         {
-            Team holder = TeamHoldingAllPosts();
-            double now = NetworkManager.ServerTime.Time;
-
-            if (holder != allPostsHolder.Value)
-            {
-                allPostsHolder.Value = holder;
-                allPostsWinAt.Value = holder == Team.Neutral ? 0 : now + allPostsHoldSeconds;
-            }
-
-            if (holder != Team.Neutral && now >= allPostsWinAt.Value)
-            {
-                EndMatch(holder);
-            }
+            if (!IsServer) return;
+            redTickets.Value = Mathf.Max(0, red);
+            blueTickets.Value = Mathf.Max(0, blue);
         }
 
-        private Team TeamHoldingAllPosts()
+        /// <summary>Server: show (or clear, with Neutral) the "holds every post" countdown on every HUD.</summary>
+        public void ServerSetAllPostsCountdown(Team holder, double winAtServerTime)
+        {
+            if (!IsServer) return;
+            allPostsHolder.Value = holder;
+            allPostsWinAt.Value = winAtServerTime;
+        }
+
+        /// <summary>The team owning every post, or Neutral when no team does (or there are no posts).</summary>
+        public Team TeamHoldingAllPosts()
         {
             Team holder = Team.Neutral;
             foreach (var post in commandPosts)
@@ -248,9 +246,10 @@ namespace Game.Conquest.Gameplay
 
         private void EvaluateFallLimits()
         {
-            var players = FindObjectsByType<ConquestPlayer>(FindObjectsInactive.Exclude);
-            foreach (var p in players)
+            var players = ConquestPlayer.All;
+            for (int i = 0; i < players.Count; i++)
             {
+                var p = players[i];
                 if (p != null && p.transform.position.y < fallLimitY)
                 {
                     if (p.Health != null && !p.Health.IsDead)
@@ -274,16 +273,7 @@ namespace Game.Conquest.Gameplay
             }
             m_Stats.RecordDeath(victim, killer);
             ReportKillClientRpc(MakeKillReport(victim, killer));
-
-            // Death costs 1 ticket to victim's team
-            if (victim.CurrentTeam == Team.Red)
-            {
-                DrainTickets(Team.Red, 1);
-            }
-            else if (victim.CurrentTeam == Team.Blue)
-            {
-                DrainTickets(Team.Blue, 1);
-            }
+            m_Mode?.ServerOnDeath(this, victim, killer);
         }
 
         private static KillReport MakeKillReport(ConquestPlayer victim, ConquestPlayer killer)
@@ -319,7 +309,7 @@ namespace Game.Conquest.Gameplay
                 redTickets.Value = Mathf.Max(0, redTickets.Value - amount);
                 if (redTickets.Value <= 0)
                 {
-                    EndMatch(Team.Blue);
+                    ServerEndMatch(Team.Blue);
                 }
             }
             else if (team == Team.Blue)
@@ -327,13 +317,15 @@ namespace Game.Conquest.Gameplay
                 blueTickets.Value = Mathf.Max(0, blueTickets.Value - amount);
                 if (blueTickets.Value <= 0)
                 {
-                    EndMatch(Team.Red);
+                    ServerEndMatch(Team.Red);
                 }
             }
         }
 
-        private void EndMatch(Team winner)
+        /// <summary>Server: the match is decided. Only the first call counts.</summary>
+        public void ServerEndMatch(Team winner)
         {
+            if (!IsServer || isMatchOver.Value) return;
             isMatchOver.Value = true;
             winningTeam.Value = winner;
             // Bolts still in flight can't change the result (no damage after the match ends).
@@ -348,9 +340,10 @@ namespace Game.Conquest.Gameplay
         private MatchResults BuildResults(Team winner)
         {
             // Make sure everyone still in the match has a line, even with no kills or deaths.
-            foreach (var p in FindObjectsByType<ConquestPlayer>(FindObjectsInactive.Exclude))
+            var players = ConquestPlayer.All;
+            for (int i = 0; i < players.Count; i++)
             {
-                if (p != null && p.IsSpawned) m_Stats.Touch(p);
+                if (players[i] != null && players[i].IsSpawned) m_Stats.Touch(players[i]);
             }
 
             var session = ConquestSessionManager.Instance;

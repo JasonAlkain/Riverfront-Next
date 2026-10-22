@@ -16,6 +16,8 @@ namespace Game.Conquest.Gameplay
         public int teamSize;
         public bool botFilling;
         public BotDifficulty botDifficulty;
+        /// <summary>Game mode id (see ConquestGameModes). Empty plays Conquest.</summary>
+        public string gameMode;
 
         /// <summary>Used when no map is known (for example a map scene opened directly in the Editor).</summary>
         public static ConquestMatchSettings Default => new ConquestMatchSettings
@@ -24,6 +26,7 @@ namespace Game.Conquest.Gameplay
             teamSize = 8,
             botFilling = true,
             botDifficulty = BotDifficulty.Normal,
+            gameMode = ConquestGameModes.ConquestId,
         };
 
         public static ConquestMatchSettings ForMap(ConquestMapData map)
@@ -33,6 +36,7 @@ namespace Game.Conquest.Gameplay
             {
                 settings.reinforcementTickets = map.defaultTickets;
                 settings.teamSize = map.defaultTeamSize;
+                if (map.availableGameModes != null && map.availableGameModes.Length > 0) settings.gameMode = map.availableGameModes[0];
             }
             return settings;
         }
