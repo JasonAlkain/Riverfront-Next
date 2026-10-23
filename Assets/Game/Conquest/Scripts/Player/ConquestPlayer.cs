@@ -53,6 +53,12 @@ namespace Game.Conquest.Player
         [Tooltip("Pooled effect where a combatant dies, seen by every client.")]
         [SerializeField] private GameObject deathEffect;
         [SerializeField] private float deathEffectSeconds = 2.5f;
+        [Tooltip("Every client drops a cosmetic ragdoll copy of the body; the death effect plays when it goes.")]
+        [SerializeField] private bool useRagdoll = true;
+        [Tooltip("Placeholder: seconds a ragdoll stays before it goes in the death effect.")]
+        [SerializeField] private float ragdollSeconds = 4f;
+        [Tooltip("Placeholder: m/s the ragdoll is knocked away from the killer.")]
+        [SerializeField] private float ragdollPush = 3f;
         [Tooltip("Placeholder: blinks per second of a spawn-protected combatant's body, as others see it.")]
         [SerializeField] private float protectionBlinkRate = 6f;
         private bool m_BlinkHidden;
@@ -294,12 +300,31 @@ namespace Game.Conquest.Player
             m_Movement.SetBodyCollisionEnabled(false);
         }
 
+        // Knocked away from whoever made the kill (a little up), or backwards for a self-kill.
+        private Vector3 RagdollVelocity(ulong killerId)
+        {
+            Vector3 away = -transform.forward;
+            if (killerId != ConquestHealth.NoAttacker && killerId != NetworkObjectId && NetworkManager != null &&
+                NetworkManager.SpawnManager.SpawnedObjects.TryGetValue(killerId, out var killer) && killer != null)
+            {
+                away = transform.position - killer.transform.position;
+            }
+            away.y = 0f;
+            away = away.sqrMagnitude > 1e-4f ? away.normalized : -transform.forward;
+            return away * ragdollPush + Vector3.up * ragdollPush * 0.3f;
+        }
+
         private void HandleDeath(ulong killerId)
         {
-            // Everyone sees the body go in a burst (a dedicated server draws nothing).
-            if (IsClient && deathEffect != null)
+            // Everyone sees the body fall as a ragdoll that goes in a burst a few seconds later, or
+            // in a burst at once if it can't ragdoll (a dedicated server draws nothing).
+            if (IsClient)
             {
-                Game.Conquest.Combat.ConquestFxPool.Play(deathEffect, transform.position + Vector3.up, Quaternion.identity, deathEffectSeconds);
+                bool ragdolled = useRagdoll && ConquestRagdoll.Spawn(thirdPersonVisualsRoot, RagdollVelocity(killerId), ragdollSeconds, deathEffect, deathEffectSeconds);
+                if (!ragdolled && deathEffect != null)
+                {
+                    Game.Conquest.Combat.ConquestFxPool.Play(deathEffect, transform.position + Vector3.up, Quaternion.identity, deathEffectSeconds);
+                }
             }
             HideBody();
             // The chosen post is kept: the next deploy goes back there while it is still friendly
