@@ -329,9 +329,10 @@ namespace Game.Conquest.Gameplay
                 return;
             }
 
-            // Out of the fight: back to the primary, and an Engineer fixes a broken droid nearby.
-            ConsiderSwitch(WeaponSlotFor(false));
+            // Out of the fight, an Engineer fixes a broken droid nearby (and keeps at one it has started).
+            if (currentState == BotState.Repair && m_RepairDroid != null && m_RepairDroid.IsBroken) return;
             if (TryStartRepair()) return;
+            ConsiderSwitch(WeaponSlotFor(false));
 
             // 2. Back to the post the bot manager assigned.
             if (m_TargetPost == null)
