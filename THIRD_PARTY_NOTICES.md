@@ -5,7 +5,7 @@ repository. Nothing here may be committed unless its licence allows redistributi
 
 | Asset | Used for | Licence | In the repository? |
 |---|---|---|---|
-| **Blaster Kit 2.1** by Kenney ([kenney.nl/assets/blaster-kit](https://kenney.nl/assets/blaster-kit)) | Weapon models and their palette texture: `blaster-a` (Blaster Pistol), `blaster-p` (Heavy), `blaster-b` (Engineer), `blaster-f` (Recon), in `Assets/Game/Conquest/Art/Weapons/KenneyBlasterKit/` | CC0 1.0 (public domain); crediting Kenney is welcome but not required. The kit's own `License.txt` is kept next to the model. | Yes (CC0 allows redistribution) |
-| Unity template and sample content (`Assets/Templates/`, `Assets/Audio/Clips/Original FPSSample Clips/`, ParticlePack) | Rifle model, character rig, particle materials and textures, weapon, explosion and UI sounds | Unity Companion License / Unity sample terms | Yes (as imported from Unity's own templates) |
+| **Blaster Kit 2.1** by Kenney ([kenney.nl/assets/blaster-kit](https://kenney.nl/assets/blaster-kit)) | The Heavy and Recon primary models and their palette texture: `blaster-p` (Heavy), `blaster-f` (Recon), in `Assets/Game/Conquest/Art/Weapons/KenneyBlasterKit/` | CC0 1.0 (public domain); crediting Kenney is welcome but not required. The kit's own `License.txt` is kept next to the model. | Yes (CC0 allows redistribution) |
+| Unity template and sample content (`Assets/Templates/`, `Assets/Audio/Clips/Original FPSSample Clips/`, ParticlePack) | Rifle, handgun and shotgun models (Shooter/Art/Weapons), character rig, particle materials and textures, weapon, explosion and UI sounds | Unity Companion License / Unity sample terms | Yes (as imported from Unity's own templates) |
 
 Fonts, packages and the engine come from Unity's package registry and are not listed here.
