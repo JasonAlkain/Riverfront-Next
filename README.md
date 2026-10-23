@@ -31,6 +31,24 @@ Assets/
                               Left at the Assets root because Unity packages expect them there.
 ```
 
+## Sound effects (local setup)
+
+Some sounds come from the Unity Asset Store package **Free Sound Effects Pack** (product 155776).
+Its licence lets the sounds ship inside builds but not be published as raw files, so the pack is
+**not in this repository** (`Assets/Free SFX Pack/` is in `.gitignore`).
+
+To hear them:
+
+1. Add the free package to your Unity account on the Asset Store, then open **Window > Package
+   Manager > My Assets** and import it.
+2. Keep its default location, `Assets/Free SFX Pack/`, and don't rename or move its files. The game
+   refers to the clips by the GUIDs in the package's own `.meta` files.
+
+Without the pack the game still runs. The primaries and the Blaster Pistol fall back to committed
+template clips, explosions use a template explosion, and the rest of the pack's sounds (overheat and
+vent, grenade throw, station deploy, surface impacts) are silent. The Editor logs one warning per
+session while the pack is missing. Third-party licences are listed in `THIRD_PARTY_NOTICES.md`.
+
 ## Running a dedicated server (LAN / direct IP)
 
 Any Windows build can run headless as a dedicated server: it has no local player, and the lobby

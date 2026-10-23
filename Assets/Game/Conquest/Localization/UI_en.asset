@@ -383,7 +383,11 @@ MonoBehaviour:
 
       <b>Interface:</b> uGUI and TextMesh Pro
 
-      <b>Assets:</b> free, CC0 and project-made assets
+      <b>Assets:</b> project-made, Unity template and sample content, and CC0 assets
+
+      <b>Sidearm model:</b> Blaster Kit by Kenney (www.kenney.nl), CC0
+
+      <b>Sound effects:</b> Free Sound Effects Pack (Unity Asset Store) and Unity sample audio
 
 
       The host decides damage, captures, tickets and the result; movement is client-driven.'

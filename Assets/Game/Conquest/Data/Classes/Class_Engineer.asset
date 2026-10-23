@@ -71,6 +71,7 @@ MonoBehaviour:
   throwCooldown: 1
   throwSpeed: 16
   fireSound: {fileID: 8300000, guid: 9222a2605864b0a49b72f1c97089a22e, type: 3}
+  fallbackFireSound: {fileID: 8300000, guid: 9222a2605864b0a49b72f1c97089a22e, type: 3}
   reloadSound: {fileID: 8300000, guid: 2208026e40f14d1439e3aea40cd566c6, type: 3}
   firePitchMin: 0.95
   firePitchMax: 1.05
