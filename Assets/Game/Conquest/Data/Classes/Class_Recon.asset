@@ -20,6 +20,7 @@ MonoBehaviour:
   walkSpeed: 6.8
   sprintSpeed: 11
   weaponName: Longwatch Marksman Rifle
+  primaryModel: 3
   weaponIcon: {fileID: 21300000, guid: abdbbfcbdf73a784988b91c20119d0e0, type: 3}
   damagePerShot: 85
   fireRate: 0.85

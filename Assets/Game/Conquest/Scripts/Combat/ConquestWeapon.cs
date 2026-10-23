@@ -69,6 +69,8 @@ namespace Game.Conquest.Combat
         [SerializeField] private float switchVolume = 0.5f;
         [Tooltip("Where a sidearm's shots and muzzle flash start. Empty uses the primary's Muzzle Point.")]
         [SerializeField] private Transform sidearmMuzzlePoint;
+        [Tooltip("Muzzle of each primary model, indexed by PrimaryModel. An empty entry uses Muzzle Point.")]
+        [SerializeField] private Transform[] primaryModelMuzzles;
 
         [Header("Server Validation")]
         [Tooltip("Shots may arrive this much earlier than the fire rate allows (network jitter) without being dropped. Also how early a lock may be ended for an arriving shot.")]
@@ -283,7 +285,19 @@ namespace Game.Conquest.Combat
 
         // The server blocks a drawn weapon for the whole animation, so a quick client can't fire early.
         private float SwitchSeconds => Mathf.Max(0f, lowerSeconds) + Mathf.Max(0f, raiseSeconds);
-        private Transform ActiveMuzzle => ActiveSlot == WeaponSlot.Sidearm && sidearmMuzzlePoint != null ? sidearmMuzzlePoint : muzzlePoint;
+        /// <summary>The model the class's primary shows.</summary>
+        public PrimaryModel PrimaryModel => m_ClassData != null ? m_ClassData.primaryModel : PrimaryModel.AssaultRifle;
+
+        private Transform ActiveMuzzle
+        {
+            get
+            {
+                if (ActiveSlot == WeaponSlot.Sidearm && sidearmMuzzlePoint != null) return sidearmMuzzlePoint;
+                int model = (int)PrimaryModel;
+                if (primaryModelMuzzles != null && model < primaryModelMuzzles.Length && primaryModelMuzzles[model] != null) return primaryModelMuzzles[model];
+                return muzzlePoint;
+            }
+        }
         /// <summary>Server: when this weapon last fired (Time.time). Bots use it to hear nearby gunfire.</summary>
         public float ServerLastShotTime { get; private set; } = float.NegativeInfinity;
         public float BoltSpeed => boltSpeed;

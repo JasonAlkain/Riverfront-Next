@@ -20,7 +20,11 @@ namespace Game.Conquest.Combat
         [SerializeField] private float loweredPitch = 40f;
 
         [Header("Models (first- and third-person)")]
+        [Tooltip("The assault rifle (PrimaryModel.AssaultRifle).")]
         [SerializeField] private GameObject[] primaryModels;
+        [SerializeField] private PrimaryModelSet machineGun;
+        [SerializeField] private PrimaryModelSet shotgun;
+        [SerializeField] private PrimaryModelSet sniperRifle;
         [SerializeField] private GameObject[] pistolModels;
         [SerializeField] private GameObject[] repairToolModels;
 
@@ -33,6 +37,15 @@ namespace Game.Conquest.Combat
         [SerializeField] private float eyeRelief = 0.2f;
         [Tooltip("Seconds after a shot before the hip pose is measured again, so recoil doesn't move the aim pose.")]
         [SerializeField] private float settleSeconds = 0.3f;
+
+        [System.Serializable]
+        private class PrimaryModelSet
+        {
+            [Tooltip("First- and third-person models.")]
+            public GameObject[] models;
+            [Tooltip("First-person sight anchor.")]
+            public Transform sight;
+        }
 
         private ConquestWeapon m_Weapon;
         private Vector3 m_RestPosition;
@@ -64,14 +77,23 @@ namespace Game.Conquest.Combat
         {
             ConquestWeapon.WeaponSlot slot = m_Weapon.ShownSlot;
             SidearmKind kind = slot == ConquestWeapon.WeaponSlot.Sidearm ? m_Weapon.SidearmKind : SidearmKind.None;
-            int key = (int)kind;
+            PrimaryModel model = m_Weapon.PrimaryModel;
+            int key = (int)kind * 8 + (int)model;
             if (key != m_ShownKey)
             {
                 m_ShownKey = key;
-                SetActive(primaryModels, kind == SidearmKind.None);
+                bool primary = kind == SidearmKind.None;
+                SetActive(primaryModels, primary && model == PrimaryModel.AssaultRifle);
+                SetActive(machineGun?.models, primary && model == PrimaryModel.MachineGun);
+                SetActive(shotgun?.models, primary && model == PrimaryModel.Shotgun);
+                SetActive(sniperRifle?.models, primary && model == PrimaryModel.SniperRifle);
                 SetActive(pistolModels, kind == SidearmKind.Blaster);
                 SetActive(repairToolModels, kind == SidearmKind.RepairTool);
-                m_Sight = kind == SidearmKind.None ? primarySight : kind == SidearmKind.Blaster ? pistolSight : null;
+                m_Sight = !primary ? (kind == SidearmKind.Blaster ? pistolSight : null)
+                    : model == PrimaryModel.MachineGun ? machineGun?.sight
+                    : model == PrimaryModel.Shotgun ? shotgun?.sight
+                    : model == PrimaryModel.SniperRifle ? sniperRifle?.sight
+                    : primarySight;
                 m_HasAimPose = false;
             }
 

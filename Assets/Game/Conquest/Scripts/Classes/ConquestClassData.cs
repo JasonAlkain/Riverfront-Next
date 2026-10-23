@@ -21,6 +21,15 @@ namespace Game.Conquest.Classes
         RepairTool = 2
     }
 
+    /// <summary>Which model a class's primary shows (first and third person). Values are stable: they are serialized.</summary>
+    public enum PrimaryModel : byte
+    {
+        AssaultRifle = 0,
+        MachineGun = 1,
+        Shotgun = 2,
+        SniperRifle = 3
+    }
+
     /// <summary>What a class throws with the throw key. Values are stable: they are serialized.</summary>
     public enum ThrowableKind : byte
     {
@@ -85,6 +94,8 @@ namespace Game.Conquest.Classes
 
         [Header("Primary Weapon")]
         public string weaponName = "Blaster Rifle";
+        [Tooltip("The model the primary shows; each has its own muzzle and sight in the player and bot prefabs.")]
+        public PrimaryModel primaryModel = PrimaryModel.AssaultRifle;
         [Tooltip("Shown on the HUD while the primary is in hand.")]
         public Sprite weaponIcon;
         public int damagePerShot = 24;
