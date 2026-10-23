@@ -38,6 +38,7 @@ MonoBehaviour:
   heatAfterOverheat: 0
   hasZoom: 1
   zoomMagnification: 1.25
+  adsSpreadMultiplier: 0.85
   hasScope: 0
   hasSupportStation: 1
   sidearm:
@@ -56,8 +57,12 @@ MonoBehaviour:
     coolDelaySeconds: 0.4
     fullCoolSeconds: 1.2
     overheatLockoutSeconds: 1.2
+    canAim: 1
+    zoomMagnification: 1.1
+    adsSpreadMultiplier: 0.6
     repairPerUse: 10
     fireSound: {fileID: 0}
+    fireVolume: 0.4
     reloadSound: {fileID: 0}
   throwable: 0
   throwableName: 

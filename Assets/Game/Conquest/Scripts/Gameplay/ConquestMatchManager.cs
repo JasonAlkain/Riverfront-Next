@@ -83,6 +83,9 @@ namespace Game.Conquest.Gameplay
         public Team AllPostsHolder => allPostsHolder.Value;
         /// <summary>Server: the rules this match is played with; null on clients.</summary>
         public IConquestGameMode Mode => m_Mode;
+
+        /// <summary>Server: the mode's respawn wait, or <paramref name="fallback"/> before the mode is set up.</summary>
+        public float RespawnSeconds(float fallback) => m_Mode != null ? m_Mode.RespawnSeconds : fallback;
         /// <summary>Seconds until the all-posts holder wins; 0 when no team holds every post.</summary>
         public float AllPostsSecondsLeft =>
             allPostsHolder.Value == Team.Neutral || NetworkManager == null

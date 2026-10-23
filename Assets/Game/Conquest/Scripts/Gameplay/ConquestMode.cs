@@ -12,6 +12,8 @@ namespace Game.Conquest.Gameplay
         public float allPostsHoldSeconds = 20f;
         [Tooltip("Placeholder: tickets a team loses each time one of its players or bots dies.")]
         public int ticketsPerDeath = 1;
+        [Tooltip("Placeholder: seconds after a death before a player may deploy again (bots respawn after the same wait).")]
+        [Min(0f)] public float respawnSeconds = 1f;
     }
 
     /// <summary>
@@ -29,6 +31,8 @@ namespace Game.Conquest.Gameplay
         }
 
         public string Id => ConquestGameModes.ConquestId;
+
+        public float RespawnSeconds => Mathf.Max(0f, m_Rules.respawnSeconds);
 
         public void ServerBegin(ConquestMatchManager match, in ConquestMatchSettings settings)
         {

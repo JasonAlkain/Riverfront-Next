@@ -427,8 +427,9 @@ namespace Game.Conquest.UI
             if (weapon != null && cam != null)
             {
                 float halfHeight = ((RectTransform)hudCanvas.transform).rect.height * 0.5f;
-                gap = Mathf.Tan(weapon.SpreadAngle * Mathf.Deg2Rad) / Mathf.Tan(cam.fieldOfView * 0.5f * Mathf.Deg2Rad) * halfHeight;
+                gap = Mathf.Tan(weapon.EffectiveSpreadAngle * Mathf.Deg2Rad) / Mathf.Tan(cam.fieldOfView * 0.5f * Mathf.Deg2Rad) * halfHeight;
             }
+            crosshairUI.SetAim(weapon != null ? weapon.Aim01 : 0f);
             crosshairUI.SetSpread(gap);
             // Scoped weapons draw their own reticle; every other aim keeps the crosshair.
             bool scoped = weapon != null && weapon.IsScoped;

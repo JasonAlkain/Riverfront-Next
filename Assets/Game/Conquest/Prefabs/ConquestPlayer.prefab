@@ -1581,6 +1581,37 @@ Transform:
   m_Children: []
   m_Father: {fileID: 3332943327800770078}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1869389227496229351
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2561373541146103478}
+  m_Layer: 0
+  m_Name: SightAnchor
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2561373541146103478
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1869389227496229351}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0.7071068, z: 0, w: 0.7071068}
+  m_LocalPosition: {x: 0.12, y: 0.19, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 5512172343222323562}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1902251834302764125
 GameObject:
   m_ObjectHideFlags: 0
@@ -2939,6 +2970,37 @@ Transform:
   - {fileID: 1276791756299767252}
   m_Father: {fileID: 4474733674053580197}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &3118298141671430877
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1404421831055659601}
+  m_Layer: 0
+  m_Name: SightAnchor
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1404421831055659601
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3118298141671430877}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0.05, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 3332943327800770078}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &3122926279103061138
 GameObject:
   m_ObjectHideFlags: 0
@@ -3035,6 +3097,7 @@ Transform:
   m_Children:
   - {fileID: 5359609976883455387}
   - {fileID: 2874088377457026878}
+  - {fileID: 2561373541146103478}
   m_Father: {fileID: 4965532020152426190}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &3244316587769147886
@@ -4632,6 +4695,7 @@ GameObject:
   - component: {fileID: 2342241160258518854}
   - component: {fileID: 5162056924871996964}
   - component: {fileID: 1198191485909026677}
+  - component: {fileID: 7524109041652576572}
   m_Layer: 6
   m_Name: ConquestPlayer
   m_TagString: Untagged
@@ -4774,6 +4838,7 @@ MonoBehaviour:
       MinSecondsBetweenUpdates: 0
       MaxSecondsBetweenUpdates: 0
     m_InternalValue: 0
+  aimMoveScale: 0.75
 --- !u!114 &2361733901181994833
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4808,14 +4873,17 @@ MonoBehaviour:
   hasZoom: 0
   zoomMagnification: 1.25
   hasScope: 0
+  adsSpreadMultiplier: 0.5
+  adsInSeconds: 0.15
+  adsOutSeconds: 0.12
   hasSupportStation: 0
   supportStationPrefab: {fileID: 6656634446336126747, guid: 7a4757459bd50b54d93ea7c9ece0b483, type: 3}
   stationCooldown: 15
   maxStationsPerTeam: 3
   lowerSeconds: 0.2
   raiseSeconds: 0.25
-  switchClip: {fileID: 8300000, guid: 7027b57476a331144950eb434c40b36e, type: 3}
-  switchVolume: 0.5
+  switchClip: {fileID: 8300000, guid: 8e9a22a9fd80851498aab314fc3ab493, type: 3}
+  switchVolume: 0.6
   sidearmMuzzlePoint: {fileID: 7854986286159186550}
   fireTimingTolerance: 0.1
   maxRayOriginOffset: 3
@@ -4834,6 +4902,8 @@ MonoBehaviour:
   firePitchMin: 0.95
   firePitchMax: 1.05
   fireVolume: 1
+  fireVoices: 3
+  hitConfirmVolume: 0.35
   isReloading:
     UpdateTraits:
       MinSecondsBetweenUpdates: 0
@@ -4961,7 +5031,7 @@ MonoBehaviour:
   blueTeamMaterial: {fileID: 2100000, guid: 91e86269ac387ee429b86b2c05e18af3, type: 2}
   thirdPersonVisualsRoot: {fileID: 8691335424527710277}
   firstPersonVisualsRoot: {fileID: 1107689208748737020}
-  respawnWaitTime: 5
+  respawnWaitTime: 1
 --- !u!114 &2647419184018916631
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5170,6 +5240,28 @@ MonoBehaviour:
   repairToolModels:
   - {fileID: 9087627183214729805}
   - {fileID: 1255165147524133249}
+  primarySight: {fileID: 2561373541146103478}
+  pistolSight: {fileID: 1404421831055659601}
+  eyeRelief: 0.2
+  settleSeconds: 0.3
+--- !u!114 &7524109041652576572
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5097472735063044651}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bb1043c6b45a8554b95fd27e6fda656c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Game.Conquest::Game.Conquest.Player.ConquestFootsteps
+  ShowTopMostFoldoutHeaderGroup: 1
+  strideLength: 2.2
+  minSpeed: 1.2
+  landSpeed: 4
+  footstepVolume: 0.16
+  landVolume: 0.35
 --- !u!1 &5267930989460614956
 GameObject:
   m_ObjectHideFlags: 0
@@ -8109,6 +8201,7 @@ Transform:
   - {fileID: 2693089525006529099}
   - {fileID: 6888879512295705055}
   - {fileID: 7854986286159186550}
+  - {fileID: 1404421831055659601}
   m_Father: {fileID: 4965532020152426190}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &8295875148674457309

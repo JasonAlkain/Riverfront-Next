@@ -43,6 +43,12 @@ namespace Game.Conquest.Settings
             ApplySettings(m_CurrentSettings);
         }
 
+        // AudioMixer.SetFloat is ignored during Awake, so the saved volumes are applied again here.
+        private void Start()
+        {
+            if (Instance == this && m_CurrentSettings != null) ApplyAudioVolumes(m_CurrentSettings);
+        }
+
         private void OnDestroy()
         {
             if (Instance == this) Instance = null;
@@ -96,14 +102,19 @@ namespace Game.Conquest.Settings
             QualitySettings.vSyncCount = s.vSync ? 1 : 0;
             Application.targetFrameRate = s.targetFrameRate > 0 ? s.targetFrameRate : -1;
 
-            ApplyAudioVolume("MasterVolume", s.masterVolume);
-            ApplyAudioVolume("MusicVolume", s.musicVolume);
-            ApplyAudioVolume("SFXVolume", s.sfxVolume);
+            ApplyAudioVolumes(s);
 
             m_CurrentSettings = s;
             m_Applied = s.Clone();
             SaveSettings();
             OnSettingsChanged?.Invoke(m_CurrentSettings);
+        }
+
+        private void ApplyAudioVolumes(ConquestSettingsData s)
+        {
+            ApplyAudioVolume("MasterVolume", s.masterVolume);
+            ApplyAudioVolume("MusicVolume", s.musicVolume);
+            ApplyAudioVolume("SFXVolume", s.sfxVolume);
         }
 
         public void RestoreDefaults()

@@ -507,6 +507,26 @@ MonoBehaviour:
     m_Key: LoadingScreenCanvas/CenterPanel/TipBox/TipHeader
     m_Metadata:
       m_Items: []
+  - m_Id: 725991020269568
+    m_Key: MainMenuCanvas/PlaySoloMenuPanel/TMP
+    m_Metadata:
+      m_Items: []
+  - m_Id: 725991058018304
+    m_Key: MainMenuCanvas/PlaySoloMenuPanel/Btn_TUTORIAL/Text
+    m_Metadata:
+      m_Items: []
+  - m_Id: 725991058018305
+    m_Key: MainMenuCanvas/PlaySoloMenuPanel/Btn_PRACTICE/Text
+    m_Metadata:
+      m_Items: []
+  - m_Id: 725991058018306
+    m_Key: MainMenuCanvas/PlaySoloMenuPanel/Btn_CAMPAIGN/Text
+    m_Metadata:
+      m_Items: []
+  - m_Id: 725991058018307
+    m_Key: MainMenuCanvas/PlaySoloMenuPanel/Btn_BACK_TO_MAIN_MENU/Text
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

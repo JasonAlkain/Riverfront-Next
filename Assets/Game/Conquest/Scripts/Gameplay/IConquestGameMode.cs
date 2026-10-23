@@ -14,6 +14,9 @@ namespace Game.Conquest.Gameplay
         /// <summary>Stable id, as listed in ConquestMapData.availableGameModes.</summary>
         string Id { get; }
 
+        /// <summary>Seconds a combatant waits after dying before they can be back in the fight.</summary>
+        float RespawnSeconds { get; }
+
         /// <summary>The match has just spawned: set starting tickets and reset mode state.</summary>
         void ServerBegin(ConquestMatchManager match, in ConquestMatchSettings settings);
 

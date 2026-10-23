@@ -1,6 +1,8 @@
 using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
+using UnityEngine.EventSystems;
+using UnityEngine.InputSystem.UI;
 using UnityEngine.UI;
 using TMPro;
 using Game.Conquest.Classes;
@@ -23,7 +25,8 @@ namespace Game.Conquest.UI
         JoinByCode, // Kept so serialized indices stay stable; routed to ServerBrowser (direct IP lives there).
         Lobby,
         Settings,
-        Credits
+        Credits,
+        PlaySoloMenu // The Play Solo submenu (Tutorial / Practice / Campaign). PlaySolo is the solo match setup.
     }
 
     /// <summary>
@@ -47,6 +50,8 @@ namespace Game.Conquest.UI
         [Header("Panel UI References")]
         [SerializeField] private HeaderBannerUI headerBannerUI;
         [SerializeField] private TitlePanelUI titlePanelUI;
+        [Tooltip("Found in the menu canvas when left empty.")]
+        [SerializeField] private PlaySoloMenuPanelUI playSoloMenuPanelUI;
         [SerializeField] private SoloPanelUI soloPanelUI;
         [SerializeField] private MultiplayerPanelUI multiplayerPanelUI;
         [SerializeField] private HostPanelUI hostPanelUI;
@@ -121,8 +126,13 @@ namespace Game.Conquest.UI
             {
                 headerBannerUI = FindAnyObjectByType<HeaderBannerUI>(FindObjectsInactive.Include);
             }
+            if (playSoloMenuPanelUI == null)
+            {
+                playSoloMenuPanelUI = FindAnyObjectByType<PlaySoloMenuPanelUI>(FindObjectsInactive.Include);
+            }
 
             BindTitlePanel();
+            BindPlaySoloMenuPanel();
             BindSoloPanel();
             BindMultiplayerPanel();
             BindHostPanel();
@@ -175,6 +185,7 @@ namespace Game.Conquest.UI
         private void Update()
         {
             SubscribeNetworkCallbacks();
+            HandleCancel();
 
             // Enter the lobby only once actually connected. IsClient is already true while a
             // connection attempt is still pending, which used to strand players on an empty lobby.
@@ -197,9 +208,12 @@ namespace Game.Conquest.UI
         public void SwitchScreen(MenuState newState)
         {
             if (newState == MenuState.JoinByCode) newState = MenuState.ServerBrowser;
+
+            MenuState previousState = currentMenuState;
             currentMenuState = newState;
 
             SetPanelVisible(titlePanelUI, newState == MenuState.Title);
+            SetPanelVisible(playSoloMenuPanelUI, newState == MenuState.PlaySoloMenu);
             SetPanelVisible(soloPanelUI, newState == MenuState.PlaySolo);
             SetPanelVisible(multiplayerPanelUI, newState == MenuState.Multiplayer);
             SetPanelVisible(hostPanelUI, newState == MenuState.HostGame);
@@ -209,6 +223,7 @@ namespace Game.Conquest.UI
             SetPanelVisible(creditsPanelUI, newState == MenuState.Credits);
 
             if (newState == MenuState.PlaySolo) UpdateSoloDisplay();
+            FocusForPlaySolo(previousState, newState);
             if (newState == MenuState.HostGame) UpdateHostDisplay();
             if (newState == MenuState.ServerBrowser) RefreshBrowserPanel();
             if (newState == MenuState.Lobby)
@@ -226,6 +241,38 @@ namespace Game.Conquest.UI
                 }
                 UpdateLobbyDisplay();
             }
+        }
+
+        // A controller needs something selected to navigate. The Play Solo screens pick a sensible
+        // button; coming back to the title focuses the button that led there.
+        private void FocusForPlaySolo(MenuState from, MenuState to)
+        {
+            Button focus = null;
+            if (to == MenuState.PlaySoloMenu && playSoloMenuPanelUI != null)
+            {
+                // Tutorial comes first but can't be selected yet.
+                focus = playSoloMenuPanelUI.btn_Practice;
+            }
+            else if (to == MenuState.PlaySolo && soloPanelUI != null)
+            {
+                focus = soloPanelUI.btn_Start;
+            }
+            else if (to == MenuState.Title && from == MenuState.PlaySoloMenu && titlePanelUI != null)
+            {
+                focus = titlePanelUI.btn_Singleplayer;
+            }
+            if (focus != null && EventSystem.current != null) EventSystem.current.SetSelectedGameObject(focus.gameObject);
+        }
+
+        // Cancel (Esc / pad B) steps back, only on the Play Solo screens: other screens have text
+        // fields, and their Back buttons leave sessions or cancel connections.
+        private void HandleCancel()
+        {
+            if (currentMenuState != MenuState.PlaySoloMenu && currentMenuState != MenuState.PlaySolo) return;
+            var module = EventSystem.current != null ? EventSystem.current.currentInputModule as InputSystemUIInputModule : null;
+            var cancel = module != null && module.cancel != null ? module.cancel.action : null;
+            if (cancel == null || !cancel.WasPressedThisFrame()) return;
+            SwitchScreen(currentMenuState == MenuState.PlaySolo ? MenuState.PlaySoloMenu : MenuState.Title);
         }
 
         private static void SetPanelVisible(MonoBehaviour panel, bool visible)
@@ -257,11 +304,22 @@ namespace Game.Conquest.UI
         private void BindTitlePanel()
         {
             if (titlePanelUI == null) return;
-            Bind(titlePanelUI.btn_Singleplayer, () => SwitchScreen(MenuState.PlaySolo));
+            Bind(titlePanelUI.btn_Singleplayer, () => SwitchScreen(MenuState.PlaySoloMenu));
             Bind(titlePanelUI.btn_Multiplayer, () => SwitchScreen(MenuState.Multiplayer));
             Bind(titlePanelUI.btn_Settings, () => SwitchScreen(MenuState.Settings));
             Bind(titlePanelUI.btn_Credits, () => SwitchScreen(MenuState.Credits));
             Bind(titlePanelUI.btn_Quit, QuitApplication);
+        }
+
+        private void BindPlaySoloMenuPanel()
+        {
+            var p = playSoloMenuPanelUI;
+            if (p == null) return;
+            Bind(p.btn_Practice, () => SwitchScreen(MenuState.PlaySolo));
+            Bind(p.btn_Back, () => SwitchScreen(MenuState.Title));
+            // Tutorial and Campaign are coming later: visible, but nothing to select.
+            if (p.btn_Tutorial != null) p.btn_Tutorial.interactable = false;
+            if (p.btn_Campaign != null) p.btn_Campaign.interactable = false;
         }
 
         private void BindSoloPanel()
@@ -272,7 +330,7 @@ namespace Game.Conquest.UI
             Bind(p.btn_PrevMap, () => CycleMap(-1));
             Bind(p.btn_NextMap, () => CycleMap(1));
             Bind(p.btn_Start, LaunchSoloGame);
-            Bind(p.btn_Back, () => SwitchScreen(MenuState.Title));
+            Bind(p.btn_Back, () => SwitchScreen(MenuState.PlaySoloMenu));
 
             BindDifficultyToggle(p.tgl_Easy, 0);
             BindDifficultyToggle(p.tgl_Normal, 1);

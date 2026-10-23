@@ -113,6 +113,13 @@ namespace Game.Conquest.UI
         [Tooltip("Placeholder: heat gauge colour while overheated.")]
         public Color overheated = new Color(0.95f, 0.2f, 0.15f);
 
+        [Header("UI sounds")]
+        [Tooltip("Played when a themed button is clicked.")]
+        public AudioClip clickSound;
+        [Range(0f, 1f)] public float clickVolume = 0.5f;
+        [Tooltip("Mixer group for interface sounds (the Menus group).")]
+        public UnityEngine.Audio.AudioMixerGroup uiMixerGroup;
+
         [Header("High contrast")]
         public Color panelHighContrast = new Color(0f, 0f, 0f, 1f);
         public Color textMutedHighContrast = new Color(0.9f, 0.92f, 0.95f);

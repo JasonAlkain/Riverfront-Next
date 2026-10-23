@@ -179,7 +179,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 4909404160
-    m_Localized: PLAY SOLO (PRACTICE)
+    m_Localized: PLAY SOLO
     m_Metadata:
       m_Items: []
   - m_Id: 4909404161
@@ -527,6 +527,26 @@ MonoBehaviour:
       m_Items: []
   - m_Id: 7027527680
     m_Localized: TIP
+    m_Metadata:
+      m_Items: []
+  - m_Id: 725991020269568
+    m_Localized: PLAY SOLO
+    m_Metadata:
+      m_Items: []
+  - m_Id: 725991058018304
+    m_Localized: TUTORIAL (COMING SOON)
+    m_Metadata:
+      m_Items: []
+  - m_Id: 725991058018305
+    m_Localized: PRACTICE
+    m_Metadata:
+      m_Items: []
+  - m_Id: 725991058018306
+    m_Localized: CAMPAIGN (COMING SOON)
+    m_Metadata:
+      m_Items: []
+  - m_Id: 725991058018307
+    m_Localized: BACK TO MAIN MENU
     m_Metadata:
       m_Items: []
   references:

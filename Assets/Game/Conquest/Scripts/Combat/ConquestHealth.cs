@@ -70,6 +70,9 @@ namespace Game.Conquest.Combat
         {
             currentHealth.OnValueChanged += HandleHealthChanged;
             isDead.OnValueChanged += HandleDeathChanged;
+            // Hurt, death and respawn sounds come from where the character is, except your own.
+            var player = GetComponent<Game.Conquest.Player.ConquestPlayer>();
+            ConquestAudioSetup.ConfigureCharacterSource(audioSource, IsOwner && player != null && !player.isBot);
 
             // isDead is left alone: the player may already be held out of play for deploy
             // (ServerHold), depending on which component's OnNetworkSpawn ran first.

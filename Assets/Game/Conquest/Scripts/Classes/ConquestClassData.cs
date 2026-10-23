@@ -51,10 +51,18 @@ namespace Game.Conquest.Classes
         [Tooltip("Placeholder.")] public float coolDelaySeconds = 0.4f;
         [Tooltip("Placeholder.")] public float fullCoolSeconds = 1.2f;
         [Tooltip("Placeholder.")] public float overheatLockoutSeconds = 1.2f;
+        [Tooltip("The sidearm can aim down its sights. A repair tool never aims.")]
+        public bool canAim = true;
+        [Tooltip("Placeholder: how much aiming magnifies the view.")]
+        public float zoomMagnification = 1.1f;
+        [Tooltip("Placeholder: spread while fully aimed, as a share of Spread Angle.")]
+        [Range(0f, 1f)] public float adsSpreadMultiplier = 0.6f;
         [Tooltip("Repair tool only. Placeholder: droid health restored per use (one per Fire Rate seconds).")]
         public int repairPerUse = 10;
         [Tooltip("Played on every shot (or every use of a repair tool). Empty is silent: a sidearm never borrows the primary's sounds.")]
         public AudioClip fireSound;
+        [Tooltip("Placeholder: volume of the sidearm's shot.")]
+        [Range(0f, 1f)] public float fireVolume = 0.4f;
         public AudioClip reloadSound;
     }
 
@@ -104,10 +112,15 @@ namespace Game.Conquest.Classes
         [Tooltip("Placeholder: share of the gauge still hot when the overheat lock ends (0 = cold).")]
         [Range(0f, 1f)] public float heatAfterOverheat = 0f;
 
-        [Header("Special / Equipment")]
+        [Header("Aim Down Sights")]
+        [Tooltip("The primary can aim down its sights (hold Aim).")]
         public bool hasZoom = false;
         [Tooltip("Placeholder: how much aiming magnifies the view (1.25 = slight, 3 = long scope). Scales with the player's FOV setting.")]
         public float zoomMagnification = 1.25f;
+        [Tooltip("Placeholder: spread while fully aimed, as a share of Spread Angle (0.5 = half). Each weapon keeps its own hip spread.")]
+        [Range(0f, 1f)] public float adsSpreadMultiplier = 0.5f;
+
+        [Header("Special / Equipment")]
         [Tooltip("Aiming shows a full-screen scope overlay instead of the crosshair.")]
         public bool hasScope = false;
         [Tooltip("Deploys a support station with the throw key. A class with a station carries no other throwable.")]

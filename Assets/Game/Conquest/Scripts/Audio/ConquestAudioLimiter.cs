@@ -40,9 +40,35 @@ namespace Game.Conquest.Audio
         /// Attempts to play a sound on an AudioSource with per-source and category limits.
         /// </summary>
         /// <param name="maxPerInterval">Voices the category may start within <paramref name="minInterval"/>.</param>
-        /// <param name="priority">Ignores the category limit (still counts toward it).</param>
+        /// <param name="priority">Ignores the category limit (still counts toward it) and the per-source cooldown.</param>
         public static bool TryPlayOneShot(AudioSource source, AudioClip clip, string category = "", float volume = 1.0f, float minInterval = 0.05f,
                                           float pitchMin = 0.98f, float pitchMax = 1.02f, int maxPerInterval = 1, bool priority = false)
+        {
+            if (!Admit(source, clip, category, minInterval, maxPerInterval, priority)) return false;
+
+            // 3. Play with slight pitch randomization to prevent phasing artifacts
+            source.pitch = Random.Range(pitchMin, pitchMax);
+            source.PlayOneShot(clip, Mathf.Clamp01(volume));
+            return true;
+        }
+
+        /// <summary>
+        /// Like <see cref="TryPlayOneShot"/>, but restarts <paramref name="source"/> with the clip (cutting
+        /// whatever it was playing). Rotating through a few such sources caps how many voices one
+        /// rapid-fire weapon can hold, and the pitch change can't retune an earlier shot's tail.
+        /// </summary>
+        public static bool TryPlayVoice(AudioSource source, AudioClip clip, string category, float volume, float minInterval,
+                                        float pitchMin, float pitchMax, int maxPerInterval, bool priority)
+        {
+            if (!Admit(source, clip, category, minInterval, maxPerInterval, priority)) return false;
+            source.clip = clip;
+            source.volume = Mathf.Clamp01(volume);
+            source.pitch = Random.Range(pitchMin, pitchMax);
+            source.Play();
+            return true;
+        }
+
+        private static bool Admit(AudioSource source, AudioClip clip, string category, float minInterval, int maxPerInterval, bool priority)
         {
             if (source == null || clip == null || !source.isActiveAndEnabled) return false;
 
@@ -65,16 +91,12 @@ namespace Game.Conquest.Audio
 
             // 2. Per-source cooldown (prevents one AudioSource from spamming sounds in the same frame).
             int sourceId = source.GetHashCode(); // a UnityEngine.Object hashes by its instance id
-            if (s_SourceLastPlayTime.TryGetValue(sourceId, out float lastSourceTime) && now - lastSourceTime < 0.03f)
+            if (!priority && s_SourceLastPlayTime.TryGetValue(sourceId, out float lastSourceTime) && now - lastSourceTime < 0.03f)
             {
                 return false; // Max ~33 sounds/sec per source
             }
             s_SourceLastPlayTime[sourceId] = now;
             if (s_SourceLastPlayTime.Count > PruneThreshold) PruneSources(now);
-
-            // 3. Play with slight pitch randomization to prevent phasing artifacts
-            source.pitch = Random.Range(pitchMin, pitchMax);
-            source.PlayOneShot(clip, Mathf.Clamp01(volume));
             return true;
         }
 
@@ -101,9 +123,10 @@ namespace Game.Conquest.Audio
         /// <summary>
         /// Specific limiter for hit feedback audio (subtle and strictly rate-limited).
         /// </summary>
-        public static bool TryPlayHitFeedback(AudioSource source, AudioClip clip, float volume = 0.18f)
+        public static bool TryPlayHitFeedback(AudioSource source, AudioClip clip, float volume = 0.18f, bool kill = false)
         {
-            return TryPlayOneShot(source, clip, "HitFeedback", volume, 0.08f, 0.98f, 1.02f);
+            // A kill always plays, even right after a hit confirm.
+            return TryPlayOneShot(source, clip, "HitFeedback", volume, 0.08f, 0.98f, 1.02f, 1, kill);
         }
 
         /// <summary>

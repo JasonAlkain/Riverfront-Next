@@ -38,6 +38,7 @@ MonoBehaviour:
   heatAfterOverheat: 0
   hasZoom: 1
   zoomMagnification: 3
+  adsSpreadMultiplier: 1
   hasScope: 1
   hasSupportStation: 0
   sidearm:
@@ -56,8 +57,12 @@ MonoBehaviour:
     coolDelaySeconds: 0.4
     fullCoolSeconds: 1.2
     overheatLockoutSeconds: 1.2
+    canAim: 1
+    zoomMagnification: 1.1
+    adsSpreadMultiplier: 0.6
     repairPerUse: 10
-    fireSound: {fileID: 8300000, guid: 1522324874c7dbd4591dad1a91daec57, type: 3}
+    fireSound: {fileID: 8300000, guid: 34b439bf70b80a6409eadecc6be92d68, type: 3}
+    fireVolume: 0.3
     reloadSound: {fileID: 8300000, guid: 9a683371da5e46349b42f101433665e0, type: 3}
   throwable: 1
   throwableName: Grenade
@@ -65,8 +70,8 @@ MonoBehaviour:
   throwableCount: 1
   throwCooldown: 1
   throwSpeed: 16
-  fireSound: {fileID: 8300000, guid: c51d7ed470b9a0946bca31e4dff1d0bf, type: 3}
+  fireSound: {fileID: 8300000, guid: f9eb44b85c96be5429737d4dcadbfa3b, type: 3}
   reloadSound: {fileID: 8300000, guid: 9a683371da5e46349b42f101433665e0, type: 3}
   firePitchMin: 1.05
   firePitchMax: 1.12
-  fireVolume: 0.46
+  fireVolume: 0.25

@@ -50,7 +50,8 @@ namespace Game.Conquest.Player
         [SerializeField] private GameObject firstPersonVisualsRoot;
 
         [Header("Respawn Settings")]
-        [SerializeField] private float respawnWaitTime = 5.0f;
+        [Tooltip("Placeholder: respawn wait used only when the match has no game mode (normally the mode's Respawn Seconds applies).")]
+        [SerializeField] private float respawnWaitTime = 1.0f;
 
         private ConquestPlayerMovement m_Movement;
         private ConquestHealth m_Health;
@@ -65,7 +66,9 @@ namespace Game.Conquest.Player
         public ConquestWeapon Weapon => m_Weapon;
         /// <summary>Grenades and other throwables; null on bots (they don't throw yet).</summary>
         public ConquestThrowables Throwables => m_Throwables;
-        public float RespawnWaitTime => respawnWaitTime;
+        /// <summary>Server: the wait after a death before deploying again, from the match's game mode.</summary>
+        public float RespawnWaitTime =>
+            ConquestMatchManager.Instance != null ? ConquestMatchManager.Instance.RespawnSeconds(respawnWaitTime) : respawnWaitTime;
         public float RemainingRespawnTime =>
             NetworkManager == null ? 0f : Mathf.Max(0f, (float)(deployAvailableAt.Value - NetworkManager.ServerTime.Time));
         public string SelectedPostName => m_SelectedPostName;
@@ -277,7 +280,7 @@ namespace Game.Conquest.Player
 
             if (IsServer)
             {
-                deployAvailableAt.Value = NetworkManager.ServerTime.Time + respawnWaitTime;
+                deployAvailableAt.Value = NetworkManager.ServerTime.Time + RespawnWaitTime;
                 ConquestNetworkManager.Instance?.OnPlayerKilled(this, killerId);
                 // Bots respawn by themselves; humans wait on the deploy screen (DeployServerRpc).
                 if (isBot) StartCoroutine(ServerRespawnCoroutine());
@@ -294,7 +297,7 @@ namespace Game.Conquest.Player
         {
             if (!IsServer || isBot) return;
             m_SelectedPostName = "";
-            deployAvailableAt.Value = NetworkManager.ServerTime.Time + (waitRespawnDelay ? respawnWaitTime : 0f);
+            deployAvailableAt.Value = NetworkManager.ServerTime.Time + (waitRespawnDelay ? RespawnWaitTime : 0f);
             m_Health.ServerHold();
             HideBody();
             if (IsOwner && m_Movement.HasTransformAuthority) m_Movement.Teleport(parkPosition, parkRotation);
@@ -364,7 +367,10 @@ namespace Game.Conquest.Player
 
         private IEnumerator ServerRespawnCoroutine()
         {
-            yield return new WaitForSeconds(respawnWaitTime);
+            yield return new WaitForSeconds(RespawnWaitTime);
+
+            // A decided match keeps its dead out: the results screen follows the banner.
+            if (ConquestMatchManager.Instance != null && ConquestMatchManager.Instance.IsMatchOver) yield break;
 
             // Safely retire excess bots if new humans joined
             if (isBot && ConquestBotManager.Instance != null && ConquestBotManager.Instance.ShouldRetireBot(playerTeam.Value))

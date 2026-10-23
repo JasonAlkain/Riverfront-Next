@@ -26,11 +26,10 @@ namespace Game.Conquest.Combat
         [SerializeField] private int minDamage = 20;
 
         [Header("Visuals & Audio")]
-        [Tooltip("Played at the blast on every peer.")]
+        [Tooltip("Played at the blast on every peer, from the effect pool. Its own AudioSource carries the bang.")]
         [SerializeField] private GameObject explosionPrefab;
-        [SerializeField] private float explosionSeconds = 1.2f;
-        [SerializeField] private AudioClip explosionClip;
-        [SerializeField] private float explosionVolume = 1f;
+        [Tooltip("How long the pooled effect stays up: at least its longest particle and its sound.")]
+        [SerializeField] private float explosionSeconds = 3.6f;
         [Tooltip("Hidden at the blast, while the despawn reaches everyone.")]
         [SerializeField] private Renderer bodyRenderer;
 
@@ -71,6 +70,8 @@ namespace Game.Conquest.Combat
 
         public override void OnNetworkSpawn()
         {
+            // The first blast of a match shouldn't hitch while its effect is created.
+            if (IsClient) ConquestFxPool.Prewarm(explosionPrefab, 2);
             if (!IsServer) return;
             m_ExplodeAt = Time.time + fuseSeconds;
 
@@ -182,8 +183,7 @@ namespace Game.Conquest.Combat
         private void ExplodeClientRpc(Vector3 center)
         {
             if (bodyRenderer != null) bodyRenderer.enabled = false;
-            if (explosionPrefab != null) ConquestFxPool.Play(explosionPrefab, center, Quaternion.identity, explosionSeconds);
-            if (explosionClip != null) AudioSource.PlayClipAtPoint(explosionClip, center, explosionVolume);
+            ConquestFxPool.Play(explosionPrefab, center, Quaternion.identity, explosionSeconds);
         }
 
         private void OnDrawGizmosSelected()

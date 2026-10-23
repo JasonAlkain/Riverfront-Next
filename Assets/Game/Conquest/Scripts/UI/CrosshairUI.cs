@@ -27,15 +27,34 @@ namespace Game.Conquest
         public Color normalColor = new Color(1f, 1f, 1f, 0.85f);
         public Color hitColor = Color.white;
         public Color killColor = new Color(1f, 0.3f, 0.2f, 1f);
+        [Tooltip("Placeholder: line size and minimum gap while fully aimed down sights, as a share of the hip size.")]
+        [Range(0.1f, 1f)] public float aimedScale = 0.6f;
 
         private float m_Gap = -1f;
+        private float m_Aim = -1f;
         private int m_HitState = -1; // 0 none, 1 hit, 2 kill
         private bool m_Hidden;
+
+        /// <summary>0 at the hip, 1 fully aimed: the lines shrink and close in. Call before SetSpread.</summary>
+        public void SetAim(float aim01)
+        {
+            aim01 = Mathf.Clamp01(aim01);
+            if (Mathf.Abs(aim01 - m_Aim) < 0.01f) return;
+            m_Aim = aim01;
+            float scale = Mathf.Lerp(1f, aimedScale, aim01);
+            Vector3 size = new Vector3(scale, scale, 1f);
+            if (line_Top != null) line_Top.localScale = size;
+            if (line_Bottom != null) line_Bottom.localScale = size;
+            if (line_Left != null) line_Left.localScale = size;
+            if (line_Right != null) line_Right.localScale = size;
+            m_Gap = -1f; // the minimum gap changed: place the lines again
+        }
 
         /// <param name="spreadGap">Extra gap in canvas pixels for the current spread.</param>
         public void SetSpread(float spreadGap)
         {
-            float gap = Mathf.Clamp(minGap + spreadGap, minGap, maxGap);
+            float min = minGap * Mathf.Lerp(1f, aimedScale, Mathf.Max(0f, m_Aim));
+            float gap = Mathf.Clamp(min + spreadGap, min, maxGap);
             if (Mathf.Abs(gap - m_Gap) < 0.25f) return;
             m_Gap = gap;
             Place(line_Top, new Vector2(0f, gap));

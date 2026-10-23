@@ -44,6 +44,9 @@ namespace Game.Conquest.Combat
         [SerializeField] private Color brokenColor = new Color(0.25f, 0.25f, 0.27f, 1f);
         [Tooltip("Shown while the droid works (for example a light). Hidden while broken.")]
         [SerializeField] private GameObject workingVisual;
+        [Tooltip("Pooled effect played on every client when the droid breaks.")]
+        [SerializeField] private GameObject breakEffect;
+        [SerializeField] private float breakEffectSeconds = 3f;
 
         public NetworkVariable<int> currentHealth = new NetworkVariable<int>(
             150,
@@ -75,6 +78,7 @@ namespace Game.Conquest.Combat
 
         public override void OnNetworkSpawn()
         {
+            if (IsClient) ConquestFxPool.Prewarm(breakEffect, 1);
             currentHealth.OnValueChanged += HandleHealthChanged;
             if (!s_Active.Contains(this)) s_Active.Add(this);
 
@@ -96,6 +100,12 @@ namespace Game.Conquest.Combat
         {
             // Only breaking and coming back change the look.
             if ((previous <= 0) != (current <= 0)) UpdateVisuals();
+            // Every client sees the change happen (a late joiner gets the value at spawn instead, so
+            // it doesn't replay an old break). A dedicated server has nothing to draw.
+            if (previous > 0 && current <= 0 && IsClient)
+            {
+                ConquestFxPool.Play(breakEffect, transform.position + Vector3.up * 0.6f, Quaternion.identity, breakEffectSeconds);
+            }
         }
 
         /// <summary>True if this droid serves (heals, resupplies, can be repaired by) a team.</summary>

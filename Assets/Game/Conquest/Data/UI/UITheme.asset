@@ -51,5 +51,8 @@ MonoBehaviour:
   heatCool: {r: 0.95, g: 0.8, b: 0.3, a: 1}
   heatHot: {r: 1, g: 0.45, b: 0.1, a: 1}
   overheated: {r: 0.95, g: 0.2, b: 0.15, a: 1}
+  clickSound: {fileID: 8300000, guid: c10e87c03b19ad54c9950dee93ab00c9, type: 3}
+  clickVolume: 0.5
+  uiMixerGroup: {fileID: 24328028, guid: fddb343a82968524eb1e9a6f65433d7e, type: 2}
   panelHighContrast: {r: 0, g: 0, b: 0, a: 1}
   textMutedHighContrast: {r: 0.9, g: 0.92, b: 0.95, a: 1}

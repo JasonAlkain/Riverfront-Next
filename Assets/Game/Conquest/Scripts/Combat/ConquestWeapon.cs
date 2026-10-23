@@ -42,10 +42,17 @@ namespace Game.Conquest.Combat
         [SerializeField] private float overheatLockoutSeconds = 1.6f;
         [SerializeField] private float heatAfterOverheat = 0f;
 
-        [Header("Special Abilities")]
+        [Header("Aim Down Sights (set from the class)")]
         [SerializeField] private bool hasZoom = false;
         [SerializeField] private float zoomMagnification = 1.25f;
         [SerializeField] private bool hasScope = false;
+        [SerializeField] private float adsSpreadMultiplier = 0.5f;
+        [Tooltip("Placeholder: seconds to bring the weapon up to the eye.")]
+        [SerializeField] private float adsInSeconds = 0.15f;
+        [Tooltip("Placeholder: seconds to lower it back to the hip.")]
+        [SerializeField] private float adsOutSeconds = 0.12f;
+
+        [Header("Special Abilities")]
         [SerializeField] private bool hasSupportStation = false;
         [SerializeField] private GameObject supportStationPrefab;
         [SerializeField] private float stationCooldown = 15.0f;
@@ -89,6 +96,11 @@ namespace Game.Conquest.Combat
         [SerializeField] private float firePitchMin = 0.95f;
         [SerializeField] private float firePitchMax = 1.05f;
         [SerializeField] private float fireVolume = 0.40f;
+        [Tooltip("Placeholder: gunshots one weapon can have sounding at once. A new shot past this cuts the oldest tail.")]
+        [Range(1, 6)]
+        [SerializeField] private int fireVoices = 3;
+        [Tooltip("Placeholder: volume of the hit and kill confirmation, which play on their own 2D source.")]
+        [SerializeField] private float hitConfirmVolume = 0.35f;
 
         // Everyone hears a reload or a vent, so these two flags are public; the numbers are owner-only.
         public NetworkVariable<bool> isReloading = new NetworkVariable<bool>(
@@ -141,9 +153,17 @@ namespace Game.Conquest.Combat
         private bool m_OwnerStateDirty;
         private bool m_PendingHit;
         private bool m_PendingKill;
-        private bool m_IsZoomed = false;
+        // Owner: 0 at the hip, 1 fully aimed down the sights.
+        private float m_Aim01;
+        private float m_LastLocalShotTime = float.NegativeInfinity;
 
         private ConquestClassData m_ClassData;
+        private AudioSource[] m_FireVoices;
+        private int m_NextFireVoice;
+        private AudioSource m_FeedbackSource;
+        private AudioSource m_HandlingSource;
+        // Reloads, vents and switches get their own source, so gunshots restarting the fire voices can't cut or retune them.
+        private AudioSource HandlingSource => m_HandlingSource != null ? m_HandlingSource : weaponAudioSource;
         private AudioClip m_DefaultFireClip;
         private AudioClip m_DefaultReloadClip;
         private string m_WeaponName = "";
@@ -204,13 +224,21 @@ namespace Game.Conquest.Combat
         /// <summary>Server: the authoritative heat gauge 0..1. Bots read it to pace their fire.</summary>
         public float ServerHeat01 => ConquestHeatModel.Display01(m_ServerHeat, m_ServerCoolFrom, Time.timeAsDouble, Params,
             m_ServerLock, m_ServerLockStart, m_ServerLockEnd);
+        /// <summary>The weapon in hand can aim down its sights.</summary>
         public bool HasZoom => hasZoom;
-        /// <summary>Random cone, in degrees, each pellet can stray from the aim; the HUD crosshair opens to match.</summary>
+        /// <summary>Random cone, in degrees, each pellet can stray from the aim at the hip.</summary>
         public float SpreadAngle => spreadAngle;
-        public bool IsZoomed => m_IsZoomed;
+        /// <summary>Owner: the spread right now, narrowing while aiming. The HUD crosshair opens to match.</summary>
+        public float EffectiveSpreadAngle => spreadAngle * Mathf.Lerp(1f, adsSpreadMultiplier, m_Aim01);
+        /// <summary>Owner: 0 at the hip, 1 fully aimed down the sights.</summary>
+        public float Aim01 => m_Aim01;
+        /// <summary>Owner: fully aimed. Only then are shots fired with the aimed spread.</summary>
+        public bool IsAiming => m_Aim01 >= 0.999f;
+        /// <summary>Owner: Time.time of the last shot this player fired (the viewmodel waits for recoil to settle).</summary>
+        public float LastLocalShotTime => m_LastLocalShotTime;
         public bool HasScope => hasScope;
         /// <summary>Zoomed with a scope weapon: the HUD swaps the crosshair for the scope overlay.</summary>
-        public bool IsScoped => m_IsZoomed && hasScope;
+        public bool IsScoped => hasScope && m_Aim01 > 0.9f;
         public bool HasSupportStation => hasSupportStation;
         public WeaponSlot ActiveSlot => (WeaponSlot)activeSlot.Value;
         public bool HasSidearm => m_ClassData != null && m_ClassData.sidearm != null && m_ClassData.sidearm.kind != SidearmKind.None;
@@ -292,6 +320,7 @@ namespace Game.Conquest.Combat
             activeSlot.OnValueChanged += HandleSlotChanged;
             // A late joiner may see someone holding their sidearm already.
             if (m_ClassData != null) ApplySlotStats(ActiveSlot);
+            SetUpAudio();
 
             if (IsServer)
             {
@@ -319,6 +348,7 @@ namespace Game.Conquest.Combat
             m_PendingSlot = NoPendingSlot;
             m_SwitchPhase = SwitchPhase.None;
             m_ShownSlot = (byte)WeaponSlot.Primary;
+            m_Aim01 = 0f;
             // A new class, or a respawn: back to the primary. The slot handler applies its stats.
             if (IsServer && IsSpawned && activeSlot.Value != (byte)WeaponSlot.Primary) activeSlot.Value = (byte)WeaponSlot.Primary;
             ApplySlotStats(IsSpawned ? ActiveSlot : WeaponSlot.Primary);
@@ -355,13 +385,16 @@ namespace Game.Conquest.Combat
                 fullCoolSeconds = side.fullCoolSeconds;
                 overheatLockoutSeconds = side.overheatLockoutSeconds;
                 heatAfterOverheat = 0f;
-                hasZoom = false;
+                hasZoom = side.canAim && side.kind == SidearmKind.Blaster;
+                zoomMagnification = Mathf.Max(1f, side.zoomMagnification);
                 hasScope = false;
+                adsSpreadMultiplier = Mathf.Clamp01(side.adsSpreadMultiplier);
                 m_RepairPerUse = side.repairPerUse;
                 // A sidearm only ever plays its own sounds; an unassigned one stays silent rather
                 // than borrowing the primary's.
                 fireSoundClip = side.fireSound;
                 reloadSoundClip = side.reloadSound;
+                fireVolume = side.fireVolume;
             }
             else
             {
@@ -385,14 +418,15 @@ namespace Game.Conquest.Combat
                 hasZoom = data.hasZoom;
                 zoomMagnification = Mathf.Max(1f, data.zoomMagnification);
                 hasScope = data.hasScope;
+                adsSpreadMultiplier = Mathf.Clamp01(data.adsSpreadMultiplier);
                 m_RepairPerUse = 0;
                 fireSoundClip = data.fireSound != null ? data.fireSound : m_DefaultFireClip;
                 reloadSoundClip = data.reloadSound != null ? data.reloadSound : m_DefaultReloadClip;
+                fireVolume = data.fireVolume;
             }
 
             firePitchMin = data.firePitchMin;
             firePitchMax = data.firePitchMax;
-            fireVolume = data.fireVolume;
         }
 
         // Every peer: the server switched weapons. The owner restarts its prediction from the
@@ -418,7 +452,6 @@ namespace Game.Conquest.Combat
             m_PendingSlotUntil = Time.time + 2f;
             m_SwitchPhase = SwitchPhase.Lowering;
             m_SwitchPhaseStart = Time.time;
-            m_IsZoomed = false;
             PlaySwitchAudio();
             SwitchWeaponServerRpc(target);
         }
@@ -448,11 +481,33 @@ namespace Game.Conquest.Combat
             }
         }
 
+        // Your own weapon is 2D and high priority; everyone else's is 3D. Gunshots rotate through a
+        // few sources so one fast weapon can't take every voice, and the hit confirmation gets its
+        // own 2D source so it never competes with your own gunfire.
+        private void SetUpAudio()
+        {
+            if (weaponAudioSource == null || m_FireVoices != null) return;
+            ConquestAudioSetup.ConfigureCharacterSource(weaponAudioSource, PredictsLocally, 32);
+            m_FireVoices = new AudioSource[Mathf.Max(1, fireVoices)];
+            m_FireVoices[0] = weaponAudioSource;
+            for (int i = 1; i < m_FireVoices.Length; i++)
+            {
+                m_FireVoices[i] = ConquestAudioSetup.CloneSource(weaponAudioSource, weaponAudioSource.gameObject);
+            }
+            m_HandlingSource = ConquestAudioSetup.CloneSource(weaponAudioSource, weaponAudioSource.gameObject);
+            if (PredictsLocally)
+            {
+                m_FeedbackSource = ConquestAudioSetup.CloneSource(weaponAudioSource, weaponAudioSource.gameObject);
+                m_FeedbackSource.spatialBlend = 0f;
+                m_FeedbackSource.priority = 0;
+            }
+        }
+
         private void PlaySwitchAudio()
         {
-            if (weaponAudioSource != null && switchClip != null && weaponAudioSource.isActiveAndEnabled)
+            if (HandlingSource != null && switchClip != null && HandlingSource.isActiveAndEnabled)
             {
-                weaponAudioSource.PlayOneShot(switchClip, switchVolume);
+                HandlingSource.PlayOneShot(switchClip, switchVolume);
             }
         }
 
@@ -518,8 +573,8 @@ namespace Game.Conquest.Combat
             bool canAct = !(m_Health != null && m_Health.IsDead) && !IsMatchOver &&
                           !(ConquestPauseMenu.Instance != null && ConquestPauseMenu.Instance.IsPaused);
 
-            // Always runs, so dying or switching off a scoped class zooms back out.
-            HandleZoom(canAct);
+            // Always runs, so dying or switching off a scoped class drops the aim.
+            HandleAim(canAct);
             if (canAct) HandleInput();
         }
 
@@ -581,20 +636,27 @@ namespace Game.Conquest.Combat
             }
         }
 
-        private void HandleZoom(bool canAct)
+        // Aim down sights: hold Aim to bring the weapon to the eye (the viewmodel follows Aim01),
+        // narrow the spread and magnify the view a little. Switching and reloading drop the aim.
+        private void HandleAim(bool canAct)
         {
             if (m_Movement == null || m_Movement.PlayerCamera == null) return;
 
-            m_IsZoomed = canAct && hasZoom && !IsSwitching && ConquestInput.AimHeld;
+            bool wantAim = canAct && hasZoom && !IsSwitching && !IsReloading &&
+                           Cursor.lockState == CursorLockMode.Locked && ConquestInput.AimHeld;
+            float seconds = wantAim ? adsInSeconds : adsOutSeconds;
+            m_Aim01 = seconds > 0f ? Mathf.MoveTowards(m_Aim01, wantAim ? 1f : 0f, Time.deltaTime / seconds) : (wantAim ? 1f : 0f);
 
-            // The unzoomed FOV follows the settings, even when they change mid-match; zoom divides
+            // The hip FOV follows the settings, even when they change mid-match; aiming divides
             // the view's half-angle tangent, so the magnification is the same at any base FOV.
             float baseFOV = m_Movement.BaseFieldOfView;
-            float targetFOV = m_IsZoomed
-                ? 2f * Mathf.Atan(Mathf.Tan(baseFOV * 0.5f * Mathf.Deg2Rad) / zoomMagnification) * Mathf.Rad2Deg
-                : baseFOV;
-            m_Movement.PlayerCamera.fieldOfView = Mathf.Lerp(m_Movement.PlayerCamera.fieldOfView, targetFOV, Time.deltaTime * 12.0f);
+            float aimedFOV = 2f * Mathf.Atan(Mathf.Tan(baseFOV * 0.5f * Mathf.Deg2Rad) / Mathf.Max(1f, zoomMagnification)) * Mathf.Rad2Deg;
+            m_Movement.PlayerCamera.fieldOfView = Mathf.Lerp(baseFOV, aimedFOV, Mathf.SmoothStep(0f, 1f, m_Aim01));
         }
+
+        // The spread a shot uses. The owner only claims "aimed" once fully aimed, and the server
+        // only honours it for a weapon that can aim; observers are told the spread the server used.
+        private float SpreadFor(bool aimed) => aimed && hasZoom ? spreadAngle * adsSpreadMultiplier : spreadAngle;
 
         private void TryFireLocal(in SustainParams p, double now)
         {
@@ -606,15 +668,17 @@ namespace Game.Conquest.Combat
 
             // The shot number is the server's too, so the pellets drawn here are the ones it simulates.
             ushort seq = m_Predictor.OnShot(p, now);
+            bool aimed = IsAiming;
             Transform activeMuzzle = ActiveMuzzle;
             Vector3 muzzle = activeMuzzle != null ? activeMuzzle.position : baseRay.origin;
-            SpawnShotVisuals(baseRay.origin, baseRay.direction, muzzle, seq, true, now);
+            SpawnShotVisuals(baseRay.origin, baseRay.direction, muzzle, seq, true, now, SpreadFor(aimed));
+            m_LastLocalShotTime = Time.time;
 
             PlayMuzzleFlash();
             PlayFireAudio();
             m_Animator?.TriggerFire();
 
-            FireServerRpc(baseRay.origin, baseRay.direction, seq);
+            FireServerRpc(baseRay.origin, baseRay.direction, seq, aimed);
         }
 
         // The repair tool fires no bolts and spends no ammo, so it skips the prediction entirely.
@@ -639,7 +703,7 @@ namespace Game.Conquest.Combat
             if (droid != null && droid.Serves(team)) droid.ServerRepair(m_RepairPerUse);
         }
 
-        private void SpawnShotVisuals(Vector3 origin, Vector3 direction, Vector3 muzzle, ushort seq, bool own, double t0)
+        private void SpawnShotVisuals(Vector3 origin, Vector3 direction, Vector3 muzzle, ushort seq, bool own, double t0, float spread)
         {
             ConquestFactionData faction = Faction;
             if (faction == null) return;
@@ -650,7 +714,7 @@ namespace Game.Conquest.Combat
                 var visual = new BoltVisual
                 {
                     origin = origin,
-                    dir = ConquestBallistics.Pellet(direction, spreadAngle, seed, i),
+                    dir = ConquestBallistics.Pellet(direction, spread, seed, i),
                     muzzleOffset = muzzle - origin,
                     speed = boltSpeed,
                     maxDistance = maxRange,
@@ -682,7 +746,7 @@ namespace Game.Conquest.Combat
         }
 
         [ServerRpc]
-        private void FireServerRpc(Vector3 rayOrigin, Vector3 rayDirection, ushort shotSeq)
+        private void FireServerRpc(Vector3 rayOrigin, Vector3 rayDirection, ushort shotSeq, bool aimed)
         {
             // Numbered before anything else, accepted or not, so the seed is always the server's.
             ushort seq = m_ServerProcessed;
@@ -701,7 +765,7 @@ namespace Game.Conquest.Combat
                 return;
             }
 
-            ServerFireBolts(rayOrigin, rayDirection, seq, fastForward);
+            ServerFireBolts(rayOrigin, rayDirection, seq, fastForward, SpreadFor(aimed));
             if (shotSeq != seq) ShotRejectedClientRpc(seq, (byte)RejectReason.Resync, m_OwnerRpcParams);
         }
 
@@ -722,7 +786,8 @@ namespace Game.Conquest.Combat
             Vector3 origin = AIFireOrigin;
             Vector3 aim = targetAimPosition - origin;
             if (aim.sqrMagnitude < 1e-6f) aim = transform.forward;
-            ServerFireBolts(origin, ApplySpread(aim.normalized, aimErrorDegrees), seq, 0f);
+            // Bots never aim down sights: their accuracy comes from their own aim error.
+            ServerFireBolts(origin, ApplySpread(aim.normalized, aimErrorDegrees), seq, 0f, spreadAngle);
         }
 
         // Half the shooter's round trip as the server measures it (never as the client claims),
@@ -777,7 +842,7 @@ namespace Game.Conquest.Combat
         /// Server: the one place a shot is fired, for players and bots alike. Spends a round or adds
         /// heat, launches every pellet as a bolt, then tells clients to draw it.
         /// </summary>
-        private void ServerFireBolts(Vector3 origin, Vector3 direction, ushort seq, float fastForward)
+        private void ServerFireBolts(Vector3 origin, Vector3 direction, ushort seq, float fastForward, float spread)
         {
             if (m_Health != null) m_Health.EndSpawnProtection();
             ServerLastShotTime = Time.time;
@@ -804,11 +869,11 @@ namespace Game.Conquest.Combat
             uint seed = ConquestBallistics.Seed(NetworkObjectId, seq);
             for (int i = 0; i < bulletsPerShot; i++)
             {
-                ConquestBoltSimulator.Launch(this, origin, ConquestBallistics.Pellet(direction, spreadAngle, seed, i), boltSpeed, maxRange,
+                ConquestBoltSimulator.Launch(this, origin, ConquestBallistics.Pellet(direction, spread, seed, i), boltSpeed, maxRange,
                     boltRadius, damagePerShot, hitLayers, team, seq, (byte)i, fastForward);
             }
 
-            BoltFiredClientRpc(origin, direction, seq, NetworkManager.ServerTime.Time - fastForward);
+            BoltFiredClientRpc(origin, direction, seq, NetworkManager.ServerTime.Time - fastForward, spread);
         }
 
         /// <summary>
@@ -853,7 +918,7 @@ namespace Game.Conquest.Combat
         }
 
         [ClientRpc]
-        private void BoltFiredClientRpc(Vector3 origin, Vector3 direction, ushort shotSeq, double fireServerTime)
+        private void BoltFiredClientRpc(Vector3 origin, Vector3 direction, ushort shotSeq, double fireServerTime, float spread)
         {
             // The human shooter already drew this shot. Bots are owned by the host, so the
             // host still needs to see and hear their fire.
@@ -861,7 +926,7 @@ namespace Game.Conquest.Combat
 
             Transform activeMuzzle = ActiveMuzzle;
             Vector3 muzzle = activeMuzzle != null ? activeMuzzle.position : origin;
-            SpawnShotVisuals(origin, direction, muzzle, shotSeq, false, fireServerTime);
+            SpawnShotVisuals(origin, direction, muzzle, shotSeq, false, fireServerTime, spread);
             PlayMuzzleFlash();
             PlayFireAudio();
             m_Animator?.TriggerFire();
@@ -885,10 +950,10 @@ namespace Game.Conquest.Combat
         {
             ConquestHUD.TriggerHitmarker(killed);
             AudioClip clip = killed && killConfirmClip != null ? killConfirmClip : targetHitClip;
-            if (weaponAudioSource != null && clip != null)
+            AudioSource source = m_FeedbackSource != null ? m_FeedbackSource : weaponAudioSource;
+            if (source != null && clip != null)
             {
-                // Play subtle hit confirmation using the audio limiter
-                ConquestAudioLimiter.TryPlayHitFeedback(weaponAudioSource, clip, killed ? 0.3f : 0.16f);
+                ConquestAudioLimiter.TryPlayHitFeedback(source, clip, hitConfirmVolume, killed);
             }
         }
 
@@ -1003,10 +1068,10 @@ namespace Game.Conquest.Combat
             if (m_Health != null && m_Health.IsDead) return;
 
             m_Animator?.TriggerReload();
-            if (weaponAudioSource != null && reloadSoundClip != null)
+            if (HandlingSource != null && reloadSoundClip != null)
             {
-                weaponAudioSource.pitch = 1.0f;
-                weaponAudioSource.PlayOneShot(reloadSoundClip, 0.65f);
+                HandlingSource.pitch = 1.0f;
+                HandlingSource.PlayOneShot(reloadSoundClip, 0.65f);
             }
         }
 
@@ -1016,10 +1081,10 @@ namespace Game.Conquest.Combat
             if (overheated == wasOverheated || (m_Health != null && m_Health.IsDead)) return;
             ConquestFactionData faction = Faction;
             AudioClip clip = faction != null ? (overheated ? faction.overheatClip : faction.ventDoneClip) : null;
-            if (weaponAudioSource != null && clip != null)
+            if (HandlingSource != null && clip != null)
             {
-                weaponAudioSource.pitch = 1.0f;
-                weaponAudioSource.PlayOneShot(clip, 0.65f);
+                HandlingSource.pitch = 1.0f;
+                HandlingSource.PlayOneShot(clip, 0.65f);
             }
         }
 
@@ -1163,13 +1228,15 @@ namespace Game.Conquest.Combat
 
         private void PlayFireAudio()
         {
-            if (weaponAudioSource != null && fireSoundClip != null)
-            {
-                // Your own shots always play; everyone else's share a few voices per 40 ms, so a
-                // firefight stays readable without dropping a shot just because someone else fired.
-                ConquestAudioLimiter.TryPlayOneShot(weaponAudioSource, fireSoundClip, "Gunshot", fireVolume, 0.04f, firePitchMin, firePitchMax,
-                    GunshotVoices, PredictsLocally);
-            }
+            if (fireSoundClip == null) return;
+            if (m_FireVoices == null) SetUpAudio();
+            if (m_FireVoices == null) return;
+            AudioSource voice = m_FireVoices[m_NextFireVoice];
+            m_NextFireVoice = (m_NextFireVoice + 1) % m_FireVoices.Length;
+            // Your own shots always play; everyone else's share a few voices per 40 ms, so a
+            // firefight stays readable without dropping a shot just because someone else fired.
+            ConquestAudioLimiter.TryPlayVoice(voice, fireSoundClip, "Gunshot", fireVolume, 0.04f, firePitchMin, firePitchMax,
+                GunshotVoices, PredictsLocally);
         }
     }
 }

@@ -72,6 +72,7 @@ namespace Game.Conquest.Player
             m_CharacterController = GetComponent<CharacterController>();
             m_NetworkTransform = GetComponent<Unity.Netcode.Components.NetworkTransform>();
             m_Health = GetComponent<ConquestHealth>();
+            m_Weapon = GetComponent<ConquestWeapon>();
 
             var colliders = new System.Collections.Generic.List<Collider>();
             foreach (var c in GetComponentsInChildren<Collider>(true))
@@ -348,6 +349,12 @@ namespace Game.Conquest.Player
 
         // While zoomed (smaller FOV) the view turns proportionally slower, so the same mouse
         // movement sweeps the same distance across the screen at any zoom.
+        [Header("Aim Down Sights")]
+        [Tooltip("Placeholder: walk speed while fully aimed, as a share of the walk speed. Aiming also stops sprinting.")]
+        [Range(0.1f, 1f)]
+        [SerializeField] private float aimMoveScale = 0.75f;
+        private ConquestWeapon m_Weapon;
+
         private float ZoomSensitivityScale()
         {
             if (playerCamera == null || m_BaseFieldOfView <= 1f) return 1f;
@@ -362,10 +369,11 @@ namespace Game.Conquest.Player
         {
             // Clamped rather than normalised so a half-tilted stick walks slower.
             Vector2 moveInput = Vector2.ClampMagnitude(ConquestInput.Move, 1f);
-            bool isSprinting = ConquestInput.SprintHeld;
+            float aim = m_Weapon != null ? m_Weapon.Aim01 : 0f;
+            bool isSprinting = ConquestInput.SprintHeld && aim <= 0f;
             bool jumpPressed = ConquestInput.JumpPressed;
 
-            float currentSpeed = isSprinting ? sprintSpeed : walkSpeed;
+            float currentSpeed = isSprinting ? sprintSpeed : walkSpeed * Mathf.Lerp(1f, aimMoveScale, aim);
             Vector3 moveDirection = transform.right * moveInput.x + transform.forward * moveInput.y;
 
             bool isGrounded = m_CharacterController.isGrounded;

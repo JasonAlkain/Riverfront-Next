@@ -17,6 +17,9 @@ namespace Game.Conquest.Combat
 
         [Header("Visuals")]
         [SerializeField] private Renderer stationRenderer;
+        [Tooltip("Pooled effect played on every client when the station is destroyed (not when it expires).")]
+        [SerializeField] private GameObject destroyEffect;
+        [SerializeField] private float destroyEffectSeconds = 3f;
         [SerializeField] private Material redMaterial;
         [SerializeField] private Material blueMaterial;
 
@@ -34,6 +37,10 @@ namespace Game.Conquest.Combat
 
         private float m_NextPulseTime;
         private float m_ServerExpiresAt;
+        // Server: destroyed, and gone once the explosion RPC has had a moment to reach everyone.
+        private bool m_Destroyed;
+        private float m_DespawnAt;
+        private const float DespawnDelay = 0.25f;
 
         public float Radius => radius;
 
@@ -56,6 +63,7 @@ namespace Game.Conquest.Combat
             UpdateVisuals(stationTeam.Value);
             if (!s_Active.Contains(this)) s_Active.Add(this);
 
+            if (IsClient) ConquestFxPool.Prewarm(destroyEffect, 1);
             if (IsServer)
             {
                 currentHealth.Value = maxHealth;
@@ -85,6 +93,12 @@ namespace Game.Conquest.Combat
         private void Update()
         {
             if (!IsServer || !IsSpawned) return;
+
+            if (m_Destroyed)
+            {
+                if (Time.time >= m_DespawnAt) NetworkObject.Despawn(true);
+                return;
+            }
 
             // Despawn (not Destroy) so the station disappears on every peer and NGO stays consistent.
             if (Time.time >= m_ServerExpiresAt)
@@ -119,12 +133,29 @@ namespace Game.Conquest.Combat
 
         public void TakeDamage(int damage)
         {
-            if (!IsServer || !IsSpawned) return;
+            if (!IsServer || !IsSpawned || m_Destroyed) return;
             currentHealth.Value = Mathf.Max(0, currentHealth.Value - damage);
             if (currentHealth.Value <= 0)
             {
-                NetworkObject.Despawn(true);
+                m_Destroyed = true;
+                m_DespawnAt = Time.time + DespawnDelay;
+                HideStation();
+                DestroyedClientRpc(transform.position);
             }
+        }
+
+        [ClientRpc]
+        private void DestroyedClientRpc(Vector3 position)
+        {
+            HideStation();
+            ConquestFxPool.Play(destroyEffect, position + Vector3.up * 0.5f, Quaternion.identity, destroyEffectSeconds);
+        }
+
+        // Out of sight and out of the way of bolts while the despawn reaches everyone.
+        private void HideStation()
+        {
+            foreach (var r in GetComponentsInChildren<Renderer>()) r.enabled = false;
+            foreach (var c in GetComponentsInChildren<Collider>()) c.enabled = false;
         }
 
         private void OnDrawGizmosSelected()

@@ -177,6 +177,8 @@ MonoBehaviour:
   ammoColor: {r: 0.95, g: 0.8, b: 0.3, a: 1}
   brokenColor: {r: 0.25, g: 0.25, b: 0.27, a: 1}
   workingVisual: {fileID: 1512744324046628007}
+  breakEffect: {fileID: 6177334831314038761, guid: eb817a5445914584dbcce3c3432bc9f4, type: 3}
+  breakEffectSeconds: 3
   currentHealth:
     UpdateTraits:
       MinSecondsBetweenUpdates: 0

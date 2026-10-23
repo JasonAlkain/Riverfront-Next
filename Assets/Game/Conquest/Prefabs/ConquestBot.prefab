@@ -2264,6 +2264,7 @@ GameObject:
   - component: {fileID: 1595283648238975233}
   - component: {fileID: 5359286594393080228}
   - component: {fileID: 1523976920118597526}
+  - component: {fileID: 775846584030526350}
   m_Layer: 6
   m_Name: ConquestBot
   m_TagString: Untagged
@@ -2406,6 +2407,7 @@ MonoBehaviour:
       MinSecondsBetweenUpdates: 0
       MaxSecondsBetweenUpdates: 0
     m_InternalValue: 0
+  aimMoveScale: 0.75
 --- !u!114 &5842016067390666960
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2440,6 +2442,9 @@ MonoBehaviour:
   hasZoom: 0
   zoomMagnification: 1.25
   hasScope: 0
+  adsSpreadMultiplier: 0.5
+  adsInSeconds: 0.15
+  adsOutSeconds: 0.12
   hasSupportStation: 0
   supportStationPrefab: {fileID: 6656634446336126747, guid: 7a4757459bd50b54d93ea7c9ece0b483, type: 3}
   stationCooldown: 15
@@ -2466,6 +2471,8 @@ MonoBehaviour:
   firePitchMin: 0.95
   firePitchMax: 1.05
   fireVolume: 1
+  fireVoices: 3
+  hitConfirmVolume: 0.35
   isReloading:
     UpdateTraits:
       MinSecondsBetweenUpdates: 0
@@ -2593,7 +2600,7 @@ MonoBehaviour:
   blueTeamMaterial: {fileID: 2100000, guid: 91e86269ac387ee429b86b2c05e18af3, type: 2}
   thirdPersonVisualsRoot: {fileID: 5871219001048967672}
   firstPersonVisualsRoot: {fileID: 142367055837962795}
-  respawnWaitTime: 5
+  respawnWaitTime: 1
 --- !u!114 &2927458136001098006
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2871,6 +2878,24 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+--- !u!114 &775846584030526350
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2789805566391460537}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bb1043c6b45a8554b95fd27e6fda656c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Game.Conquest::Game.Conquest.Player.ConquestFootsteps
+  ShowTopMostFoldoutHeaderGroup: 1
+  strideLength: 2.2
+  minSpeed: 1.2
+  landSpeed: 4
+  footstepVolume: 0.16
+  landVolume: 0.35
 --- !u!1 &2824035778809925315
 GameObject:
   m_ObjectHideFlags: 0
