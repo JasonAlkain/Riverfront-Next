@@ -115,6 +115,12 @@ namespace Game.Conquest.Combat
             NetworkVariableReadPermission.Everyone,
             NetworkVariableWritePermission.Server);
 
+        /// <summary>Server time of the last repair-tool use, so every peer can show the torch flame.</summary>
+        public NetworkVariable<double> lastRepairServerTime = new NetworkVariable<double>(
+            -100.0,
+            NetworkVariableReadPermission.Everyone,
+            NetworkVariableWritePermission.Server);
+
         /// <summary>The weapon in hand (a WeaponSlot). Every peer applies its stats, so remote shots draw right.</summary>
         public NetworkVariable<byte> activeSlot = new NetworkVariable<byte>(
             (byte)WeaponSlot.Primary,
@@ -245,6 +251,20 @@ namespace Game.Conquest.Combat
                 return ShownSlot == WeaponSlot.Sidearm && m_ClassData.sidearm != null ? m_ClassData.sidearm.adsOffset : m_ClassData.adsOffset;
             }
         }
+        /// <summary>The repair tool is in use right now: the owner knows at once, everyone else from the server.</summary>
+        public bool IsRepairing
+        {
+            get
+            {
+                if (!IsRepairTool) return false;
+                if (PredictsLocally) return Time.time - m_LocalRepairTime < RepairEffectSeconds;
+                return NetworkManager != null && NetworkManager.ServerTime.Time - lastRepairServerTime.Value < RepairEffectSeconds + 0.1;
+            }
+        }
+        // A use every fireRate (0.2 s) keeps the flame lit without flicker.
+        private const float RepairEffectSeconds = 0.3f;
+        private float m_LocalRepairTime = -100f;
+
         /// <summary>Owner: Time.time of the last shot this player fired (the viewmodel waits for recoil to settle).</summary>
         public float LastLocalShotTime => m_LastLocalShotTime;
         public bool HasScope => hasScope;
@@ -708,6 +728,7 @@ namespace Game.Conquest.Combat
         private void TryRepairLocal()
         {
             m_NextFireTime = Time.time + fireRate;
+            m_LocalRepairTime = Time.time;
             Camera cam = m_Movement.PlayerCamera;
             if (cam == null) return;
             Ray ray = cam.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f));
@@ -719,6 +740,7 @@ namespace Game.Conquest.Combat
         {
             if (!IsRepairTool || (m_Health != null && m_Health.IsDead) || IsMatchOver) return;
             if (!ServerValidateShot(ref rayOrigin, ref rayDirection)) return;
+            lastRepairServerTime.Value = NetworkManager.ServerTime.Time;
             if (!ConquestPhysics.RaycastIgnoring(transform, rayOrigin, rayDirection, maxRange, hitLayers, out RaycastHit hit)) return;
 
             ConquestSupplyDroid droid = hit.collider.GetComponentInParent<ConquestSupplyDroid>();

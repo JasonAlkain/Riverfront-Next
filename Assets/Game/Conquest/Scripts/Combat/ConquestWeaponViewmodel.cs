@@ -27,6 +27,8 @@ namespace Game.Conquest.Combat
         [SerializeField] private PrimaryModelSet sniperRifle;
         [SerializeField] private GameObject[] pistolModels;
         [SerializeField] private GameObject[] repairToolModels;
+        [Tooltip("Torch flame at the repair tool's nozzle (first and third person), lit while it is in use.")]
+        [SerializeField] private ParticleSystem[] repairFlames;
 
         [Header("Aim Down Sights")]
         [Tooltip("Where the eye looks along each first-person model: forward down the barrel, up out of the sight. " +
@@ -59,6 +61,7 @@ namespace Game.Conquest.Combat
         private Vector3 m_AimPosition;
         private Quaternion m_AimRotation = Quaternion.identity;
 
+        private bool m_FlameOn;
         private Renderer[] m_FirstPersonRenderers;
         private bool m_HiddenForScope;
 
@@ -116,6 +119,18 @@ namespace Game.Conquest.Combat
             }
             viewmodelRoot.localPosition = position + loweredOffset * lowered;
             viewmodelRoot.localRotation = rotation * Quaternion.Euler(loweredPitch * lowered, 0f, 0f);
+
+            bool flame = m_Weapon.IsRepairing;
+            if (flame != m_FlameOn && repairFlames != null)
+            {
+                m_FlameOn = flame;
+                foreach (var ps in repairFlames)
+                {
+                    if (ps == null) continue;
+                    if (flame) ps.Play(true);
+                    else ps.Stop(true, ParticleSystemStopBehavior.StopEmitting);
+                }
+            }
 
             // A scope draws its own view: the rifle would sit in front of the lens.
             SetHiddenForScope(m_Weapon.IsScoped);
