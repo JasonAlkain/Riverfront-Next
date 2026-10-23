@@ -1,13 +1,12 @@
 using System.Collections.Generic;
 using UnityEngine;
-using Game.Conquest.Combat;
 
 namespace Game.Conquest.Player
 {
     /// <summary>
     /// Cosmetic death ragdoll. Each client copies the dead combatant's third-person body, turns the
-    /// main bones into jointed rigidbodies, knocks it away from the killer and removes it after a
-    /// few seconds in a small burst. Nothing here is networked or affects gameplay: the copy is
+    /// main bones into jointed rigidbodies, knocks it away from the killer and, after a few
+    /// seconds, dissolves it: the body freezes, sinks into the ground and shrinks away. Nothing here is networked or affects gameplay: the copy is
     /// on the Ignore Raycast layer (shots and grenade checks pass through it) and never collides
     /// with characters, so every client may simulate its own fall.
     /// </summary>
@@ -48,16 +47,18 @@ namespace Game.Conquest.Player
         private static readonly List<ConquestRagdoll> s_Active = new List<ConquestRagdoll>();
         private static readonly Dictionary<string, Transform> s_Bones = new Dictionary<string, Transform>();
 
-        private float m_RemoveAt;
-        private GameObject m_EndEffect;
-        private float m_EndEffectSeconds;
+        private float m_DissolveAt;
+        private float m_DissolveSeconds;
+        private bool m_Dissolving;
+        private Vector3 m_StartScale;
         private Transform m_Hips;
 
         /// <summary>
         /// Copy <paramref name="body"/> (active or not) as a ragdoll, pushed by <paramref name="impulse"/>
-        /// (m/s, applied to every part). Returns false if the body has no skeleton to ragdoll.
+        /// (m/s, applied to every part), that lies for <paramref name="lifetime"/> seconds and then
+        /// dissolves over <paramref name="dissolveSeconds"/>. Returns false if the body has no skeleton.
         /// </summary>
-        public static bool Spawn(GameObject body, Vector3 impulse, float lifetime, GameObject endEffect, float endEffectSeconds)
+        public static bool Spawn(GameObject body, Vector3 impulse, float lifetime, float dissolveSeconds)
         {
             if (body == null) return false;
             while (s_Active.Count >= MaxRagdolls) s_Active[0].Remove();
@@ -113,9 +114,8 @@ namespace Game.Conquest.Player
             foreach (var rb in rigidbodies.Values) rb.linearVelocity = impulse;
 
             var ragdoll = copy.AddComponent<ConquestRagdoll>();
-            ragdoll.m_RemoveAt = Time.time + lifetime;
-            ragdoll.m_EndEffect = endEffect;
-            ragdoll.m_EndEffectSeconds = endEffectSeconds;
+            ragdoll.m_DissolveAt = Time.time + lifetime;
+            ragdoll.m_DissolveSeconds = Mathf.Max(0.01f, dissolveSeconds);
             ragdoll.m_Hips = s_Bones["Hips"];
             s_Active.Add(ragdoll);
             copy.SetActive(true);
@@ -175,19 +175,46 @@ namespace Game.Conquest.Player
             foreach (Transform child in t) SetLayer(child, layer);
         }
 
+        // Placeholder: metres the body sinks while it dissolves.
+        private const float DissolveSink = 0.4f;
+
         private void Update()
         {
-            if (Time.time >= m_RemoveAt) Remove();
+            if (Time.time < m_DissolveAt) return;
+            if (!m_Dissolving)
+            {
+                // Freeze where it lies, so the whole body can sink and shrink as one.
+                m_Dissolving = true;
+                foreach (var rb in GetComponentsInChildren<Rigidbody>())
+                {
+                    rb.interpolation = RigidbodyInterpolation.None;
+                    rb.isKinematic = true;
+                }
+                // Sink and shrink around the hips, where the body lies, not around the copy's root.
+                if (m_Hips != null)
+                {
+                    Vector3 pivot = m_Hips.position;
+                    m_Hips.SetParent(null, true);
+                    transform.position = pivot;
+                    m_Hips.SetParent(transform, true);
+                }
+                m_StartScale = transform.localScale;
+            }
+
+            float t = (Time.time - m_DissolveAt) / m_DissolveSeconds;
+            if (t >= 1f)
+            {
+                Remove();
+                return;
+            }
+            float step = DissolveSink * Time.deltaTime / m_DissolveSeconds;
+            transform.position += Vector3.down * step;
+            transform.localScale = m_StartScale * (1f - t * t);
         }
 
         private void Remove()
         {
-            if (m_EndEffect != null && m_Hips != null)
-            {
-                ConquestFxPool.Play(m_EndEffect, m_Hips.position, Quaternion.identity, m_EndEffectSeconds);
-            }
             s_Active.Remove(this);
-            m_EndEffect = null;
             Destroy(gameObject);
         }
 

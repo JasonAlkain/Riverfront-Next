@@ -53,10 +53,14 @@ namespace Game.Conquest.Player
         [Tooltip("Pooled effect where a combatant dies, seen by every client.")]
         [SerializeField] private GameObject deathEffect;
         [SerializeField] private float deathEffectSeconds = 2.5f;
-        [Tooltip("Every client drops a cosmetic ragdoll copy of the body; the death effect plays when it goes.")]
-        [SerializeField] private bool useRagdoll = true;
-        [Tooltip("Placeholder: seconds a ragdoll stays before it goes in the death effect.")]
-        [SerializeField] private float ragdollSeconds = 4f;
+        [Tooltip("Blue team bodies fall as a cosmetic ragdoll and dissolve, instead of the death effect.")]
+        [SerializeField] private bool ragdollBlueTeam = true;
+        [Tooltip("Red team bodies fall as a cosmetic ragdoll and dissolve, instead of the death effect.")]
+        [SerializeField] private bool ragdollRedTeam = false;
+        [Tooltip("Placeholder: seconds a ragdoll lies before it dissolves.")]
+        [SerializeField] private float ragdollSeconds = 2.5f;
+        [Tooltip("Placeholder: seconds the dissolve takes.")]
+        [SerializeField] private float ragdollDissolveSeconds = 1f;
         [Tooltip("Placeholder: m/s the ragdoll is knocked away from the killer.")]
         [SerializeField] private float ragdollPush = 3f;
         [Tooltip("Placeholder: blinks per second of a spawn-protected combatant's body, as others see it.")]
@@ -316,11 +320,12 @@ namespace Game.Conquest.Player
 
         private void HandleDeath(ulong killerId)
         {
-            // Everyone sees the body fall as a ragdoll that goes in a burst a few seconds later, or
-            // in a burst at once if it can't ragdoll (a dedicated server draws nothing).
+            // Everyone sees a ragdoll team's body fall and dissolve a few seconds later; anyone else
+            // (or a body that can't ragdoll) goes in a burst at once. A dedicated server draws nothing.
             if (IsClient)
             {
-                bool ragdolled = useRagdoll && ConquestRagdoll.Spawn(thirdPersonVisualsRoot, RagdollVelocity(killerId), ragdollSeconds, deathEffect, deathEffectSeconds);
+                bool ragdolls = CurrentTeam == Team.Blue ? ragdollBlueTeam : CurrentTeam == Team.Red && ragdollRedTeam;
+                bool ragdolled = ragdolls && ConquestRagdoll.Spawn(thirdPersonVisualsRoot, RagdollVelocity(killerId), ragdollSeconds, ragdollDissolveSeconds);
                 if (!ragdolled && deathEffect != null)
                 {
                     Game.Conquest.Combat.ConquestFxPool.Play(deathEffect, transform.position + Vector3.up, Quaternion.identity, deathEffectSeconds);
