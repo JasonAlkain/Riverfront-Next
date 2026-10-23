@@ -9,7 +9,7 @@ using Game.Conquest.UI;
 namespace Game.Conquest.Combat
 {
     /// <summary>
-    /// A player's class throwable (grenades), thrown with the throw key (the same key that deploys
+    /// A player's (or bot's) class throwable (grenades), thrown with the throw key (the same key that deploys
     /// an Engineer's station). The owner only asks; the server checks the count, the cooldown and
     /// where the throw starts, then spawns the grenade. A class with a support station has none.
     /// </summary>
@@ -116,11 +116,48 @@ namespace Game.Conquest.Combat
             Vector3 spawn = origin + direction * spawnForward;
             if (ConquestPhysics.LinecastIgnoring(transform, expected, spawn, ConquestPhysics.WorldMask, out _)) spawn = expected;
 
+            Launch(data, spawn, direction * data.throwSpeed + Vector3.up * upwardSpeed);
+        }
+
+        /// <summary>
+        /// Server, for bots: lob one at <paramref name="target"/>, on the low arc that lands there
+        /// at the class's throw speed (or the longest throw if it is out of reach). Same count and
+        /// cooldown as a player's throw. Returns true if one was thrown.
+        /// </summary>
+        public bool ServerThrowAt(Vector3 target)
+        {
+            if (!IsServer || !HasThrowable || count.Value == 0) return false;
+            if (m_Health != null && m_Health.IsDead) return false;
+            if (ConquestMatchManager.Instance != null && ConquestMatchManager.Instance.IsMatchOver) return false;
+            if (Time.time < m_ServerNextThrowTime) return false;
+
+            ConquestClassData data = Data;
+            Vector3 origin = transform.position + Vector3.up * 1.6f;
+            Vector3 flat = target - origin;
+            float height = flat.y;
+            flat.y = 0f;
+            float distance = flat.magnitude;
+            if (distance < 0.5f) return false;
+            Vector3 dir = flat / distance;
+
+            // Launch angle for speed v to cover distance d and rise h: tan = (v^2 - sqrt(v^4 - g(g d^2 + 2 h v^2))) / (g d).
+            float v = data.throwSpeed, g = -Physics.gravity.y;
+            float root = v * v * v * v - g * (g * distance * distance + 2f * height * v * v);
+            float angle = root >= 0f ? Mathf.Atan((v * v - Mathf.Sqrt(root)) / (g * distance)) : 45f * Mathf.Deg2Rad;
+            Vector3 velocity = (dir * Mathf.Cos(angle) + Vector3.up * Mathf.Sin(angle)) * v;
+            Vector3 spawn = origin + dir * spawnForward;
+            if (ConquestPhysics.LinecastIgnoring(transform, origin, spawn, ConquestPhysics.WorldMask, out _)) spawn = origin;
+            Launch(data, spawn, velocity);
+            return true;
+        }
+
+        private void Launch(ConquestClassData data, Vector3 spawn, Vector3 velocity)
+        {
             count.Value--;
             m_ServerNextThrowTime = Time.time + data.throwCooldown;
             if (m_Health != null) m_Health.EndSpawnProtection();
 
-            GameObject thrown = Instantiate(data.throwablePrefab, spawn, Quaternion.LookRotation(direction));
+            GameObject thrown = Instantiate(data.throwablePrefab, spawn, Quaternion.LookRotation(velocity));
             var grenade = thrown.GetComponent<ConquestGrenade>();
             var netObj = thrown.GetComponent<NetworkObject>();
             if (grenade == null || netObj == null)
@@ -129,7 +166,6 @@ namespace Game.Conquest.Combat
                 Destroy(thrown);
                 return;
             }
-            Vector3 velocity = direction * data.throwSpeed + Vector3.up * upwardSpeed;
             grenade.ServerArm(this, m_Player.CurrentTeam, data.throwableName, velocity);
             netObj.Spawn(true);
         }

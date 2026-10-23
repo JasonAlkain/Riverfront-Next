@@ -64,7 +64,7 @@ namespace Game.Conquest.Player
         public ConquestHealth Health => m_Health;
         public ConquestPlayerMovement Movement => m_Movement;
         public ConquestWeapon Weapon => m_Weapon;
-        /// <summary>Grenades and other throwables; null on bots (they don't throw yet).</summary>
+        /// <summary>Grenades and other throwables.</summary>
         public ConquestThrowables Throwables => m_Throwables;
         /// <summary>Server: the wait after a death before deploying again, from the match's game mode.</summary>
         public float RespawnWaitTime =>

@@ -554,6 +554,28 @@ namespace Game.Conquest.Combat
             }
         }
 
+        /// <summary>Server, for bots: draw the primary or the sidearm (same rules and delay as a player's switch).</summary>
+        public void ServerBotSwitchTo(WeaponSlot slot)
+        {
+            if (IsServer && IsBot) ServerSwitchTo(slot);
+        }
+
+        /// <summary>
+        /// Server, for bots: one use of the repair tool on <paramref name="droid"/>, if the tool is in
+        /// hand, the droid within reach and the tool's rate allows. Lights the torch for everyone.
+        /// </summary>
+        public void ServerRepairFromAI(ConquestSupplyDroid droid)
+        {
+            if (!IsServer || !IsBot || droid == null || !IsRepairTool || IsMatchOver) return;
+            if (m_Health != null && m_Health.IsDead) return;
+            if (Time.time < m_ServerNextFireTime) return;
+            if ((droid.transform.position - transform.position).sqrMagnitude > (maxRange + 1f) * (maxRange + 1f)) return;
+            m_ServerNextFireTime = Time.time + fireRate;
+            lastRepairServerTime.Value = NetworkManager.ServerTime.Time;
+            Team team = m_Player != null ? m_Player.CurrentTeam : Team.Neutral;
+            if (droid.Serves(team)) droid.ServerRepair(m_RepairPerUse);
+        }
+
         [ServerRpc]
         private void SwitchWeaponServerRpc(byte slot)
         {
@@ -820,7 +842,7 @@ namespace Game.Conquest.Combat
         /// </summary>
         public void FireFromAI(Vector3 targetAimPosition, float aimErrorDegrees = 0f)
         {
-            if (!IsServer) return;
+            if (!IsServer || IsRepairTool) return;
             // Bots run on the server, so there is no jitter to tolerate: plain fire-rate gate.
             if (Time.time < m_ServerNextFireTime) return;
             if (!ServerCanShoot(false, 0f)) return;
