@@ -58,7 +58,7 @@ MonoBehaviour:
     coolDelaySeconds: 0.4
     fullCoolSeconds: 1.2
     overheatLockoutSeconds: 1.2
-    canAim: 0
+    canAim: 1
     zoomMagnification: 1.1
     adsSpreadMultiplier: 0.6
     repairPerUse: 10
