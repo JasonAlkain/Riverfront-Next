@@ -57,6 +57,8 @@ namespace Game.Conquest.Classes
         public float zoomMagnification = 1.1f;
         [Tooltip("Placeholder: spread while fully aimed, as a share of Spread Angle.")]
         [Range(0f, 1f)] public float adsSpreadMultiplier = 0.6f;
+        [Tooltip("Placeholder: nudge of the aimed sidearm in camera space (metres; -Y lowers it).")]
+        public Vector3 adsOffset = Vector3.zero;
         [Tooltip("Repair tool only. Placeholder: droid health restored per use (one per Fire Rate seconds).")]
         public int repairPerUse = 10;
         [Tooltip("Played on every shot (or every use of a repair tool). Empty is silent: a sidearm never borrows the primary's sounds.")]
@@ -119,6 +121,9 @@ namespace Game.Conquest.Classes
         public float zoomMagnification = 1.25f;
         [Tooltip("Placeholder: spread while fully aimed, as a share of Spread Angle (0.5 = half). Each weapon keeps its own hip spread.")]
         [Range(0f, 1f)] public float adsSpreadMultiplier = 0.5f;
+        [Tooltip("Placeholder: nudge of the aimed weapon in camera space (metres; -Y lowers it). The model's SightAnchor sets the " +
+                 "sight line; this is for one weapon that needs to sit differently.")]
+        public Vector3 adsOffset = Vector3.zero;
 
         [Header("Special / Equipment")]
         [Tooltip("Aiming shows a full-screen scope overlay instead of the crosshair.")]

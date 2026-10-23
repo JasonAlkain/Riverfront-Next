@@ -234,6 +234,15 @@ namespace Game.Conquest.Combat
         public float Aim01 => m_Aim01;
         /// <summary>Owner: fully aimed. Only then are shots fired with the aimed spread.</summary>
         public bool IsAiming => m_Aim01 >= 0.999f;
+        /// <summary>The shown weapon's ADS nudge in camera space, from its class data.</summary>
+        public Vector3 ShownAdsOffset
+        {
+            get
+            {
+                if (m_ClassData == null) return Vector3.zero;
+                return ShownSlot == WeaponSlot.Sidearm && m_ClassData.sidearm != null ? m_ClassData.sidearm.adsOffset : m_ClassData.adsOffset;
+            }
+        }
         /// <summary>Owner: Time.time of the last shot this player fired (the viewmodel waits for recoil to settle).</summary>
         public float LastLocalShotTime => m_LastLocalShotTime;
         public bool HasScope => hasScope;

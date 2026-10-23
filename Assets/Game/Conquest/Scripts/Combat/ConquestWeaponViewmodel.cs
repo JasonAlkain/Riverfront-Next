@@ -89,7 +89,7 @@ namespace Game.Conquest.Combat
             Quaternion rotation = m_RestRotation;
             if (m_HasAimPose && aim > 0f)
             {
-                position = Vector3.Lerp(m_RestPosition, m_AimPosition, aim);
+                position = Vector3.Lerp(m_RestPosition, m_AimPosition + m_Weapon.ShownAdsOffset, aim);
                 rotation = Quaternion.Slerp(m_RestRotation, m_AimRotation, aim);
             }
             viewmodelRoot.localPosition = position + loweredOffset * lowered;
