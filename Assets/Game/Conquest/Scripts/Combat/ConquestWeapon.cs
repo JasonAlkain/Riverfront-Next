@@ -392,7 +392,7 @@ namespace Game.Conquest.Combat
                 m_RepairPerUse = side.repairPerUse;
                 // A sidearm only ever plays its own sounds; an unassigned one stays silent rather
                 // than borrowing the primary's.
-                fireSoundClip = side.fireSound != null ? side.fireSound : side.fallbackFireSound;
+                fireSoundClip = side.fireSound;
                 reloadSoundClip = side.reloadSound;
                 fireVolume = side.fireVolume;
             }
@@ -420,8 +420,7 @@ namespace Game.Conquest.Combat
                 hasScope = data.hasScope;
                 adsSpreadMultiplier = Mathf.Clamp01(data.adsSpreadMultiplier);
                 m_RepairPerUse = 0;
-                fireSoundClip = data.fireSound != null ? data.fireSound
-                    : data.fallbackFireSound != null ? data.fallbackFireSound : m_DefaultFireClip;
+                fireSoundClip = data.fireSound != null ? data.fireSound : m_DefaultFireClip;
                 reloadSoundClip = data.reloadSound != null ? data.reloadSound : m_DefaultReloadClip;
                 fireVolume = data.fireVolume;
             }

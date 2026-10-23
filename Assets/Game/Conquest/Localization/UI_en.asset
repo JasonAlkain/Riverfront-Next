@@ -387,7 +387,7 @@ MonoBehaviour:
 
       <b>Sidearm model:</b> Blaster Kit by Kenney (www.kenney.nl), CC0
 
-      <b>Sound effects:</b> Free Sound Effects Pack (Unity Asset Store) and Unity sample audio
+      <b>Sound effects:</b> Unity template and sample audio
 
 
       The host decides damage, captures, tickets and the result; movement is client-driven.'

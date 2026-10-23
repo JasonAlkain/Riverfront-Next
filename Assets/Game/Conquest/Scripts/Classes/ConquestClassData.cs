@@ -61,8 +61,6 @@ namespace Game.Conquest.Classes
         public int repairPerUse = 10;
         [Tooltip("Played on every shot (or every use of a repair tool). Empty is silent: a sidearm never borrows the primary's sounds.")]
         public AudioClip fireSound;
-        [Tooltip("Committed clip used when Fire Sound is missing (it comes from the local-only Free SFX Pack).")]
-        public AudioClip fallbackFireSound;
         [Tooltip("Placeholder: volume of the sidearm's shot.")]
         [Range(0f, 1f)] public float fireVolume = 0.4f;
         public AudioClip reloadSound;
@@ -145,8 +143,6 @@ namespace Game.Conquest.Classes
 
         [Header("Audio")]
         public AudioClip fireSound;
-        [Tooltip("Committed clip used when Fire Sound is missing (it comes from the local-only Free SFX Pack).")]
-        public AudioClip fallbackFireSound;
         public AudioClip reloadSound;
         public float firePitchMin = 0.95f;
         public float firePitchMax = 1.05f;

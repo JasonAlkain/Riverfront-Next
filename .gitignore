@@ -113,7 +113,3 @@ InitTestScene*.unity*
 # Auto-generated cache in Assets folder
 /[Aa]ssets/[Ss]ceneDependencyCache*
 
-# Unity Asset Store "Free Sound Effects Pack" (store product 155776): the store licence lets the
-# sounds ship in builds but not be published as raw files in this public repo, so it stays local.
-/Assets/Free SFX Pack/
-/Assets/Free SFX Pack.meta

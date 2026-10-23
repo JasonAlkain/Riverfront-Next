@@ -19,5 +19,5 @@ MonoBehaviour:
   boltMaterialColorBlind: {fileID: 2100000, guid: 87f66b5effcaa8e41a5ca7f71edba9b3, type: 2}
   boltWidth: 0.05
   boltLength: 1.5
-  overheatClip: {fileID: 8300000, guid: 7f4aa26d5b55226409cda231ffaf869b, type: 3}
-  ventDoneClip: {fileID: 8300000, guid: cc6699269b4c1d44ea1e860518b9bb73, type: 3}
+  overheatClip: {fileID: 0}
+  ventDoneClip: {fileID: 0}

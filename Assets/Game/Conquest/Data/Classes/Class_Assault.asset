@@ -61,9 +61,8 @@ MonoBehaviour:
     zoomMagnification: 1.1
     adsSpreadMultiplier: 0.6
     repairPerUse: 10
-    fireSound: {fileID: 8300000, guid: 34b439bf70b80a6409eadecc6be92d68, type: 3}
-    fallbackFireSound: {fileID: 8300000, guid: 1522324874c7dbd4591dad1a91daec57, type: 3}
-    fireVolume: 0.3
+    fireSound: {fileID: 8300000, guid: 1522324874c7dbd4591dad1a91daec57, type: 3}
+    fireVolume: 0.4
     reloadSound: {fileID: 8300000, guid: 9a683371da5e46349b42f101433665e0, type: 3}
   throwable: 1
   throwableName: Grenade
@@ -71,9 +70,8 @@ MonoBehaviour:
   throwableCount: 2
   throwCooldown: 1
   throwSpeed: 16
-  fireSound: {fileID: 8300000, guid: e88084c6f293c324db2b4dcf575d60dc, type: 3}
-  fallbackFireSound: {fileID: 8300000, guid: 91029d45834352841bff710a0184160c, type: 3}
+  fireSound: {fileID: 8300000, guid: 91029d45834352841bff710a0184160c, type: 3}
   reloadSound: {fileID: 8300000, guid: a0936af7d29105f4180ab1a879dc0f94, type: 3}
   firePitchMin: 0.97
   firePitchMax: 1.03
-  fireVolume: 0.16
+  fireVolume: 0.42
