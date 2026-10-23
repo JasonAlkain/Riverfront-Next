@@ -23,6 +23,15 @@ namespace Game.Conquest.Combat
         private ConquestPlayerAnimator m_Animator;
         private float m_ServerProtectedUntil;
 
+        /// <summary>Server time until which this combatant is spawn protected (0 when not), for the cue every peer shows.</summary>
+        public NetworkVariable<double> protectedUntil = new NetworkVariable<double>(
+            0.0,
+            NetworkVariableReadPermission.Everyone,
+            NetworkVariableWritePermission.Server);
+
+        /// <summary>Spawn protected right now, as every peer sees it.</summary>
+        public bool IsSpawnProtected => !IsDead && NetworkManager != null && NetworkManager.ServerTime.Time < protectedUntil.Value;
+
         public NetworkVariable<int> currentHealth = new NetworkVariable<int>(
             100,
             NetworkVariableReadPermission.Everyone,
@@ -225,6 +234,7 @@ namespace Game.Conquest.Combat
         public void EndSpawnProtection()
         {
             m_ServerProtectedUntil = 0f;
+            if (IsServer && IsSpawned && protectedUntil.Value != 0.0) protectedUntil.Value = 0.0;
         }
 
         public void ResetHealth()
@@ -233,6 +243,7 @@ namespace Game.Conquest.Combat
             currentHealth.Value = maxHealth;
             isDead.Value = false;
             m_ServerProtectedUntil = Time.time + spawnProtectionSeconds;
+            protectedUntil.Value = NetworkManager.ServerTime.Time + spawnProtectionSeconds;
             OnRespawned?.Invoke();
         }
     }

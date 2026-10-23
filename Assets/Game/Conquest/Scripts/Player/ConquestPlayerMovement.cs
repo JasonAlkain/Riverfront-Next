@@ -208,8 +208,10 @@ namespace Game.Conquest.Player
                 {
                     SetCursorLock(false);
                 }
+                UpdateDeathCamera();
                 return;
             }
+            EndDeathCamera();
 
             HandleCursorToggle();
             if (!m_CursorLocked) return;
@@ -349,11 +351,61 @@ namespace Game.Conquest.Player
 
         // While zoomed (smaller FOV) the view turns proportionally slower, so the same mouse
         // movement sweeps the same distance across the screen at any zoom.
+        [Header("Death Camera")]
+        [Tooltip("Placeholder: metres the view rises and pulls back after dying.")]
+        [SerializeField] private Vector2 deathCameraOffset = new Vector2(1.4f, 2.6f);
+        [Tooltip("Placeholder: seconds to move out to the death view.")]
+        [SerializeField] private float deathCameraSeconds = 0.5f;
+        private bool m_DeathCamActive;
+        private float m_DeathCamStart;
+        private Vector3 m_CamRestPosition;
+        private Quaternion m_CamRestRotation;
+        private Vector3 m_DeathCamFrom;
+
         [Header("Aim Down Sights")]
         [Tooltip("Placeholder: walk speed while fully aimed, as a share of the walk speed. Aiming also stops sprinting.")]
         [Range(0.1f, 1f)]
         [SerializeField] private float aimMoveScale = 0.75f;
         private ConquestWeapon m_Weapon;
+
+        // Owner, dead: the view rises and pulls back from where you fell and turns to whoever
+        // killed you (or down at the spot), until you deploy again.
+        private void UpdateDeathCamera()
+        {
+            if (playerCamera == null || isBot) return;
+            Transform cam = playerCamera.transform;
+            if (!m_DeathCamActive)
+            {
+                m_DeathCamActive = true;
+                m_DeathCamStart = Time.time;
+                m_CamRestPosition = cam.localPosition;
+                m_CamRestRotation = cam.localRotation;
+                m_DeathCamFrom = cam.position;
+            }
+
+            Vector3 focus = m_DeathCamFrom - Vector3.up * 1.2f;
+            if (m_Health.LastAttackerId != ConquestHealth.NoAttacker && NetworkManager != null &&
+                NetworkManager.SpawnManager.SpawnedObjects.TryGetValue(m_Health.LastAttackerId, out var killer) && killer != null)
+            {
+                focus = killer.transform.position + Vector3.up * 1.4f;
+            }
+            Vector3 away = m_DeathCamFrom - focus;
+            away.y = 0f;
+            away = away.sqrMagnitude > 0.01f ? away.normalized : -transform.forward;
+            Vector3 target = m_DeathCamFrom + Vector3.up * deathCameraOffset.x + away * deathCameraOffset.y;
+            float t = deathCameraSeconds > 0f ? Mathf.SmoothStep(0f, 1f, (Time.time - m_DeathCamStart) / deathCameraSeconds) : 1f;
+            cam.position = Vector3.Lerp(m_DeathCamFrom, target, t);
+            Vector3 look = focus - cam.position;
+            if (look.sqrMagnitude > 0.01f) cam.rotation = Quaternion.Slerp(cam.rotation, Quaternion.LookRotation(look), t);
+        }
+
+        private void EndDeathCamera()
+        {
+            if (!m_DeathCamActive || playerCamera == null) return;
+            m_DeathCamActive = false;
+            playerCamera.transform.localPosition = m_CamRestPosition;
+            playerCamera.transform.localRotation = m_CamRestRotation;
+        }
 
         private float ZoomSensitivityScale()
         {

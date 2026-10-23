@@ -25,6 +25,8 @@ namespace Game.Conquest.UI
         [Header("Panel UI References")]
         [SerializeField] private TicketBarUI ticketBarUI;
         [SerializeField] private CommandPostsRowUI commandPostsRowUI;
+        [Tooltip("Shown while the local player is spawn protected.")]
+        [SerializeField] private GameObject spawnProtectionLabel;
         [SerializeField] private CaptureBarUI captureBarUI;
         [SerializeField] private CrosshairUI crosshairUI;
         [SerializeField] private PlayerStatsUI playerStatsUI;
@@ -66,6 +68,7 @@ namespace Game.Conquest.UI
         private string m_ReloadKey = "R";
         private string m_DeployKey = "Q";
         private string m_SwitchKey = "E";
+        private string m_RespawnKey = "Space";
         private string m_AimKey = "RMB";
         private ConquestMatchManager m_StatsSource;
         private bool m_ScoreboardDirty = true;
@@ -166,6 +169,7 @@ namespace Game.Conquest.UI
             m_ReloadKey = ConquestInput.KeyLabel(ConquestInput.Gameplay.Reload);
             m_DeployKey = ConquestInput.KeyLabel(ConquestInput.Gameplay.Deploy);
             m_SwitchKey = ConquestInput.KeyLabel(ConquestInput.Gameplay.SwitchWeapon);
+            m_RespawnKey = ConquestInput.KeyLabel(ConquestInput.Gameplay.Respawn);
             m_AimKey = ConquestInput.KeyLabel(ConquestInput.Gameplay.Aim);
             m_HintsKey = int.MinValue;
         }
@@ -191,6 +195,25 @@ namespace Game.Conquest.UI
             match.GetFriendlyPostNames(player.CurrentTeam, m_FriendlyPosts);
             if (!CanDeploy(match, player, m_FriendlyPosts)) return;
             player.Deploy(player.PendingClassIndex, player.SelectedPostName);
+        }
+
+        // The deploy key works like the button. With no friendly post picked (or the picked one
+        // lost) it deploys anyway and lets the server choose a friendly post, so a controller
+        // never needs the mouse.
+        private void HandleDeployKey(ConquestMatchManager match, ConquestPlayer player)
+        {
+            if (match == null || player == null || !player.Health.IsDead || !ConquestInput.RespawnPressed) return;
+            if (match.IsMatchOver || player.RemainingRespawnTime > 0f) return;
+            match.GetFriendlyPostNames(player.CurrentTeam, m_FriendlyPosts);
+            string post = CanDeploy(match, player, m_FriendlyPosts) ? player.SelectedPostName : "";
+            player.Deploy(player.PendingClassIndex, post);
+        }
+
+        private void UpdateProtectionLabel(ConquestPlayer player)
+        {
+            if (spawnProtectionLabel == null) return;
+            bool show = player != null && player.Health.IsSpawnProtected;
+            if (spawnProtectionLabel.activeSelf != show) spawnProtectionLabel.SetActive(show);
         }
 
         // A post must be picked whenever the team has one; with none left the player deploys at
@@ -241,6 +264,8 @@ namespace Game.Conquest.UI
             UpdateWorldMarkers(match, player);
             UpdateCommandMap(match, player);
             UpdateRespawnPanel(match, player);
+            HandleDeployKey(match, player);
+            UpdateProtectionLabel(player);
             UpdateMatchResult(match, player);
             UpdateAllPostsAlert(match, player);
             UpdateScoreboard(match);
@@ -573,9 +598,9 @@ namespace Game.Conquest.UI
             {
                 m_TimerKey = timerKey;
                 if (timerKey > 0) respawnPanelUI.SetTimer($"Deploy in {timerKey / 10f:0.0} seconds");
-                else if (timerKey == -1) respawnPanelUI.SetTimer("No safe command post: deploy at base");
-                else if (timerKey == -2) respawnPanelUI.SetTimer("Ready to deploy");
-                else respawnPanelUI.SetTimer("Choose a command post to deploy");
+                else if (timerKey == -1) respawnPanelUI.SetTimer($"No safe command post: [{m_RespawnKey}] deploy at base");
+                else if (timerKey == -2) respawnPanelUI.SetTimer($"Ready: [{m_RespawnKey}] deploy");
+                else respawnPanelUI.SetTimer($"Choose a command post, or [{m_RespawnKey}] to deploy anywhere");
             }
         }
 

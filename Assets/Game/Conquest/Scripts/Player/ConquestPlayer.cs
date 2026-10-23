@@ -49,6 +49,14 @@ namespace Game.Conquest.Player
         [SerializeField] private GameObject thirdPersonVisualsRoot;
         [SerializeField] private GameObject firstPersonVisualsRoot;
 
+        [Header("Death and spawn protection")]
+        [Tooltip("Pooled effect where a combatant dies, seen by every client.")]
+        [SerializeField] private GameObject deathEffect;
+        [SerializeField] private float deathEffectSeconds = 2.5f;
+        [Tooltip("Placeholder: blinks per second of a spawn-protected combatant's body, as others see it.")]
+        [SerializeField] private float protectionBlinkRate = 6f;
+        private bool m_BlinkHidden;
+
         [Header("Respawn Settings")]
         [Tooltip("Placeholder: respawn wait used only when the match has no game mode (normally the mode's Respawn Seconds applies).")]
         [SerializeField] private float respawnWaitTime = 1.0f;
@@ -264,6 +272,20 @@ namespace Game.Conquest.Player
             }
         }
 
+        // Spawn protection cue: other peers see the body blink until protection ends (by time,
+        // or the moment this player fires or throws). Your own view shows a HUD label instead.
+        private void Update()
+        {
+            if (!IsSpawned || bodyRenderers == null || m_Health == null || (IsOwner && !isBot)) return;
+            bool hide = m_Health.IsSpawnProtected && Mathf.Repeat(Time.time * protectionBlinkRate, 1f) < 0.35f;
+            if (hide == m_BlinkHidden) return;
+            m_BlinkHidden = hide;
+            foreach (var r in bodyRenderers)
+            {
+                if (r != null) r.enabled = !hide;
+            }
+        }
+
         // Dead or waiting to deploy: invisible and without collision.
         private void HideBody()
         {
@@ -274,9 +296,14 @@ namespace Game.Conquest.Player
 
         private void HandleDeath(ulong killerId)
         {
+            // Everyone sees the body go in a burst (a dedicated server draws nothing).
+            if (IsClient && deathEffect != null)
+            {
+                Game.Conquest.Combat.ConquestFxPool.Play(deathEffect, transform.position + Vector3.up, Quaternion.identity, deathEffectSeconds);
+            }
             HideBody();
-            // Every deploy needs a fresh choice of post.
-            m_SelectedPostName = "";
+            // The chosen post is kept: the next deploy goes back there while it is still friendly
+            // (the deploy screen and the server both check), so a 1 s respawn really is 1 s.
 
             if (IsServer)
             {

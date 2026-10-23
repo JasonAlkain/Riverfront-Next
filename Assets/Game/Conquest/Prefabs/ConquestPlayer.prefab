@@ -9807,6 +9807,11 @@ MonoBehaviour:
   hitSoundClip: {fileID: 8300000, guid: 8fc0a6d6ceaa48c4a862ba36f574e317, type: 3}
   deathSoundClip: {fileID: 8300000, guid: bd11cc5c8126ab7408316050608042e2, type: 3}
   respawnSoundClip: {fileID: 8300000, guid: 1374a61232a09c942a3155b9549041b7, type: 3}
+  protectedUntil:
+    UpdateTraits:
+      MinSecondsBetweenUpdates: 0
+      MaxSecondsBetweenUpdates: 0
+    m_InternalValue: 0
   currentHealth:
     UpdateTraits:
       MinSecondsBetweenUpdates: 0
@@ -9853,6 +9858,8 @@ MonoBehaviour:
       MinSecondsBetweenUpdates: 0
       MaxSecondsBetweenUpdates: 0
     m_InternalValue: 0
+  deathCameraOffset: {x: 1.4, y: 2.6}
+  deathCameraSeconds: 0.5
   aimMoveScale: 0.75
 --- !u!114 &2361733901181994833
 MonoBehaviour:
@@ -9918,7 +9925,7 @@ MonoBehaviour:
   fireSoundClip: {fileID: 0}
   reloadSoundClip: {fileID: 0}
   targetHitClip: {fileID: 8300000, guid: c4ad7a8965250da40b2b72025cb6dca8, type: 3}
-  killConfirmClip: {fileID: 0}
+  killConfirmClip: {fileID: 8300000, guid: 7b3be05649af1af48886b2af72c3228b, type: 3}
   firePitchMin: 0.95
   firePitchMax: 1.05
   fireVolume: 1
@@ -10056,6 +10063,9 @@ MonoBehaviour:
   blueTeamMaterial: {fileID: 2100000, guid: 91e86269ac387ee429b86b2c05e18af3, type: 2}
   thirdPersonVisualsRoot: {fileID: 8691335424527710277}
   firstPersonVisualsRoot: {fileID: 1107689208748737020}
+  deathEffect: {fileID: 4866474435980615991, guid: fce6d47cea2a6b949b7da493e0038c4a, type: 3}
+  deathEffectSeconds: 2.5
+  protectionBlinkRate: 6
   respawnWaitTime: 1
 --- !u!114 &2647419184018916631
 MonoBehaviour:
