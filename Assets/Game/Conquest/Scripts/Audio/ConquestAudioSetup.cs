@@ -9,8 +9,9 @@ namespace Game.Conquest.Audio
     /// </summary>
     public static class ConquestAudioSetup
     {
-        /// <summary>Placeholder: distance in metres at which another character's sounds start to fade.</summary>
-        public const float RemoteMinDistance = 4f;
+        /// <summary>Placeholder: distance in metres at which another character's sounds start to fade
+        /// (logarithmic: half as loud at twice this distance, so 10 m keeps fights 40 m away audible).</summary>
+        public const float RemoteMinDistance = 10f;
         /// <summary>Placeholder: distance in metres beyond which another character's sounds stop fading.</summary>
         public const float RemoteMaxDistance = 120f;
 
