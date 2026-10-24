@@ -429,6 +429,7 @@ namespace Game.Conquest.Networking
         public bool StartClientConnect(ConquestConnectionData connection)
         {
             isSoloMode = false;
+            m_JoinedCode = "";
             if (connection.IsOnline)
             {
                 JoinOnline(ConquestOnlineServices.NormalizeJoinCode(connection.joinCode));
@@ -487,6 +488,7 @@ namespace Game.Conquest.Networking
             }
             if (attempt != m_OnlineAttempt) return;
 
+            m_JoinedCode = joinCode;
             ApplyClientConnectTimeout();
             PrepareNetworkManager(nm);
             if (nm.StartClient())
@@ -556,12 +558,42 @@ namespace Game.Conquest.Networking
         // Bumped by every online start and by cancel/leave, so a stale async result is ignored.
         private int m_OnlineAttempt;
 
+        // Join code of the online match this client joined; empty for LAN clients and hosts.
+        private string m_JoinedCode = "";
+
+        public bool TryGetShareInfo(out string label, out string shown, out string copyText)
+        {
+            label = shown = copyText = "";
+            var nm = NetworkManager.Singleton;
+            if (nm == null || isSoloMode || !(nm.IsServer || nm.IsClient)) return false;
+            if (nm.IsServer)
+            {
+                if (IsHostingOnline)
+                {
+                    label = "JOIN CODE";
+                    shown = copyText = m_OnlineJoinCode;
+                    return true;
+                }
+                var ips = GetLocalIPv4Addresses();
+                if (ips.Count == 0) return false;
+                label = "LAN ADDRESS";
+                shown = $"{ips[0]}:{hostPort}";
+                copyText = GetHostAddressSummary(hostPort);
+                return true;
+            }
+            if (string.IsNullOrEmpty(m_JoinedCode)) return false;
+            label = "JOIN CODE";
+            shown = copyText = m_JoinedCode;
+            return true;
+        }
+
         /// <summary>True while hosting an online (Relay) match rather than a LAN one.</summary>
         public bool IsHostingOnline => !string.IsNullOrEmpty(m_OnlineJoinCode);
 
         public void CancelConnect()
         {
             m_OnlineAttempt++;
+            m_JoinedCode = "";
             var nm = NetworkManager.Singleton;
             if (nm != null && (nm.IsClient || nm.IsServer)) nm.Shutdown();
             SetStatus("Connection cancelled");
@@ -634,6 +666,7 @@ namespace Game.Conquest.Networking
         public void LeaveSession()
         {
             m_OnlineAttempt++;
+            m_JoinedCode = "";
             m_OnlineJoinCode = "";
             m_StatusMessage = "Leaving session...";
             OnStatusChanged?.Invoke(m_StatusMessage);

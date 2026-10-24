@@ -45,6 +45,12 @@ namespace Game.Conquest.Networking
         /// <summary>How other players reach this host, as a lobby line (a join code, or LAN addresses).</summary>
         string HostJoinAddress { get; }
 
+        /// <summary>
+        /// What this peer can share so friends join the same match: the join code of an online match
+        /// (host or client), or the host's LAN address. False when there's nothing to share.
+        /// </summary>
+        bool TryGetShareInfo(out string label, out string shown, out string copyText);
+
         void StartSoloGame(string mapSceneName, int tickets, int teamSize, BotDifficulty difficulty);
         bool StartHostGame(string mapId, string mapSceneName, string sessionName, int maxPlayers, int tickets, int teamSize, bool botFill, BotDifficulty difficulty);
 

@@ -97,7 +97,9 @@ namespace Game.Conquest.UI
         private static readonly string[] k_Difficulties = { "Easy", "Normal", "Hard" };
 
         // Lobby state
-        private string m_LobbyJoinAddressLine = "";
+        // What the lobby's join box shows, resolved once per lobby visit.
+        private bool m_HasShareInfo;
+        private string m_ShareLabel = "", m_ShareShown = "", m_ShareCopy = "";
         private bool m_LobbyNameSent = false;
         private int m_LobbyDisplayHash;
         private bool m_LobbyDisplayValid;
@@ -243,10 +245,8 @@ namespace Game.Conquest.UI
             if (newState == MenuState.Lobby)
             {
                 // Enumerating interfaces allocates, so resolve the join address once per lobby visit.
-                bool hosting = NetworkManager.Singleton != null && NetworkManager.Singleton.IsServer;
-                m_LobbyJoinAddressLine = hosting && ConquestSession.Current != null
-                    ? $"\n{ConquestSession.Current.HostJoinAddress}"
-                    : "";
+                m_HasShareInfo = ConquestSession.Current != null &&
+                                 ConquestSession.Current.TryGetShareInfo(out m_ShareLabel, out m_ShareShown, out m_ShareCopy);
                 m_LobbyNameSent = false;
                 m_LobbyDisplayValid = false;
                 if (lobbyPanelUI != null && lobbyPanelUI.tmp_PlayerName != null)
@@ -653,31 +653,49 @@ namespace Game.Conquest.UI
             string sceneName = lobby.selectedMapScene.Value.ToString();
             var mapData = mapRegistry != null ? mapRegistry.GetMapBySceneName(sceneName) : null;
             string mapLabel = mapData != null && mapData.sceneName == sceneName ? mapData.displayName : sceneName;
-            if (p.txt_LobbyName != null && p.txt_LobbyInfo != null)
-            {
-                string countdownLine = lobby.autoStartCountdown.Value >= 0 ? $"\nMATCH STARTS IN {lobby.autoStartCountdown.Value}s" : "";
-                p.SetLobbyInfo(
-                    $"LOBBY: {lobby.sessionName.Value.ToString().ToUpper()}",
-                    $"MAP: {mapLabel} | TICKETS: {lobby.reinforcementTickets.Value} | TEAM SIZE: {lobby.targetTeamSize.Value} (bots {lobby.botDifficulty.Value}){m_LobbyJoinAddressLine}{countdownLine}");
-            }
+            int teamSize = Mathf.Max(1, lobby.targetTeamSize.Value);
+            bool bots = lobby.enableBotFilling.Value;
+            string status = lobby.autoStartCountdown.Value >= 0
+                ? $"MATCH STARTS IN {lobby.autoStartCountdown.Value}s"
+                : isHost ? "Start the battle when your team is ready." : "Waiting for the host to start the battle.";
+            p.SetLobbyInfo($"LOBBY: <color=#{ColorUtility.ToHtmlStringRGB(AccentColor())}>{lobby.sessionName.Value.ToString().ToUpper()}</color>", status);
+            p.SetMatchDetails(mapLabel, mapData != null ? mapData.previewImage : null,
+                mapData != null ? mapData.themeColor : new Color(0.2f, 0.6f, 1f),
+                lobby.reinforcementTickets.Value,
+                bots ? $"{teamSize} (bots {lobby.botDifficulty.Value})" : $"{teamSize} (no bots)");
+            if (m_HasShareInfo) p.SetJoinInfo(m_ShareLabel, m_ShareShown, m_ShareCopy);
+            else p.SetJoinInfo("", "", "");
 
             if (p.redTeamContainer == null || p.blueTeamContainer == null) return;
             p.ClearPlayerCards();
 
             if (lobby.lobbyPlayers == null) return;
             ulong localClientId = NetworkManager.Singleton != null ? NetworkManager.Singleton.LocalClientId : ulong.MaxValue;
+            int red = 0, blue = 0;
             for (int i = 0; i < lobby.lobbyPlayers.Count; i++)
             {
                 var player = lobby.lobbyPlayers[i];
                 if (player.team != Team.Red && player.team != Team.Blue) continue;
+                if (player.team == Team.Red) red++; else blue++;
 
-                string hostTag = player.isHost ? " (Host)" : "";
                 string className = classRoster != null ? classRoster.NameOf(player.classIndex) : "";
+                bool isLocal = player.clientId == localClientId;
                 // Only your own card's ready toggle is clickable; the server flips the state.
                 System.Action onReadyToggled = null;
-                if (player.clientId == localClientId) onReadyToggled = () => ConquestLobbyManager.Instance?.ToggleReadyServerRpc();
-                p.AddPlayerCard($"{player.playerName}{hostTag} - {className}", player.isReady, player.team == Team.Red, onReadyToggled);
+                if (isLocal) onReadyToggled = () => ConquestLobbyManager.Instance?.ToggleReadyServerRpc();
+                p.AddPlayerCard(player.playerName.ToString(), className, player.isHost, isLocal, player.isReady, player.team, onReadyToggled);
             }
+            // Slots nobody holds yet: bots take them at the start when bot filling is on.
+            string emptyLabel = bots ? "OPEN SLOT  (BOT)" : "OPEN SLOT";
+            p.AddEmptySlots(Team.Red, teamSize - red, emptyLabel);
+            p.AddEmptySlots(Team.Blue, teamSize - blue, emptyLabel);
+            p.SetTeamCounts(red, blue, teamSize);
+        }
+
+        private Color AccentColor()
+        {
+            var theme = lobbyPanelUI != null ? lobbyPanelUI.theme : null;
+            return theme != null ? theme.accent : new Color(0.35f, 0.78f, 1f);
         }
 
         private int ComputeLobbyHash(ConquestLobbyManager lobby)
@@ -691,6 +709,7 @@ namespace Game.Conquest.UI
                 h = h * 31 + lobby.targetTeamSize.Value.GetHashCode();
                 h = h * 31 + (int)lobby.botDifficulty.Value;
                 h = h * 31 + lobby.autoStartCountdown.Value;
+                h = h * 31 + (lobby.enableBotFilling.Value ? 1 : 0);
                 if (lobby.lobbyPlayers != null)
                 {
                     h = h * 31 + lobby.lobbyPlayers.Count;
