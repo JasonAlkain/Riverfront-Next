@@ -11,6 +11,72 @@ namespace Game.Conquest.Classes
         Recon = 3
     }
 
+    /// <summary>What a class's second weapon does. Values are stable: they are serialized.</summary>
+    public enum SidearmKind : byte
+    {
+        None = 0,
+        /// <summary>A second gun: fires bolts with its own stats, ammo and heat.</summary>
+        Blaster = 1,
+        /// <summary>Fires no bolts; repairs the supply droid it is aimed at.</summary>
+        RepairTool = 2
+    }
+
+    /// <summary>Which model a class's primary shows (first and third person). Values are stable: they are serialized.</summary>
+    public enum PrimaryModel : byte
+    {
+        AssaultRifle = 0,
+        MachineGun = 1,
+        Shotgun = 2,
+        SniperRifle = 3
+    }
+
+    /// <summary>What a class throws with the throw key. Values are stable: they are serialized.</summary>
+    public enum ThrowableKind : byte
+    {
+        None = 0,
+        Grenade = 1
+    }
+
+    /// <summary>
+    /// A class's fixed sidearm. Players never pick weapons: every class carries exactly this one
+    /// next to its primary. Bolt and heat fields mean the same as the primary's.
+    /// </summary>
+    [System.Serializable]
+    public class ConquestSidearmData
+    {
+        public SidearmKind kind = SidearmKind.None;
+        public string weaponName = "Sidearm";
+        [Tooltip("Shown on the HUD while the sidearm is in hand.")]
+        public Sprite icon;
+        [Tooltip("Placeholder.")] public int damagePerShot = 18;
+        [Tooltip("Placeholder.")] public float fireRate = 0.3f;
+        [Tooltip("Placeholder. For a repair tool, its reach in metres.")] public float maxRange = 60f;
+        [Tooltip("Placeholder.")] public float spreadAngle = 0.8f;
+        [Tooltip("Placeholder.")] public int magazineCapacity = 12;
+        [Tooltip("Placeholder.")] public float reloadDuration = 1.2f;
+        public bool isAutomatic = false;
+        [Tooltip("Placeholder: bolt speed in m/s.")] public float boltSpeed = 110f;
+        [Tooltip("Placeholder: shots without pause that overheat it (heat factions).")] public int shotsToOverheat = 12;
+        [Tooltip("Placeholder.")] public float coolDelaySeconds = 0.4f;
+        [Tooltip("Placeholder.")] public float fullCoolSeconds = 1.2f;
+        [Tooltip("Placeholder.")] public float overheatLockoutSeconds = 1.2f;
+        [Tooltip("The sidearm can aim down its sights. A repair tool never aims.")]
+        public bool canAim = true;
+        [Tooltip("Placeholder: how much aiming magnifies the view.")]
+        public float zoomMagnification = 1.1f;
+        [Tooltip("Placeholder: spread while fully aimed, as a share of Spread Angle.")]
+        [Range(0f, 1f)] public float adsSpreadMultiplier = 0.6f;
+        [Tooltip("Placeholder: nudge of the aimed sidearm in camera space (metres; -Y lowers it).")]
+        public Vector3 adsOffset = Vector3.zero;
+        [Tooltip("Repair tool only. Placeholder: droid health restored per use (one per Fire Rate seconds).")]
+        public int repairPerUse = 10;
+        [Tooltip("Played on every shot (or every use of a repair tool). Empty is silent: a sidearm never borrows the primary's sounds.")]
+        public AudioClip fireSound;
+        [Tooltip("Placeholder: volume of the sidearm's shot.")]
+        [Range(0f, 1f)] public float fireVolume = 0.4f;
+        public AudioClip reloadSound;
+    }
+
     [CreateAssetMenu(fileName = "NewConquestClass", menuName = "Conquest/Class Data")]
     public class ConquestClassData : ScriptableObject
     {
@@ -28,6 +94,10 @@ namespace Game.Conquest.Classes
 
         [Header("Primary Weapon")]
         public string weaponName = "Blaster Rifle";
+        [Tooltip("The model the primary shows; each has its own muzzle and sight in the player and bot prefabs.")]
+        public PrimaryModel primaryModel = PrimaryModel.AssaultRifle;
+        [Tooltip("Shown on the HUD while the primary is in hand.")]
+        public Sprite weaponIcon;
         public int damagePerShot = 24;
         public float fireRate = 0.15f;
         public float maxRange = 100.0f;
@@ -55,13 +125,37 @@ namespace Game.Conquest.Classes
         [Tooltip("Placeholder: share of the gauge still hot when the overheat lock ends (0 = cold).")]
         [Range(0f, 1f)] public float heatAfterOverheat = 0f;
 
-        [Header("Special / Equipment")]
+        [Header("Aim Down Sights")]
+        [Tooltip("The primary can aim down its sights (hold Aim).")]
         public bool hasZoom = false;
         [Tooltip("Placeholder: how much aiming magnifies the view (1.25 = slight, 3 = long scope). Scales with the player's FOV setting.")]
         public float zoomMagnification = 1.25f;
+        [Tooltip("Placeholder: spread while fully aimed, as a share of Spread Angle (0.5 = half). Each weapon keeps its own hip spread.")]
+        [Range(0f, 1f)] public float adsSpreadMultiplier = 0.5f;
+        [Tooltip("Placeholder: nudge of the aimed weapon in camera space (metres; -Y lowers it). The model's SightAnchor sets the " +
+                 "sight line; this is for one weapon that needs to sit differently.")]
+        public Vector3 adsOffset = Vector3.zero;
+
+        [Header("Special / Equipment")]
         [Tooltip("Aiming shows a full-screen scope overlay instead of the crosshair.")]
         public bool hasScope = false;
-        public bool hasSupportStation = false; // Deployable station for Engineer
+        [Tooltip("Deploys a support station with the throw key. A class with a station carries no other throwable.")]
+        public bool hasSupportStation = false;
+
+        [Header("Sidearm (fixed, switched to with the Switch Weapon key)")]
+        public ConquestSidearmData sidearm = new ConquestSidearmData();
+
+        [Header("Throwable")]
+        public ThrowableKind throwable = ThrowableKind.None;
+        public string throwableName = "Grenade";
+        [Tooltip("Thrown object: a NetworkObject with a ConquestGrenade, registered in the network prefab list.")]
+        public GameObject throwablePrefab;
+        [Tooltip("Placeholder: how many a fresh spawn carries. Supply droids and stations give them back one at a time.")]
+        public int throwableCount = 2;
+        [Tooltip("Placeholder: seconds between two throws.")]
+        public float throwCooldown = 1f;
+        [Tooltip("Placeholder: launch speed in m/s.")]
+        public float throwSpeed = 16f;
 
         [Header("Audio")]
         public AudioClip fireSound;
@@ -77,6 +171,13 @@ namespace Game.Conquest.Classes
             // Both travel to the owner as one byte.
             shotsToOverheat = Mathf.Clamp(shotsToOverheat, 1, 255);
             magazineCapacity = Mathf.Clamp(magazineCapacity, 1, 255);
+            if (sidearm != null)
+            {
+                sidearm.shotsToOverheat = Mathf.Clamp(sidearm.shotsToOverheat, 1, 255);
+                sidearm.magazineCapacity = Mathf.Clamp(sidearm.magazineCapacity, 1, 255);
+                sidearm.boltSpeed = Mathf.Max(0.1f, sidearm.boltSpeed);
+            }
+            throwableCount = Mathf.Clamp(throwableCount, 0, 255);
             if (coolDelaySeconds <= fireRate)
             {
                 Debug.LogWarning($"[ConquestClassData] {name}: coolDelaySeconds ({coolDelaySeconds}) is not above fireRate ({fireRate}), so the weapon cools between shots and never overheats.", this);

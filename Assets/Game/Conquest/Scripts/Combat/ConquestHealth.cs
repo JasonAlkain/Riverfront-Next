@@ -23,6 +23,15 @@ namespace Game.Conquest.Combat
         private ConquestPlayerAnimator m_Animator;
         private float m_ServerProtectedUntil;
 
+        /// <summary>Server time until which this combatant is spawn protected (0 when not), for the cue every peer shows.</summary>
+        public NetworkVariable<double> protectedUntil = new NetworkVariable<double>(
+            0.0,
+            NetworkVariableReadPermission.Everyone,
+            NetworkVariableWritePermission.Server);
+
+        /// <summary>Spawn protected right now, as every peer sees it.</summary>
+        public bool IsSpawnProtected => !IsDead && NetworkManager != null && NetworkManager.ServerTime.Time < protectedUntil.Value;
+
         public NetworkVariable<int> currentHealth = new NetworkVariable<int>(
             100,
             NetworkVariableReadPermission.Everyone,
@@ -70,6 +79,9 @@ namespace Game.Conquest.Combat
         {
             currentHealth.OnValueChanged += HandleHealthChanged;
             isDead.OnValueChanged += HandleDeathChanged;
+            // Hurt, death and respawn sounds come from where the character is, except your own.
+            var player = GetComponent<Game.Conquest.Player.ConquestPlayer>();
+            ConquestAudioSetup.ConfigureCharacterSource(audioSource, IsOwner && player != null && !player.isBot);
 
             // isDead is left alone: the player may already be held out of play for deploy
             // (ServerHold), depending on which component's OnNetworkSpawn ran first.
@@ -120,6 +132,17 @@ namespace Game.Conquest.Combat
             TakeDamage(damage, attackerObjectId, sourcePosition, transform.position, 0, NoPellet);
         }
 
+        /// <summary>Server: what dealt the killing blow when it wasn't the attacker's weapon in hand (a grenade). Null otherwise.</summary>
+        public string ServerLastDamageSource { get; private set; }
+        private string m_PendingDamageSource;
+
+        /// <param name="source">Shown in the kill feed if this kills, for example the grenade's name.</param>
+        public void TakeDamage(int damage, ulong attackerObjectId, Vector3 sourcePosition, string source)
+        {
+            m_PendingDamageSource = source;
+            TakeDamage(damage, attackerObjectId, sourcePosition, transform.position, 0, NoPellet);
+        }
+
         /// <summary>No bolt pellet (a fall, a kill volume): clients have no drawn bolt to end.</summary>
         public const byte NoPellet = 255;
 
@@ -127,6 +150,8 @@ namespace Game.Conquest.Combat
         /// <param name="shotSeq">The shooter's shot number and <paramref name="pellet"/> identify the drawn bolt.</param>
         public void TakeDamage(int damage, ulong attackerObjectId, Vector3 sourcePosition, Vector3 hitPoint, ushort shotSeq, byte pellet)
         {
+            string source = m_PendingDamageSource;
+            m_PendingDamageSource = null;
             if (!IsServer || isDead.Value) return;
             // Nobody gets hurt once the match is decided.
             if (ConquestMatchManager.Instance != null && ConquestMatchManager.Instance.IsMatchOver) return;
@@ -143,6 +168,7 @@ namespace Game.Conquest.Combat
             if (newHealth <= 0)
             {
                 lastAttackerId.Value = attackerObjectId;
+                ServerLastDamageSource = source;
                 isDead.Value = true;
                 OnDied?.Invoke(attackerObjectId);
             }
@@ -208,6 +234,7 @@ namespace Game.Conquest.Combat
         public void EndSpawnProtection()
         {
             m_ServerProtectedUntil = 0f;
+            if (IsServer && IsSpawned && protectedUntil.Value != 0.0) protectedUntil.Value = 0.0;
         }
 
         public void ResetHealth()
@@ -216,6 +243,7 @@ namespace Game.Conquest.Combat
             currentHealth.Value = maxHealth;
             isDead.Value = false;
             m_ServerProtectedUntil = Time.time + spawnProtectionSeconds;
+            protectedUntil.Value = NetworkManager.ServerTime.Time + spawnProtectionSeconds;
             OnRespawned?.Invoke();
         }
     }

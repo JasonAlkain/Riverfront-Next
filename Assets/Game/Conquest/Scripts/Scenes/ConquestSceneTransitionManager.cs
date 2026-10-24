@@ -21,7 +21,7 @@ namespace Game.Conquest.Scenes
         [SerializeField] private string[] gameplayTips = new string[]
         {
             "Command Posts serve as reinforcement spawn points and contest zones.",
-            "Every death costs your team a reinforcement ticket. Run out and you lose.",
+            "Every respawn costs your team a reinforcement ticket. Out of tickets and out of soldiers, you lose.",
             "Heavies excel at suppression, while Recons pick off high-value targets from afar.",
             "Engineers can deploy support stations with [Q] to heal and resupply nearby squadmates.",
             "Press [R] to reload before entering a contested capture point.",

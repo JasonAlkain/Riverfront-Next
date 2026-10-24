@@ -17,7 +17,8 @@ namespace Game.Conquest.Gameplay
         Defend,
         EngageEnemy,
         Dead,
-        Retreat
+        Retreat,
+        Repair // An Engineer fixing a broken supply droid.
     }
 
     public enum BotDifficulty
@@ -73,6 +74,24 @@ namespace Game.Conquest.Gameplay
         [Tooltip("Placeholder: metres a bot will go to reach a friendly station.")]
         [SerializeField] private float retreatSearchRange = 40f;
 
+        [Header("Kit")]
+        [Tooltip("Placeholder: seconds a bot keeps a weapon after switching before it may switch again, so a reload can finish.")]
+        [SerializeField] private float minSecondsBetweenSwitches = 3f;
+        [Tooltip("Placeholder: metres within which a bot still draws its sidearm when the primary locks.")]
+        [SerializeField] private float sidearmMaxRange = 45f;
+        [Tooltip("Placeholder: seconds between a bot's checks for a grenade throw.")]
+        [SerializeField] private float grenadeCheckInterval = 1.5f;
+        [Tooltip("Placeholder: nearest and farthest a bot throws a grenade, in metres.")]
+        [SerializeField] private Vector2 grenadeRange = new Vector2(8f, 25f);
+        [Tooltip("Placeholder: enemies within this many metres of the target count as a group.")]
+        [SerializeField] private float grenadeGroupRadius = 4f;
+        [Tooltip("Placeholder: enemies (the target included) that make a group worth a grenade.")]
+        [SerializeField] private int grenadeGroupSize = 2;
+        [Tooltip("Placeholder: no throw with a teammate this close to the target (no friendly fire, but it wastes the grenade).")]
+        [SerializeField] private float grenadeFriendlyClearance = 5f;
+        [Tooltip("Placeholder: metres an Engineer goes out of its way to repair a broken supply droid.")]
+        [SerializeField] private float droidRepairSearchRange = 25f;
+
         [Header("Defending")]
         [Tooltip("Placeholder: average seconds a defender stands at one guard spot before moving to another in the zone.")]
         [SerializeField] private float guardRepositionSeconds = 6f;
@@ -92,7 +111,11 @@ namespace Game.Conquest.Gameplay
         private ConquestPlayer m_Player;
         private ConquestHealth m_Health;
         private ConquestWeapon m_Weapon;
+        private ConquestThrowables m_Throwables;
         private ConquestPlayerAnimator m_Animator;
+        private float m_NextSwitchTime;
+        private float m_NextGrenadeCheck;
+        private ConquestSupplyDroid m_RepairDroid;
 
         private ConquestCommandPost m_TargetPost;
         private bool m_IsDefender;
@@ -138,6 +161,7 @@ namespace Game.Conquest.Gameplay
             m_Player = GetComponent<ConquestPlayer>();
             m_Health = GetComponent<ConquestHealth>();
             m_Weapon = GetComponent<ConquestWeapon>();
+            m_Throwables = GetComponent<ConquestThrowables>();
             m_Animator = GetComponent<ConquestPlayerAnimator>();
 
             m_Player.isBot = true;
@@ -282,6 +306,9 @@ namespace Game.Conquest.Gameplay
                 case BotState.Retreat:
                     UpdateRetreat();
                     break;
+                case BotState.Repair:
+                    UpdateRepair();
+                    break;
             }
 
             // The agent turns the bot toward where it walks, except while the bot faces a target itself.
@@ -301,6 +328,11 @@ namespace Game.Conquest.Gameplay
                 currentState = BotState.EngageEnemy;
                 return;
             }
+
+            // Out of the fight, an Engineer fixes a broken droid nearby (and keeps at one it has started).
+            if (currentState == BotState.Repair && m_RepairDroid != null && m_RepairDroid.IsBroken) return;
+            if (TryStartRepair()) return;
+            ConsiderSwitch(WeaponSlotFor(false));
 
             // 2. Back to the post the bot manager assigned.
             if (m_TargetPost == null)
@@ -504,6 +536,13 @@ namespace Game.Conquest.Gameplay
 
             if (TryStartRetreat()) return;
 
+            // Caught holding the repair tool: draw the primary first.
+            if (m_Weapon != null && m_Weapon.IsRepairTool)
+            {
+                m_NextSwitchTime = 0f;
+                ConsiderSwitch(ConquestWeapon.WeaponSlot.Primary);
+            }
+
             ConquestBotClassRole role = CurrentRole;
             Vector3 targetPos = perception.Enemy != null && perception.TargetVisible
                 ? perception.Enemy.transform.position
@@ -521,10 +560,17 @@ namespace Game.Conquest.Gameplay
             }
 
             float distance = toTarget.magnitude;
-            // Reloading or overheated: take cover once per lock.
+            // The weapon in hand is reloading or overheated: draw the other one if it can fight
+            // at this range, otherwise take cover once per lock.
             if (m_Weapon != null && m_Weapon.IsWeaponLocked)
             {
-                SeekCover(targetPos);
+                bool onPrimary = m_Weapon.ActiveSlot == ConquestWeapon.WeaponSlot.Primary;
+                bool sidearmCanFight = m_Weapon.SidearmKind == SidearmKind.Blaster && distance <= sidearmMaxRange;
+                if (!(onPrimary && sidearmCanFight && ConsiderSwitch(ConquestWeapon.WeaponSlot.Sidearm)) &&
+                    !(!onPrimary && ConsiderSwitch(ConquestWeapon.WeaponSlot.Primary)))
+                {
+                    SeekCover(targetPos);
+                }
             }
             else if (distance > role.preferredRange && role.advancesOnTarget)
             {
@@ -541,7 +587,124 @@ namespace Game.Conquest.Gameplay
             }
 
             if (Time.time - perception.TargetAcquiredTime < reactionDelay) return;
+            if (TryThrowGrenade(targetPos, distance)) return;
             FireAt(perception.AimPoint, perception.EnemyVelocity);
+        }
+
+        // --- Kit: sidearm, grenades, repair ---
+
+        private ConquestWeapon.WeaponSlot WeaponSlotFor(bool sidearm) =>
+            sidearm ? ConquestWeapon.WeaponSlot.Sidearm : ConquestWeapon.WeaponSlot.Primary;
+
+        // Switch if the weapon in hand isn't the one wanted and the last switch was long enough
+        // ago for a reload to finish. Returns true if a switch was asked for.
+        private bool ConsiderSwitch(ConquestWeapon.WeaponSlot slot)
+        {
+            if (m_Weapon == null || m_Weapon.ActiveSlot == slot || Time.time < m_NextSwitchTime) return false;
+            if (slot == ConquestWeapon.WeaponSlot.Sidearm && !m_Weapon.HasSidearm) return false;
+            m_NextSwitchTime = Time.time + minSecondsBetweenSwitches;
+            m_Weapon.ServerBotSwitchTo(slot);
+            return true;
+        }
+
+        // A grenade goes at a group of enemies or at an enemy on a post that is being fought over,
+        // never with a teammate (or the bot itself) inside the blast.
+        private bool TryThrowGrenade(Vector3 targetPos, float distance)
+        {
+            if (m_Throwables == null || !m_Throwables.HasThrowable || m_Throwables.Count == 0) return false;
+            if (Time.time < m_NextGrenadeCheck) return false;
+            m_NextGrenadeCheck = Time.time + grenadeCheckInterval * Random.Range(0.75f, 1.25f);
+            if (distance < grenadeRange.x || distance > grenadeRange.y) return false;
+
+            Team team = m_Player.CurrentTeam;
+            int enemies = 0;
+            float groupSqr = grenadeGroupRadius * grenadeGroupRadius;
+            float clearSqr = grenadeFriendlyClearance * grenadeFriendlyClearance;
+            var all = ConquestPlayer.All;
+            for (int i = 0; i < all.Count; i++)
+            {
+                ConquestPlayer p = all[i];
+                if (p == null || p.Health == null || p.Health.IsDead) continue;
+                float sqr = (p.transform.position - targetPos).sqrMagnitude;
+                if (p.CurrentTeam == team && sqr < clearSqr) return false;
+                if (p.CurrentTeam != team && p.CurrentTeam != Team.Neutral && sqr < groupSqr) enemies++;
+            }
+            if (enemies < grenadeGroupSize && !OnContestedPost(targetPos)) return false;
+            return m_Throwables.ServerThrowAt(targetPos);
+        }
+
+        private static bool OnContestedPost(Vector3 position)
+        {
+            var match = ConquestMatchManager.Instance;
+            if (match == null) return false;
+            var posts = match.CommandPosts;
+            for (int i = 0; i < posts.Count; i++)
+            {
+                var post = posts[i];
+                if (post != null && post.IsCapturable && post.IsContested && post.IsInCaptureZone(position)) return true;
+            }
+            return false;
+        }
+
+        // Engineers walk to a broken droid their team can use and fix it with the repair tool.
+        private bool TryStartRepair()
+        {
+            if (m_Weapon == null || m_Weapon.SidearmKind != SidearmKind.RepairTool) return false;
+            m_RepairDroid = FindBrokenDroid();
+            if (m_RepairDroid == null) return false;
+            currentState = BotState.Repair;
+            return true;
+        }
+
+        private ConquestSupplyDroid FindBrokenDroid()
+        {
+            ConquestSupplyDroid best = null;
+            float bestSqr = droidRepairSearchRange * droidRepairSearchRange;
+            var droids = ConquestSupplyDroid.Active;
+            for (int i = 0; i < droids.Count; i++)
+            {
+                var d = droids[i];
+                if (d == null || !d.IsBroken || !d.Serves(m_Player.CurrentTeam)) continue;
+                float sqr = (d.transform.position - transform.position).sqrMagnitude;
+                if (sqr < bestSqr)
+                {
+                    bestSqr = sqr;
+                    best = d;
+                }
+            }
+            return best;
+        }
+
+        private void UpdateRepair()
+        {
+            // Fixed (or gone), or a fight came to us: back to normal duties with the primary.
+            if (m_RepairDroid == null || !m_RepairDroid.IsBroken || perception.HasTarget)
+            {
+                m_RepairDroid = null;
+                ConsiderSwitch(ConquestWeapon.WeaponSlot.Primary);
+                currentState = perception.HasTarget ? BotState.EngageEnemy : BotState.Idle;
+                m_NextDecisionTime = Time.time;
+                return;
+            }
+
+            Vector3 toDroid = m_RepairDroid.transform.position - transform.position;
+            toDroid.y = 0f;
+            if (toDroid.magnitude > 2.5f)
+            {
+                SetAgentSpeed(TravelSpeed);
+                MoveToTarget(m_RepairDroid.transform.position - toDroid.normalized * 1.8f);
+                return;
+            }
+            StopAgent();
+            FaceDirection(toDroid);
+            if (!m_Weapon.IsRepairTool)
+            {
+                // A fresh switch is allowed straight away for a repair.
+                m_NextSwitchTime = 0f;
+                ConsiderSwitch(ConquestWeapon.WeaponSlot.Sidearm);
+                return;
+            }
+            m_Weapon.ServerRepairFromAI(m_RepairDroid);
         }
 
         // Bolts take time to arrive, so aim where a moving target will be (with this bot's skill
@@ -821,6 +984,8 @@ namespace Game.Conquest.Gameplay
             perception.Clear();
             m_Venting = false;
             m_RetreatStation = null;
+            m_RepairDroid = null;
+            m_NextSwitchTime = 0f;
             m_NextDecisionTime = Time.time + Random.Range(0.2f, 0.6f);
             ResetStuckSampling();
         }

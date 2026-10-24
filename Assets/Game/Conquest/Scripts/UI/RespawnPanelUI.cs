@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.InputSystem;
 using Game.Conquest.Classes;
 
 namespace Game.Conquest
@@ -28,6 +29,10 @@ namespace Game.Conquest
         [Tooltip("Command map where clicking a friendly post picks it, same as its list button.")]
         public CommandMapUI commandMap;
 
+        [Header("Click guard")]
+        [Tooltip("Placeholder: seconds after the panel opens before its buttons take clicks, so a shot fired as you die can't pick a class or post.")]
+        public float clickGuardSeconds = 0.6f;
+
         [Header("Colors")]
         public Color normalColor = new Color(0.25f, 0.30f, 0.40f);
         public Color selectedColor = new Color(0.2f, 0.8f, 0.35f);
@@ -40,9 +45,14 @@ namespace Game.Conquest
         public event Action DeployClicked;
 
         private readonly List<SpawnPostButtonUI> m_SpawnPostButtons = new List<SpawnPostButtonUI>();
+        private CanvasGroup m_CanvasGroup;
+        private float m_GuardUntil;
+        private bool m_WaitForRelease;
 
         private void Awake()
         {
+            m_CanvasGroup = GetComponent<CanvasGroup>();
+            if (m_CanvasGroup == null) m_CanvasGroup = gameObject.AddComponent<CanvasGroup>();
             if (commandMap != null) commandMap.PostClicked += postName => SpawnPostSelected?.Invoke(postName);
             if (btn_Deploy != null) btn_Deploy.onClick.AddListener(() => DeployClicked?.Invoke());
             if (classPicker != null) classPicker.ClassSelected += index => ClassSelected?.Invoke(index);
@@ -85,8 +95,33 @@ namespace Game.Conquest
             }
         }
 
+        // Buttons stay locked (and greyed) for the guard time and until every mouse button held
+        // when the panel opened is let go: a held trigger never turns into a click on a class.
+        private void Update()
+        {
+            if (m_WaitForRelease)
+            {
+                Mouse mouse = Mouse.current;
+                m_WaitForRelease = mouse != null && (mouse.leftButton.isPressed || mouse.rightButton.isPressed);
+            }
+            bool open = !m_WaitForRelease && Time.unscaledTime >= m_GuardUntil;
+            if (m_CanvasGroup.interactable != open) m_CanvasGroup.interactable = open;
+            if (m_CanvasGroup.blocksRaycasts != open) m_CanvasGroup.blocksRaycasts = open;
+        }
+
         // Show and hide the respawn panel
-        public void Show() { if (!gameObject.activeSelf) gameObject.SetActive(true); }
+        public void Show()
+        {
+            if (gameObject.activeSelf) return;
+            m_GuardUntil = Time.unscaledTime + clickGuardSeconds;
+            m_WaitForRelease = true;
+            if (m_CanvasGroup != null)
+            {
+                m_CanvasGroup.interactable = false;
+                m_CanvasGroup.blocksRaycasts = false;
+            }
+            gameObject.SetActive(true);
+        }
         public void Hide() { if (gameObject.activeSelf) gameObject.SetActive(false); }
     }
 }

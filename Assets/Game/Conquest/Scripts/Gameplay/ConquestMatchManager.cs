@@ -13,10 +13,9 @@ namespace Game.Conquest.Gameplay
     {
         public static ConquestMatchManager Instance { get; private set; }
 
-        [Header("Match Settings")]
-        [Header("All Posts Win")]
-        [Tooltip("Seconds a team must hold every command post to win. 0 wins the moment the last post falls.")]
-        [SerializeField] private float allPostsHoldSeconds = 20f;
+        [Header("Game Mode")]
+        [Tooltip("Rules used when the match plays Conquest (the only mode so far).")]
+        [SerializeField] private ConquestModeRules conquestRules = new ConquestModeRules();
 
         [Header("Empty Team")]
         [Tooltip("Seconds after the match starts for both teams to get a player or bot. After that, " +
@@ -68,6 +67,7 @@ namespace Game.Conquest.Gameplay
         /// <summary>Raised on every peer for each death, for the kill feed.</summary>
         public static event Action<KillReport> KillReported;
 
+        private IConquestGameMode m_Mode;
         private float m_MatchStartTime;
         private float m_NextRosterRefresh;
         private bool m_BothTeamsPopulated;
@@ -77,10 +77,30 @@ namespace Game.Conquest.Gameplay
 
         public int RedTickets => redTickets.Value;
         public int BlueTickets => blueTickets.Value;
+        public int TicketsFor(Team team) => team == Team.Red ? redTickets.Value : team == Team.Blue ? blueTickets.Value : 0;
+        /// <summary>
+        /// Tickets a respawn costs, read from this scene's rules so clients can show it too
+        /// (only Conquest exists, so its rules are the ones that apply).
+        /// </summary>
+        public int RespawnTicketCost => conquestRules != null ? Mathf.Max(0, conquestRules.ticketsPerRespawn) : 0;
+        /// <summary>True when <paramref name="team"/> has enough tickets left for one respawn.</summary>
+        public bool CanAffordRespawn(Team team) => team == Team.Neutral || TicketsFor(team) >= RespawnTicketCost;
+
+        /// <summary>Server: may this dead combatant respawn now? Charges the ticket if so.</summary>
+        public bool ServerTrySpendRespawn(ConquestPlayer combatant)
+        {
+            if (!IsServer || combatant == null || isMatchOver.Value) return false;
+            return m_Mode == null || m_Mode.ServerTrySpendRespawn(this, combatant);
+        }
         public bool IsMatchOver => isMatchOver.Value;
         public Team WinningTeam => winningTeam.Value;
         public IReadOnlyList<ConquestCommandPost> CommandPosts => commandPosts;
         public Team AllPostsHolder => allPostsHolder.Value;
+        /// <summary>Server: the rules this match is played with; null on clients.</summary>
+        public IConquestGameMode Mode => m_Mode;
+
+        /// <summary>Server: the mode's respawn wait, or <paramref name="fallback"/> before the mode is set up.</summary>
+        public float RespawnSeconds(float fallback) => m_Mode != null ? m_Mode.RespawnSeconds : fallback;
         /// <summary>Seconds until the all-posts holder wins; 0 when no team holds every post.</summary>
         public float AllPostsSecondsLeft =>
             allPostsHolder.Value == Team.Neutral || NetworkManager == null
@@ -114,16 +134,13 @@ namespace Game.Conquest.Gameplay
             if (IsServer)
             {
                 m_MatchStartTime = Time.time;
-                // Tickets are only spent on deaths (SWBF2-style); holding posts doesn't bleed the enemy.
                 var settings = ConquestSessionManager.Instance != null
                     ? ConquestSessionManager.Instance.matchSettings
                     : ConquestMatchSettings.Default;
-                redTickets.Value = settings.reinforcementTickets;
-                blueTickets.Value = settings.reinforcementTickets;
                 isMatchOver.Value = false;
                 winningTeam.Value = Team.Neutral;
-                allPostsHolder.Value = Team.Neutral;
-                allPostsWinAt.Value = 0;
+                m_Mode = ConquestGameModes.Create(settings.gameMode, conquestRules);
+                m_Mode.ServerBegin(this, settings);
                 m_Stats.SetMirror(liveStats);
             }
         }
@@ -141,7 +158,8 @@ namespace Game.Conquest.Gameplay
             if (!IsServer || isMatchOver.Value) return;
 
             EvaluateFallLimits();
-            EvaluateAllPostsHeld();
+            m_Mode?.ServerTick(this);
+            if (isMatchOver.Value) return;
             RefreshRoster();
         }
 
@@ -212,31 +230,29 @@ namespace Game.Conquest.Gameplay
             for (int i = 0; i < capturers.Count; i++) m_Stats.RecordCapture(capturers[i]);
         }
 
-        // Second win condition: one team holds every post for allPostsHoldSeconds.
-        // Losing a single post (even to neutral) cancels the countdown.
-        private void EvaluateAllPostsHeld()
+        /// <summary>Server: set both teams' tickets (a mode's starting pool).</summary>
+        public void ServerSetTickets(int red, int blue)
         {
-            Team holder = TeamHoldingAllPosts();
-            double now = NetworkManager.ServerTime.Time;
-
-            if (holder != allPostsHolder.Value)
-            {
-                allPostsHolder.Value = holder;
-                allPostsWinAt.Value = holder == Team.Neutral ? 0 : now + allPostsHoldSeconds;
-            }
-
-            if (holder != Team.Neutral && now >= allPostsWinAt.Value)
-            {
-                EndMatch(holder);
-            }
+            if (!IsServer) return;
+            redTickets.Value = Mathf.Max(0, red);
+            blueTickets.Value = Mathf.Max(0, blue);
         }
 
-        private Team TeamHoldingAllPosts()
+        /// <summary>Server: show (or clear, with Neutral) the "holds every post" countdown on every HUD.</summary>
+        public void ServerSetAllPostsCountdown(Team holder, double winAtServerTime)
+        {
+            if (!IsServer) return;
+            allPostsHolder.Value = holder;
+            allPostsWinAt.Value = winAtServerTime;
+        }
+
+        /// <summary>The team owning every capturable post (home bases don't count), or Neutral when no team does.</summary>
+        public Team TeamHoldingAllPosts()
         {
             Team holder = Team.Neutral;
             foreach (var post in commandPosts)
             {
-                if (post == null) continue;
+                if (post == null || !post.IsCapturable) continue;
 
                 Team owner = post.CurrentOwner;
                 if (owner == Team.Neutral) return Team.Neutral;
@@ -248,9 +264,10 @@ namespace Game.Conquest.Gameplay
 
         private void EvaluateFallLimits()
         {
-            var players = FindObjectsByType<ConquestPlayer>(FindObjectsInactive.Exclude);
-            foreach (var p in players)
+            var players = ConquestPlayer.All;
+            for (int i = 0; i < players.Count; i++)
             {
+                var p = players[i];
                 if (p != null && p.transform.position.y < fallLimitY)
                 {
                     if (p.Health != null && !p.Health.IsDead)
@@ -274,16 +291,7 @@ namespace Game.Conquest.Gameplay
             }
             m_Stats.RecordDeath(victim, killer);
             ReportKillClientRpc(MakeKillReport(victim, killer));
-
-            // Death costs 1 ticket to victim's team
-            if (victim.CurrentTeam == Team.Red)
-            {
-                DrainTickets(Team.Red, 1);
-            }
-            else if (victim.CurrentTeam == Team.Blue)
-            {
-                DrainTickets(Team.Blue, 1);
-            }
+            m_Mode?.ServerOnDeath(this, victim, killer);
         }
 
         private static KillReport MakeKillReport(ConquestPlayer victim, ConquestPlayer killer)
@@ -298,8 +306,10 @@ namespace Game.Conquest.Gameplay
             {
                 report.killerName = killer.playerName.Value;
                 report.killerTeam = killer.CurrentTeam;
-                var weapon = killer.CurrentClassData;
-                if (weapon != null) report.weaponName = weapon.weaponName;
+                // A grenade names itself; otherwise it was the weapon in the killer's hand.
+                string source = victim.Health != null ? victim.Health.ServerLastDamageSource : null;
+                if (!string.IsNullOrEmpty(source)) report.weaponName = source;
+                else if (killer.Weapon != null) report.weaponName = killer.Weapon.ActiveWeaponName;
             }
             return report;
         }
@@ -319,7 +329,7 @@ namespace Game.Conquest.Gameplay
                 redTickets.Value = Mathf.Max(0, redTickets.Value - amount);
                 if (redTickets.Value <= 0)
                 {
-                    EndMatch(Team.Blue);
+                    ServerEndMatch(Team.Blue);
                 }
             }
             else if (team == Team.Blue)
@@ -327,13 +337,24 @@ namespace Game.Conquest.Gameplay
                 blueTickets.Value = Mathf.Max(0, blueTickets.Value - amount);
                 if (blueTickets.Value <= 0)
                 {
-                    EndMatch(Team.Red);
+                    ServerEndMatch(Team.Red);
                 }
             }
         }
 
-        private void EndMatch(Team winner)
+        /// <summary>Server: take tickets for a respawn. Unlike DrainTickets this never ends the match
+        /// by itself: a team at 0 fights on until its last member falls.</summary>
+        public void ServerSpendTickets(Team team, int amount)
         {
+            if (!IsServer || isMatchOver.Value || amount <= 0) return;
+            if (team == Team.Red) redTickets.Value = Mathf.Max(0, redTickets.Value - amount);
+            else if (team == Team.Blue) blueTickets.Value = Mathf.Max(0, blueTickets.Value - amount);
+        }
+
+        /// <summary>Server: the match is decided (Neutral is a draw). Only the first call counts.</summary>
+        public void ServerEndMatch(Team winner)
+        {
+            if (!IsServer || isMatchOver.Value) return;
             isMatchOver.Value = true;
             winningTeam.Value = winner;
             // Bolts still in flight can't change the result (no damage after the match ends).
@@ -348,9 +369,10 @@ namespace Game.Conquest.Gameplay
         private MatchResults BuildResults(Team winner)
         {
             // Make sure everyone still in the match has a line, even with no kills or deaths.
-            foreach (var p in FindObjectsByType<ConquestPlayer>(FindObjectsInactive.Exclude))
+            var players = ConquestPlayer.All;
+            for (int i = 0; i < players.Count; i++)
             {
-                if (p != null && p.IsSpawned) m_Stats.Touch(p);
+                if (players[i] != null && players[i].IsSpawned) m_Stats.Touch(players[i]);
             }
 
             var session = ConquestSessionManager.Instance;
@@ -403,19 +425,10 @@ namespace Game.Conquest.Gameplay
                 }
             }
 
-            // 2. Pick any friendly post
-            List<ConquestCommandPost> friendlyPosts = new List<ConquestCommandPost>();
-            foreach (var post in commandPosts)
+            // 2. Pick a friendly post, weighted by each post's spawn weight
+            ConquestCommandPost chosen = PickWeightedSpawnPost(team);
+            if (chosen != null)
             {
-                if (IsSpawnablePost(post, team))
-                {
-                    friendlyPosts.Add(post);
-                }
-            }
-
-            if (friendlyPosts.Count > 0)
-            {
-                var chosen = friendlyPosts[UnityEngine.Random.Range(0, friendlyPosts.Count)];
                 return chosen.GetSpawnPoint(out position, out rotation);
             }
 
@@ -425,7 +438,31 @@ namespace Game.Conquest.Gameplay
             return false;
         }
 
-        // Owned by the team and with no enemies in the zone, so nobody spawns into a fight.
+        private ConquestCommandPost PickWeightedSpawnPost(Team team)
+        {
+            float total = 0f;
+            ConquestCommandPost any = null;
+            for (int i = 0; i < commandPosts.Count; i++)
+            {
+                if (!IsSpawnablePost(commandPosts[i], team)) continue;
+                if (any == null) any = commandPosts[i];
+                total += commandPosts[i].SpawnWeight;
+            }
+            // Every spawnable post weighted 0: still spawn somewhere friendly.
+            if (total <= 0f) return any;
+
+            float roll = UnityEngine.Random.value * total;
+            for (int i = 0; i < commandPosts.Count; i++)
+            {
+                if (!IsSpawnablePost(commandPosts[i], team)) continue;
+                roll -= commandPosts[i].SpawnWeight;
+                if (roll <= 0f && commandPosts[i].SpawnWeight > 0f) return commandPosts[i];
+            }
+            return any;
+        }
+
+        // Owned by the team and with no enemies in the zone, so nobody spawns into a fight. A home
+        // base is never blocked (it doesn't track enemies), so a team can always spawn there.
         private static bool IsSpawnablePost(ConquestCommandPost post, Team team)
         {
             return post != null && post.CurrentOwner == team && !post.IsSpawnBlocked;

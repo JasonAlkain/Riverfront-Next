@@ -70,7 +70,7 @@ namespace Game.Conquest
                     ui.Rect.anchoredPosition = ToMap(post.transform.position);
                     string postName = post.PostName;
                     bool canPick = selectable != null && selectable.Contains(postName);
-                    ui.SetPost(postName, postColor(post), theme != null ? theme.TeamIcon(post.CurrentOwner) : null, canPick, canPick && postName == selected);
+                    ui.SetPost(postName, postColor(post), theme != null ? theme.PostIcon(post) : null, canPick, canPick && postName == selected);
                 }
             }
             for (int i = shown; i < m_Posts.Count; i++) m_Posts[i].gameObject.SetActive(false);

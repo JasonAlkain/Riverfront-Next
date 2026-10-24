@@ -179,7 +179,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 4909404160
-    m_Localized: PLAY SOLO (PRACTICE)
+    m_Localized: PLAY SOLO
     m_Metadata:
       m_Items: []
   - m_Id: 4909404161
@@ -287,7 +287,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 4913598471
-    m_Localized: 'Direct IP Connection:'
+    m_Localized: 'Join code or LAN IP:'
     m_Metadata:
       m_Items: []
   - m_Id: 4913598472
@@ -383,7 +383,11 @@ MonoBehaviour:
 
       <b>Interface:</b> uGUI and TextMesh Pro
 
-      <b>Assets:</b> free, CC0 and project-made assets
+      <b>Assets:</b> project-made, Unity template and sample content, and CC0 assets
+
+      <b>Weapon models:</b> Blaster Kit by Kenney (www.kenney.nl), CC0
+
+      <b>Sound effects:</b> Unity template and sample audio
 
 
       The host decides damage, captures, tickets and the result; movement is client-driven.'
@@ -527,6 +531,30 @@ MonoBehaviour:
       m_Items: []
   - m_Id: 7027527680
     m_Localized: TIP
+    m_Metadata:
+      m_Items: []
+  - m_Id: 725991020269568
+    m_Localized: PLAY SOLO
+    m_Metadata:
+      m_Items: []
+  - m_Id: 725991058018304
+    m_Localized: TUTORIAL (COMING SOON)
+    m_Metadata:
+      m_Items: []
+  - m_Id: 725991058018305
+    m_Localized: PRACTICE
+    m_Metadata:
+      m_Items: []
+  - m_Id: 725991058018306
+    m_Localized: CAMPAIGN (COMING SOON)
+    m_Metadata:
+      m_Items: []
+  - m_Id: 725991058018307
+    m_Localized: BACK TO MAIN MENU
+    m_Metadata:
+      m_Items: []
+  - m_Id: 842215033810944
+    m_Localized: Network
     m_Metadata:
       m_Items: []
   references:

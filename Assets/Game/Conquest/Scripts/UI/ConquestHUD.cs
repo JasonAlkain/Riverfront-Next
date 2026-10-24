@@ -25,6 +25,8 @@ namespace Game.Conquest.UI
         [Header("Panel UI References")]
         [SerializeField] private TicketBarUI ticketBarUI;
         [SerializeField] private CommandPostsRowUI commandPostsRowUI;
+        [Tooltip("Shown while the local player is spawn protected.")]
+        [SerializeField] private GameObject spawnProtectionLabel;
         [SerializeField] private CaptureBarUI captureBarUI;
         [SerializeField] private CrosshairUI crosshairUI;
         [SerializeField] private PlayerStatsUI playerStatsUI;
@@ -65,6 +67,8 @@ namespace Game.Conquest.UI
         // Current key labels for the HUD hints, refreshed when the player rebinds.
         private string m_ReloadKey = "R";
         private string m_DeployKey = "Q";
+        private string m_SwitchKey = "E";
+        private string m_RespawnKey = "Space";
         private string m_AimKey = "RMB";
         private ConquestMatchManager m_StatsSource;
         private bool m_ScoreboardDirty = true;
@@ -164,6 +168,8 @@ namespace Game.Conquest.UI
         {
             m_ReloadKey = ConquestInput.KeyLabel(ConquestInput.Gameplay.Reload);
             m_DeployKey = ConquestInput.KeyLabel(ConquestInput.Gameplay.Deploy);
+            m_SwitchKey = ConquestInput.KeyLabel(ConquestInput.Gameplay.SwitchWeapon);
+            m_RespawnKey = ConquestInput.KeyLabel(ConquestInput.Gameplay.Respawn);
             m_AimKey = ConquestInput.KeyLabel(ConquestInput.Gameplay.Aim);
             m_HintsKey = int.MinValue;
         }
@@ -191,11 +197,30 @@ namespace Game.Conquest.UI
             player.Deploy(player.PendingClassIndex, player.SelectedPostName);
         }
 
+        // The deploy key works like the button. With no friendly post picked (or the picked one
+        // lost) it deploys anyway and lets the server choose a friendly post, so a controller
+        // never needs the mouse.
+        private void HandleDeployKey(ConquestMatchManager match, ConquestPlayer player)
+        {
+            if (match == null || player == null || !player.Health.IsDead || !ConquestInput.RespawnPressed) return;
+            if (match.IsMatchOver || player.RemainingRespawnTime > 0f || !player.HasTicketForDeploy) return;
+            match.GetFriendlyPostNames(player.CurrentTeam, m_FriendlyPosts);
+            string post = CanDeploy(match, player, m_FriendlyPosts) ? player.SelectedPostName : "";
+            player.Deploy(player.PendingClassIndex, post);
+        }
+
+        private void UpdateProtectionLabel(ConquestPlayer player)
+        {
+            if (spawnProtectionLabel == null) return;
+            bool show = player != null && player.Health.IsSpawnProtected;
+            if (spawnProtectionLabel.activeSelf != show) spawnProtectionLabel.SetActive(show);
+        }
+
         // A post must be picked whenever the team has one; with none left the player deploys at
         // the team spawn, so losing every post never locks anyone out.
         private static bool CanDeploy(ConquestMatchManager match, ConquestPlayer player, List<string> posts)
         {
-            if (match.IsMatchOver || player.RemainingRespawnTime > 0f) return false;
+            if (match.IsMatchOver || player.RemainingRespawnTime > 0f || !player.HasTicketForDeploy) return false;
             if (posts.Count == 0) return true;
             for (int i = 0; i < posts.Count; i++)
             {
@@ -239,6 +264,8 @@ namespace Game.Conquest.UI
             UpdateWorldMarkers(match, player);
             UpdateCommandMap(match, player);
             UpdateRespawnPanel(match, player);
+            HandleDeployKey(match, player);
+            UpdateProtectionLabel(player);
             UpdateMatchResult(match, player);
             UpdateAllPostsAlert(match, player);
             UpdateScoreboard(match);
@@ -337,7 +364,8 @@ namespace Game.Conquest.UI
             for (int i = 0; i < posts.Count; i++)
             {
                 var post = posts[i];
-                if (post == null) continue;
+                // The row lists posts to fight over; home bases are on the map and markers instead.
+                if (post == null || !post.IsCapturable) continue;
 
                 var icon = commandPostsRowUI.GetIcon(shown);
                 if (icon == null) return;
@@ -374,7 +402,7 @@ namespace Game.Conquest.UI
                 var posts = match.CommandPosts;
                 for (int i = 0; i < posts.Count; i++)
                 {
-                    if (posts[i] != null && posts[i].IsInCaptureZone(playerPos))
+                    if (posts[i] != null && posts[i].IsCapturable && posts[i].IsInCaptureZone(playerPos))
                     {
                         nearbyPost = posts[i];
                         break;
@@ -424,8 +452,9 @@ namespace Game.Conquest.UI
             if (weapon != null && cam != null)
             {
                 float halfHeight = ((RectTransform)hudCanvas.transform).rect.height * 0.5f;
-                gap = Mathf.Tan(weapon.SpreadAngle * Mathf.Deg2Rad) / Mathf.Tan(cam.fieldOfView * 0.5f * Mathf.Deg2Rad) * halfHeight;
+                gap = Mathf.Tan(weapon.EffectiveSpreadAngle * Mathf.Deg2Rad) / Mathf.Tan(cam.fieldOfView * 0.5f * Mathf.Deg2Rad) * halfHeight;
             }
+            crosshairUI.SetAim(weapon != null ? weapon.Aim01 : 0f);
             crosshairUI.SetSpread(gap);
             // Scoped weapons draw their own reticle; every other aim keeps the crosshair.
             bool scoped = weapon != null && weapon.IsScoped;
@@ -492,27 +521,40 @@ namespace Game.Conquest.UI
             }
             // Red weapons show a heat gauge, blue ones a magazine. Both read the local prediction,
             // so they respond the moment the trigger is pulled.
-            bool heat = weapon.UsesHeat;
+            // The repair tool has no ammo or heat: it shows its name on a full bar.
+            bool tool = weapon.IsRepairTool;
+            bool heat = weapon.UsesHeat && !tool;
             playerStatsUI.SetWeaponModel(heat);
-            if (heat) playerStatsUI.SetHeat(Mathf.CeilToInt(weapon.Heat01 * 100f), weapon.IsOverheated);
+            playerStatsUI.SetWeapon(weapon.ActiveWeaponName, weapon.ActiveWeaponIcon);
+            if (tool) playerStatsUI.SetAmmoLabel(RepairToolAmmoLabel);
+            else if (heat) playerStatsUI.SetHeat(Mathf.CeilToInt(weapon.Heat01 * 100f), weapon.IsOverheated);
             else playerStatsUI.SetAmmo(weapon.CurrentAmmo, weapon.MagazineCapacity, weapon.IsReloading);
-            UpdateHints(weapon);
+            UpdateHints(weapon, player.Throwables);
         }
 
-        // "[R] Reload | [Q] Station | [RMB] Scope". Rebuilt only when the station cooldown second, the
-        // refusal message, the weapon model or the key labels change, not every frame.
-        private void UpdateHints(ConquestWeapon weapon)
+        private const string RepairToolAmmoLabel = "REPAIR";
+
+        // "[R] Reload | [E] Switch | [Q] Grenade x2 | [RMB] Scope". Rebuilt only when the
+        // weapon in hand, a count or cooldown second, the refusal message, the weapon model or the
+        // key labels change, not every frame.
+        private void UpdateHints(ConquestWeapon weapon, ConquestThrowables throwables)
         {
             string refusal = weapon.HasSupportStation ? weapon.StationRefusal : "";
             int cooldown = weapon.HasSupportStation ? Mathf.CeilToInt(weapon.StationCooldownRemaining) : 0;
+            bool tool = weapon.IsRepairTool;
             bool heat = weapon.UsesHeat;
-            int key = (weapon.HasSupportStation ? 1 : 0) | (weapon.HasZoom ? 2 : 0) | (weapon.HasScope ? 4 : 0) | (heat ? 8 : 0) | (cooldown << 4);
+            bool throws = throwables != null && throwables.HasThrowable;
+            int grenades = throws ? Mathf.Min(throwables.Count, 255) : 0;
+            int key = (weapon.HasSupportStation ? 1 : 0) | (weapon.HasZoom ? 2 : 0) | (weapon.HasScope ? 4 : 0) | (heat ? 8 : 0) |
+                      ((int)weapon.ActiveSlot << 4) | (weapon.HasSidearm ? 32 : 0) | (throws ? 64 : 0) | (grenades << 7) | (cooldown << 15);
             if (key == m_HintsKey && refusal == m_HintsRefusal) return;
             m_HintsKey = key;
             m_HintsRefusal = refusal;
 
-            // Heat weapons vent by themselves, so there is no reload hint for them.
-            string hints = heat ? "" : $"[{m_ReloadKey}] Reload";
+            // Heat weapons vent by themselves, so there is no reload hint for them; the tool has no ammo.
+            string hints = heat || tool ? "" : $"[{m_ReloadKey}] Reload";
+            if (weapon.HasSidearm) hints = Join(hints, $"[{m_SwitchKey}] Switch");
+            if (throws) hints = Join(hints, $"[{m_DeployKey}] {throwables.ThrowableName} x{grenades}");
             if (weapon.HasSupportStation)
             {
                 if (refusal.Length > 0) hints = Join(hints, refusal);
@@ -551,14 +593,16 @@ namespace Game.Conquest.UI
 
             // Tenths of a second while waiting; negative codes for the three ready states.
             float wait = player.RemainingRespawnTime;
-            int timerKey = wait > 0f ? Mathf.CeilToInt(wait * 10f) : (canDeploy ? (posts.Count == 0 ? -1 : -2) : -3);
+            int timerKey = !player.HasTicketForDeploy ? -4
+                : wait > 0f ? Mathf.CeilToInt(wait * 10f) : (canDeploy ? (posts.Count == 0 ? -1 : -2) : -3);
             if (timerKey != m_TimerKey)
             {
                 m_TimerKey = timerKey;
-                if (timerKey > 0) respawnPanelUI.SetTimer($"Deploy in {timerKey / 10f:0.0} seconds");
-                else if (timerKey == -1) respawnPanelUI.SetTimer("No safe command post: deploy at base");
-                else if (timerKey == -2) respawnPanelUI.SetTimer("Ready to deploy");
-                else respawnPanelUI.SetTimer("Choose a command post to deploy");
+                if (timerKey == -4) respawnPanelUI.SetTimer("No reinforcements left: your team fights on without you");
+                else if (timerKey > 0) respawnPanelUI.SetTimer($"Deploy in {timerKey / 10f:0.0} seconds");
+                else if (timerKey == -1) respawnPanelUI.SetTimer($"No safe command post: [{m_RespawnKey}] deploy at base");
+                else if (timerKey == -2) respawnPanelUI.SetTimer($"Ready: [{m_RespawnKey}] deploy");
+                else respawnPanelUI.SetTimer($"Choose a command post, or [{m_RespawnKey}] to deploy anywhere");
             }
         }
 
@@ -591,6 +635,11 @@ namespace Game.Conquest.UI
             }
 
             matchResultPanelUI.Show();
+            if (match.WinningTeam == Team.Neutral)
+            {
+                matchResultPanelUI.SetResult("DRAW", defeatColor, "BOTH TEAMS WERE WIPED OUT");
+                return;
+            }
             bool isWinner = player != null && player.CurrentTeam == match.WinningTeam;
             matchResultPanelUI.SetResult(
                 isWinner ? "VICTORY!" : "DEFEAT",

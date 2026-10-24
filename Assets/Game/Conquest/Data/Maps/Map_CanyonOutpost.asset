@@ -19,7 +19,7 @@ MonoBehaviour:
   previewImage: {fileID: 0}
   themeColor: {r: 0.9, g: 0.7, b: 0.2, a: 1}
   recommendedPlayers: 12
-  commandPostsCount: 5
+  commandPostsCount: 3
   availableGameModes:
   - Conquest
   defaultTickets: 200

@@ -49,12 +49,39 @@ namespace Game.Conquest.Player
         [SerializeField] private GameObject thirdPersonVisualsRoot;
         [SerializeField] private GameObject firstPersonVisualsRoot;
 
+        [Header("Death and spawn protection")]
+        [Tooltip("Pooled effect where a combatant dies, seen by every client.")]
+        [SerializeField] private GameObject deathEffect;
+        [SerializeField] private float deathEffectSeconds = 2.5f;
+        [Tooltip("Blue team bodies fall as a cosmetic ragdoll and dissolve, instead of the death effect.")]
+        [SerializeField] private bool ragdollBlueTeam = true;
+        [Tooltip("Red team bodies fall as a cosmetic ragdoll and dissolve, instead of the death effect.")]
+        [SerializeField] private bool ragdollRedTeam = false;
+        [Tooltip("Placeholder: seconds a ragdoll lies before it dissolves.")]
+        [SerializeField] private float ragdollSeconds = 2.5f;
+        [Tooltip("Placeholder: seconds the dissolve takes.")]
+        [SerializeField] private float ragdollDissolveSeconds = 1f;
+        [Tooltip("Placeholder: m/s the ragdoll is knocked away from the killer.")]
+        [SerializeField] private float ragdollPush = 3f;
+        [Tooltip("Placeholder: blinks per second of a spawn-protected combatant's body, as others see it.")]
+        [SerializeField] private float protectionBlinkRate = 6f;
+        private bool m_BlinkHidden;
+
+        /// <summary>The next deploy is this human's first into the match, which costs no ticket.
+        /// Replicated to the owner so the deploy screen knows.</summary>
+        private NetworkVariable<bool> freeDeploy = new NetworkVariable<bool>(
+            false,
+            NetworkVariableReadPermission.Owner,
+            NetworkVariableWritePermission.Server);
+
         [Header("Respawn Settings")]
-        [SerializeField] private float respawnWaitTime = 5.0f;
+        [Tooltip("Placeholder: respawn wait used only when the match has no game mode (normally the mode's Respawn Seconds applies).")]
+        [SerializeField] private float respawnWaitTime = 1.0f;
 
         private ConquestPlayerMovement m_Movement;
         private ConquestHealth m_Health;
         private ConquestWeapon m_Weapon;
+        private ConquestThrowables m_Throwables;
         private string m_SelectedPostName = "";
         private int m_PendingClassIndex = 0;
 
@@ -62,10 +89,23 @@ namespace Game.Conquest.Player
         public ConquestHealth Health => m_Health;
         public ConquestPlayerMovement Movement => m_Movement;
         public ConquestWeapon Weapon => m_Weapon;
-        public float RespawnWaitTime => respawnWaitTime;
+        /// <summary>Grenades and other throwables.</summary>
+        public ConquestThrowables Throwables => m_Throwables;
+        /// <summary>Server: the wait after a death before deploying again, from the match's game mode.</summary>
+        public float RespawnWaitTime =>
+            ConquestMatchManager.Instance != null ? ConquestMatchManager.Instance.RespawnSeconds(respawnWaitTime) : respawnWaitTime;
         public float RemainingRespawnTime =>
             NetworkManager == null ? 0f : Mathf.Max(0f, (float)(deployAvailableAt.Value - NetworkManager.ServerTime.Time));
         public string SelectedPostName => m_SelectedPostName;
+        /// <summary>Owner or server: this player's next deploy is paid for (a free first deploy, or a ticket the team can spend).</summary>
+        public bool HasTicketForDeploy
+        {
+            get
+            {
+                var match = ConquestMatchManager.Instance;
+                return freeDeploy.Value || match == null || match.CanAffordRespawn(playerTeam.Value);
+            }
+        }
         /// <summary>Class this player will deploy as (the local choice, before the server confirms it).</summary>
         public int PendingClassIndex => m_PendingClassIndex;
         public int CurrentClassIndex => selectedClassIndex.Value;
@@ -88,6 +128,7 @@ namespace Game.Conquest.Player
             m_Movement = GetComponent<ConquestPlayerMovement>();
             m_Health = GetComponent<ConquestHealth>();
             m_Weapon = GetComponent<ConquestWeapon>();
+            m_Throwables = GetComponent<ConquestThrowables>();
         }
 
         public override void OnNetworkSpawn()
@@ -171,6 +212,7 @@ namespace Game.Conquest.Player
                 if (m_Health != null) m_Health.SetMaxHealth(data.maxHealth);
                 if (m_Movement != null) m_Movement.SetSpeed(data.walkSpeed, data.sprintSpeed);
                 if (m_Weapon != null) m_Weapon.ApplyClass(data);
+                if (m_Throwables != null && IsServer) m_Throwables.ServerRefill(data);
             }
         }
 
@@ -234,6 +276,14 @@ namespace Game.Conquest.Player
             }
         }
 
+        /// <summary>Server: an ammo droid's or a station's pulse. Refills both weapons and gives back one throwable.</summary>
+        public void ServerResupply()
+        {
+            if (!IsServer || m_Health.IsDead) return;
+            if (m_Weapon != null) m_Weapon.ResupplyAmmo();
+            if (m_Throwables != null) m_Throwables.ServerGiveOne();
+        }
+
         public void ApplyTeamVisuals(Team team)
         {
             Material targetMat = team == Team.Red ? redTeamMaterial : (team == Team.Blue ? blueTeamMaterial : null);
@@ -248,6 +298,20 @@ namespace Game.Conquest.Player
             }
         }
 
+        // Spawn protection cue: other peers see the body blink until protection ends (by time,
+        // or the moment this player fires or throws). Your own view shows a HUD label instead.
+        private void Update()
+        {
+            if (!IsSpawned || bodyRenderers == null || m_Health == null || (IsOwner && !isBot)) return;
+            bool hide = m_Health.IsSpawnProtected && Mathf.Repeat(Time.time * protectionBlinkRate, 1f) < 0.35f;
+            if (hide == m_BlinkHidden) return;
+            m_BlinkHidden = hide;
+            foreach (var r in bodyRenderers)
+            {
+                if (r != null) r.enabled = !hide;
+            }
+        }
+
         // Dead or waiting to deploy: invisible and without collision.
         private void HideBody()
         {
@@ -256,15 +320,40 @@ namespace Game.Conquest.Player
             m_Movement.SetBodyCollisionEnabled(false);
         }
 
+        // Knocked away from whoever made the kill (a little up), or backwards for a self-kill.
+        private Vector3 RagdollVelocity(ulong killerId)
+        {
+            Vector3 away = -transform.forward;
+            if (killerId != ConquestHealth.NoAttacker && killerId != NetworkObjectId && NetworkManager != null &&
+                NetworkManager.SpawnManager.SpawnedObjects.TryGetValue(killerId, out var killer) && killer != null)
+            {
+                away = transform.position - killer.transform.position;
+            }
+            away.y = 0f;
+            away = away.sqrMagnitude > 1e-4f ? away.normalized : -transform.forward;
+            return away * ragdollPush + Vector3.up * ragdollPush * 0.3f;
+        }
+
         private void HandleDeath(ulong killerId)
         {
+            // Everyone sees a ragdoll team's body fall and dissolve a few seconds later; anyone else
+            // (or a body that can't ragdoll) goes in a burst at once. A dedicated server draws nothing.
+            if (IsClient)
+            {
+                bool ragdolls = CurrentTeam == Team.Blue ? ragdollBlueTeam : CurrentTeam == Team.Red && ragdollRedTeam;
+                bool ragdolled = ragdolls && ConquestRagdoll.Spawn(thirdPersonVisualsRoot, RagdollVelocity(killerId), ragdollSeconds, ragdollDissolveSeconds);
+                if (!ragdolled && deathEffect != null)
+                {
+                    Game.Conquest.Combat.ConquestFxPool.Play(deathEffect, transform.position + Vector3.up, Quaternion.identity, deathEffectSeconds);
+                }
+            }
             HideBody();
-            // Every deploy needs a fresh choice of post.
-            m_SelectedPostName = "";
+            // The chosen post is kept: the next deploy goes back there while it is still friendly
+            // (the deploy screen and the server both check), so a 1 s respawn really is 1 s.
 
             if (IsServer)
             {
-                deployAvailableAt.Value = NetworkManager.ServerTime.Time + respawnWaitTime;
+                deployAvailableAt.Value = NetworkManager.ServerTime.Time + RespawnWaitTime;
                 ConquestNetworkManager.Instance?.OnPlayerKilled(this, killerId);
                 // Bots respawn by themselves; humans wait on the deploy screen (DeployServerRpc).
                 if (isBot) StartCoroutine(ServerRespawnCoroutine());
@@ -281,7 +370,8 @@ namespace Game.Conquest.Player
         {
             if (!IsServer || isBot) return;
             m_SelectedPostName = "";
-            deployAvailableAt.Value = NetworkManager.ServerTime.Time + (waitRespawnDelay ? respawnWaitTime : 0f);
+            freeDeploy.Value = true;
+            deployAvailableAt.Value = NetworkManager.ServerTime.Time + (waitRespawnDelay ? RespawnWaitTime : 0f);
             m_Health.ServerHold();
             HideBody();
             if (IsOwner && m_Movement.HasTransformAuthority) m_Movement.Teleport(parkPosition, parkRotation);
@@ -314,6 +404,9 @@ namespace Game.Conquest.Player
             var match = ConquestMatchManager.Instance;
             if (match == null || match.IsMatchOver) return;
             if (NetworkManager.ServerTime.Time < deployAvailableAt.Value) return;
+            // The first deploy into a match is free; every later one costs the team a ticket.
+            if (!freeDeploy.Value && !match.ServerTrySpendRespawn(this)) return;
+            freeDeploy.Value = false;
 
             ServerSetClass(classIndex);
 
@@ -351,17 +444,31 @@ namespace Game.Conquest.Player
 
         private IEnumerator ServerRespawnCoroutine()
         {
-            yield return new WaitForSeconds(respawnWaitTime);
+            yield return new WaitForSeconds(RespawnWaitTime);
 
-            // Safely retire excess bots if new humans joined
-            if (isBot && ConquestBotManager.Instance != null && ConquestBotManager.Instance.ShouldRetireBot(playerTeam.Value))
+            while (true)
             {
-                GetComponent<NetworkObject>()?.Despawn(true);
-                yield break;
+                var match = ConquestMatchManager.Instance;
+                // A decided match keeps its dead out: the results screen follows the banner.
+                if (match == null || match.IsMatchOver) yield break;
+
+                // Safely retire excess bots if new humans joined
+                if (isBot && ConquestBotManager.Instance != null && ConquestBotManager.Instance.ShouldRetireBot(playerTeam.Value))
+                {
+                    GetComponent<NetworkObject>()?.Despawn(true);
+                    yield break;
+                }
+
+                // No ticket this bot may take (out, or kept for a dead player): wait and ask again.
+                if (match.ServerTrySpendRespawn(this)) break;
+                yield return s_TicketRetryWait;
             }
 
             ServerRespawnNow();
         }
+
+        // Placeholder: how often a bot waiting on a ticket asks again.
+        private static readonly WaitForSeconds s_TicketRetryWait = new WaitForSeconds(0.5f);
 
         private void ServerRespawnNow()
         {
