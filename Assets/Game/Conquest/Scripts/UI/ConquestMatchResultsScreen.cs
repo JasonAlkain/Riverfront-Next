@@ -150,7 +150,15 @@ namespace Game.Conquest.UI
             Team localTeam = FindLocalTeam(results);
             string title;
             Color titleColor;
-            if (localTeam == Team.Neutral)
+            string outcome = $"{results.winner} team won the battle";
+            if (results.winner == Team.Neutral)
+            {
+                // Both teams wiped out on the same tick with the same tickets left.
+                title = "DRAW";
+                titleColor = defeatColor;
+                outcome = "Both teams were wiped out";
+            }
+            else if (localTeam == Team.Neutral)
             {
                 title = $"{results.winner.ToString().ToUpper()} TEAM WINS";
                 titleColor = results.winner == Team.Red ? redColor : blueColor;
@@ -162,7 +170,7 @@ namespace Game.Conquest.UI
                 titleColor = won ? victoryColor : defeatColor;
             }
 
-            summaryPanelUI?.SetOutcome(title, titleColor, $"{results.winner} team won the battle");
+            summaryPanelUI?.SetOutcome(title, titleColor, outcome);
             summaryPanelUI?.SetMatchInfo($"{MapLabel(results.mapScene.ToString())}  |  {FormatDuration(results.durationSeconds)}  |  " +
                                          $"Tickets left: Red {results.redTickets} / Blue {results.blueTickets}");
 

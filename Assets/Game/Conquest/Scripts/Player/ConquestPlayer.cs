@@ -67,6 +67,13 @@ namespace Game.Conquest.Player
         [SerializeField] private float protectionBlinkRate = 6f;
         private bool m_BlinkHidden;
 
+        /// <summary>The next deploy is this human's first into the match, which costs no ticket.
+        /// Replicated to the owner so the deploy screen knows.</summary>
+        private NetworkVariable<bool> freeDeploy = new NetworkVariable<bool>(
+            false,
+            NetworkVariableReadPermission.Owner,
+            NetworkVariableWritePermission.Server);
+
         [Header("Respawn Settings")]
         [Tooltip("Placeholder: respawn wait used only when the match has no game mode (normally the mode's Respawn Seconds applies).")]
         [SerializeField] private float respawnWaitTime = 1.0f;
@@ -90,6 +97,15 @@ namespace Game.Conquest.Player
         public float RemainingRespawnTime =>
             NetworkManager == null ? 0f : Mathf.Max(0f, (float)(deployAvailableAt.Value - NetworkManager.ServerTime.Time));
         public string SelectedPostName => m_SelectedPostName;
+        /// <summary>Owner or server: this player's next deploy is paid for (a free first deploy, or a ticket the team can spend).</summary>
+        public bool HasTicketForDeploy
+        {
+            get
+            {
+                var match = ConquestMatchManager.Instance;
+                return freeDeploy.Value || match == null || match.CanAffordRespawn(playerTeam.Value);
+            }
+        }
         /// <summary>Class this player will deploy as (the local choice, before the server confirms it).</summary>
         public int PendingClassIndex => m_PendingClassIndex;
         public int CurrentClassIndex => selectedClassIndex.Value;
@@ -354,6 +370,7 @@ namespace Game.Conquest.Player
         {
             if (!IsServer || isBot) return;
             m_SelectedPostName = "";
+            freeDeploy.Value = true;
             deployAvailableAt.Value = NetworkManager.ServerTime.Time + (waitRespawnDelay ? RespawnWaitTime : 0f);
             m_Health.ServerHold();
             HideBody();
@@ -387,6 +404,9 @@ namespace Game.Conquest.Player
             var match = ConquestMatchManager.Instance;
             if (match == null || match.IsMatchOver) return;
             if (NetworkManager.ServerTime.Time < deployAvailableAt.Value) return;
+            // The first deploy into a match is free; every later one costs the team a ticket.
+            if (!freeDeploy.Value && !match.ServerTrySpendRespawn(this)) return;
+            freeDeploy.Value = false;
 
             ServerSetClass(classIndex);
 
@@ -426,18 +446,29 @@ namespace Game.Conquest.Player
         {
             yield return new WaitForSeconds(RespawnWaitTime);
 
-            // A decided match keeps its dead out: the results screen follows the banner.
-            if (ConquestMatchManager.Instance != null && ConquestMatchManager.Instance.IsMatchOver) yield break;
-
-            // Safely retire excess bots if new humans joined
-            if (isBot && ConquestBotManager.Instance != null && ConquestBotManager.Instance.ShouldRetireBot(playerTeam.Value))
+            while (true)
             {
-                GetComponent<NetworkObject>()?.Despawn(true);
-                yield break;
+                var match = ConquestMatchManager.Instance;
+                // A decided match keeps its dead out: the results screen follows the banner.
+                if (match == null || match.IsMatchOver) yield break;
+
+                // Safely retire excess bots if new humans joined
+                if (isBot && ConquestBotManager.Instance != null && ConquestBotManager.Instance.ShouldRetireBot(playerTeam.Value))
+                {
+                    GetComponent<NetworkObject>()?.Despawn(true);
+                    yield break;
+                }
+
+                // No ticket this bot may take (out, or kept for a dead player): wait and ask again.
+                if (match.ServerTrySpendRespawn(this)) break;
+                yield return s_TicketRetryWait;
             }
 
             ServerRespawnNow();
         }
+
+        // Placeholder: how often a bot waiting on a ticket asks again.
+        private static readonly WaitForSeconds s_TicketRetryWait = new WaitForSeconds(0.5f);
 
         private void ServerRespawnNow()
         {

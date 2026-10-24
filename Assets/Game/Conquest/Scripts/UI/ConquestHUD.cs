@@ -203,7 +203,7 @@ namespace Game.Conquest.UI
         private void HandleDeployKey(ConquestMatchManager match, ConquestPlayer player)
         {
             if (match == null || player == null || !player.Health.IsDead || !ConquestInput.RespawnPressed) return;
-            if (match.IsMatchOver || player.RemainingRespawnTime > 0f) return;
+            if (match.IsMatchOver || player.RemainingRespawnTime > 0f || !player.HasTicketForDeploy) return;
             match.GetFriendlyPostNames(player.CurrentTeam, m_FriendlyPosts);
             string post = CanDeploy(match, player, m_FriendlyPosts) ? player.SelectedPostName : "";
             player.Deploy(player.PendingClassIndex, post);
@@ -220,7 +220,7 @@ namespace Game.Conquest.UI
         // the team spawn, so losing every post never locks anyone out.
         private static bool CanDeploy(ConquestMatchManager match, ConquestPlayer player, List<string> posts)
         {
-            if (match.IsMatchOver || player.RemainingRespawnTime > 0f) return false;
+            if (match.IsMatchOver || player.RemainingRespawnTime > 0f || !player.HasTicketForDeploy) return false;
             if (posts.Count == 0) return true;
             for (int i = 0; i < posts.Count; i++)
             {
@@ -593,11 +593,13 @@ namespace Game.Conquest.UI
 
             // Tenths of a second while waiting; negative codes for the three ready states.
             float wait = player.RemainingRespawnTime;
-            int timerKey = wait > 0f ? Mathf.CeilToInt(wait * 10f) : (canDeploy ? (posts.Count == 0 ? -1 : -2) : -3);
+            int timerKey = !player.HasTicketForDeploy ? -4
+                : wait > 0f ? Mathf.CeilToInt(wait * 10f) : (canDeploy ? (posts.Count == 0 ? -1 : -2) : -3);
             if (timerKey != m_TimerKey)
             {
                 m_TimerKey = timerKey;
-                if (timerKey > 0) respawnPanelUI.SetTimer($"Deploy in {timerKey / 10f:0.0} seconds");
+                if (timerKey == -4) respawnPanelUI.SetTimer("No reinforcements left: your team fights on without you");
+                else if (timerKey > 0) respawnPanelUI.SetTimer($"Deploy in {timerKey / 10f:0.0} seconds");
                 else if (timerKey == -1) respawnPanelUI.SetTimer($"No safe command post: [{m_RespawnKey}] deploy at base");
                 else if (timerKey == -2) respawnPanelUI.SetTimer($"Ready: [{m_RespawnKey}] deploy");
                 else respawnPanelUI.SetTimer($"Choose a command post, or [{m_RespawnKey}] to deploy anywhere");
@@ -633,6 +635,11 @@ namespace Game.Conquest.UI
             }
 
             matchResultPanelUI.Show();
+            if (match.WinningTeam == Team.Neutral)
+            {
+                matchResultPanelUI.SetResult("DRAW", defeatColor, "BOTH TEAMS WERE WIPED OUT");
+                return;
+            }
             bool isWinner = player != null && player.CurrentTeam == match.WinningTeam;
             matchResultPanelUI.SetResult(
                 isWinner ? "VICTORY!" : "DEFEAT",

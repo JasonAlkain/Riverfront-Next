@@ -25,6 +25,12 @@ namespace Game.Conquest.Gameplay
 
         /// <summary>A combatant died. <paramref name="killer"/> is null for falls and kill volumes.</summary>
         void ServerOnDeath(ConquestMatchManager match, ConquestPlayer victim, ConquestPlayer killer);
+
+        /// <summary>
+        /// A dead combatant wants back in. Returns true (and charges their team whatever it costs)
+        /// if they may respawn now, false if their team can't afford it yet.
+        /// </summary>
+        bool ServerTrySpendRespawn(ConquestMatchManager match, ConquestPlayer combatant);
     }
 
     /// <summary>Picks the mode class for a mode id. Unknown or empty ids fall back to Conquest.</summary>

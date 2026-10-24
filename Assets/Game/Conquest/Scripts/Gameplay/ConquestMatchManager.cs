@@ -77,6 +77,21 @@ namespace Game.Conquest.Gameplay
 
         public int RedTickets => redTickets.Value;
         public int BlueTickets => blueTickets.Value;
+        public int TicketsFor(Team team) => team == Team.Red ? redTickets.Value : team == Team.Blue ? blueTickets.Value : 0;
+        /// <summary>
+        /// Tickets a respawn costs, read from this scene's rules so clients can show it too
+        /// (only Conquest exists, so its rules are the ones that apply).
+        /// </summary>
+        public int RespawnTicketCost => conquestRules != null ? Mathf.Max(0, conquestRules.ticketsPerRespawn) : 0;
+        /// <summary>True when <paramref name="team"/> has enough tickets left for one respawn.</summary>
+        public bool CanAffordRespawn(Team team) => team == Team.Neutral || TicketsFor(team) >= RespawnTicketCost;
+
+        /// <summary>Server: may this dead combatant respawn now? Charges the ticket if so.</summary>
+        public bool ServerTrySpendRespawn(ConquestPlayer combatant)
+        {
+            if (!IsServer || combatant == null || isMatchOver.Value) return false;
+            return m_Mode == null || m_Mode.ServerTrySpendRespawn(this, combatant);
+        }
         public bool IsMatchOver => isMatchOver.Value;
         public Team WinningTeam => winningTeam.Value;
         public IReadOnlyList<ConquestCommandPost> CommandPosts => commandPosts;
@@ -327,7 +342,16 @@ namespace Game.Conquest.Gameplay
             }
         }
 
-        /// <summary>Server: the match is decided. Only the first call counts.</summary>
+        /// <summary>Server: take tickets for a respawn. Unlike DrainTickets this never ends the match
+        /// by itself: a team at 0 fights on until its last member falls.</summary>
+        public void ServerSpendTickets(Team team, int amount)
+        {
+            if (!IsServer || isMatchOver.Value || amount <= 0) return;
+            if (team == Team.Red) redTickets.Value = Mathf.Max(0, redTickets.Value - amount);
+            else if (team == Team.Blue) blueTickets.Value = Mathf.Max(0, blueTickets.Value - amount);
+        }
+
+        /// <summary>Server: the match is decided (Neutral is a draw). Only the first call counts.</summary>
         public void ServerEndMatch(Team winner)
         {
             if (!IsServer || isMatchOver.Value) return;
