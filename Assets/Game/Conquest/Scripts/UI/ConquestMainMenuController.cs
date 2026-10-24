@@ -229,6 +229,7 @@ namespace Game.Conquest.UI
             currentMenuState = newState;
 
             SetPanelVisible(titlePanelUI, newState == MenuState.Title);
+            if (headerBannerUI != null) headerBannerUI.SetTitleVisible(newState != MenuState.Title);
             SetPanelVisible(playSoloMenuPanelUI, newState == MenuState.PlaySoloMenu);
             SetPanelVisible(soloPanelUI, newState == MenuState.PlaySolo);
             SetPanelVisible(multiplayerPanelUI, newState == MenuState.Multiplayer);
