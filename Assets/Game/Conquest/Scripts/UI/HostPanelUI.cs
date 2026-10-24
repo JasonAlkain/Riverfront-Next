@@ -20,6 +20,10 @@ namespace Game.Conquest
         public Slider sld_ReinforcementTickets;
         public Slider sld_TargetTeamSize;
 
+        [Header("Network")]
+        [Tooltip("Online (Relay, players join with a code) or LAN (players type this PC's IP).")]
+        public OptionStepperUI stp_Network;
+
         [Header("Bots")]
         [Tooltip("Off: only humans play. On: bots fill every team up to the target size.")]
         public OptionStepperUI stp_BotFill;

@@ -76,6 +76,9 @@ namespace Game.Conquest.UI
         private int m_HostTickets = 250;
         private int m_HostTeamSize = 8;
         private bool m_HostBotFilling = true;
+        // Online hosts through Relay (players join with a code); off hosts on the LAN by IP.
+        private bool m_HostOnline = true;
+        private bool m_HostStarting;
         private int m_HostBotDifficultyIndex = 1; // Normal
 
         private string m_JoinCodeInput = "127.0.0.1";
@@ -90,6 +93,7 @@ namespace Game.Conquest.UI
         private const string RecentServersPrefsKey = "Conquest.RecentServers";
 
         private static readonly string[] k_OnOff = { "Off", "On" };
+        private static readonly string[] k_NetworkModes = { "LAN (direct IP)", "Online (join code)" };
         private static readonly string[] k_Difficulties = { "Easy", "Normal", "Hard" };
 
         // Lobby state
@@ -152,6 +156,7 @@ namespace Game.Conquest.UI
             if (session != null)
             {
                 session.OnStatusChanged += HandleStatusChanged;
+                session.OnOnlineJoinFailed += HandleOnlineJoinFailed;
                 HandleStatusChanged(session.StatusMessage);
             }
 
@@ -165,6 +170,7 @@ namespace Game.Conquest.UI
             if (ConquestSession.Current != null)
             {
                 ConquestSession.Current.OnStatusChanged -= HandleStatusChanged;
+                ConquestSession.Current.OnOnlineJoinFailed -= HandleOnlineJoinFailed;
             }
             if (Instance == this) Instance = null;
         }
@@ -172,6 +178,14 @@ namespace Game.Conquest.UI
         private void HandleStatusChanged(string msg)
         {
             SetStatusBadge(msg);
+        }
+
+        private void HandleOnlineJoinFailed(string reason)
+        {
+            if (!m_IsConnecting) return;
+            m_IsConnecting = false;
+            m_LeavingIntentionally = false;
+            ShowJoinError(reason);
         }
 
         private void SetStatusBadge(string msg)
@@ -231,7 +245,7 @@ namespace Game.Conquest.UI
                 // Enumerating interfaces allocates, so resolve the join address once per lobby visit.
                 bool hosting = NetworkManager.Singleton != null && NetworkManager.Singleton.IsServer;
                 m_LobbyJoinAddressLine = hosting && ConquestSession.Current != null
-                    ? $"\nPLAYERS JOIN AT: {ConquestSession.Current.HostJoinAddress}"
+                    ? $"\n{ConquestSession.Current.HostJoinAddress}"
                     : "";
                 m_LobbyNameSent = false;
                 m_LobbyDisplayValid = false;
@@ -408,6 +422,11 @@ namespace Game.Conquest.UI
                     UpdateHostLabels();
                 };
             }
+            if (p.stp_Network != null)
+            {
+                p.stp_Network.SetOptions(k_NetworkModes, m_HostOnline ? 1 : 0);
+                p.stp_Network.Changed += index => m_HostOnline = index == 1;
+            }
             if (p.stp_BotDifficulty != null)
             {
                 p.stp_BotDifficulty.SetOptions(k_Difficulties, m_HostBotDifficultyIndex);
@@ -571,13 +590,35 @@ namespace Game.Conquest.UI
             string sName = nameInput != null && !string.IsNullOrWhiteSpace(nameInput.text) ? nameInput.text : m_HostSessionName;
 
             var session = ConquestSession.Current;
-            bool success = session != null && session.StartHostGame(
+            if (session == null || m_HostStarting) return;
+
+            if (m_HostOnline)
+            {
+                // Signing in and reserving the relay take a moment; Update moves to the lobby once
+                // the host is running, so only a failure needs handling here.
+                SetHostStarting(true);
+                session.StartOnlineHostGame(mapId, sceneName, sName, m_HostMaxPlayers, m_HostTickets, m_HostTeamSize,
+                    m_HostBotFilling, (BotDifficulty)m_HostBotDifficultyIndex, (ok, message) =>
+                    {
+                        SetHostStarting(false);
+                        if (!ok) SetStatusBadge(message);
+                    });
+                return;
+            }
+
+            bool success = session.StartHostGame(
                 mapId, sceneName, sName, m_HostMaxPlayers, m_HostTickets, m_HostTeamSize, m_HostBotFilling, (BotDifficulty)m_HostBotDifficultyIndex);
 
             if (success)
             {
                 SwitchScreen(MenuState.Lobby);
             }
+        }
+
+        private void SetHostStarting(bool starting)
+        {
+            m_HostStarting = starting;
+            if (hostPanelUI != null && hostPanelUI.btn_CreateLobby != null) hostPanelUI.btn_CreateLobby.interactable = !starting;
         }
 
         private void UpdateLobbyDisplay()
@@ -791,6 +832,24 @@ namespace Game.Conquest.UI
             if (m_IsConnecting) return;
 
             address = address != null ? address.Trim() : "";
+
+            // A six-character code joins an online match through Relay; anything else is a LAN address.
+            if (ConquestOnlineServices.LooksLikeJoinCode(address))
+            {
+                string code = ConquestOnlineServices.NormalizeJoinCode(address);
+                m_LeavingIntentionally = false;
+                var online = ConquestSession.Current;
+                if (online == null || !online.StartClientConnect(ConquestConnectionData.ForJoinCode(code)))
+                {
+                    SetJoinStatus("Could not start the connection.");
+                    return;
+                }
+                // Join codes expire with their match, so they are not kept as recent servers.
+                m_IsConnecting = true;
+                SetJoinStatus($"Joining online match {code}... (Back to cancel)");
+                return;
+            }
+
             // Accept "host:port" pasted into the address field.
             int colon = address.LastIndexOf(':');
             if (colon > 0 && address.IndexOf(':') == colon)
@@ -801,7 +860,7 @@ namespace Game.Conquest.UI
 
             if (string.IsNullOrEmpty(address))
             {
-                SetJoinStatus("Enter the server's IP address.");
+                SetJoinStatus("Enter a join code, or the host's IP address on your LAN.");
                 return;
             }
 

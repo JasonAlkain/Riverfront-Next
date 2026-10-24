@@ -527,6 +527,10 @@ MonoBehaviour:
     m_Key: MainMenuCanvas/PlaySoloMenuPanel/Btn_BACK_TO_MAIN_MENU/Text
     m_Metadata:
       m_Items: []
+  - m_Id: 842215033810944
+    m_Key: MainMenuCanvas/Row_Network
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

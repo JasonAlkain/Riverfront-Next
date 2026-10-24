@@ -287,7 +287,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 4913598471
-    m_Localized: 'Direct IP Connection:'
+    m_Localized: 'Join code or LAN IP:'
     m_Metadata:
       m_Items: []
   - m_Id: 4913598472
@@ -551,6 +551,10 @@ MonoBehaviour:
       m_Items: []
   - m_Id: 725991058018307
     m_Localized: BACK TO MAIN MENU
+    m_Metadata:
+      m_Items: []
+  - m_Id: 842215033810944
+    m_Localized: Network
     m_Metadata:
       m_Items: []
   references:
