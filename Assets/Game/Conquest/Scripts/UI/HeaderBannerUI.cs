@@ -18,7 +18,7 @@ namespace Game.Conquest
         }
 
         // The texts sit inside holder objects that are laid out on the banner; hide the holder.
-        private static void SetActive(TextMeshProUGUI text, bool visible)
+        private void SetActive(TextMeshProUGUI text, bool visible)
         {
             if (text == null) return;
             var target = text.transform.parent != transform && text.transform.parent != null ? text.transform.parent.gameObject : text.gameObject;
