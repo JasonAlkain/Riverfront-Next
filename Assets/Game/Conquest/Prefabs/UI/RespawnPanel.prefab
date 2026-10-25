@@ -449,6 +449,10 @@ MonoBehaviour:
   txt_SelectedPostInfo: {fileID: 5546869914380386972}
   img_SpawnPreview: {fileID: 6446283197577448710}
   spawnPreviewPlaceholder: {fileID: 3453733157914161606}
+  hiddenWhenChangingClass:
+  - {fileID: 2115169566853728874}
+  - {fileID: 4488162099486386392}
+  txt_DeployLabel: {fileID: 5805843198685289766}
   normalColor: {r: 0.12, g: 0.16, b: 0.24, a: 0.9}
   selectedColor: {r: 0.2, g: 0.6, b: 1, a: 1}
 --- !u!114 &6589612133436692974

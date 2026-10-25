@@ -195,6 +195,16 @@ namespace Game.Conquest.Controls
                     ""priority"": 0
                 },
                 {
+                    ""name"": ""Interact"",
+                    ""type"": ""Button"",
+                    ""id"": ""e3b88412-e1a5-45d3-bdbf-0b2731487be7"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false,
+                    ""priority"": 0
+                },
+                {
                     ""name"": ""Respawn"",
                     ""type"": ""Button"",
                     ""id"": ""5d6ea77f-a25f-4119-b965-74345233ba82"",
@@ -544,6 +554,28 @@ namespace Game.Conquest.Controls
                     ""action"": ""Pause"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""d51734dc-efad-4359-93a8-19e94ae42aa3"",
+                    ""path"": ""<Keyboard>/f"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": ""KeyboardMouse"",
+                    ""action"": ""Interact"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""1472df83-fd05-4bef-9a7e-a115d2e88d5f"",
+                    ""path"": ""<Gamepad>/buttonEast"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": ""Gamepad"",
+                    ""action"": ""Interact"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -590,6 +622,7 @@ namespace Game.Conquest.Controls
             m_Gameplay_Jump = m_Gameplay.FindAction("Jump", throwIfNotFound: true);
             m_Gameplay_Deploy = m_Gameplay.FindAction("Deploy", throwIfNotFound: true);
             m_Gameplay_SwitchWeapon = m_Gameplay.FindAction("SwitchWeapon", throwIfNotFound: true);
+            m_Gameplay_Interact = m_Gameplay.FindAction("Interact", throwIfNotFound: true);
             m_Gameplay_Respawn = m_Gameplay.FindAction("Respawn", throwIfNotFound: true);
             m_Gameplay_Scoreboard = m_Gameplay.FindAction("Scoreboard", throwIfNotFound: true);
             m_Gameplay_Pause = m_Gameplay.FindAction("Pause", throwIfNotFound: true);
@@ -683,6 +716,7 @@ namespace Game.Conquest.Controls
         private readonly InputAction m_Gameplay_Jump;
         private readonly InputAction m_Gameplay_Deploy;
         private readonly InputAction m_Gameplay_SwitchWeapon;
+        private readonly InputAction m_Gameplay_Interact;
         private readonly InputAction m_Gameplay_Respawn;
         private readonly InputAction m_Gameplay_Scoreboard;
         private readonly InputAction m_Gameplay_Pause;
@@ -737,6 +771,10 @@ namespace Game.Conquest.Controls
             /// Provides access to the underlying input action "Gameplay/SwitchWeapon".
             /// </summary>
             public InputAction @SwitchWeapon => m_Wrapper.m_Gameplay_SwitchWeapon;
+            /// <summary>
+            /// Provides access to the underlying input action "Gameplay/Interact".
+            /// </summary>
+            public InputAction @Interact => m_Wrapper.m_Gameplay_Interact;
             /// <summary>
             /// Provides access to the underlying input action "Gameplay/Respawn".
             /// </summary>
@@ -805,6 +843,9 @@ namespace Game.Conquest.Controls
                 @SwitchWeapon.started += instance.OnSwitchWeapon;
                 @SwitchWeapon.performed += instance.OnSwitchWeapon;
                 @SwitchWeapon.canceled += instance.OnSwitchWeapon;
+                @Interact.started += instance.OnInteract;
+                @Interact.performed += instance.OnInteract;
+                @Interact.canceled += instance.OnInteract;
                 @Respawn.started += instance.OnRespawn;
                 @Respawn.performed += instance.OnRespawn;
                 @Respawn.canceled += instance.OnRespawn;
@@ -855,6 +896,9 @@ namespace Game.Conquest.Controls
                 @SwitchWeapon.started -= instance.OnSwitchWeapon;
                 @SwitchWeapon.performed -= instance.OnSwitchWeapon;
                 @SwitchWeapon.canceled -= instance.OnSwitchWeapon;
+                @Interact.started -= instance.OnInteract;
+                @Interact.performed -= instance.OnInteract;
+                @Interact.canceled -= instance.OnInteract;
                 @Respawn.started -= instance.OnRespawn;
                 @Respawn.performed -= instance.OnRespawn;
                 @Respawn.canceled -= instance.OnRespawn;
@@ -1000,6 +1044,13 @@ namespace Game.Conquest.Controls
             /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
             /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
             void OnSwitchWeapon(InputAction.CallbackContext context);
+            /// <summary>
+            /// Method invoked when associated input action "Interact" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+            /// </summary>
+            /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+            /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+            /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+            void OnInteract(InputAction.CallbackContext context);
             /// <summary>
             /// Method invoked when associated input action "Respawn" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
             /// </summary>

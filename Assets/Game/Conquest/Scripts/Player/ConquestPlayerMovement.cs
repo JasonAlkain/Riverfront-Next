@@ -52,6 +52,12 @@ namespace Game.Conquest.Player
         private Vector3 m_Velocity;
         private float m_Pitch;
         private bool m_CursorLocked = true;
+
+        /// <summary>
+        /// Owner: a menu is open over the match (the class change screen). The cursor stays free and
+        /// the player neither looks nor moves; weapons already ignore input while the cursor is free.
+        /// </summary>
+        public bool MenuOpen { get; set; }
         private bool m_LocalViewActive = false;
         private float m_BaseFieldOfView = 75.0f;
 
@@ -212,6 +218,12 @@ namespace Game.Conquest.Player
                 return;
             }
             EndDeathCamera();
+
+            if (MenuOpen)
+            {
+                if (m_CursorLocked) SetCursorLock(false);
+                return;
+            }
 
             HandleCursorToggle();
             if (!m_CursorLocked) return;

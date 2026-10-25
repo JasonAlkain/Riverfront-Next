@@ -7,6 +7,7 @@ using Game.Conquest.Gameplay;
 using Game.Conquest.Combat;
 using Game.Conquest.Networking;
 using Game.Conquest.Classes;
+using Game.Conquest.Objectives;
 
 namespace Game.Conquest.Player
 {
@@ -274,6 +275,45 @@ namespace Game.Conquest.Player
             {
                 m_PendingClassIndex = ClampClassIndex(classIndex);
             }
+        }
+
+        /// <summary>
+        /// The friendly command post this player is standing in, if any: owned by their team, not
+        /// contested, and with the player inside its capture zone. Runs on any peer; the server's
+        /// answer is the one that counts.
+        /// </summary>
+        public ConquestCommandPost FriendlyPostHere()
+        {
+            var match = ConquestMatchManager.Instance;
+            if (match == null || match.IsMatchOver || m_Health == null || m_Health.IsDead) return null;
+            Team team = CurrentTeam;
+            if (team == Team.Neutral) return null;
+            var posts = match.CommandPosts;
+            for (int i = 0; i < posts.Count; i++)
+            {
+                var post = posts[i];
+                if (post != null && post.CurrentOwner == team && !post.IsContested && post.IsInCaptureZone(transform.position)) return post;
+            }
+            return null;
+        }
+
+        /// <summary>Owner: ask to become <paramref name="classIndex"/> now, at the friendly post the player stands in.</summary>
+        public void ChangeClassAtPost(int classIndex)
+        {
+            if (IsOwner) ChangeClassAtPostServerRpc(classIndex);
+        }
+
+        [ServerRpc]
+        private void ChangeClassAtPostServerRpc(int classIndex)
+        {
+            // The client only asks: the server checks the post itself, so the class can't be
+            // swapped away from one (or while dead, which the deploy screen handles).
+            if (isBot || FriendlyPostHere() == null) return;
+            classIndex = ClampClassIndex(classIndex);
+            if (classIndex == selectedClassIndex.Value) return;
+            // A fresh kit: ApplyClass resets health to the new class's maximum, the weapon's ammo
+            // and the throwables, the same as deploying with that class.
+            ServerSetClass(classIndex);
         }
 
         /// <summary>Server: an ammo droid's or a station's pulse. Refills both weapons and gives back one throwable.</summary>

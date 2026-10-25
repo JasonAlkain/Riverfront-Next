@@ -91,6 +91,7 @@ namespace Game.Conquest.UI
         private string m_CaptureStatus = "";
         private int m_TimerKey = int.MinValue;
         private string m_HintsRefusal = "";
+        private bool m_HintsAtPost;
 
         private void Awake()
         {
@@ -174,14 +175,68 @@ namespace Game.Conquest.UI
             m_SwitchKey = ConquestInput.KeyLabel(ConquestInput.Gameplay.SwitchWeapon);
             m_RespawnKey = ConquestInput.KeyLabel(ConquestInput.Gameplay.Respawn);
             m_AimKey = ConquestInput.KeyLabel(ConquestInput.Gameplay.Aim);
+            m_InteractKey = ConquestInput.KeyLabel(ConquestInput.Gameplay.Interact);
             m_HintsKey = int.MinValue;
         }
 
         // The server applies a class picked while dead to this respawn; while alive it is queued.
+        // At a post the pick is only shown until Change Class confirms it.
         private void HandleClassSelected(int classIndex)
         {
+            if (m_ChangingClass)
+            {
+                m_ChangeClassChoice = classIndex;
+                return;
+            }
             var player = ConquestPlayer.Local;
             if (player != null) player.SelectClass(classIndex);
+        }
+
+        // ---- Changing class at a friendly command post ----
+        private string m_InteractKey = "F";
+        private bool m_ChangingClass;
+        private int m_ChangeClassChoice;
+
+        private void OpenClassChange(ConquestPlayer player)
+        {
+            m_ChangingClass = true;
+            m_ChangeClassChoice = player.CurrentClassIndex;
+            if (player.Movement != null) player.Movement.MenuOpen = true;
+            m_TimerKey = int.MinValue;
+        }
+
+        private void CloseClassChange(ConquestPlayer player)
+        {
+            if (!m_ChangingClass) return;
+            m_ChangingClass = false;
+            if (player != null && player.Movement != null)
+            {
+                player.Movement.MenuOpen = false;
+                if (!player.Health.IsDead) player.Movement.SetCursorLock(true);
+            }
+            m_TimerKey = int.MinValue;
+        }
+
+        private void ConfirmClassChange(ConquestPlayer player)
+        {
+            player.ChangeClassAtPost(m_ChangeClassChoice);
+            CloseClassChange(player);
+        }
+
+        // The interact key opens the class screen at a friendly post and closes it again. It also
+        // closes on leaving the post (or the post turning), on death, on pause and at match end.
+        private void UpdateClassChange(ConquestMatchManager match, ConquestPlayer player)
+        {
+            bool paused = ConquestPauseMenu.Instance != null && ConquestPauseMenu.Instance.IsPaused;
+            ConquestCommandPost post = player != null ? player.FriendlyPostHere() : null;
+            if (m_ChangingClass)
+            {
+                if (post == null || paused || player == null) CloseClassChange(player);
+                else if (ConquestInput.InteractPressed) CloseClassChange(player);
+                else if (ConquestInput.RespawnPressed) ConfirmClassChange(player);
+                return;
+            }
+            if (post != null && !paused && ConquestInput.InteractPressed) OpenClassChange(player);
         }
 
         private void HandleSpawnPostSelected(string postName)
@@ -195,6 +250,11 @@ namespace Game.Conquest.UI
             var player = ConquestPlayer.Local;
             var match = ConquestMatchManager.Instance;
             if (player == null || match == null) return;
+            if (m_ChangingClass)
+            {
+                ConfirmClassChange(player);
+                return;
+            }
             match.GetFriendlyPostNames(player.CurrentTeam, m_FriendlyPosts);
             if (!CanDeploy(match, player, m_FriendlyPosts)) return;
             player.Deploy(player.PendingClassIndex, player.SelectedPostName);
@@ -266,6 +326,7 @@ namespace Game.Conquest.UI
             UpdatePlayerStats(player);
             UpdateWorldMarkers(match, player);
             UpdateCommandMap(match, player);
+            UpdateClassChange(match, player);
             UpdateRespawnPanel(match, player);
             HandleDeployKey(match, player);
             UpdateProtectionLabel(player);
@@ -550,9 +611,12 @@ namespace Game.Conquest.UI
             int grenades = throws ? Mathf.Min(throwables.Count, 255) : 0;
             int key = (weapon.HasSupportStation ? 1 : 0) | (weapon.HasZoom ? 2 : 0) | (weapon.HasScope ? 4 : 0) | (heat ? 8 : 0) |
                       ((int)weapon.ActiveSlot << 4) | (weapon.HasSidearm ? 32 : 0) | (throws ? 64 : 0) | (grenades << 7) | (cooldown << 15);
-            if (key == m_HintsKey && refusal == m_HintsRefusal) return;
+            var local = ConquestPlayer.Local;
+            bool atPost = local != null && !m_ChangingClass && local.FriendlyPostHere() != null;
+            if (key == m_HintsKey && refusal == m_HintsRefusal && atPost == m_HintsAtPost) return;
             m_HintsKey = key;
             m_HintsRefusal = refusal;
+            m_HintsAtPost = atPost;
 
             // Heat weapons vent by themselves, so there is no reload hint for them; the tool has no ammo.
             string hints = heat || tool ? "" : $"[{m_ReloadKey}] Reload";
@@ -565,6 +629,7 @@ namespace Game.Conquest.UI
                 else hints = Join(hints, $"[{m_DeployKey}] Station");
             }
             if (weapon.HasZoom) hints = Join(hints, weapon.HasScope ? $"[{m_AimKey}] Scope" : $"[{m_AimKey}] Aim");
+            if (atPost) hints = Join(hints, $"[{m_InteractKey}] Change class");
             playerStatsUI.SetHints(hints);
         }
 
@@ -574,6 +639,12 @@ namespace Game.Conquest.UI
         {
             if (respawnPanelUI == null) return;
 
+            if (m_ChangingClass && player != null && !player.Health.IsDead)
+            {
+                UpdateClassChangePanel(match, player);
+                return;
+            }
+
             if (player == null || !player.Health.IsDead)
             {
                 respawnPanelUI.Hide();
@@ -581,6 +652,7 @@ namespace Game.Conquest.UI
             }
 
             respawnPanelUI.Show();
+            respawnPanelUI.SetChangeClassMode(false);
             if (!m_SpawnPreviewSet && mapRegistry != null)
             {
                 m_SpawnPreviewSet = true;
@@ -616,6 +688,30 @@ namespace Game.Conquest.UI
                 else if (timerKey == -1) respawnPanelUI.SetTimer($"No safe command post: [{m_RespawnKey}] deploy at base");
                 else if (timerKey == -2) respawnPanelUI.SetTimer($"Ready: [{m_RespawnKey}] deploy");
                 else respawnPanelUI.SetTimer($"Choose a command post, or [{m_RespawnKey}] to deploy anywhere");
+            }
+        }
+
+        // The deploy screen, alive, at a friendly post: pick a class and confirm. The map stays
+        // for reference; the spawn choices are hidden.
+        private void UpdateClassChangePanel(ConquestMatchManager match, ConquestPlayer player)
+        {
+            respawnPanelUI.Show();
+            var post = player.FriendlyPostHere();
+            respawnPanelUI.SetChangeClassMode(true, post != null ? post.PostName : "");
+            var classes = player.AvailableClasses;
+            respawnPanelUI.SetClasses(classes, m_ChangeClassChoice);
+            if (m_ChangeClassChoice >= 0 && m_ChangeClassChoice < classes.Count) respawnPanelUI.SetClassDetails(classes[m_ChangeClassChoice]);
+            respawnPanelUI.SetDeployInteractable(m_ChangeClassChoice != player.CurrentClassIndex);
+            if (match != null && respawnPanelUI.commandMap != null)
+            {
+                match.GetFriendlyPostNames(player.CurrentTeam, m_FriendlyPosts);
+                respawnPanelUI.commandMap.Tick(match.CommandPosts, player, m_PostColor, TeamColor(player.CurrentTeam), m_FriendlyPosts, post != null ? post.PostName : "");
+            }
+            const int key = -10;
+            if (m_TimerKey != key)
+            {
+                m_TimerKey = key;
+                respawnPanelUI.SetTimer($"[{m_RespawnKey}] change class, [{m_InteractKey}] close");
             }
         }
 

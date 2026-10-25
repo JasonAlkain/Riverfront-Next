@@ -46,6 +46,12 @@ namespace Game.Conquest
         public Image img_SpawnPreview;
         public GameObject spawnPreviewPlaceholder;
 
+        [Header("Change class at a post")]
+        [Tooltip("Hidden while changing class at a post: they are only about where to deploy.")]
+        public GameObject[] hiddenWhenChangingClass;
+        [Tooltip("The deploy button's label, which reads CHANGE CLASS in that mode.")]
+        public TextMeshProUGUI txt_DeployLabel;
+
         [Header("Colors")]
         public Color normalColor = new Color(0.25f, 0.30f, 0.40f);
         public Color selectedColor = new Color(0.2f, 0.8f, 0.35f);
@@ -101,6 +107,42 @@ namespace Game.Conquest
             if (spawnPreviewPlaceholder != null && spawnPreviewPlaceholder.activeSelf != (preview == null)) spawnPreviewPlaceholder.SetActive(preview == null);
         }
 
+        private bool m_ChangingClass;
+        private string m_DeployLabel;
+
+        /// <summary>
+        /// Switches between deploying (dead) and changing class at a friendly post (alive). Called
+        /// every frame while shown; the label is re-applied because a localized label can refresh
+        /// itself after the panel is enabled.
+        /// </summary>
+        public void SetChangeClassMode(bool changing, string postName = "")
+        {
+            if (changing != m_ChangingClass)
+            {
+                m_ChangingClass = changing;
+                if (hiddenWhenChangingClass != null)
+                {
+                    foreach (var go in hiddenWhenChangingClass)
+                    {
+                        if (go != null) go.SetActive(!changing);
+                    }
+                }
+                m_ShownPost = null;
+            }
+            if (txt_DeployLabel != null)
+            {
+                if (m_DeployLabel == null && !changing) m_DeployLabel = txt_DeployLabel.text;
+                string label = changing ? "CHANGE CLASS" : m_DeployLabel;
+                if (label != null && txt_DeployLabel.text != label) txt_DeployLabel.text = label;
+            }
+            if (!changing) return;
+            postName = postName ?? "";
+            if (postName == m_ShownPost) return;
+            m_ShownPost = postName;
+            if (txt_SelectedPost != null) txt_SelectedPost.text = $"AT {postName.ToUpperInvariant()}";
+            if (txt_SelectedPostInfo != null) txt_SelectedPostInfo.text = "Your new class starts at once, at full health with a fresh loadout.";
+        }
+
         public void SetClassDetails(ConquestClassData data)
         {
             if (classDetails != null) classDetails.Show(data);
@@ -109,6 +151,7 @@ namespace Game.Conquest
         /// <summary>Names the chosen post; an empty name means the server picks (or the team base).</summary>
         public void SetSelectedPost(string postName, bool hasFriendlyPosts)
         {
+            if (m_ChangingClass) return;
             // Called every frame by the HUD; only rebuild the text when the choice changes.
             postName = postName ?? "";
             if (postName == m_ShownPost && hasFriendlyPosts == m_ShownHasPosts) return;
