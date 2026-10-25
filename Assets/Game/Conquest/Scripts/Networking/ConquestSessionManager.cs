@@ -279,13 +279,19 @@ namespace Game.Conquest.Networking
             if (ReferenceEquals(ConquestSession.Current, this)) ConquestSession.Current = null;
         }
 
-        public void StartSoloGame(string mapSceneName, int tickets, int teamSize, BotDifficulty difficulty)
+        public void StartSoloGame(string mapSceneName, int tickets, int teamSize, BotDifficulty difficulty, Team team = Team.Neutral)
         {
             m_OnlineAttempt++;
             m_OnlineJoinCode = "";
             isSoloMode = true;
             ClearPlayerAssignments();
             sessionName = "Solo Practice";
+            // The solo player is the host's own client. A chosen team is handed to the match like a
+            // lobby choice; bots fill both teams around it.
+            if (team == Team.Red || team == Team.Blue)
+            {
+                SetPlayerAssignment(NetworkManager.ServerClientId, new PlayerAssignment { team = team, classIndex = 0, playerName = "" });
+            }
             matchSettings = new ConquestMatchSettings
             {
                 reinforcementTickets = tickets,

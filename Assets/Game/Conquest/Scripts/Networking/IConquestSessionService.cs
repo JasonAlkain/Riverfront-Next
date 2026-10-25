@@ -51,7 +51,8 @@ namespace Game.Conquest.Networking
         /// </summary>
         bool TryGetShareInfo(out string label, out string shown, out string copyText);
 
-        void StartSoloGame(string mapSceneName, int tickets, int teamSize, BotDifficulty difficulty);
+        /// <param name="team">The team the player joins; Neutral picks the smaller team as before.</param>
+        void StartSoloGame(string mapSceneName, int tickets, int teamSize, BotDifficulty difficulty, Team team = Team.Neutral);
         bool StartHostGame(string mapId, string mapSceneName, string sessionName, int maxPlayers, int tickets, int teamSize, bool botFill, BotDifficulty difficulty);
 
         /// <summary>

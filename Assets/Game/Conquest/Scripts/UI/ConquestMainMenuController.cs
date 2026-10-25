@@ -70,6 +70,9 @@ namespace Game.Conquest.UI
         private int m_SoloBotDifficultyIndex = 1; // Normal
         private int m_SoloTeamSize = 8;
         private int m_SoloTickets = 250;
+        // 0 Auto (smaller team), 1 Red, 2 Blue.
+        private int m_SoloTeamIndex = 0;
+        private static readonly string[] k_SoloTeams = { "Auto", "Red Team", "Blue Team" };
 
         private string m_HostSessionName = "Alpha Squad Battle";
         private int m_HostMaxPlayers = 16;
@@ -347,6 +350,12 @@ namespace Game.Conquest.UI
             Bind(p.btn_Start, LaunchSoloGame);
             Bind(p.btn_Back, () => SwitchScreen(MenuState.PlaySoloMenu));
 
+            if (p.stp_Team != null)
+            {
+                p.stp_Team.SetOptions(k_SoloTeams, m_SoloTeamIndex);
+                p.stp_Team.Changed += index => m_SoloTeamIndex = index;
+            }
+
             BindDifficultyToggle(p.tgl_Easy, 0);
             BindDifficultyToggle(p.tgl_Normal, 1);
             BindDifficultyToggle(p.tgl_Hard, 2);
@@ -528,24 +537,22 @@ namespace Game.Conquest.UI
         private void SetSoloDifficulty(int diff)
         {
             m_SoloBotDifficultyIndex = diff;
-            if (soloPanelUI != null) SetText(soloPanelUI.txt_Difficulty, $"Bot Difficulty: {(BotDifficulty)diff}");
+            if (soloPanelUI != null) SetText(soloPanelUI.txt_Difficulty, ((BotDifficulty)diff).ToString());
         }
 
         private void UpdateSoloLabels()
         {
             if (soloPanelUI == null) return;
-            SetText(soloPanelUI.txt_TeamSize, $"Target Team Size: {m_SoloTeamSize} ({m_SoloTeamSize * 2} combatants)");
-            SetText(soloPanelUI.txt_Tickets, $"Reinforcement Tickets: {m_SoloTickets}");
+            SetText(soloPanelUI.txt_TeamSize, m_SoloTeamSize.ToString());
+            SetText(soloPanelUI.txt_Tickets, m_SoloTickets.ToString());
         }
 
         private void UpdateHostLabels()
         {
             if (hostPanelUI == null) return;
-            SetText(hostPanelUI.txt_MaxHumanConnections, $"Max Human Connections: {m_HostMaxPlayers}");
-            SetText(hostPanelUI.txt_ReinforcementTickets, $"Reinforcement Tickets: {m_HostTickets}");
-            SetText(hostPanelUI.txt_TargetTeamSize, m_HostBotFilling
-                ? $"Target Team Size: {m_HostTeamSize} (bots fill empty slots)"
-                : $"Target Team Size: {m_HostTeamSize} (humans only)");
+            SetText(hostPanelUI.txt_MaxHumanConnections, m_HostMaxPlayers.ToString());
+            SetText(hostPanelUI.txt_ReinforcementTickets, m_HostTickets.ToString());
+            SetText(hostPanelUI.txt_TargetTeamSize, m_HostTeamSize.ToString());
         }
 
         private void UpdateSoloDisplay()
@@ -556,8 +563,9 @@ namespace Game.Conquest.UI
             {
                 m_SelectedMapIndex = Mathf.Clamp(m_SelectedMapIndex, 0, maps.Count - 1);
                 var map = maps[m_SelectedMapIndex];
-                SetText(soloPanelUI.txt_MapName, $"<b>{map.displayName.ToUpper()}</b> ({map.commandPostsCount} CPs)");
-                SetText(soloPanelUI.txt_MapDescription, $"{map.description}\nRecommended: {map.recommendedPlayers} players");
+                SetText(soloPanelUI.txt_MapName, $"{map.displayName} ({map.commandPostsCount} Posts)");
+                SetText(soloPanelUI.txt_MapDescription, $"{map.description} Recommended: {map.recommendedPlayers} players.");
+                ShowMapPreview(soloPanelUI.img_MapPreview, map);
             }
         }
 
@@ -569,8 +577,19 @@ namespace Game.Conquest.UI
             {
                 m_SelectedMapIndex = Mathf.Clamp(m_SelectedMapIndex, 0, maps.Count - 1);
                 var map = maps[m_SelectedMapIndex];
-                SetText(hostPanelUI.txt_SelectedMap, $"Selected Map: <b>{map.displayName}</b> ({map.commandPostsCount} Posts)");
+                SetText(hostPanelUI.txt_SelectedMap, $"{map.displayName} ({map.commandPostsCount} Posts)");
+                SetText(hostPanelUI.txt_MapDescription, map.description);
+                ShowMapPreview(hostPanelUI.img_MapPreview, map);
             }
+        }
+
+        // A map's preview image, or a dark tint of its colour while it has none (placeholder).
+        private static void ShowMapPreview(Image image, Game.Conquest.Maps.ConquestMapData map)
+        {
+            if (image == null || map == null) return;
+            image.sprite = map.previewImage;
+            Color c = map.themeColor;
+            image.color = map.previewImage != null ? Color.white : new Color(c.r * 0.45f, c.g * 0.45f, c.b * 0.45f, 1f);
         }
 
         private void LaunchSoloGame()
@@ -578,7 +597,8 @@ namespace Game.Conquest.UI
             var maps = mapRegistry != null ? mapRegistry.RegisteredMaps : null;
             var map = maps != null && maps.Count > 0 ? maps[m_SelectedMapIndex] : null;
             string sceneName = map != null ? map.sceneName : "ConquestLargeBattlefield";
-            ConquestSession.Current?.StartSoloGame(sceneName, m_SoloTickets, m_SoloTeamSize, (BotDifficulty)m_SoloBotDifficultyIndex);
+            Team team = m_SoloTeamIndex == 1 ? Team.Red : m_SoloTeamIndex == 2 ? Team.Blue : Team.Neutral;
+            ConquestSession.Current?.StartSoloGame(sceneName, m_SoloTickets, m_SoloTeamSize, (BotDifficulty)m_SoloBotDifficultyIndex, team);
         }
 
         private void LaunchHostGame()

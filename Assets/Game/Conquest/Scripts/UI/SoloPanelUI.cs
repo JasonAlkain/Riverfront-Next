@@ -24,6 +24,14 @@ namespace Game.Conquest
         public Toggle tgl_Normal;
         public Toggle tgl_Hard;
 
+        [Header("Team")]
+        [Tooltip("Which team the player fights for: Auto, Red or Blue.")]
+        public OptionStepperUI stp_Team;
+
+        [Header("Map preview")]
+        [Tooltip("Optional: the map's preview image, or its colour when it has none.")]
+        public Image img_MapPreview;
+
         [Header("Sliders")]
         public Slider sld_TargetTeamSize;
         public Slider sld_TeamTickets;

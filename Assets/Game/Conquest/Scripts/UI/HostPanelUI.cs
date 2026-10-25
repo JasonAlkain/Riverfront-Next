@@ -14,6 +14,12 @@ namespace Game.Conquest
         public TextMeshProUGUI txt_MaxHumanConnections;
         public TextMeshProUGUI txt_ReinforcementTickets;
         public TextMeshProUGUI txt_TargetTeamSize;
+        [Tooltip("Optional: the selected map's description.")]
+        public TextMeshProUGUI txt_MapDescription;
+
+        [Header("Map preview")]
+        [Tooltip("Optional: the map's preview image, or its colour when it has none.")]
+        public Image img_MapPreview;
 
         [Header("Slider")]
         public Slider sld_MaxHumanConnections;

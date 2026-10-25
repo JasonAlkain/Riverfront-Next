@@ -33,6 +33,16 @@ namespace Game.Conquest
         [Tooltip("Placeholder: seconds after the panel opens before its buttons take clicks, so a shot fired as you die can't pick a class or post.")]
         public float clickGuardSeconds = 0.6f;
 
+        [Header("Class sheet")]
+        [Tooltip("Optional: health, description and loadout of the chosen class.")]
+        public ClassDetailsUI classDetails;
+
+        [Header("Selected spawn")]
+        [Tooltip("Optional: the post the player will deploy at.")]
+        public TextMeshProUGUI txt_SelectedPost;
+        [Tooltip("Optional: a line under it on what that choice means.")]
+        public TextMeshProUGUI txt_SelectedPostInfo;
+
         [Header("Colors")]
         public Color normalColor = new Color(0.25f, 0.30f, 0.40f);
         public Color selectedColor = new Color(0.2f, 0.8f, 0.35f);
@@ -73,6 +83,35 @@ namespace Game.Conquest
             if (classPicker == null) return;
             classPicker.SetClasses(classes);
             classPicker.SetSelected(selectedIndex);
+        }
+
+        private string m_ShownPost;
+        private bool m_ShownHasPosts;
+
+        public void SetClassDetails(ConquestClassData data)
+        {
+            if (classDetails != null) classDetails.Show(data);
+        }
+
+        /// <summary>Names the chosen post; an empty name means the server picks (or the team base).</summary>
+        public void SetSelectedPost(string postName, bool hasFriendlyPosts)
+        {
+            // Called every frame by the HUD; only rebuild the text when the choice changes.
+            postName = postName ?? "";
+            if (postName == m_ShownPost && hasFriendlyPosts == m_ShownHasPosts) return;
+            m_ShownPost = postName;
+            m_ShownHasPosts = hasFriendlyPosts;
+            if (txt_SelectedPost != null)
+            {
+                txt_SelectedPost.text = !string.IsNullOrEmpty(postName) ? postName.ToUpperInvariant()
+                    : hasFriendlyPosts ? "ANY FRIENDLY POST" : "TEAM BASE";
+            }
+            if (txt_SelectedPostInfo != null)
+            {
+                txt_SelectedPostInfo.text = !string.IsNullOrEmpty(postName) ? "Deploy at this command post."
+                    : hasFriendlyPosts ? "Pick a post on the map, or deploy and the nearest safe post is chosen."
+                    : "No friendly post is safe: you deploy at your team's base.";
+            }
         }
 
         /// <summary>Shows one button per friendly post, creating buttons from the prefab as needed.</summary>

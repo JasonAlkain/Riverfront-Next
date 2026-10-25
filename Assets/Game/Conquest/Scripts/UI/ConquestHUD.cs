@@ -579,11 +579,15 @@ namespace Game.Conquest.UI
 
             respawnPanelUI.Show();
             respawnPanelUI.SetClasses(player.AvailableClasses, player.CurrentClassIndex);
+            var classes = player.AvailableClasses;
+            int pending = player.PendingClassIndex;
+            if (pending >= 0 && pending < classes.Count) respawnPanelUI.SetClassDetails(classes[pending]);
             if (match == null) return;
 
             var posts = m_FriendlyPosts;
             match.GetFriendlyPostNames(player.CurrentTeam, posts);
             respawnPanelUI.SetSpawnPosts(posts, player.SelectedPostName);
+            respawnPanelUI.SetSelectedPost(posts.Contains(player.SelectedPostName) ? player.SelectedPostName : "", posts.Count > 0);
             bool canDeploy = CanDeploy(match, player, posts);
             respawnPanelUI.SetDeployInteractable(canDeploy);
             if (respawnPanelUI.commandMap != null)
