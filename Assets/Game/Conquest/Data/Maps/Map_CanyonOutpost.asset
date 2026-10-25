@@ -16,7 +16,7 @@ MonoBehaviour:
   displayName: Canyon Outpost
   description: A rugged desert canyon outpost with vertical cliff paths, rocky bottlenecks, and a high-ground fortress command post.
   sceneName: Conquest_CanyonOutpost
-  previewImage: {fileID: 0}
+  previewImage: {fileID: 21300000, guid: 2cb80c96c82c9b1489e96437f3bc0f2b, type: 3}
   themeColor: {r: 0.9, g: 0.7, b: 0.2, a: 1}
   recommendedPlayers: 12
   commandPostsCount: 3

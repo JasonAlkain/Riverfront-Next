@@ -31,6 +31,9 @@ namespace Game.Conquest.UI
         [SerializeField] private CrosshairUI crosshairUI;
         [SerializeField] private PlayerStatsUI playerStatsUI;
         [SerializeField] private RespawnPanelUI respawnPanelUI;
+        [Tooltip("For the deploy screen's battlefield picture (the current map's preview).")]
+        [SerializeField] private Game.Conquest.Maps.ConquestMapRegistry mapRegistry;
+        private bool m_SpawnPreviewSet;
         [SerializeField] private MatchResultPanelUI matchResultPanelUI;
         [SerializeField] private AllPostsAlertUI allPostsAlertUI;
         [SerializeField] private KillFeedUI killFeedUI;
@@ -578,6 +581,12 @@ namespace Game.Conquest.UI
             }
 
             respawnPanelUI.Show();
+            if (!m_SpawnPreviewSet && mapRegistry != null)
+            {
+                m_SpawnPreviewSet = true;
+                var map = mapRegistry.GetMapBySceneName(UnityEngine.SceneManagement.SceneManager.GetActiveScene().name);
+                respawnPanelUI.SetSpawnPreview(map != null ? map.previewImage : null);
+            }
             respawnPanelUI.SetClasses(player.AvailableClasses, player.CurrentClassIndex);
             var classes = player.AvailableClasses;
             int pending = player.PendingClassIndex;

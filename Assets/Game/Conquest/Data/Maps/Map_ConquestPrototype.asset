@@ -16,7 +16,7 @@ MonoBehaviour:
   displayName: Outpost Skirmish
   description: A compact fortified battle arena with 3 command posts and a home base per team designed for intense, fast-paced infantry skirmishes.
   sceneName: ConquestPrototype
-  previewImage: {fileID: 0}
+  previewImage: {fileID: 21300000, guid: 15eef784fe4e21c4d9ae608c2030eacb, type: 3}
   themeColor: {r: 0.2, g: 0.6, b: 0.9, a: 1}
   recommendedPlayers: 8
   commandPostsCount: 3

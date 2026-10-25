@@ -20,6 +20,9 @@ namespace Game.Conquest
         public TextMeshProUGUI txt_GadgetName;
         [Tooltip("Optional: tinted with the class accent colour.")]
         public Image img_Accent;
+        [Tooltip("Optional: the class portrait; the placeholder shows while a class has none.")]
+        public Image img_Portrait;
+        public GameObject portraitPlaceholder;
         [Tooltip("Optional: the primary weapon's icon.")]
         public Image img_PrimaryIcon;
 
@@ -41,6 +44,12 @@ namespace Game.Conquest
                 Color c = data.classAccentColor;
                 img_Accent.color = new Color(c.r, c.g, c.b, img_Accent.color.a);
             }
+            if (img_Portrait != null)
+            {
+                img_Portrait.sprite = data.portrait;
+                img_Portrait.enabled = data.portrait != null;
+            }
+            if (portraitPlaceholder != null) portraitPlaceholder.SetActive(data.portrait == null);
             if (img_PrimaryIcon != null)
             {
                 img_PrimaryIcon.sprite = data.weaponIcon;

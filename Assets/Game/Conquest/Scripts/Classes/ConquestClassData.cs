@@ -85,6 +85,8 @@ namespace Game.Conquest.Classes
         public string className;
         [TextArea(2, 4)]
         public string description;
+        [Tooltip("Shown on the deploy screen's class sheet. Rendered from the class's own model in the editor.")]
+        public Sprite portrait;
         public Color classAccentColor = Color.white;
 
         [Header("Attributes")]

@@ -15,11 +15,13 @@ MonoBehaviour:
   classType: 0
   className: Assault
   description: General-purpose front-line infantry armed with a rapid-fire blaster rifle. Highly adaptable at medium range.
+  portrait: {fileID: 21300000, guid: 99f47f8d77217b54f8931e0877a552ec, type: 3}
   classAccentColor: {r: 0.8, g: 0.3, b: 0.1, a: 1}
   maxHealth: 100
   walkSpeed: 6
   sprintSpeed: 10
   weaponName: Arc-7 Carbine
+  primaryModel: 0
   weaponIcon: {fileID: 21300000, guid: abdbbfcbdf73a784988b91c20119d0e0, type: 3}
   damagePerShot: 22
   fireRate: 0.14
@@ -39,6 +41,7 @@ MonoBehaviour:
   hasZoom: 1
   zoomMagnification: 1.25
   adsSpreadMultiplier: 0.5
+  adsOffset: {x: 0, y: 0, z: 0}
   hasScope: 0
   hasSupportStation: 0
   sidearm:
@@ -60,6 +63,7 @@ MonoBehaviour:
     canAim: 1
     zoomMagnification: 1.1
     adsSpreadMultiplier: 0.6
+    adsOffset: {x: 0, y: 0, z: 0}
     repairPerUse: 10
     fireSound: {fileID: 8300000, guid: 1522324874c7dbd4591dad1a91daec57, type: 3}
     fireVolume: 0.4

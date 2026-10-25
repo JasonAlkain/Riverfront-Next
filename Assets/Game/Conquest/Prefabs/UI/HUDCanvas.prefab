@@ -9438,6 +9438,7 @@ MonoBehaviour:
   crosshairUI: {fileID: 2751071594420303748}
   playerStatsUI: {fileID: 192860038357792471}
   respawnPanelUI: {fileID: 760322336375631450}
+  mapRegistry: {fileID: 11400000, guid: f47404bcd7af0d246a20b79ec95e19ac, type: 2}
   matchResultPanelUI: {fileID: 4101370456926897614}
   allPostsAlertUI: {fileID: 224905454893646102}
   killFeedUI: {fileID: 6215713926774718125}

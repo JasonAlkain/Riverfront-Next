@@ -42,6 +42,9 @@ namespace Game.Conquest
         public TextMeshProUGUI txt_SelectedPost;
         [Tooltip("Optional: a line under it on what that choice means.")]
         public TextMeshProUGUI txt_SelectedPostInfo;
+        [Tooltip("Optional: picture of the battlefield beside the spawn choice (the map's preview).")]
+        public Image img_SpawnPreview;
+        public GameObject spawnPreviewPlaceholder;
 
         [Header("Colors")]
         public Color normalColor = new Color(0.25f, 0.30f, 0.40f);
@@ -87,6 +90,16 @@ namespace Game.Conquest
 
         private string m_ShownPost;
         private bool m_ShownHasPosts;
+
+        public void SetSpawnPreview(Sprite preview)
+        {
+            if (img_SpawnPreview != null && img_SpawnPreview.sprite != preview)
+            {
+                img_SpawnPreview.sprite = preview;
+                img_SpawnPreview.enabled = preview != null;
+            }
+            if (spawnPreviewPlaceholder != null && spawnPreviewPlaceholder.activeSelf != (preview == null)) spawnPreviewPlaceholder.SetActive(preview == null);
+        }
 
         public void SetClassDetails(ConquestClassData data)
         {
