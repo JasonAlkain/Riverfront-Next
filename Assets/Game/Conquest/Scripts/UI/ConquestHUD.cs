@@ -460,7 +460,7 @@ namespace Game.Conquest.UI
             if (captureBarUI == null) return;
 
             ConquestCommandPost nearbyPost = null;
-            if (match != null && player != null && !player.Health.IsDead)
+            if (match != null && player != null && !player.Health.IsDead && !m_ChangingClass)
             {
                 Vector3 playerPos = player.transform.position;
                 var posts = match.CommandPosts;
@@ -497,7 +497,7 @@ namespace Game.Conquest.UI
         {
             if (crosshairUI == null) return;
 
-            if (player == null || player.Health.IsDead)
+            if (player == null || player.Health.IsDead || m_ChangingClass)
             {
                 if (scopeOverlayUI != null) scopeOverlayUI.SetVisible(false);
                 crosshairUI.Hide();
@@ -529,7 +529,7 @@ namespace Game.Conquest.UI
         private void UpdateWorldMarkers(ConquestMatchManager match, ConquestPlayer player)
         {
             if (worldMarkersUI == null) return;
-            bool alive = player != null && !player.Health.IsDead && match != null && !match.IsMatchOver;
+            bool alive = player != null && !player.Health.IsDead && match != null && !match.IsMatchOver && !m_ChangingClass;
             var cam = alive && player.Movement != null ? player.Movement.PlayerCamera : null;
             if (cam == null)
             {
@@ -542,7 +542,7 @@ namespace Game.Conquest.UI
         private void UpdateCommandMap(ConquestMatchManager match, ConquestPlayer player)
         {
             if (commandMapUI == null) return;
-            bool show = match != null && player != null && !player.Health.IsDead && !match.IsMatchOver;
+            bool show = match != null && player != null && !player.Health.IsDead && !match.IsMatchOver && !m_ChangingClass;
             if (commandMapUI.gameObject.activeSelf != show) commandMapUI.gameObject.SetActive(show);
             if (show) commandMapUI.Tick(match.CommandPosts, player, m_PostColor, TeamColor(player.CurrentTeam));
         }
@@ -562,7 +562,8 @@ namespace Game.Conquest.UI
 
             if (playerStatsUI == null) return;
 
-            if (player == null || player.Health.IsDead)
+            // The class change screen covers the match, like the deploy screen.
+            if (player == null || player.Health.IsDead || m_ChangingClass)
             {
                 playerStatsUI.Hide();
                 return;
@@ -698,6 +699,8 @@ namespace Game.Conquest.UI
             respawnPanelUI.Show();
             var post = player.FriendlyPostHere();
             respawnPanelUI.SetChangeClassMode(true, post != null ? post.PostName : "");
+            m_FriendlyPosts.Clear();
+            respawnPanelUI.SetSpawnPosts(m_FriendlyPosts, "");
             var classes = player.AvailableClasses;
             respawnPanelUI.SetClasses(classes, m_ChangeClassChoice);
             if (m_ChangeClassChoice >= 0 && m_ChangeClassChoice < classes.Count) respawnPanelUI.SetClassDetails(classes[m_ChangeClassChoice]);

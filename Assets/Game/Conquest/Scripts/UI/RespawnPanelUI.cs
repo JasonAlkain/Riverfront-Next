@@ -51,6 +51,8 @@ namespace Game.Conquest
         public GameObject[] hiddenWhenChangingClass;
         [Tooltip("The deploy button's label, which reads CHANGE CLASS in that mode.")]
         public TextMeshProUGUI txt_DeployLabel;
+        [Tooltip("The spawn bar's section heading, which reads CHANGE CLASS in that mode.")]
+        public TextMeshProUGUI txt_SpawnSection;
 
         [Header("Colors")]
         public Color normalColor = new Color(0.25f, 0.30f, 0.40f);
@@ -109,6 +111,7 @@ namespace Game.Conquest
 
         private bool m_ChangingClass;
         private string m_DeployLabel;
+        private string m_SpawnSection;
 
         /// <summary>
         /// Switches between deploying (dead) and changing class at a friendly post (alive). Called
@@ -129,18 +132,23 @@ namespace Game.Conquest
                 }
                 m_ShownPost = null;
             }
-            if (txt_DeployLabel != null)
-            {
-                if (m_DeployLabel == null && !changing) m_DeployLabel = txt_DeployLabel.text;
-                string label = changing ? "CHANGE CLASS" : m_DeployLabel;
-                if (label != null && txt_DeployLabel.text != label) txt_DeployLabel.text = label;
-            }
+            Relabel(txt_DeployLabel, ref m_DeployLabel, changing, "CHANGE CLASS");
+            Relabel(txt_SpawnSection, ref m_SpawnSection, changing, "CHANGE CLASS");
             if (!changing) return;
             postName = postName ?? "";
             if (postName == m_ShownPost) return;
             m_ShownPost = postName;
             if (txt_SelectedPost != null) txt_SelectedPost.text = $"AT {postName.ToUpperInvariant()}";
             if (txt_SelectedPostInfo != null) txt_SelectedPostInfo.text = "Your new class starts at once, at full health with a fresh loadout.";
+        }
+
+        // Remembers a label's own (localized) text the first time it is seen outside the mode.
+        private static void Relabel(TextMeshProUGUI text, ref string original, bool changing, string changingText)
+        {
+            if (text == null) return;
+            if (original == null && !changing) original = text.text;
+            string label = changing ? changingText : original;
+            if (label != null && text.text != label) text.text = label;
         }
 
         public void SetClassDetails(ConquestClassData data)
