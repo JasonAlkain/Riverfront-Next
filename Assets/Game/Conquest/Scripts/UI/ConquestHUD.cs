@@ -27,6 +27,11 @@ namespace Game.Conquest.UI
         [SerializeField] private CommandPostsRowUI commandPostsRowUI;
         [Tooltip("Shown while the local player is spawn protected.")]
         [SerializeField] private GameObject spawnProtectionLabel;
+        [Tooltip("Shown while standing in a friendly command post: \"[F] Change class at Alpha\".")]
+        [SerializeField] private GameObject interactPrompt;
+        [SerializeField] private TMPro.TextMeshProUGUI txt_InteractPrompt;
+        private ConquestCommandPost m_PromptPost;
+        private string m_PromptKey;
         [SerializeField] private CaptureBarUI captureBarUI;
         [SerializeField] private CrosshairUI crosshairUI;
         [SerializeField] private PlayerStatsUI playerStatsUI;
@@ -91,7 +96,6 @@ namespace Game.Conquest.UI
         private string m_CaptureStatus = "";
         private int m_TimerKey = int.MinValue;
         private string m_HintsRefusal = "";
-        private bool m_HintsAtPost;
 
         private void Awake()
         {
@@ -239,6 +243,19 @@ namespace Game.Conquest.UI
             if (post != null && !paused && ConquestInput.InteractPressed) OpenClassChange(player);
         }
 
+        private void UpdateInteractPrompt(ConquestPlayer player)
+        {
+            if (interactPrompt == null) return;
+            bool paused = ConquestPauseMenu.Instance != null && ConquestPauseMenu.Instance.IsPaused;
+            ConquestCommandPost post = player != null && !m_ChangingClass && !paused ? player.FriendlyPostHere() : null;
+            bool show = post != null;
+            if (interactPrompt.activeSelf != show) interactPrompt.SetActive(show);
+            if (!show || txt_InteractPrompt == null || (post == m_PromptPost && m_PromptKey == m_InteractKey)) return;
+            m_PromptPost = post;
+            m_PromptKey = m_InteractKey;
+            txt_InteractPrompt.text = $"[{m_InteractKey}] Change class at {post.PostName}";
+        }
+
         private void HandleSpawnPostSelected(string postName)
         {
             var player = ConquestPlayer.Local;
@@ -297,6 +314,7 @@ namespace Game.Conquest.UI
         {
             if (captureBarUI != null) captureBarUI.Hide();
             if (respawnPanelUI != null) respawnPanelUI.Hide();
+            if (interactPrompt != null) interactPrompt.SetActive(false);
             if (matchResultPanelUI != null) matchResultPanelUI.Hide();
             if (allPostsAlertUI != null) allPostsAlertUI.Hide();
             if (scoreboardUI != null) scoreboardUI.Hide();
@@ -327,6 +345,7 @@ namespace Game.Conquest.UI
             UpdateWorldMarkers(match, player);
             UpdateCommandMap(match, player);
             UpdateClassChange(match, player);
+            UpdateInteractPrompt(player);
             UpdateRespawnPanel(match, player);
             HandleDeployKey(match, player);
             UpdateProtectionLabel(player);
@@ -612,12 +631,9 @@ namespace Game.Conquest.UI
             int grenades = throws ? Mathf.Min(throwables.Count, 255) : 0;
             int key = (weapon.HasSupportStation ? 1 : 0) | (weapon.HasZoom ? 2 : 0) | (weapon.HasScope ? 4 : 0) | (heat ? 8 : 0) |
                       ((int)weapon.ActiveSlot << 4) | (weapon.HasSidearm ? 32 : 0) | (throws ? 64 : 0) | (grenades << 7) | (cooldown << 15);
-            var local = ConquestPlayer.Local;
-            bool atPost = local != null && !m_ChangingClass && local.FriendlyPostHere() != null;
-            if (key == m_HintsKey && refusal == m_HintsRefusal && atPost == m_HintsAtPost) return;
+            if (key == m_HintsKey && refusal == m_HintsRefusal) return;
             m_HintsKey = key;
             m_HintsRefusal = refusal;
-            m_HintsAtPost = atPost;
 
             // Heat weapons vent by themselves, so there is no reload hint for them; the tool has no ammo.
             string hints = heat || tool ? "" : $"[{m_ReloadKey}] Reload";
@@ -630,7 +646,6 @@ namespace Game.Conquest.UI
                 else hints = Join(hints, $"[{m_DeployKey}] Station");
             }
             if (weapon.HasZoom) hints = Join(hints, weapon.HasScope ? $"[{m_AimKey}] Scope" : $"[{m_AimKey}] Aim");
-            if (atPost) hints = Join(hints, $"[{m_InteractKey}] Change class");
             playerStatsUI.SetHints(hints);
         }
 
