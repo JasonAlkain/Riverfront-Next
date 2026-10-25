@@ -22,11 +22,12 @@ namespace Game.Conquest.UI
         Multiplayer,
         HostGame,
         ServerBrowser,
-        JoinByCode, // Kept so serialized indices stay stable; routed to ServerBrowser (direct IP lives there).
+        JoinByCode, // Join by join code (online) or address (LAN), on its own screen.
         Lobby,
         Settings,
         Credits,
-        PlaySoloMenu // The Play Solo submenu (Tutorial / Practice / Campaign). PlaySolo is the solo match setup.
+        PlaySoloMenu, // The Play Solo submenu (Tutorial / Practice / Campaign). PlaySolo is the solo match setup.
+        Profile
     }
 
     /// <summary>
@@ -56,7 +57,12 @@ namespace Game.Conquest.UI
         [SerializeField] private MultiplayerPanelUI multiplayerPanelUI;
         [SerializeField] private HostPanelUI hostPanelUI;
         [SerializeField] private BrowserPanelUI browserPanelUI;
-        //[SerializeField] private JoinCodePanelUI joinCodePanelUI;
+        [SerializeField] private JoinCodePanelUI joinCodePanelUI;
+        [SerializeField] private ProfilePanelUI profilePanelUI;
+        [Tooltip("Modal message for disconnects and failed joins.")]
+        [SerializeField] private MessageDialogUI messageDialogUI;
+        [Tooltip("Level for the title screen's profile badge.")]
+        [SerializeField] private Game.Conquest.Profile.ProfileRules profileRules;
         [SerializeField] private LobbyPanelUI lobbyPanelUI;
         [SerializeField] private SettingsPanelUI settingsPanelUI;
         [SerializeField] private CreditsPanelUI creditsPanelUI;
@@ -139,6 +145,12 @@ namespace Game.Conquest.UI
             {
                 playSoloMenuPanelUI = FindAnyObjectByType<PlaySoloMenuPanelUI>(FindObjectsInactive.Include);
             }
+            // Screens added to the menu canvas later are found there when the scene doesn't name them.
+            if (joinCodePanelUI == null) joinCodePanelUI = FindAnyObjectByType<JoinCodePanelUI>(FindObjectsInactive.Include);
+            if (profilePanelUI == null) profilePanelUI = FindAnyObjectByType<ProfilePanelUI>(FindObjectsInactive.Include);
+            if (messageDialogUI == null) messageDialogUI = FindAnyObjectByType<MessageDialogUI>(FindObjectsInactive.Include);
+            if (profileRules == null && profilePanelUI != null) profileRules = profilePanelUI.rules;
+            if (messageDialogUI != null) messageDialogUI.Hide();
 
             BindTitlePanel();
             BindPlaySoloMenuPanel();
@@ -167,6 +179,8 @@ namespace Game.Conquest.UI
 
             SubscribeNetworkCallbacks();
             SwitchScreen(MenuState.Title);
+            // Back from a match that failed or lost its connection: say why.
+            ShowDialog("CONNECTION LOST", ConquestSceneTransitionManager.TakePendingMenuMessage());
         }
 
         private void OnDestroy()
@@ -177,6 +191,7 @@ namespace Game.Conquest.UI
                 ConquestSession.Current.OnStatusChanged -= HandleStatusChanged;
                 ConquestSession.Current.OnOnlineJoinFailed -= HandleOnlineJoinFailed;
             }
+            Game.Conquest.Profile.ProfileStore.Changed -= RefreshProfileBadge;
             if (Instance == this) Instance = null;
         }
 
@@ -211,7 +226,7 @@ namespace Game.Conquest.UI
             var nm = NetworkManager.Singleton;
             if (nm != null && (nm.IsServer || nm.IsConnectedClient))
             {
-                if (currentMenuState == MenuState.HostGame || currentMenuState == MenuState.ServerBrowser)
+                if (currentMenuState == MenuState.HostGame || currentMenuState == MenuState.ServerBrowser || currentMenuState == MenuState.JoinByCode)
                 {
                     m_IsConnecting = false;
                     SwitchScreen(MenuState.Lobby);
@@ -226,8 +241,6 @@ namespace Game.Conquest.UI
 
         public void SwitchScreen(MenuState newState)
         {
-            if (newState == MenuState.JoinByCode) newState = MenuState.ServerBrowser;
-
             MenuState previousState = currentMenuState;
             currentMenuState = newState;
 
@@ -238,6 +251,9 @@ namespace Game.Conquest.UI
             SetPanelVisible(multiplayerPanelUI, newState == MenuState.Multiplayer);
             SetPanelVisible(hostPanelUI, newState == MenuState.HostGame);
             SetPanelVisible(browserPanelUI, newState == MenuState.ServerBrowser);
+            SetPanelVisible(joinCodePanelUI, newState == MenuState.JoinByCode);
+            SetPanelVisible(profilePanelUI, newState == MenuState.Profile);
+            if (newState == MenuState.Title) RefreshProfileBadge();
             SetPanelVisible(lobbyPanelUI, newState == MenuState.Lobby);
             SetPanelVisible(settingsPanelUI, newState == MenuState.Settings);
             SetPanelVisible(creditsPanelUI, newState == MenuState.Credits);
@@ -286,7 +302,7 @@ namespace Game.Conquest.UI
         // fields, and their Back buttons leave sessions or cancel connections.
         private void HandleCancel()
         {
-            if (currentMenuState != MenuState.PlaySoloMenu && currentMenuState != MenuState.PlaySolo) return;
+            if (currentMenuState != MenuState.PlaySoloMenu && currentMenuState != MenuState.PlaySolo && currentMenuState != MenuState.Profile) return;
             var module = EventSystem.current != null ? EventSystem.current.currentInputModule as InputSystemUIInputModule : null;
             var cancel = module != null && module.cancel != null ? module.cancel.action : null;
             if (cancel == null || !cancel.WasPressedThisFrame()) return;
@@ -327,6 +343,36 @@ namespace Game.Conquest.UI
             Bind(titlePanelUI.btn_Settings, () => SwitchScreen(MenuState.Settings));
             Bind(titlePanelUI.btn_Credits, () => SwitchScreen(MenuState.Credits));
             Bind(titlePanelUI.btn_Quit, QuitApplication);
+            Bind(titlePanelUI.btn_Profile, () => SwitchScreen(MenuState.Profile));
+            if (profilePanelUI != null) Bind(profilePanelUI.btn_Back, () => SwitchScreen(MenuState.Title));
+            if (joinCodePanelUI != null)
+            {
+                Bind(joinCodePanelUI.btn_Connect, () => BeginConnect(joinCodePanelUI.tmp_Address != null ? joinCodePanelUI.tmp_Address.text : "", ""));
+                Bind(joinCodePanelUI.btn_Back, () =>
+                {
+                    if (m_IsConnecting) CancelConnect();
+                    else SwitchScreen(MenuState.Multiplayer);
+                });
+                if (joinCodePanelUI.tmp_Address != null)
+                {
+                    joinCodePanelUI.tmp_Address.onSubmit.AddListener(text => BeginConnect(text, ""));
+                }
+            }
+            Game.Conquest.Profile.ProfileStore.Changed += RefreshProfileBadge;
+        }
+
+        private void RefreshProfileBadge()
+        {
+            if (titlePanelUI == null) return;
+            var profile = Game.Conquest.Profile.ProfileStore.Current;
+            SetText(titlePanelUI.txt_ProfileName, string.IsNullOrEmpty(profile.playerName) ? "Set up your profile" : profile.playerName);
+            SetText(titlePanelUI.txt_ProfileLevel, ProfilePanelUI.LevelLabel(profileRules));
+        }
+
+        // Messages that need reading (a lost connection, a failed join) open a dialog.
+        private void ShowDialog(string title, string message)
+        {
+            if (messageDialogUI != null && !string.IsNullOrEmpty(message)) messageDialogUI.ShowMessage(title, message);
         }
 
         private void BindPlaySoloMenuPanel()
@@ -392,7 +438,7 @@ namespace Game.Conquest.UI
             // No public browser or join codes yet: both routes open the browser panel, whose direct-IP
             // field is the only join path for now (Steam browser comes later).
             Bind(p.btn_BrowseGames, () => SwitchScreen(MenuState.ServerBrowser));
-            Bind(p.btn_Join, () => SwitchScreen(MenuState.ServerBrowser));
+            Bind(p.btn_Join, () => SwitchScreen(MenuState.JoinByCode));
             Bind(p.btn_Back, () => SwitchScreen(MenuState.Title));
         }
 
@@ -481,6 +527,55 @@ namespace Game.Conquest.UI
                 p.tmp_PlayerName.characterLimit = ConquestSessionManager.MaxPlayerNameLength;
                 p.tmp_PlayerName.text = LoadSavedPlayerName();
             }
+
+            // Host-only match settings. Changes go to the server; the steppers then follow the
+            // replicated values, so every peer's lobby shows the same thing.
+            if (p.stp_Tickets != null)
+            {
+                p.stp_Tickets.SetOptions(k_LobbyTickets, 0);
+                p.stp_Tickets.Changed += i => ConquestLobbyManager.Instance?.SetTicketsServerRpc(int.Parse(k_LobbyTickets[i]));
+            }
+            if (p.stp_TeamSize != null)
+            {
+                p.stp_TeamSize.SetOptions(k_LobbyTeamSizes, 0);
+                p.stp_TeamSize.Changed += i => ConquestLobbyManager.Instance?.SetTeamSizeServerRpc(int.Parse(k_LobbyTeamSizes[i]));
+            }
+            if (p.stp_BotFill != null)
+            {
+                p.stp_BotFill.SetOptions(k_OnOff, 1);
+                p.stp_BotFill.Changed += i => ConquestLobbyManager.Instance?.SetBotFillingServerRpc(i == 1);
+            }
+            if (p.stp_Difficulty != null)
+            {
+                p.stp_Difficulty.SetOptions(k_Difficulties, 1);
+                p.stp_Difficulty.Changed += i => ConquestLobbyManager.Instance?.SetDifficultyServerRpc((BotDifficulty)i);
+            }
+        }
+
+        // Placeholder: the choices the lobby's host settings step through.
+        private static readonly string[] k_LobbyTickets = { "50", "75", "100", "150", "200", "250", "300", "400", "500" };
+        private static readonly string[] k_LobbyTeamSizes = { "1", "2", "3", "4", "5", "6", "8", "10", "12", "16" };
+
+        // The option nearest a value, for showing replicated settings on a stepper.
+        private static int NearestOption(string[] options, int value)
+        {
+            int best = 0, bestDiff = int.MaxValue;
+            for (int i = 0; i < options.Length; i++)
+            {
+                int d = Mathf.Abs(int.Parse(options[i]) - value);
+                if (d < bestDiff) { bestDiff = d; best = i; }
+            }
+            return best;
+        }
+
+        private void SyncHostSettings(LobbyPanelUI p, ConquestLobbyManager lobby, bool isHost)
+        {
+            if (p.hostSettingsRow != null && p.hostSettingsRow.activeSelf != isHost) p.hostSettingsRow.SetActive(isHost);
+            if (!isHost) return;
+            if (p.stp_Tickets != null) p.stp_Tickets.SetIndexWithoutNotify(NearestOption(k_LobbyTickets, lobby.reinforcementTickets.Value));
+            if (p.stp_TeamSize != null) p.stp_TeamSize.SetIndexWithoutNotify(NearestOption(k_LobbyTeamSizes, lobby.targetTeamSize.Value));
+            if (p.stp_BotFill != null) p.stp_BotFill.SetIndexWithoutNotify(lobby.enableBotFilling.Value ? 1 : 0);
+            if (p.stp_Difficulty != null) p.stp_Difficulty.SetIndexWithoutNotify((int)lobby.botDifficulty.Value);
         }
 
         // The Settings screen loads, applies and saves on its own; the menu only handles leaving it.
@@ -674,6 +769,7 @@ namespace Game.Conquest.UI
             string sceneName = lobby.selectedMapScene.Value.ToString();
             var mapData = mapRegistry != null ? mapRegistry.GetMapBySceneName(sceneName) : null;
             string mapLabel = mapData != null && mapData.sceneName == sceneName ? mapData.displayName : sceneName;
+            SyncHostSettings(p, lobby, isHost);
             int teamSize = Mathf.Max(1, lobby.targetTeamSize.Value);
             bool bots = lobby.enableBotFilling.Value;
             string status = lobby.autoStartCountdown.Value >= 0
@@ -807,11 +903,12 @@ namespace Game.Conquest.UI
         private void ShowJoinError(string message)
         {
             Debug.Log($"[ConquestMainMenuController] Connection ended: {message}");
-            if (currentMenuState == MenuState.Lobby || currentMenuState == MenuState.ServerBrowser)
+            if (currentMenuState == MenuState.Lobby)
             {
-                SwitchScreen(MenuState.ServerBrowser);
+                SwitchScreen(MenuState.JoinByCode);
             }
             SetJoinStatus(message);
+            ShowDialog("COULDN'T JOIN", message);
         }
 
         // The browser has no server discovery yet; its card list shows recently joined servers.
@@ -842,6 +939,7 @@ namespace Game.Conquest.UI
             if (p.btn_ConnectDirect != null) p.btn_ConnectDirect.interactable = !m_IsConnecting;
             if (p.btn_Host != null) p.btn_Host.interactable = !m_IsConnecting;
             if (p.btn_Refresh != null) p.btn_Refresh.interactable = !m_IsConnecting;
+            if (joinCodePanelUI != null && joinCodePanelUI.btn_Connect != null) joinCodePanelUI.btn_Connect.interactable = !m_IsConnecting;
         }
 
         // Join feedback goes to the header status badge (the browser panel has no status line).

@@ -149,9 +149,23 @@ namespace Game.Conquest.Scenes
             FailTransition(message);
         }
 
+        /// <summary>A failure to show in a dialog once the menu is back; taken (and cleared) by the menu.</summary>
+        public static string PendingMenuMessage { get; private set; }
+
+        public static string TakePendingMenuMessage()
+        {
+            string m = PendingMenuMessage;
+            PendingMenuMessage = null;
+            return m;
+        }
+
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+        private static void ResetPendingMessage() => PendingMenuMessage = null;
+
         /// <summary>Abandon whatever is loading and go back to the main menu with a message.</summary>
         public void FailTransition(string message)
         {
+            PendingMenuMessage = message;
             Debug.LogWarning($"[ConquestSceneTransitionManager] {message}");
             StopAllCoroutines();
             m_FadeCoroutine = null;

@@ -23,6 +23,10 @@ namespace Game.Conquest.UI
 
         [Header("Data")]
         [SerializeField] private ConquestMapRegistry mapRegistry;
+        [Tooltip("Turns this match into profile experience.")]
+        [SerializeField] private Game.Conquest.Profile.ProfileRules profileRules;
+        [Tooltip("Class names for the profile's class record.")]
+        [SerializeField] private ConquestClassRoster classRoster;
 
         [Header("Colors")]
         [SerializeField] private Color victoryColor = new Color(0.3f, 0.85f, 0.4f);
@@ -146,6 +150,13 @@ namespace Game.Conquest.UI
         {
             if (results == null) return;
             m_Shown = results;
+
+            var nmLocal = NetworkManager.Singleton;
+            if (!m_Headless && nmLocal != null && nmLocal.IsClient)
+            {
+                Game.Conquest.Profile.ProfileStore.RecordMatch(results, nmLocal.LocalClientId, profileRules,
+                    index => classRoster != null ? classRoster.NameOf(index) : $"Class {index}");
+            }
 
             Team localTeam = FindLocalTeam(results);
             string title;

@@ -50,6 +50,14 @@ namespace Game.Conquest
         public Graphic[] blueTeamTinted;
         public ConquestUITheme theme;
 
+        [Header("Host settings")]
+        [Tooltip("Row of match settings only the host sees and can change.")]
+        public GameObject hostSettingsRow;
+        public OptionStepperUI stp_Tickets;
+        public OptionStepperUI stp_TeamSize;
+        public OptionStepperUI stp_BotFill;
+        public OptionStepperUI stp_Difficulty;
+
         // Buttons
         public Button btn_SwitchTeam;
         public Button btn_LeaveLobby;

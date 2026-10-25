@@ -28,6 +28,10 @@ namespace Game.Conquest
         [Header("Bounds")]
         [Tooltip("Placeholder: metres of padding around the outermost posts.")]
         public float boundsPadding = 40f;
+        [Tooltip("Placeholder: padding around the posts as a share of the map's span.")]
+        public float paddingFraction = 0.12f;
+        [Tooltip("Placeholder: least padding around the posts, in metres.")]
+        public float minPadding = 6f;
 
         [Header("Theme")]
         [Tooltip("Owner shapes for the posts.")]
@@ -127,7 +131,11 @@ namespace Game.Conquest
                 max = Vector2.zero;
             }
             Vector2 centre = (min + max) * 0.5f;
-            m_Size = Mathf.Max(max.x - min.x, max.y - min.y) + boundsPadding * 2f;
+            // Padding grows with the map, so a small map isn't a cluster in the middle of the panel;
+            // boundsPadding stays the most it can be.
+            float span = Mathf.Max(max.x - min.x, max.y - min.y);
+            float padding = Mathf.Min(boundsPadding, Mathf.Max(minPadding, span * paddingFraction));
+            m_Size = span + padding * 2f;
             if (m_Size < 1f) m_Size = 1f;
             m_Min = centre - Vector2.one * (m_Size * 0.5f);
         }

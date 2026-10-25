@@ -351,14 +351,21 @@ namespace Game.Conquest.Lobby
         public void SetTicketsServerRpc(int tickets, RpcParams rpcParams = default)
         {
             if (rpcParams.Receive.SenderClientId != NetworkManager.Singleton.LocalClientId) return;
-            reinforcementTickets.Value = tickets;
+            reinforcementTickets.Value = Mathf.Clamp(tickets, 1, 9999);
+        }
+
+        [Rpc(SendTo.Server)]
+        public void SetBotFillingServerRpc(bool enabled, RpcParams rpcParams = default)
+        {
+            if (rpcParams.Receive.SenderClientId != NetworkManager.Singleton.LocalClientId) return;
+            enableBotFilling.Value = enabled;
         }
 
         [Rpc(SendTo.Server)]
         public void SetTeamSizeServerRpc(int teamSize, RpcParams rpcParams = default)
         {
             if (rpcParams.Receive.SenderClientId != NetworkManager.Singleton.LocalClientId) return;
-            targetTeamSize.Value = teamSize;
+            targetTeamSize.Value = Mathf.Clamp(teamSize, 1, 32);
         }
 
         [Rpc(SendTo.Server)]

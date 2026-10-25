@@ -5,6 +5,12 @@ namespace Game.Conquest
 {
     public class TitlePanelUI : MonoBehaviour
     {
+        [Header("Profile badge")]
+        [Tooltip("Top-right badge with the profile name and level; opens the profile screen.")]
+        public Button btn_Profile;
+        public TMPro.TextMeshProUGUI txt_ProfileName;
+        public TMPro.TextMeshProUGUI txt_ProfileLevel;
+
         [Header("Buttons")]
         public Button btn_Singleplayer;
         public Button btn_Multiplayer;
