@@ -30,6 +30,12 @@ namespace Game.Conquest
             if (selectedRing != null) selectedRing.SetActive(false);
         }
 
+        /// <summary>Hides the name, for maps too small to label every post (the HUD minimap).</summary>
+        public void SetLabelVisible(bool visible)
+        {
+            if (txt_Label != null && txt_Label.gameObject.activeSelf != visible) txt_Label.gameObject.SetActive(visible);
+        }
+
         public void SetPost(string postName, Color color, Sprite ownerIcon, bool selectable, bool selected)
         {
             if (img_Icon != null && ownerIcon != null && img_Icon.sprite != ownerIcon) img_Icon.sprite = ownerIcon;

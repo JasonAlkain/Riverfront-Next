@@ -39,6 +39,8 @@ namespace Game.Conquest
 
         [Header("Options")]
         public bool showTeammates = true;
+        [Tooltip("Post names under the icons. Off for small maps, where they overlap.")]
+        public bool showLabels = true;
 
         /// <summary>Raised with a post name when a selectable post is clicked.</summary>
         public event Action<string> PostClicked;
@@ -67,6 +69,7 @@ namespace Game.Conquest
                     {
                         var item = Instantiate(postPrefab, mapArea);
                         item.Clicked += name => PostClicked?.Invoke(name);
+                        item.SetLabelVisible(showLabels);
                         m_Posts.Add(item);
                     }
                     var ui = m_Posts[shown++];

@@ -277,8 +277,8 @@ namespace Game.Conquest.UI
             }
         }
 
-        // A controller needs something selected to navigate. The Play Solo screens pick a sensible
-        // button; coming back to the title focuses the button that led there.
+        // A controller needs something selected to navigate. Each screen picks a sensible first
+        // button; coming back to the title focuses the tile that led away from it.
         private void FocusForPlaySolo(MenuState from, MenuState to)
         {
             Button focus = null;
@@ -291,11 +291,25 @@ namespace Game.Conquest.UI
             {
                 focus = soloPanelUI.btn_Start;
             }
-            else if (to == MenuState.Title && from == MenuState.PlaySoloMenu && titlePanelUI != null)
+            else if (to == MenuState.Title && titlePanelUI != null)
             {
-                focus = titlePanelUI.btn_Singleplayer;
+                focus = from == MenuState.Multiplayer ? titlePanelUI.btn_Multiplayer
+                      : from == MenuState.Settings ? titlePanelUI.btn_Settings
+                      : from == MenuState.Credits ? titlePanelUI.btn_Credits
+                      : from == MenuState.Profile ? titlePanelUI.btn_Profile
+                      : titlePanelUI.btn_Singleplayer;
             }
-            if (focus != null && EventSystem.current != null) EventSystem.current.SetSelectedGameObject(focus.gameObject);
+            else if (to == MenuState.Multiplayer && multiplayerPanelUI != null) focus = multiplayerPanelUI.btn_Host;
+            else if (to == MenuState.HostGame && hostPanelUI != null) focus = hostPanelUI.btn_CreateLobby;
+            else if (to == MenuState.ServerBrowser && browserPanelUI != null) focus = browserPanelUI.btn_Refresh;
+            else if (to == MenuState.JoinByCode && joinCodePanelUI != null) focus = joinCodePanelUI.btn_Connect;
+            else if (to == MenuState.Lobby && lobbyPanelUI != null) focus = lobbyPanelUI.btn_StartMatch != null && lobbyPanelUI.btn_StartMatch.gameObject.activeInHierarchy ? lobbyPanelUI.btn_StartMatch : lobbyPanelUI.btn_SwitchTeam;
+            else if (to == MenuState.Credits && creditsPanelUI != null) focus = creditsPanelUI.btn_Back;
+            else if (to == MenuState.Profile && profilePanelUI != null) focus = profilePanelUI.btn_Back;
+            // A pad needs a selection to start from; with only a mouse, a highlighted button would just look stuck.
+            bool pad = UnityEngine.InputSystem.Gamepad.current != null
+                       || to == MenuState.PlaySoloMenu || to == MenuState.PlaySolo || (to == MenuState.Title && from == MenuState.PlaySoloMenu);
+            if (pad && focus != null && EventSystem.current != null) EventSystem.current.SetSelectedGameObject(focus.gameObject);
         }
 
         // Cancel (Esc / pad B) steps back, only on the Play Solo screens: other screens have text
@@ -929,7 +943,30 @@ namespace Game.Conquest.UI
                 }
             }
             UpdateJoinButtons();
+
+            // Open online matches come in a moment later, listed above the recent servers.
+            int request = ++m_BrowseRequest;
+            SetStatusBadge("Looking for online matches...");
+            ConquestSession.Current?.QueryOnlineMatches((matches, error) =>
+            {
+                if (request != m_BrowseRequest || currentMenuState != MenuState.ServerBrowser || browserPanelUI == null) return;
+                if (error != null) { SetStatusBadge(error); return; }
+                SetStatusBadge(matches.Count == 1 ? "1 online match open" : $"{matches.Count} online matches open");
+                for (int i = matches.Count - 1; i >= 0; i--)
+                {
+                    var m = matches[i];
+                    var mapData = mapRegistry != null ? mapRegistry.GetMapBySceneName(m.map) : null;
+                    string mapLabel = mapData != null ? mapData.displayName : m.map;
+                    string code = m.joinCode;
+                    browserPanelUI.AddServerCard(m.name, $"Online  ·  {mapLabel}  ·  {m.players}/{m.maxPlayers} players", () => BeginConnect(code, ""));
+                    // Newest first, above the recent servers.
+                    var container = browserPanelUI.serverCardContainer;
+                    container.GetChild(container.childCount - 1).SetAsFirstSibling();
+                }
+            });
         }
+
+        private int m_BrowseRequest;
 
         private void UpdateJoinButtons()
         {
@@ -1076,6 +1113,8 @@ namespace Game.Conquest.UI
 
             ConquestSessionManager.SaveLocalPlayerName(clean);
             if (input != null) input.text = clean;
+            // A first name set in the lobby becomes the profile's name too.
+            if (string.IsNullOrEmpty(Game.Conquest.Profile.ProfileStore.Current.playerName)) Game.Conquest.Profile.ProfileStore.SetName(clean);
 
             var lobby = ConquestLobbyManager.Instance;
             if (lobby != null && lobby.IsSpawned) lobby.SetNameServerRpc(clean);

@@ -130,9 +130,11 @@ namespace Game.Conquest.Networking
             s_LocalPlayerName = "";
         }
 
+        /// <summary>The name chosen in the lobby this run, or else the profile's name.</summary>
         public static string LoadLocalPlayerName()
         {
-            return s_LocalPlayerName;
+            if (!string.IsNullOrEmpty(s_LocalPlayerName)) return s_LocalPlayerName;
+            return SanitizePlayerName(Game.Conquest.Profile.ProfileStore.Current.playerName);
         }
 
         public static void SaveLocalPlayerName(string name)
@@ -281,6 +283,7 @@ namespace Game.Conquest.Networking
 
         public void StartSoloGame(string mapSceneName, int tickets, int teamSize, BotDifficulty difficulty, Team team = Team.Neutral)
         {
+            Unlist();
             m_OnlineAttempt++;
             m_OnlineJoinCode = "";
             isSoloMode = true;
@@ -336,6 +339,7 @@ namespace Game.Conquest.Networking
 
         public bool StartHostGame(string mapId, string mapSceneName, string sessName, int maxPlayers, int tickets, int teamSize, bool botFill, BotDifficulty diff)
         {
+            Unlist();
             m_OnlineAttempt++;
             m_OnlineJoinCode = "";
             ConfigureHost(mapId, mapSceneName, sessName, maxPlayers, tickets, teamSize, botFill, diff);
@@ -554,9 +558,106 @@ namespace Game.Conquest.Networking
                 return;
             }
             m_OnlineJoinCode = joinCode;
+            ListOnline(sessName, maxPlayers, joinCode, mapSceneName, attempt);
             SetStatus($"Hosting online match, join code {joinCode}");
             Debug.Log($"[ConquestSessionManager] {StatusMessage}");
             done?.Invoke(true, StatusMessage);
+        }
+
+        // ---------- Online match list ----------
+
+        [Header("Online Match List")]
+        [Tooltip("Placeholder: seconds between keep-alive pings for this host's match list entry (Lobby drops entries after 30 s without one).")]
+        [SerializeField] private float lobbyHeartbeatSeconds = 15f;
+
+        private string m_LobbyId = "";
+        private Coroutine m_LobbyRoutine;
+
+        // Lists this online match publicly, then keeps the entry alive and its player count and map current.
+        private async void ListOnline(string sessName, int maxPlayers, string joinCode, string mapScene, int attempt)
+        {
+            try
+            {
+                string id = await ConquestOnlineLobby.PublishAsync(sessName, maxPlayers, joinCode, mapScene, 1);
+                if (attempt != m_OnlineAttempt || !IsHostingOnline)
+                {
+                    _ = ConquestOnlineLobby.RemoveAsync(id);
+                    return;
+                }
+                m_LobbyId = id;
+                if (m_LobbyRoutine != null) StopCoroutine(m_LobbyRoutine);
+                m_LobbyRoutine = StartCoroutine(KeepListed(id));
+            }
+            catch (Exception e)
+            {
+                // The match still works by join code; it just isn't in the list.
+                Debug.LogWarning($"[ConquestSessionManager] Couldn't list the online match: {e.Message}");
+            }
+        }
+
+        private System.Collections.IEnumerator KeepListed(string id)
+        {
+            var wait = new WaitForSecondsRealtime(Mathf.Max(5f, lobbyHeartbeatSeconds));
+            int lastPlayers = 1;
+            string lastMap = "";
+            while (m_LobbyId == id)
+            {
+                yield return wait;
+                if (m_LobbyId != id) yield break;
+                var nm = NetworkManager.Singleton;
+                int players = nm != null && nm.IsServer ? nm.ConnectedClientsIds.Count : 0;
+                var lobby = Game.Conquest.Lobby.ConquestLobbyManager.Instance;
+                string map = lobby != null && lobby.IsSpawned ? lobby.selectedMapScene.Value.ToString() : selectedMapScene;
+                if (players != lastPlayers || map != lastMap)
+                {
+                    lastPlayers = players;
+                    lastMap = map;
+                    Fire(ConquestOnlineLobby.UpdateAsync(id, players, map));
+                }
+                else
+                {
+                    Fire(ConquestOnlineLobby.HeartbeatAsync(id));
+                }
+            }
+        }
+
+        private static async void Fire(System.Threading.Tasks.Task task)
+        {
+            try { await task; }
+            catch (Exception e) { Debug.LogWarning($"[ConquestSessionManager] Match list update failed: {e.Message}"); }
+        }
+
+        // Takes this host's entry off the list (leaving, a LAN or solo session, quitting).
+        private void Unlist()
+        {
+            if (m_LobbyRoutine != null) StopCoroutine(m_LobbyRoutine);
+            m_LobbyRoutine = null;
+            if (string.IsNullOrEmpty(m_LobbyId)) return;
+            Fire(ConquestOnlineLobby.RemoveAsync(m_LobbyId));
+            m_LobbyId = "";
+        }
+
+        private void OnApplicationQuit()
+        {
+            Unlist();
+        }
+
+        public void QueryOnlineMatches(Action<List<OnlineMatchInfo>, string> done)
+        {
+            QueryOnline(done);
+        }
+
+        private static async void QueryOnline(Action<List<OnlineMatchInfo>, string> done)
+        {
+            try
+            {
+                var list = await ConquestOnlineLobby.QueryAsync(25);
+                done?.Invoke(list, null);
+            }
+            catch (Exception e)
+            {
+                done?.Invoke(new List<OnlineMatchInfo>(), ConquestOnlineServices.Describe(e));
+            }
         }
 
         // Join code of the online match this peer hosts; empty when hosting on LAN or not hosting.
@@ -671,6 +772,7 @@ namespace Game.Conquest.Networking
 
         public void LeaveSession()
         {
+            Unlist();
             m_OnlineAttempt++;
             m_JoinedCode = "";
             m_OnlineJoinCode = "";
