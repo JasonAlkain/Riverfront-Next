@@ -14063,7 +14063,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 100, y: 100}
+  m_SizeDelta: {x: 100, y: 64}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &4109571841773963334
 CanvasRenderer:
@@ -18708,7 +18708,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 100, y: 100}
+  m_SizeDelta: {x: 100, y: 170}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &1640539181207845452
 CanvasRenderer:
@@ -20155,7 +20155,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 100, y: 100}
+  m_SizeDelta: {x: 100, y: 58}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &6421529624908768126
 CanvasRenderer:
@@ -20381,7 +20381,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: A story of battles (coming soon)
+  m_text: A story of battles
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -20659,7 +20659,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 100, y: 100}
+  m_SizeDelta: {x: 100, y: 70}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &8150009925891988418
 CanvasRenderer:
@@ -20953,7 +20953,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 100, y: 100}
+  m_SizeDelta: {x: 100, y: 58}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &2840879969121255620
 CanvasRenderer:
@@ -25885,7 +25885,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Learn the basics (coming soon)
+  m_text: Learn the basics
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -28966,7 +28966,7 @@ MonoBehaviour:
   m_ChildForceExpandWidth: 1
   m_ChildForceExpandHeight: 0
   m_ChildControlWidth: 1
-  m_ChildControlHeight: 1
+  m_ChildControlHeight: 0
   m_ChildScaleWidth: 0
   m_ChildScaleHeight: 0
   m_ReverseArrangement: 0
@@ -29939,7 +29939,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 100, y: 100}
+  m_SizeDelta: {x: 100, y: 64}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &993414944231375235
 CanvasRenderer:
@@ -33725,7 +33725,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 100, y: 100}
+  m_SizeDelta: {x: 100, y: 58}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &7694211559241868507
 CanvasRenderer:
@@ -35548,7 +35548,7 @@ MonoBehaviour:
   m_ChildForceExpandWidth: 1
   m_ChildForceExpandHeight: 0
   m_ChildControlWidth: 1
-  m_ChildControlHeight: 1
+  m_ChildControlHeight: 0
   m_ChildScaleWidth: 0
   m_ChildScaleHeight: 0
   m_ReverseArrangement: 0
@@ -43019,7 +43019,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 100, y: 100}
+  m_SizeDelta: {x: 100, y: 170}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &3998563835232061652
 CanvasRenderer:
@@ -43273,7 +43273,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 100, y: 100}
+  m_SizeDelta: {x: 100, y: 58}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &2440992766544538980
 CanvasRenderer:
@@ -46484,7 +46484,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 100, y: 100}
+  m_SizeDelta: {x: 100, y: 64}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &4893026113668194065
 CanvasRenderer:
@@ -46822,7 +46822,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 100, y: 100}
+  m_SizeDelta: {x: 100, y: 64}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &7265315821263927955
 CanvasRenderer:
@@ -47835,7 +47835,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 100, y: 100}
+  m_SizeDelta: {x: 100, y: 64}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &6811578710401854194
 CanvasRenderer:
@@ -55124,7 +55124,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Pick a map, a team and the bots
+  m_text: Pick a map, team and bots
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -58431,7 +58431,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 100, y: 100}
+  m_SizeDelta: {x: 100, y: 64}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &133592625435423445
 CanvasRenderer:
