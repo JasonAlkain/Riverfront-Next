@@ -56,7 +56,9 @@ namespace Game.Conquest
             Color teammateColor, List<string> selectable = null, string selected = null)
         {
             if (mapArea == null || posts == null) return;
-            if (posts.Count != m_BoundsPostCount) ComputeBounds(posts);
+            // Posts can still be arriving at their places when the screen first opens (a client
+            // gets them over the network), so the bounds follow them; a handful of posts is cheap.
+            ComputeBounds(posts);
 
             int shown = 0;
             if (postPrefab != null)
