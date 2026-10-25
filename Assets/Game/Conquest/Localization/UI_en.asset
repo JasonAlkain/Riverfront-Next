@@ -367,30 +367,42 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 4917792786
-    m_Localized: '<b>RIVERFRONT NEXT</b>
+    m_Localized: '<size=20><color=#73BFFF><b>CORE TEAM</b></color></size>
 
-      An original team-based Conquest shooter. Pre-alpha.
-
-
-      <b>Created by:</b> Zachary Aars
+      Created by<pos=46%>Zachary Aars
 
 
-      <b>Engine:</b> Unity 6
+      <size=20><color=#73BFFF><b>BUILT WITH</b></color></size>
 
-      <b>Networking:</b> Netcode for GameObjects and Unity Transport
+      Engine<pos=46%>Unity 6
 
-      <b>Bots:</b> Unity AI Navigation
+      Networking<pos=46%>Netcode for GameObjects, Unity Transport
 
-      <b>Interface:</b> uGUI and TextMesh Pro
+      Online play<pos=46%>Unity Gaming Services: Relay, Authentication
 
-      <b>Assets:</b> project-made, Unity template and sample content, and CC0 assets
+      Bots<pos=46%>Unity AI Navigation
 
-      <b>Weapon models:</b> Blaster Kit by Kenney (www.kenney.nl), CC0
-
-      <b>Sound effects:</b> Unity template and sample audio
+      Interface<pos=46%>uGUI, TextMesh Pro, Unity Localization
 
 
-      The host decides damage, captures, tickets and the result; movement is client-driven.'
+      <size=20><color=#73BFFF><b>ASSETS</b></color></size>
+
+      Heavy and Recon weapons<pos=46%>Blaster Kit by Kenney (kenney.nl), CC0
+
+      Rifle, handgun and shotgun<pos=46%>Unity template content
+
+      Character, particles, sounds<pos=46%>Unity template and sample content
+
+      Everything else<pos=46%>Made for this project
+
+
+      <size=20><color=#73BFFF><b>SPECIAL THANKS</b></color></size>
+
+      Kenney, for the free Blaster Kit
+
+      The Unity community
+
+      Everyone playtesting the pre-alpha'
     m_Metadata:
       m_Items: []
   - m_Id: 4917792787
