@@ -29,8 +29,21 @@ namespace Game.Conquest.Networking
         /// <summary>The signed-in player's id (stable per install for anonymous sign-in), or empty.</summary>
         public static string PlayerId => IsSignedIn ? AuthenticationService.Instance.PlayerId : "";
 
+        private static Task s_SignIn;
+
         /// <summary>Initializes Unity Services and signs in anonymously if needed. Throws on failure.</summary>
-        public static async Task EnsureSignedInAsync()
+        public static Task EnsureSignedInAsync()
+        {
+            // Hosting and the match list can both ask at once; they share one sign-in.
+            if (IsSignedIn) return Task.CompletedTask;
+            if (s_SignIn == null || s_SignIn.IsFaulted || s_SignIn.IsCanceled) s_SignIn = SignInAsync();
+            return s_SignIn;
+        }
+
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+        private static void ResetSignIn() => s_SignIn = null;
+
+        private static async Task SignInAsync()
         {
             if (UnityServices.State == ServicesInitializationState.Uninitialized)
             {
