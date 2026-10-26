@@ -15,9 +15,9 @@ MonoBehaviour:
   devlogUrl: https://allyn-david.itch.io/riverfront-next/devlog
   entries:
   - version: Pre-Alpha
-    date: 2026-10-25
+    date: 2026-10-26
     changes:
-    - Online matches by join code, with LAN by IP still there
-    - New title, lobby, deploy and setup screens
-    - Respawns spend team tickets; pick your team in Solo Practice
-    - Player profile with lifetime stats
+    - Online play by join code or match list; LAN by IP still works
+    - Change class at any command post your team holds
+    - New menus, deploy screen and HUD; class and map previews
+    - Respawns spend team tickets; player profile with stats
