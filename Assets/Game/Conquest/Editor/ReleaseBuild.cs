@@ -23,7 +23,8 @@ namespace Game.Conquest.Build
     /// Uses the global scene list and Player Settings. In batchmode no build profile is active; in the
     /// Editor the active profile's Player Settings overrides apply (e.g. the Windows Client splash screen).
     /// The build refuses to run when those overrides change the product name, so the exe on itch.io is
-    /// always "Riverfront Next.exe".
+    /// always "Riverfront Next.exe". The version always comes from ProjectSettings.asset, never from a
+    /// profile override, so bumping the project version is enough.
     /// </summary>
     public static class ReleaseBuild
     {
@@ -63,7 +64,7 @@ namespace Game.Conquest.Build
         /// <summary>Same default as Tools/Build/build.ps1: "{bundleVersion}+{git short sha}", plus "-dirty" for uncommitted changes.</summary>
         internal static string DefaultVersion()
         {
-            string version = PlayerSettings.bundleVersion;
+            string version = ProjectVersion();
             string sha = Git("rev-parse --short HEAD");
             if (string.IsNullOrEmpty(sha))
             {
@@ -105,7 +106,7 @@ namespace Game.Conquest.Build
             bool ok;
             try
             {
-                string version = GetArg("-buildVersion") ?? PlayerSettings.bundleVersion;
+                string version = GetArg("-buildVersion") ?? ProjectVersion();
                 string output = GetArg("-buildOutput") ?? Path.Combine(DefaultOutputRoot, version);
                 string targets = (GetArg("-buildTargets") ?? "client,server").ToLowerInvariant();
                 bool client = targets.Contains("client");
@@ -138,7 +139,7 @@ namespace Game.Conquest.Build
                 return false;
             }
 
-            string projectProductName = ReadProjectProductName();
+            string projectProductName = ReadProjectSetting("productName");
             if (projectProductName != null && PlayerSettings.productName != projectProductName)
             {
                 Debug.LogError($"[ReleaseBuild] The active build profile renames the game to '{PlayerSettings.productName}' " +
@@ -251,20 +252,28 @@ namespace Game.Conquest.Build
             File.WriteAllLines(Path.Combine(outputRoot, "build-info.txt"), lines);
         }
 
-        /// <summary>productName from ProjectSettings.asset, ignoring any build-profile override.</summary>
-        private static string ReadProjectProductName()
+        /// <summary>
+        /// bundleVersion from ProjectSettings.asset. PlayerSettings.bundleVersion returns the active build
+        /// profile's override when it has one, and those overrides are a stale copy that is not bumped
+        /// with the project version.
+        /// </summary>
+        private static string ProjectVersion() => ReadProjectSetting("bundleVersion") ?? PlayerSettings.bundleVersion;
+
+        /// <summary>A top-level PlayerSettings value from ProjectSettings.asset, ignoring any build-profile override.</summary>
+        private static string ReadProjectSetting(string key)
         {
             const string path = "ProjectSettings/ProjectSettings.asset";
             if (!File.Exists(path))
             {
                 return null;
             }
+            string prefix = key + ":";
             foreach (string line in File.ReadLines(path))
             {
                 string trimmed = line.Trim();
-                if (trimmed.StartsWith("productName:", StringComparison.Ordinal))
+                if (trimmed.StartsWith(prefix, StringComparison.Ordinal))
                 {
-                    return trimmed.Substring("productName:".Length).Trim();
+                    return trimmed.Substring(prefix.Length).Trim();
                 }
             }
             return null;
