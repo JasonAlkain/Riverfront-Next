@@ -26,7 +26,8 @@ namespace Game.Conquest
             var entry = data.entries[0];
             if (txt_Headline != null)
             {
-                txt_Headline.text = string.IsNullOrEmpty(entry.date) ? entry.version : $"{entry.version}  ·  {entry.date}";
+                // The build's own version (Player Settings), so the title always names what is running.
+                txt_Headline.text = string.IsNullOrEmpty(entry.version) ? $"v{Application.version}" : $"{entry.version}  ·  v{Application.version}";
             }
             if (txt_Changes != null)
             {

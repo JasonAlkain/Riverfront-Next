@@ -10,7 +10,7 @@ namespace Game.Conquest
         public class Entry
         {
             public string version = "Pre-Alpha";
-            [Tooltip("Shown as written, e.g. 2026-10-25.")]
+            [Tooltip("Not shown on the title screen, which shows the build version instead. Kept as a record.")]
             public string date = "";
             [TextArea] public string[] changes = new string[0];
         }
