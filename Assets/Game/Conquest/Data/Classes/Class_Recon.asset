@@ -15,11 +15,14 @@ MonoBehaviour:
   classType: 3
   className: Recon
   description: Long-range sharpshooter armed with a high-powered precision blaster rifle. High mobility but light armor.
+  portrait: {fileID: 21300000, guid: 082ab126f137c164984b72307ad72e7e, type: 3}
   classAccentColor: {r: 0.3, g: 0.7, b: 1, a: 1}
   maxHealth: 80
   walkSpeed: 6.8
   sprintSpeed: 11
-  weaponName: Valken-38X Sniper
+  weaponName: Longwatch Marksman Rifle
+  primaryModel: 3
+  weaponIcon: {fileID: 21300000, guid: abdbbfcbdf73a784988b91c20119d0e0, type: 3}
   damagePerShot: 85
   fireRate: 0.85
   maxRange: 200
@@ -37,8 +40,40 @@ MonoBehaviour:
   heatAfterOverheat: 0
   hasZoom: 1
   zoomMagnification: 3
+  adsSpreadMultiplier: 1
+  adsOffset: {x: 0, y: 0, z: 0}
   hasScope: 1
   hasSupportStation: 0
+  sidearm:
+    kind: 1
+    weaponName: Blaster Pistol
+    icon: {fileID: 21300000, guid: f86ea56b27670d0419350f3545c690bf, type: 3}
+    damagePerShot: 18
+    fireRate: 0.3
+    maxRange: 60
+    spreadAngle: 0.8
+    magazineCapacity: 12
+    reloadDuration: 1.2
+    isAutomatic: 0
+    boltSpeed: 110
+    shotsToOverheat: 12
+    coolDelaySeconds: 0.4
+    fullCoolSeconds: 1.2
+    overheatLockoutSeconds: 1.2
+    canAim: 1
+    zoomMagnification: 1.1
+    adsSpreadMultiplier: 0.6
+    adsOffset: {x: 0, y: 0, z: 0}
+    repairPerUse: 10
+    fireSound: {fileID: 8300000, guid: 1522324874c7dbd4591dad1a91daec57, type: 3}
+    fireVolume: 0.4
+    reloadSound: {fileID: 8300000, guid: 9a683371da5e46349b42f101433665e0, type: 3}
+  throwable: 1
+  throwableName: Grenade
+  throwablePrefab: {fileID: 9010834273791252027, guid: 277a319556f7c904aa250177843232fa, type: 3}
+  throwableCount: 1
+  throwCooldown: 1
+  throwSpeed: 16
   fireSound: {fileID: 8300000, guid: c51d7ed470b9a0946bca31e4dff1d0bf, type: 3}
   reloadSound: {fileID: 8300000, guid: 9a683371da5e46349b42f101433665e0, type: 3}
   firePitchMin: 1.05

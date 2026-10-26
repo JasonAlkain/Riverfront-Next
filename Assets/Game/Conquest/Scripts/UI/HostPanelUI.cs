@@ -14,11 +14,21 @@ namespace Game.Conquest
         public TextMeshProUGUI txt_MaxHumanConnections;
         public TextMeshProUGUI txt_ReinforcementTickets;
         public TextMeshProUGUI txt_TargetTeamSize;
+        [Tooltip("Optional: the selected map's description.")]
+        public TextMeshProUGUI txt_MapDescription;
+
+        [Header("Map preview")]
+        [Tooltip("Optional: the map's preview image, or its colour when it has none.")]
+        public Image img_MapPreview;
 
         [Header("Slider")]
         public Slider sld_MaxHumanConnections;
         public Slider sld_ReinforcementTickets;
         public Slider sld_TargetTeamSize;
+
+        [Header("Network")]
+        [Tooltip("Online (Relay, players join with a code) or LAN (players type this PC's IP).")]
+        public OptionStepperUI stp_Network;
 
         [Header("Bots")]
         [Tooltip("Off: only humans play. On: bots fill every team up to the target size.")]

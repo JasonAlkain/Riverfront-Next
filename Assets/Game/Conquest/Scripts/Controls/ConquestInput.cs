@@ -83,6 +83,9 @@ namespace Game.Conquest.Controls
         public static bool SprintHeld => Gameplay.Sprint.IsPressed();
         public static bool JumpPressed => Gameplay.Jump.WasPressedThisFrame();
         public static bool DeployPressed => Gameplay.Deploy.WasPressedThisFrame();
+        public static bool SwitchWeaponPressed => Gameplay.SwitchWeapon.WasPressedThisFrame();
+        public static bool InteractPressed => Gameplay.Interact.WasPressedThisFrame();
+        public static bool RespawnPressed => Gameplay.Respawn.WasPressedThisFrame();
         public static bool ScoreboardHeld => Gameplay.Scoreboard.IsPressed();
         public static bool PausePressed => Gameplay.Pause.WasPressedThisFrame();
 

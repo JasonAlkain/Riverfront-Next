@@ -130,9 +130,11 @@ namespace Game.Conquest.Networking
             s_LocalPlayerName = "";
         }
 
+        /// <summary>The name chosen in the lobby this run, or else the profile's name.</summary>
         public static string LoadLocalPlayerName()
         {
-            return s_LocalPlayerName;
+            if (!string.IsNullOrEmpty(s_LocalPlayerName)) return s_LocalPlayerName;
+            return SanitizePlayerName(Game.Conquest.Profile.ProfileStore.Current.playerName);
         }
 
         public static void SaveLocalPlayerName(string name)
@@ -279,11 +281,20 @@ namespace Game.Conquest.Networking
             if (ReferenceEquals(ConquestSession.Current, this)) ConquestSession.Current = null;
         }
 
-        public void StartSoloGame(string mapSceneName, int tickets, int teamSize, BotDifficulty difficulty)
+        public void StartSoloGame(string mapSceneName, int tickets, int teamSize, BotDifficulty difficulty, Team team = Team.Neutral)
         {
+            Unlist();
+            m_OnlineAttempt++;
+            m_OnlineJoinCode = "";
             isSoloMode = true;
             ClearPlayerAssignments();
             sessionName = "Solo Practice";
+            // The solo player is the host's own client. A chosen team is handed to the match like a
+            // lobby choice; bots fill both teams around it.
+            if (team == Team.Red || team == Team.Blue)
+            {
+                SetPlayerAssignment(NetworkManager.ServerClientId, new PlayerAssignment { team = team, classIndex = 0, playerName = "" });
+            }
             matchSettings = new ConquestMatchSettings
             {
                 reinforcementTickets = tickets,
@@ -308,11 +319,11 @@ namespace Game.Conquest.Networking
             }
         }
 
-        public bool StartHostGame(string mapId, string mapSceneName, string sessName, int maxPlayers, int tickets, int teamSize, bool botFill, BotDifficulty diff)
+        // Must be stored before StartHost(): the lobby reads these in OnNetworkSpawn.
+        private void ConfigureHost(string mapId, string mapSceneName, string sessName, int maxPlayers, int tickets, int teamSize, bool botFill, BotDifficulty diff)
         {
             isSoloMode = false;
             ClearPlayerAssignments();
-            // Must be stored before StartHost(): the lobby reads these in OnNetworkSpawn.
             selectedMapId = mapId;
             selectedMapScene = mapSceneName;
             sessionName = sessName;
@@ -324,6 +335,14 @@ namespace Game.Conquest.Networking
                 botFilling = botFill,
                 botDifficulty = diff,
             };
+        }
+
+        public bool StartHostGame(string mapId, string mapSceneName, string sessName, int maxPlayers, int tickets, int teamSize, bool botFill, BotDifficulty diff)
+        {
+            Unlist();
+            m_OnlineAttempt++;
+            m_OnlineJoinCode = "";
+            ConfigureHost(mapId, mapSceneName, sessName, maxPlayers, tickets, teamSize, botFill, diff);
 
             // Listen on all interfaces so LAN players can reach the host (loopback-only refuses them).
             EnsureNetworkManagerConfigured("127.0.0.1", hostPort, AnyListenAddress);
@@ -420,6 +439,12 @@ namespace Game.Conquest.Networking
         public bool StartClientConnect(ConquestConnectionData connection)
         {
             isSoloMode = false;
+            m_JoinedCode = "";
+            if (connection.IsOnline)
+            {
+                JoinOnline(ConquestOnlineServices.NormalizeJoinCode(connection.joinCode));
+                return NetworkManager.Singleton != null;
+            }
             connectAddress = string.IsNullOrEmpty(connection.address) ? "127.0.0.1" : connection.address;
             connectPort = connection.port > 0 ? connection.port : DefaultPort;
 
@@ -448,14 +473,240 @@ namespace Game.Conquest.Networking
             return false;
         }
 
+        // Online join: get the relay for the code, then connect as normal. A cancel while the relay
+        // is still being joined bumps the attempt number, so the late result is dropped.
+        private async void JoinOnline(string joinCode)
+        {
+            int attempt = ++m_OnlineAttempt;
+            var nm = NetworkManager.Singleton;
+            var transport = nm != null ? nm.GetComponent<UnityTransport>() : null;
+            if (transport == null) return;
+
+            if (nm.IsClient || nm.IsServer) nm.Shutdown();
+            SetStatus($"Finding online match {joinCode}...");
+            try
+            {
+                await ConquestOnlineServices.JoinRelayAsync(transport, joinCode);
+            }
+            catch (Exception e)
+            {
+                if (attempt != m_OnlineAttempt) return;
+                Debug.LogWarning($"[ConquestSessionManager] Online join failed: {e}");
+                SetStatus(ConquestOnlineServices.Describe(e));
+                OnOnlineJoinFailed?.Invoke(ConquestOnlineServices.Describe(e));
+                return;
+            }
+            if (attempt != m_OnlineAttempt) return;
+
+            m_JoinedCode = joinCode;
+            ApplyClientConnectTimeout();
+            PrepareNetworkManager(nm);
+            if (nm.StartClient())
+            {
+                SetStatus($"Connecting to online match {joinCode}...");
+            }
+            else
+            {
+                SetStatus("Failed to start client connection");
+                OnOnlineJoinFailed?.Invoke(StatusMessage);
+            }
+        }
+
+        /// <summary>An online join failed before a connection was even attempted (bad code, no internet).</summary>
+        public event Action<string> OnOnlineJoinFailed;
+
+        public void StartOnlineHostGame(string mapId, string mapSceneName, string sessName, int maxPlayers, int tickets, int teamSize, bool botFill, BotDifficulty diff, Action<bool, string> done)
+        {
+            HostOnline(mapId, mapSceneName, sessName, maxPlayers, tickets, teamSize, botFill, diff, done);
+        }
+
+        private async void HostOnline(string mapId, string mapSceneName, string sessName, int maxPlayers, int tickets, int teamSize, bool botFill, BotDifficulty diff, Action<bool, string> done)
+        {
+            int attempt = ++m_OnlineAttempt;
+            var nm = NetworkManager.Singleton;
+            var transport = nm != null ? nm.GetComponent<UnityTransport>() : null;
+            if (transport == null)
+            {
+                done?.Invoke(false, "No network manager.");
+                return;
+            }
+            if (nm.IsClient || nm.IsServer) nm.Shutdown();
+
+            SetStatus("Creating online match...");
+            string joinCode;
+            try
+            {
+                // The host is not one of the relay's connections; everyone else is.
+                joinCode = await ConquestOnlineServices.CreateRelayAsync(transport, Mathf.Max(1, maxPlayers - 1));
+            }
+            catch (Exception e)
+            {
+                if (attempt != m_OnlineAttempt) return;
+                Debug.LogWarning($"[ConquestSessionManager] Online host failed: {e}");
+                SetStatus(ConquestOnlineServices.Describe(e));
+                done?.Invoke(false, StatusMessage);
+                return;
+            }
+            if (attempt != m_OnlineAttempt) return;
+
+            ConfigureHost(mapId, mapSceneName, sessName, maxPlayers, tickets, teamSize, botFill, diff);
+            PrepareNetworkManager(nm);
+            if (!nm.StartHost())
+            {
+                SetStatus("Failed to start Host session");
+                done?.Invoke(false, StatusMessage);
+                return;
+            }
+            m_OnlineJoinCode = joinCode;
+            ListOnline(sessName, maxPlayers, joinCode, mapSceneName, attempt);
+            SetStatus($"Hosting online match, join code {joinCode}");
+            Debug.Log($"[ConquestSessionManager] {StatusMessage}");
+            done?.Invoke(true, StatusMessage);
+        }
+
+        // ---------- Online match list ----------
+
+        [Header("Online Match List")]
+        [Tooltip("Placeholder: seconds between keep-alive pings for this host's match list entry (Lobby drops entries after 30 s without one).")]
+        [SerializeField] private float lobbyHeartbeatSeconds = 15f;
+
+        private string m_LobbyId = "";
+        private Coroutine m_LobbyRoutine;
+
+        // Lists this online match publicly, then keeps the entry alive and its player count and map current.
+        private async void ListOnline(string sessName, int maxPlayers, string joinCode, string mapScene, int attempt)
+        {
+            try
+            {
+                string id = await ConquestOnlineLobby.PublishAsync(sessName, maxPlayers, joinCode, mapScene, 1);
+                if (attempt != m_OnlineAttempt || !IsHostingOnline)
+                {
+                    _ = ConquestOnlineLobby.RemoveAsync(id);
+                    return;
+                }
+                m_LobbyId = id;
+                if (m_LobbyRoutine != null) StopCoroutine(m_LobbyRoutine);
+                m_LobbyRoutine = StartCoroutine(KeepListed(id));
+            }
+            catch (Exception e)
+            {
+                // The match still works by join code; it just isn't in the list.
+                Debug.LogWarning($"[ConquestSessionManager] Couldn't list the online match: {e.Message}");
+            }
+        }
+
+        private System.Collections.IEnumerator KeepListed(string id)
+        {
+            var wait = new WaitForSecondsRealtime(Mathf.Max(5f, lobbyHeartbeatSeconds));
+            int lastPlayers = 1;
+            string lastMap = "";
+            while (m_LobbyId == id)
+            {
+                yield return wait;
+                if (m_LobbyId != id) yield break;
+                var nm = NetworkManager.Singleton;
+                int players = nm != null && nm.IsServer ? nm.ConnectedClientsIds.Count : 0;
+                var lobby = Game.Conquest.Lobby.ConquestLobbyManager.Instance;
+                string map = lobby != null && lobby.IsSpawned ? lobby.selectedMapScene.Value.ToString() : selectedMapScene;
+                if (players != lastPlayers || map != lastMap)
+                {
+                    lastPlayers = players;
+                    lastMap = map;
+                    Fire(ConquestOnlineLobby.UpdateAsync(id, players, map));
+                }
+                else
+                {
+                    Fire(ConquestOnlineLobby.HeartbeatAsync(id));
+                }
+            }
+        }
+
+        private static async void Fire(System.Threading.Tasks.Task task)
+        {
+            try { await task; }
+            catch (Exception e) { Debug.LogWarning($"[ConquestSessionManager] Match list update failed: {e.Message}"); }
+        }
+
+        // Takes this host's entry off the list (leaving, a LAN or solo session, quitting).
+        private void Unlist()
+        {
+            if (m_LobbyRoutine != null) StopCoroutine(m_LobbyRoutine);
+            m_LobbyRoutine = null;
+            if (string.IsNullOrEmpty(m_LobbyId)) return;
+            Fire(ConquestOnlineLobby.RemoveAsync(m_LobbyId));
+            m_LobbyId = "";
+        }
+
+        private void OnApplicationQuit()
+        {
+            Unlist();
+        }
+
+        public void QueryOnlineMatches(Action<List<OnlineMatchInfo>, string> done)
+        {
+            QueryOnline(done);
+        }
+
+        private static async void QueryOnline(Action<List<OnlineMatchInfo>, string> done)
+        {
+            try
+            {
+                var list = await ConquestOnlineLobby.QueryAsync(25);
+                done?.Invoke(list, null);
+            }
+            catch (Exception e)
+            {
+                done?.Invoke(new List<OnlineMatchInfo>(), ConquestOnlineServices.Describe(e));
+            }
+        }
+
+        // Join code of the online match this peer hosts; empty when hosting on LAN or not hosting.
+        private string m_OnlineJoinCode = "";
+        // Bumped by every online start and by cancel/leave, so a stale async result is ignored.
+        private int m_OnlineAttempt;
+
+        // Join code of the online match this client joined; empty for LAN clients and hosts.
+        private string m_JoinedCode = "";
+
+        public bool TryGetShareInfo(out string label, out string shown, out string copyText)
+        {
+            label = shown = copyText = "";
+            var nm = NetworkManager.Singleton;
+            if (nm == null || isSoloMode || !(nm.IsServer || nm.IsClient)) return false;
+            if (nm.IsServer)
+            {
+                if (IsHostingOnline)
+                {
+                    label = "JOIN CODE";
+                    shown = copyText = m_OnlineJoinCode;
+                    return true;
+                }
+                var ips = GetLocalIPv4Addresses();
+                if (ips.Count == 0) return false;
+                label = "LAN ADDRESS";
+                shown = $"{ips[0]}:{hostPort}";
+                copyText = GetHostAddressSummary(hostPort);
+                return true;
+            }
+            if (string.IsNullOrEmpty(m_JoinedCode)) return false;
+            label = "JOIN CODE";
+            shown = copyText = m_JoinedCode;
+            return true;
+        }
+
+        /// <summary>True while hosting an online (Relay) match rather than a LAN one.</summary>
+        public bool IsHostingOnline => !string.IsNullOrEmpty(m_OnlineJoinCode);
+
         public void CancelConnect()
         {
+            m_OnlineAttempt++;
+            m_JoinedCode = "";
             var nm = NetworkManager.Singleton;
             if (nm != null && (nm.IsClient || nm.IsServer)) nm.Shutdown();
             SetStatus("Connection cancelled");
         }
 
-        public string HostJoinAddress => GetHostAddressSummary(hostPort);
+        public string HostJoinAddress => IsHostingOnline ? $"JOIN CODE: {m_OnlineJoinCode}" : $"PLAYERS JOIN AT: {GetHostAddressSummary(hostPort)}";
 
         // ---------- Match flow and results ----------
 
@@ -521,6 +772,10 @@ namespace Game.Conquest.Networking
 
         public void LeaveSession()
         {
+            Unlist();
+            m_OnlineAttempt++;
+            m_JoinedCode = "";
+            m_OnlineJoinCode = "";
             m_StatusMessage = "Leaving session...";
             OnStatusChanged?.Invoke(m_StatusMessage);
             ClearPlayerAssignments();
@@ -546,9 +801,9 @@ namespace Game.Conquest.Networking
                 var transport = NetworkManager.Singleton.GetComponent<UnityTransport>();
                 if (transport != null)
                 {
-                    transport.ConnectionData.Address = address;
-                    transport.ConnectionData.Port = port;
-                    transport.ConnectionData.ServerListenAddress = listenAddress ?? "";
+                    // Also switches the transport back from Relay after an online session. Forced so
+                    // the -port/-ip command line can't override what the menus or launch args chose.
+                    transport.SetConnectionData(true, address, port, listenAddress ?? "");
                 }
             }
         }

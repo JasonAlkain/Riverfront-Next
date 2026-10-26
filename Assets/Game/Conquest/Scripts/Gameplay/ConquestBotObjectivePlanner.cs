@@ -58,7 +58,8 @@ namespace Game.Conquest.Gameplay
             m_AttackTargets.Clear();
             for (int i = 0; i < posts.Count; i++)
             {
-                if (posts[i] != null && posts[i].CurrentOwner != team) m_AttackTargets.Add(posts[i]);
+                // Home bases can't be taken, so nobody is sent to attack one.
+                if (posts[i] != null && posts[i].IsCapturable && posts[i].CurrentOwner != team) m_AttackTargets.Add(posts[i]);
             }
 
             // With nothing left to take, the whole team may defend.
@@ -74,7 +75,7 @@ namespace Game.Conquest.Gameplay
             for (int i = 0; i < posts.Count && defenderBudget > 0; i++)
             {
                 ConquestCommandPost post = posts[i];
-                if (post == null || post.CurrentOwner != team || IsUnderAttack(post, team)) continue;
+                if (post == null || !post.IsCapturable || post.CurrentOwner != team || IsUnderAttack(post, team)) continue;
                 if (CountEnemiesNear(post.transform.position, team) > 0)
                 {
                     defenderBudget -= SendNearest(post, guardsPerThreatenedPost, defenderBudget);
@@ -88,7 +89,7 @@ namespace Game.Conquest.Gameplay
         /// <summary>An owned post with enemies on it, or whose capture is sliding away from the owner.</summary>
         public static bool IsUnderAttack(ConquestCommandPost post, Team team)
         {
-            if (post == null || post.CurrentOwner != team) return false;
+            if (post == null || !post.IsCapturable || post.CurrentOwner != team) return false;
             return post.IsSpawnBlocked || (post.CaptureProgress < 0.99f && post.capturingTeam.Value != team);
         }
 
@@ -173,7 +174,7 @@ namespace Game.Conquest.Gameplay
                 float bestCost = float.MaxValue;
                 for (int i = 0; i < posts.Count; i++)
                 {
-                    if (posts[i] == null || posts[i].CurrentOwner != team) continue;
+                    if (posts[i] == null || !posts[i].IsCapturable || posts[i].CurrentOwner != team) continue;
                     float cost = Cost(bot, posts[i]) + m_AttackCounts[i] * attackSpreadPenalty;
                     if (cost < bestCost)
                     {

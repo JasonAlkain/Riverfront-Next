@@ -73,7 +73,7 @@ namespace Game.Conquest
                     Vector3 world = post.transform.position + Vector3.up * postMarkerHeight;
                     marker.Rect.anchoredPosition = ToCanvas(cam, canvasRect, world, true);
                     int meters = Mathf.RoundToInt(Vector3.Distance(viewerPos, post.transform.position));
-                    marker.SetPost(post.PostName, postColor(post), theme != null ? theme.TeamIcon(post.CurrentOwner) : null, meters, post.CaptureProgress, captureColor(post));
+                    marker.SetPost(post.PostName, postColor(post), theme != null ? theme.PostIcon(post) : null, meters, post.CaptureProgress, captureColor(post));
                 }
             }
             SetActiveCount(m_PostMarkers, shown);

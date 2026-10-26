@@ -179,7 +179,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 4909404160
-    m_Localized: PLAY SOLO (PRACTICE)
+    m_Localized: PLAY SOLO
     m_Metadata:
       m_Items: []
   - m_Id: 4909404161
@@ -287,7 +287,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 4913598471
-    m_Localized: 'Direct IP Connection:'
+    m_Localized: 'Join code or LAN IP:'
     m_Metadata:
       m_Items: []
   - m_Id: 4913598472
@@ -311,7 +311,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 4917792772
-    m_Localized: JOIN BY SESSION CODE / IP
+    m_Localized: JOIN CODE OR LAN ADDRESS
     m_Metadata:
       m_Items: []
   - m_Id: 4917792773
@@ -367,26 +367,42 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 4917792786
-    m_Localized: '<b>RIVERFRONT NEXT</b>
+    m_Localized: '<size=20><color=#73BFFF><b>CORE TEAM</b></color></size>
 
-      An original team-based Conquest shooter. Pre-alpha.
-
-
-      <b>Created by:</b> Zachary Aars
+      Created by<pos=46%>Zachary Aars
 
 
-      <b>Engine:</b> Unity 6
+      <size=20><color=#73BFFF><b>BUILT WITH</b></color></size>
 
-      <b>Networking:</b> Netcode for GameObjects and Unity Transport
+      Engine<pos=46%>Unity 6
 
-      <b>Bots:</b> Unity AI Navigation
+      Networking<pos=46%>Netcode for GameObjects, Unity Transport
 
-      <b>Interface:</b> uGUI and TextMesh Pro
+      Online play<pos=46%>Unity Gaming Services: Relay, Authentication
 
-      <b>Assets:</b> free, CC0 and project-made assets
+      Bots<pos=46%>Unity AI Navigation
+
+      Interface<pos=46%>uGUI, TextMesh Pro, Unity Localization
 
 
-      The host decides damage, captures, tickets and the result; movement is client-driven.'
+      <size=20><color=#73BFFF><b>ASSETS</b></color></size>
+
+      Heavy and Recon weapons<pos=46%>Blaster Kit by Kenney (kenney.nl), CC0
+
+      Rifle, handgun and shotgun<pos=46%>Unity template content
+
+      Character, particles, sounds<pos=46%>Unity template and sample content
+
+      Everything else<pos=46%>Made for this project
+
+
+      <size=20><color=#73BFFF><b>SPECIAL THANKS</b></color></size>
+
+      Kenney, for the free Blaster Kit
+
+      The Unity community
+
+      Everyone playtesting the pre-alpha'
     m_Metadata:
       m_Items: []
   - m_Id: 4917792787
@@ -527,6 +543,580 @@ MonoBehaviour:
       m_Items: []
   - m_Id: 7027527680
     m_Localized: TIP
+    m_Metadata:
+      m_Items: []
+  - m_Id: 725991020269568
+    m_Localized: PLAY SOLO
+    m_Metadata:
+      m_Items: []
+  - m_Id: 725991058018304
+    m_Localized: TUTORIAL (COMING SOON)
+    m_Metadata:
+      m_Items: []
+  - m_Id: 725991058018305
+    m_Localized: PRACTICE
+    m_Metadata:
+      m_Items: []
+  - m_Id: 725991058018306
+    m_Localized: CAMPAIGN (COMING SOON)
+    m_Metadata:
+      m_Items: []
+  - m_Id: 725991058018307
+    m_Localized: BACK TO MAIN MENU
+    m_Metadata:
+      m_Items: []
+  - m_Id: 842215033810944
+    m_Localized: Network
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1416453523976192
+    m_Localized: SCOREBOARD
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1416454178287616
+    m_Localized: SELECT CLASS
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1416454178287617
+    m_Localized: CLASS PORTRAIT
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1416454178287618
+    m_Localized: PRIMARY WEAPON
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1416454178287619
+    m_Localized: SIDEARM
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1416454178287620
+    m_Localized: GADGET
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1416454178287621
+    m_Localized: TACTICAL MAP
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1416454178287622
+    m_Localized: SELECT A FRIENDLY DEPLOY POINT
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1416454178287623
+    m_Localized: SPAWN PREVIEW
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1416454178287624
+    m_Localized: SELECTED SPAWN POINT
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1416455730180096
+    m_Localized: RIVERFRONT <color=#73BFFF>NEXT</color>
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1416455730180097
+    m_Localized: CONQUEST
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1416455730180098
+    m_Localized: "TACTICAL MULTIPLAYER INFANTRY COMBAT  \xB7  PRE-ALPHA"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1416455730180099
+    m_Localized: Practice against bots on any map
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1416455730180100
+    m_Localized: SINGLEPLAYER
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1416455730180101
+    m_Localized: Host or join online and LAN matches
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1416455730180102
+    m_Localized: ONLINE
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1416455730180103
+    m_Localized: Audio, video, controls and more
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1416455730180104
+    m_Localized: SYSTEM
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1416455730180105
+    m_Localized: Developers, assets and special thanks
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1416455730180106
+    m_Localized: ABOUT
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1416455730180107
+    m_Localized: Close the game
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1416455730180108
+    m_Localized: EXIT
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1416455730180109
+    m_Localized: LATEST UPDATE
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1416455730180110
+    m_Localized: VIEW DEVLOGS
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1416455730180111
+    m_Localized: "RIVERFRONT NEXT  \xB7  PRE-ALPHA"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1416455730180112
+    m_Localized: SOLO PRACTICE
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1416455730180113
+    m_Localized: BATTLE BOTS ON ANY MAP
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1416455730180114
+    m_Localized: SELECTED MAP
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1416455730180115
+    m_Localized: Choose a map to play on
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1416455730180116
+    m_Localized: MAP PREVIEW
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1416455730180117
+    m_Localized: YOUR TEAM
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1416455730180118
+    m_Localized: Fight for Red or Blue, or take the smaller team
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1416455730180119
+    m_Localized: BOT DIFFICULTY
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1416455730180120
+    m_Localized: Skill of the AI bots
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1416455730180121
+    m_Localized: TARGET TEAM SIZE
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1416455730180122
+    m_Localized: Players per team, bots included
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1416455730180123
+    m_Localized: REINFORCEMENT TICKETS
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1416455734374400
+    m_Localized: Respawns each team can spend
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1416455734374401
+    m_Localized: Deploy into a practice match
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1416455734374402
+    m_Localized: Return to the previous menu
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1416455734374403
+    m_Localized: PLAY SOLO
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1416455734374404
+    m_Localized: PRACTICE OFFLINE AGAINST BOTS
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1416455734374405
+    m_Localized: Pick a map, team and bots
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1416455734374406
+    m_Localized: PRACTICE
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1416455734374407
+    m_Localized: Learn the basics
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1416455734374408
+    m_Localized: TUTORIAL
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1416455734374409
+    m_Localized: A story of battles
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1416455738568704
+    m_Localized: CAMPAIGN
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1416455738568705
+    m_Localized: Return to the title screen
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1416455738568706
+    m_Localized: MULTIPLAYER OPERATIONS
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1416455738568707
+    m_Localized: HOST OR JOIN ONLINE AND LAN MATCHES
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1416455738568708
+    m_Localized: Create an online or LAN match
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1416455738568709
+    m_Localized: HOST
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1416455738568710
+    m_Localized: Servers you joined recently
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1416455738568711
+    m_Localized: BROWSE
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1416455738568712
+    m_Localized: Type a join code or a LAN address
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1416455738568713
+    m_Localized: JOIN
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1416455738568714
+    m_Localized: Return to the title screen
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1416455738568715
+    m_Localized: MULTIPLAYER SETUP
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1416455738568716
+    m_Localized: CONFIGURE AND HOST YOUR MATCH
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1416455738568717
+    m_Localized: SESSION NAME
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1416455738568718
+    m_Localized: Shown to players in the lobby
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1416455738568719
+    m_Localized: SELECTED MAP
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1416455738568720
+    m_Localized: Choose a map to play on
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1416455738568721
+    m_Localized: MAP PREVIEW
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1416455738568722
+    m_Localized: MAX HUMAN CONNECTIONS
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1416455738568723
+    m_Localized: Most human players allowed
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1416455738568724
+    m_Localized: REINFORCEMENT TICKETS
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1416455738568725
+    m_Localized: Respawns each team can spend
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1416455738568726
+    m_Localized: TARGET TEAM SIZE
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1416455738568727
+    m_Localized: Players per team (bots fill empty slots)
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1416455738568728
+    m_Localized: NETWORK
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1416455738568729
+    m_Localized: How other players join your game
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1416455738568730
+    m_Localized: BOT FILL
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1416455738568731
+    m_Localized: Fill empty slots with AI bots
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1416455738568732
+    m_Localized: BOT DIFFICULTY
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1416455738568733
+    m_Localized: Skill of the AI bots
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1416455738568734
+    m_Localized: Start the server and open the lobby
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1416455738568735
+    m_Localized: Return to the previous menu
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1416455738568736
+    m_Localized: BROWSE MATCHES
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1416455738568737
+    m_Localized: SERVERS YOU JOINED RECENTLY
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1416455738568738
+    m_Localized: MATCHES
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1416455738568739
+    m_Localized: Open online matches first, then servers you joined recently.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1416455738568740
+    m_Localized: Join the match
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1416455738568741
+    m_Localized: Join codes have six letters and digits, like 8CCHNM. On a LAN, type the host's IP address, for example 192.168.1.20.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1416455738568742
+    m_Localized: Create your own match
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1416455738568743
+    m_Localized: Reload the list
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1416455738568744
+    m_Localized: Return to the previous menu
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1416455738568745
+    m_Localized: JOIN BY CODE
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1416455738568746
+    m_Localized: AN ONLINE JOIN CODE, OR A HOST'S ADDRESS ON YOUR LAN
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1416455746957312
+    m_Localized: Join codes have six letters and digits, like 8CCHNM, and work while the host is online. On a LAN, type the host's IP address, for example 192.168.1.20.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1416455746957313
+    m_Localized: Join the match
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1416455746957314
+    m_Localized: Return to the previous menu
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1416455746957315
+    m_Localized: MAP
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1416455746957316
+    m_Localized: TICKETS
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1416455746957317
+    m_Localized: TEAM SIZE
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1416455746957318
+    m_Localized: MATCH SETTINGS
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1416455746957319
+    m_Localized: TICKETS
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1416455746957320
+    m_Localized: TEAM SIZE
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1416455746957321
+    m_Localized: BOTS
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1416455746957322
+    m_Localized: DIFFICULTY
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1416455746957323
+    m_Localized: RED TEAM
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1416455746957324
+    m_Localized: BLUE TEAM
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1416455746957325
+    m_Localized: "RIVERFRONT NEXT: CONQUEST  \xB7  PRE-ALPHA"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1416455746957326
+    m_Localized: THIRD-PARTY LICENCES
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1416455746957327
+    m_Localized: Blaster Kit by Kenney (CC0)
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1416455746957328
+    m_Localized: Heavy and Recon weapon models
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1416455746957329
+    m_Localized: VIEW LICENCE
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1416455746957330
+    m_Localized: Unity template and sample content
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1416455746957331
+    m_Localized: Weapon models, character rig, particles and sounds (Unity Companion License)
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1416455751151616
+    m_Localized: VIEW LICENCE
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1416455751151617
+    m_Localized: ABOUT THIS PROJECT
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1416455751151618
+    m_Localized: 'Riverfront Next: Conquest is an original, independent team-based Conquest shooter. It is in pre-alpha and under active development.
+
+
+      In every match the host decides damage, captures, tickets and the result.
+
+
+      Thank you for playing and testing!'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1416455751151619
+    m_Localized: Return to the title screen
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1416455751151620
+    m_Localized: PLAYER PROFILE
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1416455751151621
+    m_Localized: YOUR RECORD ON THIS PC
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1416455751151622
+    m_Localized: PLAYER NAME
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1416455751151623
+    m_Localized: MATCHES
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1416455751151624
+    m_Localized: WINS / LOSSES
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1416455751151625
+    m_Localized: KILLS
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1416455751151626
+    m_Localized: DEATHS
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1416455751151627
+    m_Localized: KILLS PER DEATH
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1416455751151628
+    m_Localized: POST CAPTURES
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1416455751151629
+    m_Localized: TIME PLAYED
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1416455751151630
+    m_Localized: BEST MATCH
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1416455751151631
+    m_Localized: BY CLASS
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1416455751151632
+    m_Localized: BACK TO MAIN MENU
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1416455751151633
+    m_Localized: Return to the title screen
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1416455751151634
+    m_Localized: OK
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1416457894440960
+    m_Localized: Back to the fight
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1416457894440961
+    m_Localized: Audio, video and controls
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1416457894440962
+    m_Localized: Return to the main menu
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1416457894440963
+    m_Localized: Close the game
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1416459135954944
+    m_Localized: HOST
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1416459513442304
+    m_Localized: OPEN SLOT
     m_Metadata:
       m_Items: []
   references:

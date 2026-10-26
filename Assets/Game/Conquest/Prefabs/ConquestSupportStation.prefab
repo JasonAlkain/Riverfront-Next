@@ -171,6 +171,8 @@ MonoBehaviour:
   lifetime: 45
   maxHealth: 80
   stationRenderer: {fileID: 5312596042473618625}
+  destroyEffect: {fileID: 6177334831314038761, guid: eb817a5445914584dbcce3c3432bc9f4, type: 3}
+  destroyEffectSeconds: 3
   redMaterial: {fileID: 2100000, guid: d01913358079e5e4a9937411756146df, type: 2}
   blueMaterial: {fileID: 2100000, guid: ba388532f613b5746859deb84859441e, type: 2}
   stationTeam:

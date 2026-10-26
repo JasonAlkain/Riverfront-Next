@@ -23,6 +23,10 @@ namespace Game.Conquest.UI
 
         [Header("Data")]
         [SerializeField] private ConquestMapRegistry mapRegistry;
+        [Tooltip("Turns this match into profile experience.")]
+        [SerializeField] private Game.Conquest.Profile.ProfileRules profileRules;
+        [Tooltip("Class names for the profile's class record.")]
+        [SerializeField] private ConquestClassRoster classRoster;
 
         [Header("Colors")]
         [SerializeField] private Color victoryColor = new Color(0.3f, 0.85f, 0.4f);
@@ -147,10 +151,25 @@ namespace Game.Conquest.UI
             if (results == null) return;
             m_Shown = results;
 
+            var nmLocal = NetworkManager.Singleton;
+            if (!m_Headless && nmLocal != null && nmLocal.IsClient)
+            {
+                Game.Conquest.Profile.ProfileStore.RecordMatch(results, nmLocal.LocalClientId, profileRules,
+                    index => classRoster != null ? classRoster.NameOf(index) : $"Class {index}");
+            }
+
             Team localTeam = FindLocalTeam(results);
             string title;
             Color titleColor;
-            if (localTeam == Team.Neutral)
+            string outcome = $"{results.winner} team won the battle";
+            if (results.winner == Team.Neutral)
+            {
+                // Both teams wiped out on the same tick with the same tickets left.
+                title = "DRAW";
+                titleColor = defeatColor;
+                outcome = "Both teams were wiped out";
+            }
+            else if (localTeam == Team.Neutral)
             {
                 title = $"{results.winner.ToString().ToUpper()} TEAM WINS";
                 titleColor = results.winner == Team.Red ? redColor : blueColor;
@@ -162,7 +181,7 @@ namespace Game.Conquest.UI
                 titleColor = won ? victoryColor : defeatColor;
             }
 
-            summaryPanelUI?.SetOutcome(title, titleColor, $"{results.winner} team won the battle");
+            summaryPanelUI?.SetOutcome(title, titleColor, outcome);
             summaryPanelUI?.SetMatchInfo($"{MapLabel(results.mapScene.ToString())}  |  {FormatDuration(results.durationSeconds)}  |  " +
                                          $"Tickets left: Red {results.redTickets} / Blue {results.blueTickets}");
 

@@ -19,11 +19,15 @@ namespace Game.Conquest
         public Image img_AmmoFill;
         [Tooltip("Team shape, so the team doesn't depend on colour alone.")]
         public Image img_TeamIcon;
+        [Tooltip("The weapon in hand. Hidden when the weapon has no icon.")]
+        public Image img_WeaponIcon;
 
         [Header("Text Elements")]
         public TextMeshProUGUI txt_TeamClass;
         public TextMeshProUGUI txt_Health;
         public TextMeshProUGUI txt_Ammo;
+        [Tooltip("Name of the weapon in hand.")]
+        public TextMeshProUGUI txt_WeaponName;
         [Tooltip("Reload / station / scope key hints.")]
         public TextMeshProUGUI txt_Hints;
 
@@ -45,6 +49,9 @@ namespace Game.Conquest
         private int m_Ammo = -1;
         private int m_Magazine = -1;
         private bool m_Reloading;
+        private string m_AmmoLabel;
+        private string m_WeaponName;
+        private Sprite m_WeaponIcon;
         private string m_TeamName;
         private string m_TeamClass;
         private string m_Hints;
@@ -100,6 +107,39 @@ namespace Game.Conquest
             {
                 img_AmmoFill.fillAmount = magazine > 0 ? Mathf.Clamp01((float)current / magazine) : 0f;
                 img_AmmoFill.color = reloading ? reloadingColor : ammoColor;
+            }
+        }
+
+        /// <summary>The weapon in hand. Pass the same string instance each frame; only a change touches the UI.</summary>
+        public void SetWeapon(string weaponName, Sprite icon)
+        {
+            if (!ReferenceEquals(weaponName, m_WeaponName))
+            {
+                m_WeaponName = weaponName;
+                if (txt_WeaponName != null) txt_WeaponName.text = weaponName;
+            }
+            if (icon != m_WeaponIcon || (img_WeaponIcon != null && img_WeaponIcon.enabled != (icon != null)))
+            {
+                m_WeaponIcon = icon;
+                if (img_WeaponIcon != null)
+                {
+                    img_WeaponIcon.sprite = icon;
+                    img_WeaponIcon.enabled = icon != null;
+                }
+            }
+        }
+
+        /// <summary>A weapon without ammo (the repair tool): a full bar with a label instead of a count.</summary>
+        public void SetAmmoLabel(string label)
+        {
+            if (m_Ammo == int.MinValue && ReferenceEquals(label, m_AmmoLabel)) return;
+            m_Ammo = int.MinValue;
+            m_AmmoLabel = label;
+            if (txt_Ammo != null) txt_Ammo.text = label;
+            if (img_AmmoFill != null)
+            {
+                img_AmmoFill.fillAmount = 1f;
+                img_AmmoFill.color = ammoColor;
             }
         }
 

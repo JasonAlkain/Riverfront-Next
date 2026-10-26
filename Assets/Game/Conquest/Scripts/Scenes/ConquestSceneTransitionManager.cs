@@ -21,7 +21,7 @@ namespace Game.Conquest.Scenes
         [SerializeField] private string[] gameplayTips = new string[]
         {
             "Command Posts serve as reinforcement spawn points and contest zones.",
-            "Every death costs your team a reinforcement ticket. Run out and you lose.",
+            "Every respawn costs your team a reinforcement ticket. Out of tickets and out of soldiers, you lose.",
             "Heavies excel at suppression, while Recons pick off high-value targets from afar.",
             "Engineers can deploy support stations with [Q] to heal and resupply nearby squadmates.",
             "Press [R] to reload before entering a contested capture point.",
@@ -149,9 +149,23 @@ namespace Game.Conquest.Scenes
             FailTransition(message);
         }
 
+        /// <summary>A failure to show in a dialog once the menu is back; taken (and cleared) by the menu.</summary>
+        public static string PendingMenuMessage { get; private set; }
+
+        public static string TakePendingMenuMessage()
+        {
+            string m = PendingMenuMessage;
+            PendingMenuMessage = null;
+            return m;
+        }
+
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+        private static void ResetPendingMessage() => PendingMenuMessage = null;
+
         /// <summary>Abandon whatever is loading and go back to the main menu with a message.</summary>
         public void FailTransition(string message)
         {
+            PendingMenuMessage = message;
             Debug.LogWarning($"[ConquestSceneTransitionManager] {message}");
             StopAllCoroutines();
             m_FadeCoroutine = null;

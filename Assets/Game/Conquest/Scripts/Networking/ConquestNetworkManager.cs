@@ -166,6 +166,7 @@ namespace Game.Conquest.Networking
                     assignedTeam = assignment.team;
                     assignedClass = assignment.classIndex;
                     if (!string.IsNullOrEmpty(assignment.playerName)) assignedName = assignment.playerName;
+                    else if (session.TryGetApprovedName(player.OwnerClientId, out var approvedName)) assignedName = approvedName;
                 }
                 else
                 {

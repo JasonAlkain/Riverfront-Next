@@ -16,10 +16,10 @@ MonoBehaviour:
   displayName: Industrial Depot
   description: A sprawling futuristic cargo complex featuring storage warehouses, shipping container corridors, and elevated gantries.
   sceneName: Conquest_IndustrialDepot
-  previewImage: {fileID: 0}
+  previewImage: {fileID: 21300000, guid: c68ff8858d83756459d87a69e800ec29, type: 3}
   themeColor: {r: 0.3, g: 0.8, b: 0.4, a: 1}
   recommendedPlayers: 16
-  commandPostsCount: 7
+  commandPostsCount: 5
   availableGameModes:
   - Conquest
   defaultTickets: 250

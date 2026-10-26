@@ -16,10 +16,10 @@ MonoBehaviour:
   displayName: The Frontline
   description: A massive 220m multi-lane warzone featuring Northern trenches, Southern industrial flanks, and the fortified Delta Fortress.
   sceneName: ConquestLargeBattlefield
-  previewImage: {fileID: 0}
+  previewImage: {fileID: 21300000, guid: 919a1b18cadac2147b566042096468c5, type: 3}
   themeColor: {r: 0.9, g: 0.5, b: 0.2, a: 1}
   recommendedPlayers: 16
-  commandPostsCount: 7
+  commandPostsCount: 5
   availableGameModes:
   - Conquest
   defaultTickets: 250

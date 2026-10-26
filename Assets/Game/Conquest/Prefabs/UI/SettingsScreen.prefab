@@ -166,8 +166,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 17
-  m_fontSizeBase: 17
+  m_fontSize: 22
+  m_fontSizeBase: 22
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -176,7 +176,7 @@ MonoBehaviour:
   m_HorizontalAlignment: 2
   m_VerticalAlignment: 512
   m_textAlignment: 65535
-  m_characterSpacing: 0
+  m_characterSpacing: 3
   m_characterHorizontalScale: 1
   m_wordSpacing: 0
   m_lineSpacing: 0
@@ -266,6 +266,7 @@ GameObject:
   - component: {fileID: 5849073190114967989}
   - component: {fileID: 9100959723093476793}
   - component: {fileID: 8819581673004040898}
+  - component: {fileID: 5122051382617545042}
   m_Layer: 0
   m_Name: ControlsPanel
   m_TagString: Untagged
@@ -289,6 +290,7 @@ RectTransform:
   - {fileID: 5043240434734423814}
   - {fileID: 8283605449449251362}
   - {fileID: 5757310780253972387}
+  - {fileID: 3461058862574458088}
   m_Father: {fileID: 8837895924591276997}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
@@ -324,8 +326,8 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 0}
-  m_Type: 0
+  m_Sprite: {fileID: 10905, guid: 0000000000000000f000000000000000, type: 0}
+  m_Type: 1
   m_PreserveAspect: 0
   m_FillCenter: 1
   m_FillMethod: 4
@@ -406,6 +408,119 @@ MonoBehaviour:
   m_EditorClassIdentifier: Game.Conquest::Game.Conquest.ThemedGraphic
   theme: {fileID: 11400000, guid: 7190fbeaa29ca9f4ba0c8d5829f9c1f5, type: 2}
   role: 1
+--- !u!114 &5122051382617545042
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 510414281425410116}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Outline
+  m_EffectColor: {r: 0.35, g: 0.78, b: 1, a: 0.25}
+  m_EffectDistance: {x: 2, y: -2}
+  m_UseGraphicAlpha: 1
+--- !u!1 &835911447535395332
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 3461058862574458088}
+  - component: {fileID: 8620965213519698269}
+  - component: {fileID: 7321657566885812236}
+  - component: {fileID: 43942674477068638}
+  m_Layer: 5
+  m_Name: TopEdge
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &3461058862574458088
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 835911447535395332}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 4133497980693893194}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 1, y: 1}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 3}
+  m_Pivot: {x: 0.5, y: 1}
+--- !u!222 &8620965213519698269
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 835911447535395332}
+  m_CullTransparentMesh: 1
+--- !u!114 &7321657566885812236
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 835911447535395332}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
+  m_Material: {fileID: 0}
+  m_Color: {r: 0.45, g: 0.75, b: 1, a: 1}
+  m_RaycastTarget: 0
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: 0}
+  m_Type: 0
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
+--- !u!114 &43942674477068638
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 835911447535395332}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 306cc8c2b49d7114eaa3623786fc2126, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.LayoutElement
+  m_IgnoreLayout: 1
+  m_MinWidth: -1
+  m_MinHeight: -1
+  m_PreferredWidth: -1
+  m_PreferredHeight: -1
+  m_FlexibleWidth: -1
+  m_FlexibleHeight: -1
+  m_LayoutPriority: 1
+  m_MaxWidth: -1
+  m_MaxHeight: -1
 --- !u!1 &953636662820926998
 GameObject:
   m_ObjectHideFlags: 0
@@ -468,6 +583,104 @@ MonoBehaviour:
   m_ChildScaleWidth: 0
   m_ChildScaleHeight: 0
   m_ReverseArrangement: 0
+--- !u!1 &1068263131138826432
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 6009630555748169936}
+  - component: {fileID: 9055191105464861696}
+  - component: {fileID: 2233041842176083406}
+  - component: {fileID: 4826953748527244807}
+  m_Layer: 5
+  m_Name: TopEdge
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &6009630555748169936
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1068263131138826432}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 5494192121035442116}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 1, y: 1}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 3}
+  m_Pivot: {x: 0.5, y: 1}
+--- !u!222 &9055191105464861696
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1068263131138826432}
+  m_CullTransparentMesh: 1
+--- !u!114 &2233041842176083406
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1068263131138826432}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
+  m_Material: {fileID: 0}
+  m_Color: {r: 0.45, g: 0.75, b: 1, a: 1}
+  m_RaycastTarget: 0
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: 0}
+  m_Type: 0
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
+--- !u!114 &4826953748527244807
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1068263131138826432}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 306cc8c2b49d7114eaa3623786fc2126, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.LayoutElement
+  m_IgnoreLayout: 1
+  m_MinWidth: -1
+  m_MinHeight: -1
+  m_PreferredWidth: -1
+  m_PreferredHeight: -1
+  m_FlexibleWidth: -1
+  m_FlexibleHeight: -1
+  m_LayoutPriority: 1
+  m_MaxWidth: -1
+  m_MaxHeight: -1
 --- !u!1 &1287185649056843786
 GameObject:
   m_ObjectHideFlags: 0
@@ -546,7 +759,7 @@ MonoBehaviour:
   m_fontColor32:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontColor: {r: 0.45, g: 0.75, b: 1, a: 1}
+  m_fontColor: {r: 0.55, g: 0.62, b: 0.72, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -563,8 +776,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 18
-  m_fontSizeBase: 18
+  m_fontSize: 14
+  m_fontSizeBase: 14
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -582,7 +795,7 @@ MonoBehaviour:
   m_charWidthMaxAdj: 0
   m_TextWrappingMode: 1
   m_wordWrappingRatios: 0.4
-  m_overflowMode: 0
+  m_overflowMode: 1
   m_linkedTextComponent: {fileID: 0}
   parentLinkedComponent: {fileID: 0}
   m_enableKerning: 0
@@ -643,7 +856,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Game.Conquest::Game.Conquest.ThemedGraphic
   theme: {fileID: 11400000, guid: 7190fbeaa29ca9f4ba0c8d5829f9c1f5, type: 2}
-  role: 3
+  role: 5
 --- !u!114 &8060718053838884878
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -697,6 +910,7 @@ GameObject:
   - component: {fileID: 600468625177576848}
   - component: {fileID: 4342264015196128896}
   - component: {fileID: 996822787772192721}
+  - component: {fileID: 8946830036581192007}
   m_Layer: 5
   m_Name: Btn_Controls
   m_TagString: Untagged
@@ -820,6 +1034,28 @@ MonoBehaviour:
   m_EditorClassIdentifier: Game.Conquest::Game.Conquest.ThemedButton
   theme: {fileID: 11400000, guid: 7190fbeaa29ca9f4ba0c8d5829f9c1f5, type: 2}
   style: 1
+--- !u!114 &8946830036581192007
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1380634826140036190}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 306cc8c2b49d7114eaa3623786fc2126, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.LayoutElement
+  m_IgnoreLayout: 0
+  m_MinWidth: -1
+  m_MinHeight: 56
+  m_PreferredWidth: -1
+  m_PreferredHeight: 56
+  m_FlexibleWidth: 1
+  m_FlexibleHeight: -1
+  m_LayoutPriority: 1
+  m_MaxWidth: -1
+  m_MaxHeight: -1
 --- !u!1 &1650342579333730460
 GameObject:
   m_ObjectHideFlags: 0
@@ -880,7 +1116,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Unity.TextMeshPro::TMPro.TextMeshProUGUI
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 1
+  m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
@@ -913,8 +1149,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 15
-  m_fontSizeBase: 15
+  m_fontSize: 22
+  m_fontSizeBase: 22
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -923,14 +1159,14 @@ MonoBehaviour:
   m_HorizontalAlignment: 2
   m_VerticalAlignment: 512
   m_textAlignment: 65535
-  m_characterSpacing: 0
+  m_characterSpacing: 3
   m_characterHorizontalScale: 1
   m_wordSpacing: 0
   m_lineSpacing: 0
   m_lineSpacingMax: 0
   m_paragraphSpacing: 0
   m_charWidthMaxAdj: 0
-  m_TextWrappingMode: 1
+  m_TextWrappingMode: 0
   m_wordWrappingRatios: 0.4
   m_overflowMode: 0
   m_linkedTextComponent: {fileID: 0}
@@ -1212,7 +1448,7 @@ MonoBehaviour:
   m_fontColor32:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontColor: {r: 0.55, g: 0.62, b: 0.72, a: 1}
+  m_fontColor: {r: 0.45, g: 0.75, b: 1, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -1229,8 +1465,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 14
-  m_fontSizeBase: 14
+  m_fontSize: 16
+  m_fontSizeBase: 16
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -1239,7 +1475,7 @@ MonoBehaviour:
   m_HorizontalAlignment: 1
   m_VerticalAlignment: 1024
   m_textAlignment: 65535
-  m_characterSpacing: 0
+  m_characterSpacing: 6
   m_characterHorizontalScale: 1
   m_wordSpacing: 0
   m_lineSpacing: 0
@@ -1248,7 +1484,7 @@ MonoBehaviour:
   m_charWidthMaxAdj: 0
   m_TextWrappingMode: 0
   m_wordWrappingRatios: 0.4
-  m_overflowMode: 0
+  m_overflowMode: 1
   m_linkedTextComponent: {fileID: 0}
   parentLinkedComponent: {fileID: 0}
   m_enableKerning: 0
@@ -1287,7 +1523,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Game.Conquest::Game.Conquest.ThemedGraphic
   theme: {fileID: 11400000, guid: 7190fbeaa29ca9f4ba0c8d5829f9c1f5, type: 2}
-  role: 5
+  role: 3
 --- !u!114 &1097915060638473547
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1302,11 +1538,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.LayoutElement
   m_IgnoreLayout: 0
   m_MinWidth: -1
-  m_MinHeight: -1
+  m_MinHeight: 36
   m_PreferredWidth: -1
-  m_PreferredHeight: 30
+  m_PreferredHeight: 36
   m_FlexibleWidth: -1
-  m_FlexibleHeight: -1
+  m_FlexibleHeight: 0
   m_LayoutPriority: 1
   m_MaxWidth: -1
   m_MaxHeight: -1
@@ -1564,7 +1800,7 @@ MonoBehaviour:
   m_fontColor32:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontColor: {r: 0.55, g: 0.62, b: 0.72, a: 1}
+  m_fontColor: {r: 0.45, g: 0.75, b: 1, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -1581,8 +1817,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 14
-  m_fontSizeBase: 14
+  m_fontSize: 16
+  m_fontSizeBase: 16
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -1591,7 +1827,7 @@ MonoBehaviour:
   m_HorizontalAlignment: 1
   m_VerticalAlignment: 1024
   m_textAlignment: 65535
-  m_characterSpacing: 0
+  m_characterSpacing: 6
   m_characterHorizontalScale: 1
   m_wordSpacing: 0
   m_lineSpacing: 0
@@ -1600,7 +1836,7 @@ MonoBehaviour:
   m_charWidthMaxAdj: 0
   m_TextWrappingMode: 0
   m_wordWrappingRatios: 0.4
-  m_overflowMode: 0
+  m_overflowMode: 1
   m_linkedTextComponent: {fileID: 0}
   parentLinkedComponent: {fileID: 0}
   m_enableKerning: 0
@@ -1639,7 +1875,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Game.Conquest::Game.Conquest.ThemedGraphic
   theme: {fileID: 11400000, guid: 7190fbeaa29ca9f4ba0c8d5829f9c1f5, type: 2}
-  role: 5
+  role: 3
 --- !u!114 &3358202199244842327
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1654,11 +1890,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.LayoutElement
   m_IgnoreLayout: 0
   m_MinWidth: -1
-  m_MinHeight: -1
+  m_MinHeight: 36
   m_PreferredWidth: -1
-  m_PreferredHeight: 30
+  m_PreferredHeight: 36
   m_FlexibleWidth: -1
-  m_FlexibleHeight: -1
+  m_FlexibleHeight: 0
   m_LayoutPriority: 1
   m_MaxWidth: -1
   m_MaxHeight: -1
@@ -1859,8 +2095,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 17
-  m_fontSizeBase: 17
+  m_fontSize: 18
+  m_fontSizeBase: 18
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -1869,7 +2105,7 @@ MonoBehaviour:
   m_HorizontalAlignment: 2
   m_VerticalAlignment: 512
   m_textAlignment: 65535
-  m_characterSpacing: 0
+  m_characterSpacing: 3
   m_characterHorizontalScale: 1
   m_wordSpacing: 0
   m_lineSpacing: 0
@@ -1957,6 +2193,7 @@ GameObject:
   - component: {fileID: 2335996880542129124}
   - component: {fileID: 9215072389040708320}
   - component: {fileID: 857162144733585374}
+  - component: {fileID: 823328354834057715}
   m_Layer: 5
   m_Name: Btn_Defaults
   m_TagString: Untagged
@@ -2080,6 +2317,28 @@ MonoBehaviour:
   m_EditorClassIdentifier: Game.Conquest::Game.Conquest.ThemedButton
   theme: {fileID: 11400000, guid: 7190fbeaa29ca9f4ba0c8d5829f9c1f5, type: 2}
   style: 1
+--- !u!114 &823328354834057715
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3147433086448332513}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 306cc8c2b49d7114eaa3623786fc2126, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.LayoutElement
+  m_IgnoreLayout: 0
+  m_MinWidth: -1
+  m_MinHeight: 56
+  m_PreferredWidth: -1
+  m_PreferredHeight: 56
+  m_FlexibleWidth: 1
+  m_FlexibleHeight: -1
+  m_LayoutPriority: 1
+  m_MaxWidth: -1
+  m_MaxHeight: -1
 --- !u!1 &3180893780225356487
 GameObject:
   m_ObjectHideFlags: 0
@@ -2158,7 +2417,7 @@ MonoBehaviour:
   m_fontColor32:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontColor: {r: 0.55, g: 0.62, b: 0.72, a: 1}
+  m_fontColor: {r: 0.45, g: 0.75, b: 1, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -2175,8 +2434,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 14
-  m_fontSizeBase: 14
+  m_fontSize: 16
+  m_fontSizeBase: 16
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -2185,7 +2444,7 @@ MonoBehaviour:
   m_HorizontalAlignment: 1
   m_VerticalAlignment: 1024
   m_textAlignment: 65535
-  m_characterSpacing: 0
+  m_characterSpacing: 6
   m_characterHorizontalScale: 1
   m_wordSpacing: 0
   m_lineSpacing: 0
@@ -2194,7 +2453,7 @@ MonoBehaviour:
   m_charWidthMaxAdj: 0
   m_TextWrappingMode: 0
   m_wordWrappingRatios: 0.4
-  m_overflowMode: 0
+  m_overflowMode: 1
   m_linkedTextComponent: {fileID: 0}
   parentLinkedComponent: {fileID: 0}
   m_enableKerning: 0
@@ -2233,7 +2492,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Game.Conquest::Game.Conquest.ThemedGraphic
   theme: {fileID: 11400000, guid: 7190fbeaa29ca9f4ba0c8d5829f9c1f5, type: 2}
-  role: 5
+  role: 3
 --- !u!114 &5602500693786844631
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2248,11 +2507,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.LayoutElement
   m_IgnoreLayout: 0
   m_MinWidth: -1
-  m_MinHeight: -1
+  m_MinHeight: 36
   m_PreferredWidth: -1
-  m_PreferredHeight: 30
+  m_PreferredHeight: 36
   m_FlexibleWidth: -1
-  m_FlexibleHeight: -1
+  m_FlexibleHeight: 0
   m_LayoutPriority: 1
   m_MaxWidth: -1
   m_MaxHeight: -1
@@ -2351,10 +2610,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.LayoutElement
   m_IgnoreLayout: 0
   m_MinWidth: -1
-  m_MinHeight: -1
+  m_MinHeight: 56
   m_PreferredWidth: -1
-  m_PreferredHeight: 44
-  m_FlexibleWidth: -1
+  m_PreferredHeight: 56
+  m_FlexibleWidth: 1
   m_FlexibleHeight: -1
   m_LayoutPriority: 1
   m_MaxWidth: -1
@@ -2387,8 +2646,8 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 0}
-  m_Type: 0
+  m_Sprite: {fileID: 10905, guid: 0000000000000000f000000000000000, type: 0}
+  m_Type: 1
   m_PreserveAspect: 0
   m_FillCenter: 1
   m_FillMethod: 4
@@ -2454,7 +2713,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Game.Conquest::Game.Conquest.ThemedButton
   theme: {fileID: 11400000, guid: 7190fbeaa29ca9f4ba0c8d5829f9c1f5, type: 2}
-  style: 1
+  style: 0
 --- !u!1 &3583254282692556660
 GameObject:
   m_ObjectHideFlags: 0
@@ -2548,8 +2807,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 17
-  m_fontSizeBase: 17
+  m_fontSize: 22
+  m_fontSizeBase: 22
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -2558,7 +2817,7 @@ MonoBehaviour:
   m_HorizontalAlignment: 2
   m_VerticalAlignment: 512
   m_textAlignment: 65535
-  m_characterSpacing: 0
+  m_characterSpacing: 3
   m_characterHorizontalScale: 1
   m_wordSpacing: 0
   m_lineSpacing: 0
@@ -2691,7 +2950,7 @@ MonoBehaviour:
     m_Top: 0
     m_Bottom: 0
   m_ChildAlignment: 0
-  m_Spacing: 14
+  m_Spacing: 16
   m_ChildForceExpandWidth: 1
   m_ChildForceExpandHeight: 1
   m_ChildControlWidth: 1
@@ -2794,26 +3053,26 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 20
-  m_fontSizeBase: 20
+  m_fontSize: 16
+  m_fontSizeBase: 16
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
   m_fontSizeMax: 72
   m_fontStyle: 1
   m_HorizontalAlignment: 1
-  m_VerticalAlignment: 4096
+  m_VerticalAlignment: 1024
   m_textAlignment: 65535
-  m_characterSpacing: 0
+  m_characterSpacing: 6
   m_characterHorizontalScale: 1
   m_wordSpacing: 0
   m_lineSpacing: 0
   m_lineSpacingMax: 0
   m_paragraphSpacing: 0
   m_charWidthMaxAdj: 0
-  m_TextWrappingMode: 1
+  m_TextWrappingMode: 0
   m_wordWrappingRatios: 0.4
-  m_overflowMode: 0
+  m_overflowMode: 1
   m_linkedTextComponent: {fileID: 0}
   parentLinkedComponent: {fileID: 0}
   m_enableKerning: 0
@@ -2999,6 +3258,7 @@ GameObject:
   - component: {fileID: 2146288986733204715}
   - component: {fileID: 3605015316595813235}
   - component: {fileID: 3547850529168293799}
+  - component: {fileID: 8744253760442150440}
   m_Layer: 5
   m_Name: Btn_Back
   m_TagString: Untagged
@@ -3122,6 +3382,28 @@ MonoBehaviour:
   m_EditorClassIdentifier: Game.Conquest::Game.Conquest.ThemedButton
   theme: {fileID: 11400000, guid: 7190fbeaa29ca9f4ba0c8d5829f9c1f5, type: 2}
   style: 1
+--- !u!114 &8744253760442150440
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4552610564822652767}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 306cc8c2b49d7114eaa3623786fc2126, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.LayoutElement
+  m_IgnoreLayout: 0
+  m_MinWidth: -1
+  m_MinHeight: 56
+  m_PreferredWidth: -1
+  m_PreferredHeight: 56
+  m_FlexibleWidth: 1
+  m_FlexibleHeight: -1
+  m_LayoutPriority: 1
+  m_MaxWidth: -1
+  m_MaxHeight: -1
 --- !u!1 &4851315351663132252
 GameObject:
   m_ObjectHideFlags: 0
@@ -3199,6 +3481,7 @@ GameObject:
   - component: {fileID: 2491204240431296296}
   - component: {fileID: 3086462291556123072}
   - component: {fileID: 4808574110995593277}
+  - component: {fileID: 6973927091879247388}
   m_Layer: 5
   m_Name: SettingsPanel
   m_TagString: Untagged
@@ -3224,6 +3507,7 @@ RectTransform:
   - {fileID: 6205594643880014603}
   - {fileID: 2170151946573703977}
   - {fileID: 3876856258149029214}
+  - {fileID: 8767580619655307762}
   m_Father: {fileID: 8837895924591276997}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
@@ -3321,6 +3605,21 @@ MonoBehaviour:
   btn_KeepDisplay: {fileID: 10755535257049128}
   btn_RevertDisplay: {fileID: 5403325630013664065}
   revertSeconds: 15
+--- !u!114 &6973927091879247388
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5056972867094602318}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Outline
+  m_EffectColor: {r: 0.35, g: 0.78, b: 1, a: 0.25}
+  m_EffectDistance: {x: 2, y: -2}
+  m_UseGraphicAlpha: 1
 --- !u!1 &5772062978085191388
 GameObject:
   m_ObjectHideFlags: 0
@@ -3416,26 +3715,26 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 20
-  m_fontSizeBase: 20
+  m_fontSize: 16
+  m_fontSizeBase: 16
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
   m_fontSizeMax: 72
   m_fontStyle: 1
   m_HorizontalAlignment: 1
-  m_VerticalAlignment: 4096
+  m_VerticalAlignment: 1024
   m_textAlignment: 65535
-  m_characterSpacing: 0
+  m_characterSpacing: 6
   m_characterHorizontalScale: 1
   m_wordSpacing: 0
   m_lineSpacing: 0
   m_lineSpacingMax: 0
   m_paragraphSpacing: 0
   m_charWidthMaxAdj: 0
-  m_TextWrappingMode: 1
+  m_TextWrappingMode: 0
   m_wordWrappingRatios: 0.4
-  m_overflowMode: 0
+  m_overflowMode: 1
   m_linkedTextComponent: {fileID: 0}
   parentLinkedComponent: {fileID: 0}
   m_enableKerning: 0
@@ -3630,8 +3929,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 17
-  m_fontSizeBase: 17
+  m_fontSize: 18
+  m_fontSizeBase: 18
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -3640,7 +3939,7 @@ MonoBehaviour:
   m_HorizontalAlignment: 2
   m_VerticalAlignment: 512
   m_textAlignment: 65535
-  m_characterSpacing: 0
+  m_characterSpacing: 3
   m_characterHorizontalScale: 1
   m_wordSpacing: 0
   m_lineSpacing: 0
@@ -3808,8 +4107,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 17
-  m_fontSizeBase: 17
+  m_fontSize: 22
+  m_fontSizeBase: 22
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -3818,7 +4117,7 @@ MonoBehaviour:
   m_HorizontalAlignment: 2
   m_VerticalAlignment: 512
   m_textAlignment: 65535
-  m_characterSpacing: 0
+  m_characterSpacing: 3
   m_characterHorizontalScale: 1
   m_wordSpacing: 0
   m_lineSpacing: 0
@@ -3929,8 +4228,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: -36}
-  m_SizeDelta: {x: 0, y: 50}
+  m_AnchoredPosition: {x: 0, y: -40}
+  m_SizeDelta: {x: 0, y: 60}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &7728249987429884009
 CanvasRenderer:
@@ -3970,7 +4269,7 @@ MonoBehaviour:
   m_fontColor32:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontColor: {r: 0.35, g: 0.78, b: 1, a: 1}
+  m_fontColor: {r: 0.45, g: 0.75, b: 1, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -3987,15 +4286,15 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 28
-  m_fontSizeBase: 28
+  m_fontSize: 36
+  m_fontSizeBase: 36
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
   m_fontSizeMax: 72
   m_fontStyle: 1
-  m_HorizontalAlignment: 2
-  m_VerticalAlignment: 512
+  m_HorizontalAlignment: 1
+  m_VerticalAlignment: 4096
   m_textAlignment: 65535
   m_characterSpacing: 0
   m_characterHorizontalScale: 1
@@ -4026,7 +4325,7 @@ MonoBehaviour:
   m_VertexBufferAutoSizeReduction: 0
   m_useMaxVisibleDescender: 1
   m_pageToDisplay: 1
-  m_margin: {x: 0, y: 0, z: 0, w: 0}
+  m_margin: {x: 36, y: 0, z: 36, w: 0}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
   m_hasFontAssetChanged: 0
@@ -4247,7 +4546,7 @@ MonoBehaviour:
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
   m_fontSizeMax: 72
-  m_fontStyle: 0
+  m_fontStyle: 1
   m_HorizontalAlignment: 2
   m_VerticalAlignment: 512
   m_textAlignment: 65535
@@ -4258,9 +4557,9 @@ MonoBehaviour:
   m_lineSpacingMax: 0
   m_paragraphSpacing: 0
   m_charWidthMaxAdj: 0
-  m_TextWrappingMode: 1
+  m_TextWrappingMode: 0
   m_wordWrappingRatios: 0.4
-  m_overflowMode: 0
+  m_overflowMode: 1
   m_linkedTextComponent: {fileID: 0}
   parentLinkedComponent: {fileID: 0}
   m_enableKerning: 0
@@ -4424,6 +4723,104 @@ MonoBehaviour:
   m_LayoutPriority: 1
   m_MaxWidth: -1
   m_MaxHeight: -1
+--- !u!1 &6656408398586854748
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 8767580619655307762}
+  - component: {fileID: 2925252978749998727}
+  - component: {fileID: 8690911868186367068}
+  - component: {fileID: 6430441909910571334}
+  m_Layer: 5
+  m_Name: TopEdge
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &8767580619655307762
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6656408398586854748}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 6593949180413101561}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 1, y: 1}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 3}
+  m_Pivot: {x: 0.5, y: 1}
+--- !u!222 &2925252978749998727
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6656408398586854748}
+  m_CullTransparentMesh: 1
+--- !u!114 &8690911868186367068
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6656408398586854748}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
+  m_Material: {fileID: 0}
+  m_Color: {r: 0.45, g: 0.75, b: 1, a: 1}
+  m_RaycastTarget: 0
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: 0}
+  m_Type: 0
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
+--- !u!114 &6430441909910571334
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6656408398586854748}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 306cc8c2b49d7114eaa3623786fc2126, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.LayoutElement
+  m_IgnoreLayout: 1
+  m_MinWidth: -1
+  m_MinHeight: -1
+  m_PreferredWidth: -1
+  m_PreferredHeight: -1
+  m_FlexibleWidth: -1
+  m_FlexibleHeight: -1
+  m_LayoutPriority: 1
+  m_MaxWidth: -1
+  m_MaxHeight: -1
 --- !u!1 &6854243255556595407
 GameObject:
   m_ObjectHideFlags: 0
@@ -4479,10 +4876,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.LayoutElement
   m_IgnoreLayout: 0
   m_MinWidth: -1
-  m_MinHeight: -1
+  m_MinHeight: 56
   m_PreferredWidth: -1
-  m_PreferredHeight: 44
-  m_FlexibleWidth: -1
+  m_PreferredHeight: 56
+  m_FlexibleWidth: 1
   m_FlexibleHeight: -1
   m_LayoutPriority: 1
   m_MaxWidth: -1
@@ -4515,8 +4912,8 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 0}
-  m_Type: 0
+  m_Sprite: {fileID: 10905, guid: 0000000000000000f000000000000000, type: 0}
+  m_Type: 1
   m_PreserveAspect: 0
   m_FillCenter: 1
   m_FillMethod: 4
@@ -4659,6 +5056,7 @@ GameObject:
   - component: {fileID: 329787076530112052}
   - component: {fileID: 8811950844993409393}
   - component: {fileID: 1089861499830789811}
+  - component: {fileID: 3184810211745966443}
   m_Layer: 5
   m_Name: Box
   m_TagString: Untagged
@@ -4681,6 +5079,7 @@ RectTransform:
   - {fileID: 8725385393464821286}
   - {fileID: 1605725126900052917}
   - {fileID: 8517545251095920852}
+  - {fileID: 6009630555748169936}
   m_Father: {fileID: 3876856258149029214}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
@@ -4709,7 +5108,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.12, g: 0.16, b: 0.24, a: 0.9}
+  m_Color: {r: 0.08, g: 0.11, b: 0.16, a: 0.96}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -4739,7 +5138,22 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Game.Conquest::Game.Conquest.ThemedGraphic
   theme: {fileID: 11400000, guid: 7190fbeaa29ca9f4ba0c8d5829f9c1f5, type: 2}
-  role: 2
+  role: 1
+--- !u!114 &3184810211745966443
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7449129737106119126}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Outline
+  m_EffectColor: {r: 0.35, g: 0.78, b: 1, a: 0.25}
+  m_EffectDistance: {x: 2, y: -2}
+  m_UseGraphicAlpha: 1
 --- !u!1 &7480534194510805232
 GameObject:
   m_ObjectHideFlags: 0
@@ -4842,7 +5256,6 @@ GameObject:
   - component: {fileID: 5975885998007666414}
   - component: {fileID: 2822189580849142345}
   - component: {fileID: 4179312557216078407}
-  - component: {fileID: 5628508701423956303}
   m_Layer: 5
   m_Name: Divider
   m_TagString: Untagged
@@ -4907,20 +5320,6 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
---- !u!114 &5628508701423956303
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7585166496972787748}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0dc2c4230e405e247b7395d0c87762c9, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Game.Conquest::Game.Conquest.ThemedGraphic
-  theme: {fileID: 11400000, guid: 7190fbeaa29ca9f4ba0c8d5829f9c1f5, type: 2}
-  role: 11
 --- !u!1 &7905730226946407042
 GameObject:
   m_ObjectHideFlags: 0
@@ -4981,7 +5380,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Unity.TextMeshPro::TMPro.TextMeshProUGUI
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 1
+  m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
@@ -5014,8 +5413,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 15
-  m_fontSizeBase: 15
+  m_fontSize: 22
+  m_fontSizeBase: 22
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -5024,14 +5423,14 @@ MonoBehaviour:
   m_HorizontalAlignment: 2
   m_VerticalAlignment: 512
   m_textAlignment: 65535
-  m_characterSpacing: 0
+  m_characterSpacing: 3
   m_characterHorizontalScale: 1
   m_wordSpacing: 0
   m_lineSpacing: 0
   m_lineSpacingMax: 0
   m_paragraphSpacing: 0
   m_charWidthMaxAdj: 0
-  m_TextWrappingMode: 1
+  m_TextWrappingMode: 0
   m_wordWrappingRatios: 0.4
   m_overflowMode: 0
   m_linkedTextComponent: {fileID: 0}
@@ -5177,7 +5576,7 @@ MonoBehaviour:
   m_fontColor32:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontColor: {r: 0.55, g: 0.62, b: 0.72, a: 1}
+  m_fontColor: {r: 0.45, g: 0.75, b: 1, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -5194,8 +5593,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 14
-  m_fontSizeBase: 14
+  m_fontSize: 16
+  m_fontSizeBase: 16
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -5204,7 +5603,7 @@ MonoBehaviour:
   m_HorizontalAlignment: 1
   m_VerticalAlignment: 1024
   m_textAlignment: 65535
-  m_characterSpacing: 0
+  m_characterSpacing: 6
   m_characterHorizontalScale: 1
   m_wordSpacing: 0
   m_lineSpacing: 0
@@ -5213,7 +5612,7 @@ MonoBehaviour:
   m_charWidthMaxAdj: 0
   m_TextWrappingMode: 0
   m_wordWrappingRatios: 0.4
-  m_overflowMode: 0
+  m_overflowMode: 1
   m_linkedTextComponent: {fileID: 0}
   parentLinkedComponent: {fileID: 0}
   m_enableKerning: 0
@@ -5252,7 +5651,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Game.Conquest::Game.Conquest.ThemedGraphic
   theme: {fileID: 11400000, guid: 7190fbeaa29ca9f4ba0c8d5829f9c1f5, type: 2}
-  role: 5
+  role: 3
 --- !u!114 &3343218839795497217
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5267,11 +5666,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.LayoutElement
   m_IgnoreLayout: 0
   m_MinWidth: -1
-  m_MinHeight: -1
+  m_MinHeight: 36
   m_PreferredWidth: -1
-  m_PreferredHeight: 30
+  m_PreferredHeight: 36
   m_FlexibleWidth: -1
-  m_FlexibleHeight: -1
+  m_FlexibleHeight: 0
   m_LayoutPriority: 1
   m_MaxWidth: -1
   m_MaxHeight: -1
@@ -5408,8 +5807,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 17
-  m_fontSizeBase: 17
+  m_fontSize: 22
+  m_fontSizeBase: 22
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -5418,7 +5817,7 @@ MonoBehaviour:
   m_HorizontalAlignment: 2
   m_VerticalAlignment: 512
   m_textAlignment: 65535
-  m_characterSpacing: 0
+  m_characterSpacing: 3
   m_characterHorizontalScale: 1
   m_wordSpacing: 0
   m_lineSpacing: 0
@@ -5577,7 +5976,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Unity.TextMeshPro::TMPro.TextMeshProUGUI
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 1
+  m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
@@ -5610,15 +6009,15 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 24
-  m_fontSizeBase: 24
+  m_fontSize: 36
+  m_fontSizeBase: 36
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
   m_fontSizeMax: 72
   m_fontStyle: 1
-  m_HorizontalAlignment: 2
-  m_VerticalAlignment: 512
+  m_HorizontalAlignment: 1
+  m_VerticalAlignment: 4096
   m_textAlignment: 65535
   m_characterSpacing: 0
   m_characterHorizontalScale: 1
@@ -5627,9 +6026,9 @@ MonoBehaviour:
   m_lineSpacingMax: 0
   m_paragraphSpacing: 0
   m_charWidthMaxAdj: 0
-  m_TextWrappingMode: 1
+  m_TextWrappingMode: 0
   m_wordWrappingRatios: 0.4
-  m_overflowMode: 0
+  m_overflowMode: 1
   m_linkedTextComponent: {fileID: 0}
   parentLinkedComponent: {fileID: 0}
   m_enableKerning: 0
@@ -5722,6 +6121,7 @@ GameObject:
   - component: {fileID: 2849880418623082496}
   - component: {fileID: 6058111034916257713}
   - component: {fileID: 7524055587068632397}
+  - component: {fileID: 8637803184101720226}
   m_Layer: 5
   m_Name: Btn_Apply
   m_TagString: Untagged
@@ -5845,6 +6245,28 @@ MonoBehaviour:
   m_EditorClassIdentifier: Game.Conquest::Game.Conquest.ThemedButton
   theme: {fileID: 11400000, guid: 7190fbeaa29ca9f4ba0c8d5829f9c1f5, type: 2}
   style: 0
+--- !u!114 &8637803184101720226
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9220993937606944944}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 306cc8c2b49d7114eaa3623786fc2126, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.LayoutElement
+  m_IgnoreLayout: 0
+  m_MinWidth: -1
+  m_MinHeight: 56
+  m_PreferredWidth: -1
+  m_PreferredHeight: 56
+  m_FlexibleWidth: 1
+  m_FlexibleHeight: -1
+  m_LayoutPriority: 1
+  m_MaxWidth: -1
+  m_MaxHeight: -1
 --- !u!1001 &28725550865053511
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -5856,6 +6278,14 @@ PrefabInstance:
     - target: {fileID: 95614101041041161, guid: 03e6f66c413e2f8408ed42c98e6f88c0, type: 3}
       propertyPath: m_text
       value: Music Volume
+      objectReference: {fileID: 0}
+    - target: {fileID: 95614101041041161, guid: 03e6f66c413e2f8408ed42c98e6f88c0, type: 3}
+      propertyPath: m_fontStyle
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 95614101041041161, guid: 03e6f66c413e2f8408ed42c98e6f88c0, type: 3}
+      propertyPath: m_overflowMode
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1133918935676827721, guid: 03e6f66c413e2f8408ed42c98e6f88c0, type: 3}
       propertyPath: m_Name
@@ -5949,6 +6379,14 @@ PrefabInstance:
       propertyPath: m_AnchorMax.y
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 8305319586833814571, guid: 03e6f66c413e2f8408ed42c98e6f88c0, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: -14
+      objectReference: {fileID: 0}
+    - target: {fileID: 8305319586833814571, guid: 03e6f66c413e2f8408ed42c98e6f88c0, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 7
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -5956,6 +6394,15 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 1133918935676827721, guid: 03e6f66c413e2f8408ed42c98e6f88c0, type: 3}
       insertIndex: -1
       addedObject: {fileID: 7260879884611682593}
+    - targetCorrespondingSourceObject: {fileID: 1133918935676827721, guid: 03e6f66c413e2f8408ed42c98e6f88c0, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 8859991601698205138}
+    - targetCorrespondingSourceObject: {fileID: 1133918935676827721, guid: 03e6f66c413e2f8408ed42c98e6f88c0, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 452706307720647263}
+    - targetCorrespondingSourceObject: {fileID: 1133918935676827721, guid: 03e6f66c413e2f8408ed42c98e6f88c0, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 5906513824035083287}
     - targetCorrespondingSourceObject: {fileID: 5663644792488629656, guid: 03e6f66c413e2f8408ed42c98e6f88c0, type: 3}
       insertIndex: -1
       addedObject: {fileID: 7453757543036354715}
@@ -5990,14 +6437,66 @@ MonoBehaviour:
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.LayoutElement
   m_IgnoreLayout: 0
   m_MinWidth: -1
-  m_MinHeight: -1
+  m_MinHeight: 46
   m_PreferredWidth: -1
-  m_PreferredHeight: 40
+  m_PreferredHeight: 46
   m_FlexibleWidth: -1
-  m_FlexibleHeight: -1
+  m_FlexibleHeight: 0
   m_LayoutPriority: 1
   m_MaxWidth: -1
   m_MaxHeight: -1
+--- !u!222 &8859991601698205138
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1142349699673673486}
+  m_CullTransparentMesh: 1
+--- !u!114 &452706307720647263
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1142349699673673486}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
+  m_Material: {fileID: 0}
+  m_Color: {r: 0.12, g: 0.16, b: 0.24, a: 0.9}
+  m_RaycastTarget: 0
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: 10905, guid: 0000000000000000f000000000000000, type: 0}
+  m_Type: 1
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
+--- !u!114 &5906513824035083287
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1142349699673673486}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0dc2c4230e405e247b7395d0c87762c9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Game.Conquest::Game.Conquest.ThemedGraphic
+  theme: {fileID: 11400000, guid: 7190fbeaa29ca9f4ba0c8d5829f9c1f5, type: 2}
+  role: 2
 --- !u!114 &2959853638041322975 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 2987450676248851096, guid: 03e6f66c413e2f8408ed42c98e6f88c0, type: 3}
@@ -6070,6 +6569,14 @@ PrefabInstance:
     - target: {fileID: 95614101041041161, guid: 03e6f66c413e2f8408ed42c98e6f88c0, type: 3}
       propertyPath: m_text
       value: Effects Volume
+      objectReference: {fileID: 0}
+    - target: {fileID: 95614101041041161, guid: 03e6f66c413e2f8408ed42c98e6f88c0, type: 3}
+      propertyPath: m_fontStyle
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 95614101041041161, guid: 03e6f66c413e2f8408ed42c98e6f88c0, type: 3}
+      propertyPath: m_overflowMode
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1133918935676827721, guid: 03e6f66c413e2f8408ed42c98e6f88c0, type: 3}
       propertyPath: m_Name
@@ -6163,6 +6670,14 @@ PrefabInstance:
       propertyPath: m_AnchorMax.y
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 8305319586833814571, guid: 03e6f66c413e2f8408ed42c98e6f88c0, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: -14
+      objectReference: {fileID: 0}
+    - target: {fileID: 8305319586833814571, guid: 03e6f66c413e2f8408ed42c98e6f88c0, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 7
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -6170,6 +6685,15 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 1133918935676827721, guid: 03e6f66c413e2f8408ed42c98e6f88c0, type: 3}
       insertIndex: -1
       addedObject: {fileID: 5758973491292709521}
+    - targetCorrespondingSourceObject: {fileID: 1133918935676827721, guid: 03e6f66c413e2f8408ed42c98e6f88c0, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 2461431077237521142}
+    - targetCorrespondingSourceObject: {fileID: 1133918935676827721, guid: 03e6f66c413e2f8408ed42c98e6f88c0, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1551953334042669279}
+    - targetCorrespondingSourceObject: {fileID: 1133918935676827721, guid: 03e6f66c413e2f8408ed42c98e6f88c0, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 5458480774158267932}
     - targetCorrespondingSourceObject: {fileID: 5663644792488629656, guid: 03e6f66c413e2f8408ed42c98e6f88c0, type: 3}
       insertIndex: -1
       addedObject: {fileID: 8607790873249012092}
@@ -6204,14 +6728,66 @@ MonoBehaviour:
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.LayoutElement
   m_IgnoreLayout: 0
   m_MinWidth: -1
-  m_MinHeight: -1
+  m_MinHeight: 46
   m_PreferredWidth: -1
-  m_PreferredHeight: 40
+  m_PreferredHeight: 46
   m_FlexibleWidth: -1
-  m_FlexibleHeight: -1
+  m_FlexibleHeight: 0
   m_LayoutPriority: 1
   m_MaxWidth: -1
   m_MaxHeight: -1
+--- !u!222 &2461431077237521142
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 846963422023808639}
+  m_CullTransparentMesh: 1
+--- !u!114 &1551953334042669279
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 846963422023808639}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
+  m_Material: {fileID: 0}
+  m_Color: {r: 0.12, g: 0.16, b: 0.24, a: 0.9}
+  m_RaycastTarget: 0
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: 10905, guid: 0000000000000000f000000000000000, type: 0}
+  m_Type: 1
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
+--- !u!114 &5458480774158267932
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 846963422023808639}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0dc2c4230e405e247b7395d0c87762c9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Game.Conquest::Game.Conquest.ThemedGraphic
+  theme: {fileID: 11400000, guid: 7190fbeaa29ca9f4ba0c8d5829f9c1f5, type: 2}
+  role: 2
 --- !u!114 &3245115603801963694 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 2987450676248851096, guid: 03e6f66c413e2f8408ed42c98e6f88c0, type: 3}
@@ -6284,6 +6860,14 @@ PrefabInstance:
     - target: {fileID: 95614101041041161, guid: 03e6f66c413e2f8408ed42c98e6f88c0, type: 3}
       propertyPath: m_text
       value: Scoped Sensitivity
+      objectReference: {fileID: 0}
+    - target: {fileID: 95614101041041161, guid: 03e6f66c413e2f8408ed42c98e6f88c0, type: 3}
+      propertyPath: m_fontStyle
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 95614101041041161, guid: 03e6f66c413e2f8408ed42c98e6f88c0, type: 3}
+      propertyPath: m_overflowMode
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1133918935676827721, guid: 03e6f66c413e2f8408ed42c98e6f88c0, type: 3}
       propertyPath: m_Name
@@ -6393,6 +6977,14 @@ PrefabInstance:
       propertyPath: m_AnchorMax.y
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 8305319586833814571, guid: 03e6f66c413e2f8408ed42c98e6f88c0, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: -14
+      objectReference: {fileID: 0}
+    - target: {fileID: 8305319586833814571, guid: 03e6f66c413e2f8408ed42c98e6f88c0, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 7
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -6400,6 +6992,15 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 1133918935676827721, guid: 03e6f66c413e2f8408ed42c98e6f88c0, type: 3}
       insertIndex: -1
       addedObject: {fileID: 4268652702718722345}
+    - targetCorrespondingSourceObject: {fileID: 1133918935676827721, guid: 03e6f66c413e2f8408ed42c98e6f88c0, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 2551241111851107750}
+    - targetCorrespondingSourceObject: {fileID: 1133918935676827721, guid: 03e6f66c413e2f8408ed42c98e6f88c0, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 7660259580204198087}
+    - targetCorrespondingSourceObject: {fileID: 1133918935676827721, guid: 03e6f66c413e2f8408ed42c98e6f88c0, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 36761959224168525}
     - targetCorrespondingSourceObject: {fileID: 5663644792488629656, guid: 03e6f66c413e2f8408ed42c98e6f88c0, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1285691011649924957}
@@ -6434,14 +7035,66 @@ MonoBehaviour:
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.LayoutElement
   m_IgnoreLayout: 0
   m_MinWidth: -1
-  m_MinHeight: -1
+  m_MinHeight: 46
   m_PreferredWidth: -1
-  m_PreferredHeight: 40
+  m_PreferredHeight: 46
   m_FlexibleWidth: -1
-  m_FlexibleHeight: -1
+  m_FlexibleHeight: 0
   m_LayoutPriority: 1
   m_MaxWidth: -1
   m_MaxHeight: -1
+--- !u!222 &2551241111851107750
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 673146052310809219}
+  m_CullTransparentMesh: 1
+--- !u!114 &7660259580204198087
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 673146052310809219}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
+  m_Material: {fileID: 0}
+  m_Color: {r: 0.12, g: 0.16, b: 0.24, a: 0.9}
+  m_RaycastTarget: 0
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: 10905, guid: 0000000000000000f000000000000000, type: 0}
+  m_Type: 1
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
+--- !u!114 &36761959224168525
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 673146052310809219}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0dc2c4230e405e247b7395d0c87762c9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Game.Conquest::Game.Conquest.ThemedGraphic
+  theme: {fileID: 11400000, guid: 7190fbeaa29ca9f4ba0c8d5829f9c1f5, type: 2}
+  role: 2
 --- !u!114 &3431335035112403026 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 2987450676248851096, guid: 03e6f66c413e2f8408ed42c98e6f88c0, type: 3}
@@ -6514,6 +7167,14 @@ PrefabInstance:
     - target: {fileID: 95614101041041161, guid: 03e6f66c413e2f8408ed42c98e6f88c0, type: 3}
       propertyPath: m_text
       value: Mouse Sensitivity
+      objectReference: {fileID: 0}
+    - target: {fileID: 95614101041041161, guid: 03e6f66c413e2f8408ed42c98e6f88c0, type: 3}
+      propertyPath: m_fontStyle
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 95614101041041161, guid: 03e6f66c413e2f8408ed42c98e6f88c0, type: 3}
+      propertyPath: m_overflowMode
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1133918935676827721, guid: 03e6f66c413e2f8408ed42c98e6f88c0, type: 3}
       propertyPath: m_Name
@@ -6623,6 +7284,14 @@ PrefabInstance:
       propertyPath: m_AnchorMax.y
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 8305319586833814571, guid: 03e6f66c413e2f8408ed42c98e6f88c0, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: -14
+      objectReference: {fileID: 0}
+    - target: {fileID: 8305319586833814571, guid: 03e6f66c413e2f8408ed42c98e6f88c0, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 7
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -6630,6 +7299,15 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 1133918935676827721, guid: 03e6f66c413e2f8408ed42c98e6f88c0, type: 3}
       insertIndex: -1
       addedObject: {fileID: 8688567344508986476}
+    - targetCorrespondingSourceObject: {fileID: 1133918935676827721, guid: 03e6f66c413e2f8408ed42c98e6f88c0, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 6736005038265554396}
+    - targetCorrespondingSourceObject: {fileID: 1133918935676827721, guid: 03e6f66c413e2f8408ed42c98e6f88c0, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 9177617846886046575}
+    - targetCorrespondingSourceObject: {fileID: 1133918935676827721, guid: 03e6f66c413e2f8408ed42c98e6f88c0, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 8814688300938300269}
     - targetCorrespondingSourceObject: {fileID: 5663644792488629656, guid: 03e6f66c413e2f8408ed42c98e6f88c0, type: 3}
       insertIndex: -1
       addedObject: {fileID: 3903997776372135499}
@@ -6680,14 +7358,66 @@ MonoBehaviour:
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.LayoutElement
   m_IgnoreLayout: 0
   m_MinWidth: -1
-  m_MinHeight: -1
+  m_MinHeight: 46
   m_PreferredWidth: -1
-  m_PreferredHeight: 40
+  m_PreferredHeight: 46
   m_FlexibleWidth: -1
-  m_FlexibleHeight: -1
+  m_FlexibleHeight: 0
   m_LayoutPriority: 1
   m_MaxWidth: -1
   m_MaxHeight: -1
+--- !u!222 &6736005038265554396
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3253592663832439515}
+  m_CullTransparentMesh: 1
+--- !u!114 &9177617846886046575
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3253592663832439515}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
+  m_Material: {fileID: 0}
+  m_Color: {r: 0.12, g: 0.16, b: 0.24, a: 0.9}
+  m_RaycastTarget: 0
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: 10905, guid: 0000000000000000f000000000000000, type: 0}
+  m_Type: 1
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
+--- !u!114 &8814688300938300269
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3253592663832439515}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0dc2c4230e405e247b7395d0c87762c9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Game.Conquest::Game.Conquest.ThemedGraphic
+  theme: {fileID: 11400000, guid: 7190fbeaa29ca9f4ba0c8d5829f9c1f5, type: 2}
+  role: 2
 --- !u!1 &7782825882998081290 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 5663644792488629656, guid: 03e6f66c413e2f8408ed42c98e6f88c0, type: 3}
@@ -6744,6 +7474,22 @@ PrefabInstance:
     - target: {fileID: 5581049227896903191, guid: 592d24a3d1de16047962b0364217f158, type: 3}
       propertyPath: m_text
       value: Window Mode
+      objectReference: {fileID: 0}
+    - target: {fileID: 5581049227896903191, guid: 592d24a3d1de16047962b0364217f158, type: 3}
+      propertyPath: m_fontStyle
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5581049227896903191, guid: 592d24a3d1de16047962b0364217f158, type: 3}
+      propertyPath: m_overflowMode
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7811904973106037384, guid: 592d24a3d1de16047962b0364217f158, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: -14
+      objectReference: {fileID: 0}
+    - target: {fileID: 7811904973106037384, guid: 592d24a3d1de16047962b0364217f158, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 7
       objectReference: {fileID: 0}
     - target: {fileID: 8072683171236127121, guid: 592d24a3d1de16047962b0364217f158, type: 3}
       propertyPath: m_Pivot.x
@@ -6836,6 +7582,15 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 8543724950080350315, guid: 592d24a3d1de16047962b0364217f158, type: 3}
       insertIndex: -1
       addedObject: {fileID: 5702997164317837562}
+    - targetCorrespondingSourceObject: {fileID: 8543724950080350315, guid: 592d24a3d1de16047962b0364217f158, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 5843308356047030249}
+    - targetCorrespondingSourceObject: {fileID: 8543724950080350315, guid: 592d24a3d1de16047962b0364217f158, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 4163231001901417011}
+    - targetCorrespondingSourceObject: {fileID: 8543724950080350315, guid: 592d24a3d1de16047962b0364217f158, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 3967654747478984703}
     - targetCorrespondingSourceObject: {fileID: 5770175542132882095, guid: 592d24a3d1de16047962b0364217f158, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1188264415805995049}
@@ -6870,14 +7625,66 @@ MonoBehaviour:
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.LayoutElement
   m_IgnoreLayout: 0
   m_MinWidth: -1
-  m_MinHeight: -1
+  m_MinHeight: 46
   m_PreferredWidth: -1
-  m_PreferredHeight: 40
+  m_PreferredHeight: 46
   m_FlexibleWidth: -1
-  m_FlexibleHeight: -1
+  m_FlexibleHeight: 0
   m_LayoutPriority: 1
   m_MaxWidth: -1
   m_MaxHeight: -1
+--- !u!222 &5843308356047030249
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5985457330757577224}
+  m_CullTransparentMesh: 1
+--- !u!114 &4163231001901417011
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5985457330757577224}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
+  m_Material: {fileID: 0}
+  m_Color: {r: 0.12, g: 0.16, b: 0.24, a: 0.9}
+  m_RaycastTarget: 0
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: 10905, guid: 0000000000000000f000000000000000, type: 0}
+  m_Type: 1
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
+--- !u!114 &3967654747478984703
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5985457330757577224}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0dc2c4230e405e247b7395d0c87762c9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Game.Conquest::Game.Conquest.ThemedGraphic
+  theme: {fileID: 11400000, guid: 7190fbeaa29ca9f4ba0c8d5829f9c1f5, type: 2}
+  role: 2
 --- !u!224 &6162643632021300210 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 8072683171236127121, guid: 592d24a3d1de16047962b0364217f158, type: 3}
@@ -6950,6 +7757,22 @@ PrefabInstance:
     - target: {fileID: 5581049227896903191, guid: 592d24a3d1de16047962b0364217f158, type: 3}
       propertyPath: m_text
       value: Colour-blind Teams
+      objectReference: {fileID: 0}
+    - target: {fileID: 5581049227896903191, guid: 592d24a3d1de16047962b0364217f158, type: 3}
+      propertyPath: m_fontStyle
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5581049227896903191, guid: 592d24a3d1de16047962b0364217f158, type: 3}
+      propertyPath: m_overflowMode
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7811904973106037384, guid: 592d24a3d1de16047962b0364217f158, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: -14
+      objectReference: {fileID: 0}
+    - target: {fileID: 7811904973106037384, guid: 592d24a3d1de16047962b0364217f158, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 7
       objectReference: {fileID: 0}
     - target: {fileID: 8072683171236127121, guid: 592d24a3d1de16047962b0364217f158, type: 3}
       propertyPath: m_Pivot.x
@@ -7042,6 +7865,15 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 8543724950080350315, guid: 592d24a3d1de16047962b0364217f158, type: 3}
       insertIndex: -1
       addedObject: {fileID: 7547516880292222967}
+    - targetCorrespondingSourceObject: {fileID: 8543724950080350315, guid: 592d24a3d1de16047962b0364217f158, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 2271713044090853226}
+    - targetCorrespondingSourceObject: {fileID: 8543724950080350315, guid: 592d24a3d1de16047962b0364217f158, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 7537691159719132151}
+    - targetCorrespondingSourceObject: {fileID: 8543724950080350315, guid: 592d24a3d1de16047962b0364217f158, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 5472480848313939205}
     - targetCorrespondingSourceObject: {fileID: 5770175542132882095, guid: 592d24a3d1de16047962b0364217f158, type: 3}
       insertIndex: -1
       addedObject: {fileID: 7707578921665120114}
@@ -7081,14 +7913,66 @@ MonoBehaviour:
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.LayoutElement
   m_IgnoreLayout: 0
   m_MinWidth: -1
-  m_MinHeight: -1
+  m_MinHeight: 46
   m_PreferredWidth: -1
-  m_PreferredHeight: 40
+  m_PreferredHeight: 46
   m_FlexibleWidth: -1
-  m_FlexibleHeight: -1
+  m_FlexibleHeight: 0
   m_LayoutPriority: 1
   m_MaxWidth: -1
   m_MaxHeight: -1
+--- !u!222 &2271713044090853226
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6837599466291177862}
+  m_CullTransparentMesh: 1
+--- !u!114 &7537691159719132151
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6837599466291177862}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
+  m_Material: {fileID: 0}
+  m_Color: {r: 0.12, g: 0.16, b: 0.24, a: 0.9}
+  m_RaycastTarget: 0
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: 10905, guid: 0000000000000000f000000000000000, type: 0}
+  m_Type: 1
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
+--- !u!114 &5472480848313939205
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6837599466291177862}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0dc2c4230e405e247b7395d0c87762c9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Game.Conquest::Game.Conquest.ThemedGraphic
+  theme: {fileID: 11400000, guid: 7190fbeaa29ca9f4ba0c8d5829f9c1f5, type: 2}
+  role: 2
 --- !u!114 &7279715151685785594 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 5581049227896903191, guid: 592d24a3d1de16047962b0364217f158, type: 3}
@@ -7156,6 +8040,22 @@ PrefabInstance:
     - target: {fileID: 5581049227896903191, guid: 592d24a3d1de16047962b0364217f158, type: 3}
       propertyPath: m_text
       value: Reduce Motion
+      objectReference: {fileID: 0}
+    - target: {fileID: 5581049227896903191, guid: 592d24a3d1de16047962b0364217f158, type: 3}
+      propertyPath: m_fontStyle
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5581049227896903191, guid: 592d24a3d1de16047962b0364217f158, type: 3}
+      propertyPath: m_overflowMode
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7811904973106037384, guid: 592d24a3d1de16047962b0364217f158, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: -14
+      objectReference: {fileID: 0}
+    - target: {fileID: 7811904973106037384, guid: 592d24a3d1de16047962b0364217f158, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 7
       objectReference: {fileID: 0}
     - target: {fileID: 8072683171236127121, guid: 592d24a3d1de16047962b0364217f158, type: 3}
       propertyPath: m_Pivot.x
@@ -7248,6 +8148,15 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 8543724950080350315, guid: 592d24a3d1de16047962b0364217f158, type: 3}
       insertIndex: -1
       addedObject: {fileID: 4735867720880384883}
+    - targetCorrespondingSourceObject: {fileID: 8543724950080350315, guid: 592d24a3d1de16047962b0364217f158, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 7332200795415983809}
+    - targetCorrespondingSourceObject: {fileID: 8543724950080350315, guid: 592d24a3d1de16047962b0364217f158, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 3465436342851994555}
+    - targetCorrespondingSourceObject: {fileID: 8543724950080350315, guid: 592d24a3d1de16047962b0364217f158, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 6048174413269133079}
     - targetCorrespondingSourceObject: {fileID: 5770175542132882095, guid: 592d24a3d1de16047962b0364217f158, type: 3}
       insertIndex: -1
       addedObject: {fileID: 8445295496413467893}
@@ -7287,14 +8196,66 @@ MonoBehaviour:
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.LayoutElement
   m_IgnoreLayout: 0
   m_MinWidth: -1
-  m_MinHeight: -1
+  m_MinHeight: 46
   m_PreferredWidth: -1
-  m_PreferredHeight: 40
+  m_PreferredHeight: 46
   m_FlexibleWidth: -1
-  m_FlexibleHeight: -1
+  m_FlexibleHeight: 0
   m_LayoutPriority: 1
   m_MaxWidth: -1
   m_MaxHeight: -1
+--- !u!222 &7332200795415983809
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6675450826437704358}
+  m_CullTransparentMesh: 1
+--- !u!114 &3465436342851994555
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6675450826437704358}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
+  m_Material: {fileID: 0}
+  m_Color: {r: 0.12, g: 0.16, b: 0.24, a: 0.9}
+  m_RaycastTarget: 0
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: 10905, guid: 0000000000000000f000000000000000, type: 0}
+  m_Type: 1
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
+--- !u!114 &6048174413269133079
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6675450826437704358}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0dc2c4230e405e247b7395d0c87762c9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Game.Conquest::Game.Conquest.ThemedGraphic
+  theme: {fileID: 11400000, guid: 7190fbeaa29ca9f4ba0c8d5829f9c1f5, type: 2}
+  role: 2
 --- !u!114 &7440299562872669402 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 5581049227896903191, guid: 592d24a3d1de16047962b0364217f158, type: 3}
@@ -7362,6 +8323,14 @@ PrefabInstance:
     - target: {fileID: 95614101041041161, guid: 03e6f66c413e2f8408ed42c98e6f88c0, type: 3}
       propertyPath: m_text
       value: Interface Scale
+      objectReference: {fileID: 0}
+    - target: {fileID: 95614101041041161, guid: 03e6f66c413e2f8408ed42c98e6f88c0, type: 3}
+      propertyPath: m_fontStyle
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 95614101041041161, guid: 03e6f66c413e2f8408ed42c98e6f88c0, type: 3}
+      propertyPath: m_overflowMode
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1133918935676827721, guid: 03e6f66c413e2f8408ed42c98e6f88c0, type: 3}
       propertyPath: m_Name
@@ -7471,6 +8440,14 @@ PrefabInstance:
       propertyPath: m_AnchorMax.y
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 8305319586833814571, guid: 03e6f66c413e2f8408ed42c98e6f88c0, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: -14
+      objectReference: {fileID: 0}
+    - target: {fileID: 8305319586833814571, guid: 03e6f66c413e2f8408ed42c98e6f88c0, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 7
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -7478,6 +8455,15 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 1133918935676827721, guid: 03e6f66c413e2f8408ed42c98e6f88c0, type: 3}
       insertIndex: -1
       addedObject: {fileID: 6942893660946178958}
+    - targetCorrespondingSourceObject: {fileID: 1133918935676827721, guid: 03e6f66c413e2f8408ed42c98e6f88c0, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 568239158407756031}
+    - targetCorrespondingSourceObject: {fileID: 1133918935676827721, guid: 03e6f66c413e2f8408ed42c98e6f88c0, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 4172081469819687438}
+    - targetCorrespondingSourceObject: {fileID: 1133918935676827721, guid: 03e6f66c413e2f8408ed42c98e6f88c0, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 8012178198593339142}
     - targetCorrespondingSourceObject: {fileID: 5663644792488629656, guid: 03e6f66c413e2f8408ed42c98e6f88c0, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1749535867354252098}
@@ -7528,14 +8514,66 @@ MonoBehaviour:
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.LayoutElement
   m_IgnoreLayout: 0
   m_MinWidth: -1
-  m_MinHeight: -1
+  m_MinHeight: 46
   m_PreferredWidth: -1
-  m_PreferredHeight: 40
+  m_PreferredHeight: 46
   m_FlexibleWidth: -1
-  m_FlexibleHeight: -1
+  m_FlexibleHeight: 0
   m_LayoutPriority: 1
   m_MaxWidth: -1
   m_MaxHeight: -1
+--- !u!222 &568239158407756031
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4318276139912656461}
+  m_CullTransparentMesh: 1
+--- !u!114 &4172081469819687438
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4318276139912656461}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
+  m_Material: {fileID: 0}
+  m_Color: {r: 0.12, g: 0.16, b: 0.24, a: 0.9}
+  m_RaycastTarget: 0
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: 10905, guid: 0000000000000000f000000000000000, type: 0}
+  m_Type: 1
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
+--- !u!114 &8012178198593339142
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4318276139912656461}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0dc2c4230e405e247b7395d0c87762c9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Game.Conquest::Game.Conquest.ThemedGraphic
+  theme: {fileID: 11400000, guid: 7190fbeaa29ca9f4ba0c8d5829f9c1f5, type: 2}
+  role: 2
 --- !u!1 &8847509385452477340 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 5663644792488629656, guid: 03e6f66c413e2f8408ed42c98e6f88c0, type: 3}
@@ -7592,6 +8630,22 @@ PrefabInstance:
     - target: {fileID: 5581049227896903191, guid: 592d24a3d1de16047962b0364217f158, type: 3}
       propertyPath: m_text
       value: Frame Rate Cap
+      objectReference: {fileID: 0}
+    - target: {fileID: 5581049227896903191, guid: 592d24a3d1de16047962b0364217f158, type: 3}
+      propertyPath: m_fontStyle
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5581049227896903191, guid: 592d24a3d1de16047962b0364217f158, type: 3}
+      propertyPath: m_overflowMode
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7811904973106037384, guid: 592d24a3d1de16047962b0364217f158, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: -14
+      objectReference: {fileID: 0}
+    - target: {fileID: 7811904973106037384, guid: 592d24a3d1de16047962b0364217f158, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 7
       objectReference: {fileID: 0}
     - target: {fileID: 8072683171236127121, guid: 592d24a3d1de16047962b0364217f158, type: 3}
       propertyPath: m_Pivot.x
@@ -7684,6 +8738,15 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 8543724950080350315, guid: 592d24a3d1de16047962b0364217f158, type: 3}
       insertIndex: -1
       addedObject: {fileID: 8910044462456412253}
+    - targetCorrespondingSourceObject: {fileID: 8543724950080350315, guid: 592d24a3d1de16047962b0364217f158, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 5015072968134997839}
+    - targetCorrespondingSourceObject: {fileID: 8543724950080350315, guid: 592d24a3d1de16047962b0364217f158, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 3645319327003567701}
+    - targetCorrespondingSourceObject: {fileID: 8543724950080350315, guid: 592d24a3d1de16047962b0364217f158, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 4003642919335880308}
     - targetCorrespondingSourceObject: {fileID: 5770175542132882095, guid: 592d24a3d1de16047962b0364217f158, type: 3}
       insertIndex: -1
       addedObject: {fileID: 2803436404471989574}
@@ -7718,14 +8781,66 @@ MonoBehaviour:
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.LayoutElement
   m_IgnoreLayout: 0
   m_MinWidth: -1
-  m_MinHeight: -1
+  m_MinHeight: 46
   m_PreferredWidth: -1
-  m_PreferredHeight: 40
+  m_PreferredHeight: 46
   m_FlexibleWidth: -1
-  m_FlexibleHeight: -1
+  m_FlexibleHeight: 0
   m_LayoutPriority: 1
   m_MaxWidth: -1
   m_MaxHeight: -1
+--- !u!222 &5015072968134997839
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4848260680958566863}
+  m_CullTransparentMesh: 1
+--- !u!114 &3645319327003567701
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4848260680958566863}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
+  m_Material: {fileID: 0}
+  m_Color: {r: 0.12, g: 0.16, b: 0.24, a: 0.9}
+  m_RaycastTarget: 0
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: 10905, guid: 0000000000000000f000000000000000, type: 0}
+  m_Type: 1
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
+--- !u!114 &4003642919335880308
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4848260680958566863}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0dc2c4230e405e247b7395d0c87762c9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Game.Conquest::Game.Conquest.ThemedGraphic
+  theme: {fileID: 11400000, guid: 7190fbeaa29ca9f4ba0c8d5829f9c1f5, type: 2}
+  role: 2
 --- !u!224 &5034740053929404469 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 8072683171236127121, guid: 592d24a3d1de16047962b0364217f158, type: 3}
@@ -7798,6 +8913,14 @@ PrefabInstance:
     - target: {fileID: 95614101041041161, guid: 03e6f66c413e2f8408ed42c98e6f88c0, type: 3}
       propertyPath: m_text
       value: Master Volume
+      objectReference: {fileID: 0}
+    - target: {fileID: 95614101041041161, guid: 03e6f66c413e2f8408ed42c98e6f88c0, type: 3}
+      propertyPath: m_fontStyle
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 95614101041041161, guid: 03e6f66c413e2f8408ed42c98e6f88c0, type: 3}
+      propertyPath: m_overflowMode
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1133918935676827721, guid: 03e6f66c413e2f8408ed42c98e6f88c0, type: 3}
       propertyPath: m_Name
@@ -7891,6 +9014,14 @@ PrefabInstance:
       propertyPath: m_AnchorMax.y
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 8305319586833814571, guid: 03e6f66c413e2f8408ed42c98e6f88c0, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: -14
+      objectReference: {fileID: 0}
+    - target: {fileID: 8305319586833814571, guid: 03e6f66c413e2f8408ed42c98e6f88c0, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 7
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -7898,6 +9029,15 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 1133918935676827721, guid: 03e6f66c413e2f8408ed42c98e6f88c0, type: 3}
       insertIndex: -1
       addedObject: {fileID: 4008175589497088991}
+    - targetCorrespondingSourceObject: {fileID: 1133918935676827721, guid: 03e6f66c413e2f8408ed42c98e6f88c0, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 3398315101183265835}
+    - targetCorrespondingSourceObject: {fileID: 1133918935676827721, guid: 03e6f66c413e2f8408ed42c98e6f88c0, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 4166991433804777687}
+    - targetCorrespondingSourceObject: {fileID: 1133918935676827721, guid: 03e6f66c413e2f8408ed42c98e6f88c0, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 4910265680420202149}
     - targetCorrespondingSourceObject: {fileID: 5663644792488629656, guid: 03e6f66c413e2f8408ed42c98e6f88c0, type: 3}
       insertIndex: -1
       addedObject: {fileID: 2749001730663057101}
@@ -7966,14 +9106,66 @@ MonoBehaviour:
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.LayoutElement
   m_IgnoreLayout: 0
   m_MinWidth: -1
-  m_MinHeight: -1
+  m_MinHeight: 46
   m_PreferredWidth: -1
-  m_PreferredHeight: 40
+  m_PreferredHeight: 46
   m_FlexibleWidth: -1
-  m_FlexibleHeight: -1
+  m_FlexibleHeight: 0
   m_LayoutPriority: 1
   m_MaxWidth: -1
   m_MaxHeight: -1
+--- !u!222 &3398315101183265835
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5081861503280865437}
+  m_CullTransparentMesh: 1
+--- !u!114 &4166991433804777687
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5081861503280865437}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
+  m_Material: {fileID: 0}
+  m_Color: {r: 0.12, g: 0.16, b: 0.24, a: 0.9}
+  m_RaycastTarget: 0
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: 10905, guid: 0000000000000000f000000000000000, type: 0}
+  m_Type: 1
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
+--- !u!114 &4910265680420202149
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5081861503280865437}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0dc2c4230e405e247b7395d0c87762c9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Game.Conquest::Game.Conquest.ThemedGraphic
+  theme: {fileID: 11400000, guid: 7190fbeaa29ca9f4ba0c8d5829f9c1f5, type: 2}
+  role: 2
 --- !u!114 &5217890603890841565 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 95614101041041161, guid: 03e6f66c413e2f8408ed42c98e6f88c0, type: 3}
@@ -8012,6 +9204,22 @@ PrefabInstance:
     - target: {fileID: 5581049227896903191, guid: 592d24a3d1de16047962b0364217f158, type: 3}
       propertyPath: m_text
       value: Resolution
+      objectReference: {fileID: 0}
+    - target: {fileID: 5581049227896903191, guid: 592d24a3d1de16047962b0364217f158, type: 3}
+      propertyPath: m_fontStyle
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5581049227896903191, guid: 592d24a3d1de16047962b0364217f158, type: 3}
+      propertyPath: m_overflowMode
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7811904973106037384, guid: 592d24a3d1de16047962b0364217f158, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: -14
+      objectReference: {fileID: 0}
+    - target: {fileID: 7811904973106037384, guid: 592d24a3d1de16047962b0364217f158, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 7
       objectReference: {fileID: 0}
     - target: {fileID: 8072683171236127121, guid: 592d24a3d1de16047962b0364217f158, type: 3}
       propertyPath: m_Pivot.x
@@ -8104,6 +9312,15 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 8543724950080350315, guid: 592d24a3d1de16047962b0364217f158, type: 3}
       insertIndex: -1
       addedObject: {fileID: 5445266514946388043}
+    - targetCorrespondingSourceObject: {fileID: 8543724950080350315, guid: 592d24a3d1de16047962b0364217f158, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 2958298872607021550}
+    - targetCorrespondingSourceObject: {fileID: 8543724950080350315, guid: 592d24a3d1de16047962b0364217f158, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 7633237444197025982}
+    - targetCorrespondingSourceObject: {fileID: 8543724950080350315, guid: 592d24a3d1de16047962b0364217f158, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 986613942891688214}
     - targetCorrespondingSourceObject: {fileID: 5770175542132882095, guid: 592d24a3d1de16047962b0364217f158, type: 3}
       insertIndex: -1
       addedObject: {fileID: 3103394839817872302}
@@ -8188,14 +9405,66 @@ MonoBehaviour:
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.LayoutElement
   m_IgnoreLayout: 0
   m_MinWidth: -1
-  m_MinHeight: -1
+  m_MinHeight: 46
   m_PreferredWidth: -1
-  m_PreferredHeight: 40
+  m_PreferredHeight: 46
   m_FlexibleWidth: -1
-  m_FlexibleHeight: -1
+  m_FlexibleHeight: 0
   m_LayoutPriority: 1
   m_MaxWidth: -1
   m_MaxHeight: -1
+--- !u!222 &2958298872607021550
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4437384260191556972}
+  m_CullTransparentMesh: 1
+--- !u!114 &7633237444197025982
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4437384260191556972}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
+  m_Material: {fileID: 0}
+  m_Color: {r: 0.12, g: 0.16, b: 0.24, a: 0.9}
+  m_RaycastTarget: 0
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: 10905, guid: 0000000000000000f000000000000000, type: 0}
+  m_Type: 1
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
+--- !u!114 &986613942891688214
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4437384260191556972}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0dc2c4230e405e247b7395d0c87762c9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Game.Conquest::Game.Conquest.ThemedGraphic
+  theme: {fileID: 11400000, guid: 7190fbeaa29ca9f4ba0c8d5829f9c1f5, type: 2}
+  role: 2
 --- !u!114 &8313703880879844123 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 4063826087378933276, guid: 592d24a3d1de16047962b0364217f158, type: 3}
@@ -8218,6 +9487,22 @@ PrefabInstance:
     - target: {fileID: 5581049227896903191, guid: 592d24a3d1de16047962b0364217f158, type: 3}
       propertyPath: m_text
       value: High Contrast UI
+      objectReference: {fileID: 0}
+    - target: {fileID: 5581049227896903191, guid: 592d24a3d1de16047962b0364217f158, type: 3}
+      propertyPath: m_fontStyle
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5581049227896903191, guid: 592d24a3d1de16047962b0364217f158, type: 3}
+      propertyPath: m_overflowMode
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7811904973106037384, guid: 592d24a3d1de16047962b0364217f158, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: -14
+      objectReference: {fileID: 0}
+    - target: {fileID: 7811904973106037384, guid: 592d24a3d1de16047962b0364217f158, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 7
       objectReference: {fileID: 0}
     - target: {fileID: 8072683171236127121, guid: 592d24a3d1de16047962b0364217f158, type: 3}
       propertyPath: m_Pivot.x
@@ -8310,6 +9595,15 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 8543724950080350315, guid: 592d24a3d1de16047962b0364217f158, type: 3}
       insertIndex: -1
       addedObject: {fileID: 993746597583284660}
+    - targetCorrespondingSourceObject: {fileID: 8543724950080350315, guid: 592d24a3d1de16047962b0364217f158, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 290880951973351362}
+    - targetCorrespondingSourceObject: {fileID: 8543724950080350315, guid: 592d24a3d1de16047962b0364217f158, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 3375582702779695239}
+    - targetCorrespondingSourceObject: {fileID: 8543724950080350315, guid: 592d24a3d1de16047962b0364217f158, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 3040002994983725701}
     - targetCorrespondingSourceObject: {fileID: 5770175542132882095, guid: 592d24a3d1de16047962b0364217f158, type: 3}
       insertIndex: -1
       addedObject: {fileID: 2387368101963132770}
@@ -8394,14 +9688,66 @@ MonoBehaviour:
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.LayoutElement
   m_IgnoreLayout: 0
   m_MinWidth: -1
-  m_MinHeight: -1
+  m_MinHeight: 46
   m_PreferredWidth: -1
-  m_PreferredHeight: 40
+  m_PreferredHeight: 46
   m_FlexibleWidth: -1
-  m_FlexibleHeight: -1
+  m_FlexibleHeight: 0
   m_LayoutPriority: 1
   m_MaxWidth: -1
   m_MaxHeight: -1
+--- !u!222 &290880951973351362
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3218519822367051678}
+  m_CullTransparentMesh: 1
+--- !u!114 &3375582702779695239
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3218519822367051678}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
+  m_Material: {fileID: 0}
+  m_Color: {r: 0.12, g: 0.16, b: 0.24, a: 0.9}
+  m_RaycastTarget: 0
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: 10905, guid: 0000000000000000f000000000000000, type: 0}
+  m_Type: 1
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
+--- !u!114 &3040002994983725701
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3218519822367051678}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0dc2c4230e405e247b7395d0c87762c9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Game.Conquest::Game.Conquest.ThemedGraphic
+  theme: {fileID: 11400000, guid: 7190fbeaa29ca9f4ba0c8d5829f9c1f5, type: 2}
+  role: 2
 --- !u!114 &7088259411088273897 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 4063826087378933276, guid: 592d24a3d1de16047962b0364217f158, type: 3}
@@ -8424,6 +9770,14 @@ PrefabInstance:
     - target: {fileID: 95614101041041161, guid: 03e6f66c413e2f8408ed42c98e6f88c0, type: 3}
       propertyPath: m_text
       value: Field of View
+      objectReference: {fileID: 0}
+    - target: {fileID: 95614101041041161, guid: 03e6f66c413e2f8408ed42c98e6f88c0, type: 3}
+      propertyPath: m_fontStyle
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 95614101041041161, guid: 03e6f66c413e2f8408ed42c98e6f88c0, type: 3}
+      propertyPath: m_overflowMode
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1133918935676827721, guid: 03e6f66c413e2f8408ed42c98e6f88c0, type: 3}
       propertyPath: m_Name
@@ -8537,6 +9891,14 @@ PrefabInstance:
       propertyPath: m_AnchorMax.y
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 8305319586833814571, guid: 03e6f66c413e2f8408ed42c98e6f88c0, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: -14
+      objectReference: {fileID: 0}
+    - target: {fileID: 8305319586833814571, guid: 03e6f66c413e2f8408ed42c98e6f88c0, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 7
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -8544,6 +9906,15 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 1133918935676827721, guid: 03e6f66c413e2f8408ed42c98e6f88c0, type: 3}
       insertIndex: -1
       addedObject: {fileID: 8129603848663577181}
+    - targetCorrespondingSourceObject: {fileID: 1133918935676827721, guid: 03e6f66c413e2f8408ed42c98e6f88c0, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 6531188229004980056}
+    - targetCorrespondingSourceObject: {fileID: 1133918935676827721, guid: 03e6f66c413e2f8408ed42c98e6f88c0, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 7398254583508377023}
+    - targetCorrespondingSourceObject: {fileID: 1133918935676827721, guid: 03e6f66c413e2f8408ed42c98e6f88c0, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 6234931990939938619}
     - targetCorrespondingSourceObject: {fileID: 5663644792488629656, guid: 03e6f66c413e2f8408ed42c98e6f88c0, type: 3}
       insertIndex: -1
       addedObject: {fileID: 4723482556664717363}
@@ -8612,14 +9983,66 @@ MonoBehaviour:
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.LayoutElement
   m_IgnoreLayout: 0
   m_MinWidth: -1
-  m_MinHeight: -1
+  m_MinHeight: 46
   m_PreferredWidth: -1
-  m_PreferredHeight: 40
+  m_PreferredHeight: 46
   m_FlexibleWidth: -1
-  m_FlexibleHeight: -1
+  m_FlexibleHeight: 0
   m_LayoutPriority: 1
   m_MaxWidth: -1
   m_MaxHeight: -1
+--- !u!222 &6531188229004980056
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6192635574115314610}
+  m_CullTransparentMesh: 1
+--- !u!114 &7398254583508377023
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6192635574115314610}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
+  m_Material: {fileID: 0}
+  m_Color: {r: 0.12, g: 0.16, b: 0.24, a: 0.9}
+  m_RaycastTarget: 0
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: 10905, guid: 0000000000000000f000000000000000, type: 0}
+  m_Type: 1
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
+--- !u!114 &6234931990939938619
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6192635574115314610}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0dc2c4230e405e247b7395d0c87762c9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Game.Conquest::Game.Conquest.ThemedGraphic
+  theme: {fileID: 11400000, guid: 7190fbeaa29ca9f4ba0c8d5829f9c1f5, type: 2}
+  role: 2
 --- !u!114 &6566077805419683058 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 95614101041041161, guid: 03e6f66c413e2f8408ed42c98e6f88c0, type: 3}
@@ -8658,6 +10081,22 @@ PrefabInstance:
     - target: {fileID: 5581049227896903191, guid: 592d24a3d1de16047962b0364217f158, type: 3}
       propertyPath: m_text
       value: V-Sync
+      objectReference: {fileID: 0}
+    - target: {fileID: 5581049227896903191, guid: 592d24a3d1de16047962b0364217f158, type: 3}
+      propertyPath: m_fontStyle
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5581049227896903191, guid: 592d24a3d1de16047962b0364217f158, type: 3}
+      propertyPath: m_overflowMode
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7811904973106037384, guid: 592d24a3d1de16047962b0364217f158, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: -14
+      objectReference: {fileID: 0}
+    - target: {fileID: 7811904973106037384, guid: 592d24a3d1de16047962b0364217f158, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 7
       objectReference: {fileID: 0}
     - target: {fileID: 8072683171236127121, guid: 592d24a3d1de16047962b0364217f158, type: 3}
       propertyPath: m_Pivot.x
@@ -8750,6 +10189,15 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 8543724950080350315, guid: 592d24a3d1de16047962b0364217f158, type: 3}
       insertIndex: -1
       addedObject: {fileID: 7437487916531662943}
+    - targetCorrespondingSourceObject: {fileID: 8543724950080350315, guid: 592d24a3d1de16047962b0364217f158, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 9187268963428562961}
+    - targetCorrespondingSourceObject: {fileID: 8543724950080350315, guid: 592d24a3d1de16047962b0364217f158, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 2572894789496252455}
+    - targetCorrespondingSourceObject: {fileID: 8543724950080350315, guid: 592d24a3d1de16047962b0364217f158, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 7421374689491618251}
     - targetCorrespondingSourceObject: {fileID: 5770175542132882095, guid: 592d24a3d1de16047962b0364217f158, type: 3}
       insertIndex: -1
       addedObject: {fileID: 6731849715329064758}
@@ -8778,14 +10226,66 @@ MonoBehaviour:
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.LayoutElement
   m_IgnoreLayout: 0
   m_MinWidth: -1
-  m_MinHeight: -1
+  m_MinHeight: 46
   m_PreferredWidth: -1
-  m_PreferredHeight: 40
+  m_PreferredHeight: 46
   m_FlexibleWidth: -1
-  m_FlexibleHeight: -1
+  m_FlexibleHeight: 0
   m_LayoutPriority: 1
   m_MaxWidth: -1
   m_MaxHeight: -1
+--- !u!222 &9187268963428562961
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1143985475977195708}
+  m_CullTransparentMesh: 1
+--- !u!114 &2572894789496252455
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1143985475977195708}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
+  m_Material: {fileID: 0}
+  m_Color: {r: 0.12, g: 0.16, b: 0.24, a: 0.9}
+  m_RaycastTarget: 0
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: 10905, guid: 0000000000000000f000000000000000, type: 0}
+  m_Type: 1
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
+--- !u!114 &7421374689491618251
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1143985475977195708}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0dc2c4230e405e247b7395d0c87762c9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Game.Conquest::Game.Conquest.ThemedGraphic
+  theme: {fileID: 11400000, guid: 7190fbeaa29ca9f4ba0c8d5829f9c1f5, type: 2}
+  role: 2
 --- !u!1 &2982192454251831928 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 5770175542132882095, guid: 592d24a3d1de16047962b0364217f158, type: 3}
@@ -8864,6 +10364,22 @@ PrefabInstance:
     - target: {fileID: 5581049227896903191, guid: 592d24a3d1de16047962b0364217f158, type: 3}
       propertyPath: m_text
       value: Invert Look Y
+      objectReference: {fileID: 0}
+    - target: {fileID: 5581049227896903191, guid: 592d24a3d1de16047962b0364217f158, type: 3}
+      propertyPath: m_fontStyle
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5581049227896903191, guid: 592d24a3d1de16047962b0364217f158, type: 3}
+      propertyPath: m_overflowMode
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7811904973106037384, guid: 592d24a3d1de16047962b0364217f158, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: -14
+      objectReference: {fileID: 0}
+    - target: {fileID: 7811904973106037384, guid: 592d24a3d1de16047962b0364217f158, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 7
       objectReference: {fileID: 0}
     - target: {fileID: 8072683171236127121, guid: 592d24a3d1de16047962b0364217f158, type: 3}
       propertyPath: m_Pivot.x
@@ -8956,6 +10472,15 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 8543724950080350315, guid: 592d24a3d1de16047962b0364217f158, type: 3}
       insertIndex: -1
       addedObject: {fileID: 2924157199025440512}
+    - targetCorrespondingSourceObject: {fileID: 8543724950080350315, guid: 592d24a3d1de16047962b0364217f158, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 4589330067123083456}
+    - targetCorrespondingSourceObject: {fileID: 8543724950080350315, guid: 592d24a3d1de16047962b0364217f158, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 7144019730714936201}
+    - targetCorrespondingSourceObject: {fileID: 8543724950080350315, guid: 592d24a3d1de16047962b0364217f158, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1600456580401258201}
     - targetCorrespondingSourceObject: {fileID: 5770175542132882095, guid: 592d24a3d1de16047962b0364217f158, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1220898323839553013}
@@ -8984,14 +10509,66 @@ MonoBehaviour:
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.LayoutElement
   m_IgnoreLayout: 0
   m_MinWidth: -1
-  m_MinHeight: -1
+  m_MinHeight: 46
   m_PreferredWidth: -1
-  m_PreferredHeight: 40
+  m_PreferredHeight: 46
   m_FlexibleWidth: -1
-  m_FlexibleHeight: -1
+  m_FlexibleHeight: 0
   m_LayoutPriority: 1
   m_MaxWidth: -1
   m_MaxHeight: -1
+--- !u!222 &4589330067123083456
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1096218719916120421}
+  m_CullTransparentMesh: 1
+--- !u!114 &7144019730714936201
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1096218719916120421}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
+  m_Material: {fileID: 0}
+  m_Color: {r: 0.12, g: 0.16, b: 0.24, a: 0.9}
+  m_RaycastTarget: 0
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: 10905, guid: 0000000000000000f000000000000000, type: 0}
+  m_Type: 1
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
+--- !u!114 &1600456580401258201
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1096218719916120421}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0dc2c4230e405e247b7395d0c87762c9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Game.Conquest::Game.Conquest.ThemedGraphic
+  theme: {fileID: 11400000, guid: 7190fbeaa29ca9f4ba0c8d5829f9c1f5, type: 2}
+  role: 2
 --- !u!1 &3005076982371158945 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 5770175542132882095, guid: 592d24a3d1de16047962b0364217f158, type: 3}
@@ -9070,6 +10647,22 @@ PrefabInstance:
     - target: {fileID: 5581049227896903191, guid: 592d24a3d1de16047962b0364217f158, type: 3}
       propertyPath: m_text
       value: Quality
+      objectReference: {fileID: 0}
+    - target: {fileID: 5581049227896903191, guid: 592d24a3d1de16047962b0364217f158, type: 3}
+      propertyPath: m_fontStyle
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5581049227896903191, guid: 592d24a3d1de16047962b0364217f158, type: 3}
+      propertyPath: m_overflowMode
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7811904973106037384, guid: 592d24a3d1de16047962b0364217f158, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: -14
+      objectReference: {fileID: 0}
+    - target: {fileID: 7811904973106037384, guid: 592d24a3d1de16047962b0364217f158, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 7
       objectReference: {fileID: 0}
     - target: {fileID: 8072683171236127121, guid: 592d24a3d1de16047962b0364217f158, type: 3}
       propertyPath: m_Pivot.x
@@ -9162,6 +10755,15 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 8543724950080350315, guid: 592d24a3d1de16047962b0364217f158, type: 3}
       insertIndex: -1
       addedObject: {fileID: 7897646973345218309}
+    - targetCorrespondingSourceObject: {fileID: 8543724950080350315, guid: 592d24a3d1de16047962b0364217f158, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 4637389473873553253}
+    - targetCorrespondingSourceObject: {fileID: 8543724950080350315, guid: 592d24a3d1de16047962b0364217f158, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1705321889963085787}
+    - targetCorrespondingSourceObject: {fileID: 8543724950080350315, guid: 592d24a3d1de16047962b0364217f158, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 6645699227793974673}
     - targetCorrespondingSourceObject: {fileID: 5770175542132882095, guid: 592d24a3d1de16047962b0364217f158, type: 3}
       insertIndex: -1
       addedObject: {fileID: 7863018515347061527}
@@ -9185,14 +10787,66 @@ MonoBehaviour:
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.LayoutElement
   m_IgnoreLayout: 0
   m_MinWidth: -1
-  m_MinHeight: -1
+  m_MinHeight: 46
   m_PreferredWidth: -1
-  m_PreferredHeight: 40
+  m_PreferredHeight: 46
   m_FlexibleWidth: -1
-  m_FlexibleHeight: -1
+  m_FlexibleHeight: 0
   m_LayoutPriority: 1
   m_MaxWidth: -1
   m_MaxHeight: -1
+--- !u!222 &4637389473873553253
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 582564175126580355}
+  m_CullTransparentMesh: 1
+--- !u!114 &1705321889963085787
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 582564175126580355}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
+  m_Material: {fileID: 0}
+  m_Color: {r: 0.12, g: 0.16, b: 0.24, a: 0.9}
+  m_RaycastTarget: 0
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: 10905, guid: 0000000000000000f000000000000000, type: 0}
+  m_Type: 1
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
+--- !u!114 &6645699227793974673
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 582564175126580355}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0dc2c4230e405e247b7395d0c87762c9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Game.Conquest::Game.Conquest.ThemedGraphic
+  theme: {fileID: 11400000, guid: 7190fbeaa29ca9f4ba0c8d5829f9c1f5, type: 2}
+  role: 2
 --- !u!224 &1045724645512840569 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 8072683171236127121, guid: 592d24a3d1de16047962b0364217f158, type: 3}

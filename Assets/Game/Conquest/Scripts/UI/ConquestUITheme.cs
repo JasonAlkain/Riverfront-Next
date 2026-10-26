@@ -102,6 +102,8 @@ namespace Game.Conquest.UI
         public Sprite redTeamIcon;
         public Sprite blueTeamIcon;
         public Sprite neutralIcon;
+        [Tooltip("Shown instead of the team icon on a team's home base. Empty uses the team icon.")]
+        public Sprite homeBaseIcon;
 
         [Header("Weapon heat")]
         [Tooltip("Placeholder: heat gauge colour when cold.")]
@@ -110,6 +112,13 @@ namespace Game.Conquest.UI
         public Color heatHot = new Color(1f, 0.45f, 0.1f);
         [Tooltip("Placeholder: heat gauge colour while overheated.")]
         public Color overheated = new Color(0.95f, 0.2f, 0.15f);
+
+        [Header("UI sounds")]
+        [Tooltip("Played when a themed button is clicked.")]
+        public AudioClip clickSound;
+        [Range(0f, 1f)] public float clickVolume = 0.5f;
+        [Tooltip("Mixer group for interface sounds (the Menus group).")]
+        public UnityEngine.Audio.AudioMixerGroup uiMixerGroup;
 
         [Header("High contrast")]
         public Color panelHighContrast = new Color(0f, 0f, 0f, 1f);
@@ -129,6 +138,13 @@ namespace Game.Conquest.UI
             if (team == Team.Red) return redTeamIcon;
             if (team == Team.Blue) return blueTeamIcon;
             return neutralIcon;
+        }
+
+        /// <summary>The icon for a command post: the home base icon on a home base, otherwise its owner's team icon.</summary>
+        public Sprite PostIcon(Game.Conquest.Objectives.ConquestCommandPost post)
+        {
+            if (post.IsHomeBase && homeBaseIcon != null) return homeBaseIcon;
+            return TeamIcon(post.CurrentOwner);
         }
 
         public UIButtonColors Button(UIButtonStyle style) => style == UIButtonStyle.Primary ? primaryButton : secondaryButton;

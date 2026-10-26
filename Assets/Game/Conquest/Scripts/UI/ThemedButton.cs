@@ -20,9 +20,20 @@ namespace Game.Conquest
         private TMP_Text m_Label;
         private bool m_WasInteractable;
 
+        private void Awake()
+        {
+            m_Button = GetComponent<Button>();
+            m_Button.onClick.AddListener(PlayClick);
+        }
+
         private void OnEnable()
         {
             Apply();
+        }
+
+        private void PlayClick()
+        {
+            if (theme != null) Game.Conquest.Audio.ConquestUIAudio.Play(theme.clickSound, theme.clickVolume, theme.uiMixerGroup);
         }
 
         private void Update()
