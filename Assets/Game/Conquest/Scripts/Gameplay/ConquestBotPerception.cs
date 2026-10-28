@@ -1,4 +1,5 @@
 using System;
+using Unity.Profiling;
 using UnityEngine;
 using Game.Conquest.Combat;
 using Game.Conquest.Player;
@@ -14,6 +15,9 @@ namespace Game.Conquest.Gameplay
     [Serializable]
     public class ConquestBotPerception
     {
+        // Profiler sample name read by the network test driver (Tools/NetTest).
+        private static readonly ProfilerMarker s_TickMarker = new ProfilerMarker("Conquest.BotPerception");
+
         [Tooltip("Placeholder: metres within which an enemy's gunfire is heard from any direction.")]
         [SerializeField] private float hearingRange = 25f;
         [Tooltip("Placeholder: seconds after a shot during which the shooter still counts as heard.")]
@@ -87,6 +91,7 @@ namespace Game.Conquest.Gameplay
         /// <summary>Server: one perception update. Call it a few times a second, not every frame.</summary>
         public void Tick(ConquestPlayer self, float range, float fieldOfView, int visionMask)
         {
+            using var _ = s_TickMarker.Auto();
             Transform eye = self.transform;
             Vector3 eyePos = eye.position + Vector3.up * EyeHeight;
 

@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Unity.Netcode;
+using Unity.Profiling;
 using UnityEngine;
 using UnityEngine.AI;
 using Game.Conquest.Player;
@@ -261,9 +262,13 @@ namespace Game.Conquest.Gameplay
             }
         }
 
+        // Profiler sample name read by the network test driver (Tools/NetTest).
+        private static readonly ProfilerMarker s_UpdateMarker = new ProfilerMarker("Conquest.BotUpdate");
+
         private void Update()
         {
             if (!IsServer || m_Health.IsDead) return;
+            using var _ = s_UpdateMarker.Auto();
 
             // Stop combat when match has concluded
             if (ConquestMatchManager.Instance != null && ConquestMatchManager.Instance.IsMatchOver)
