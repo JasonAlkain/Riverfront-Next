@@ -130,9 +130,7 @@ namespace Game.Conquest.Combat
                 if (col == null) continue;
                 Vector3 target = col.bounds.center;
 
-                if (!ConquestPhysics.TryGetDamageable(col, out ConquestHealth health,
-                        out ConquestSupportStation station, out ConquestSupplyDroid droid)) continue;
-
+                ConquestHealth health = col.GetComponentInParent<ConquestHealth>();
                 if (health != null)
                 {
                     if (s_Damaged.Contains(health)) continue;
@@ -148,6 +146,7 @@ namespace Game.Conquest.Combat
                     continue;
                 }
 
+                ConquestSupportStation station = col.GetComponentInParent<ConquestSupportStation>();
                 if (station != null)
                 {
                     if (s_Damaged.Contains(station)) continue;
@@ -156,6 +155,7 @@ namespace Game.Conquest.Combat
                     continue;
                 }
 
+                ConquestSupplyDroid droid = col.GetComponentInParent<ConquestSupplyDroid>();
                 if (droid != null)
                 {
                     if (s_Damaged.Contains(droid)) continue;

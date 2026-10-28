@@ -65,11 +65,6 @@ namespace Game.Conquest.Scenes
             DontDestroyOnLoad(gameObject);
         }
 
-        private void OnDestroy()
-        {
-            if (Instance == this) Instance = null;
-        }
-
         // The loading screen is a prefab instance under this persistent object, made on first use so
         // a manager added by the main menu's fallback can still be handed the prefab first.
         private void EnsureLoadingScreen()

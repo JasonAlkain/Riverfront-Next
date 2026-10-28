@@ -12,7 +12,6 @@ using Game.Conquest.Settings;
 using Game.Conquest.Gameplay;
 using Game.Conquest.Lobby;
 using Game.Conquest.Scenes;
-using Game.Conquest.Diagnostics;
 
 namespace Game.Conquest.UI
 {
@@ -910,7 +909,7 @@ namespace Game.Conquest.UI
 
         private void ShowJoinError(string message)
         {
-            ConquestLog.Info("ConquestMainMenuController", $"Connection ended: {message}");
+            Debug.Log($"[ConquestMainMenuController] Connection ended: {message}");
             if (currentMenuState == MenuState.Lobby)
             {
                 SwitchScreen(MenuState.JoinByCode);

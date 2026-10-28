@@ -3,7 +3,6 @@ using Unity.Netcode;
 using UnityEngine;
 using Game.Conquest.Player;
 using Game.Conquest.Networking;
-using Game.Conquest.Diagnostics;
 
 namespace Game.Conquest.Gameplay
 {
@@ -72,12 +71,6 @@ namespace Game.Conquest.Gameplay
                 return;
             }
             Instance = this;
-        }
-
-        public override void OnDestroy()
-        {
-            if (Instance == this) Instance = null;
-            base.OnDestroy();
         }
 
         public override void OnNetworkSpawn()
@@ -231,7 +224,7 @@ namespace Game.Conquest.Gameplay
                 m_ActiveBots.Add(botController);
             }
 
-            ConquestLog.Verbose("ConquestBotManager", $"Spawned {botDifficulty} {team} Bot (Class: {botPlayer?.selectedClassIndex.Value}) at {spawnPos}");
+            Debug.Log($"[ConquestBotManager] Spawned {botDifficulty} {team} Bot (Class: {botPlayer?.selectedClassIndex.Value}) at {spawnPos}");
         }
     }
 }

@@ -3,7 +3,6 @@ using Unity.Netcode;
 using UnityEngine;
 using Game.Conquest.Gameplay;
 using Game.Conquest.Player;
-using Game.Conquest.Diagnostics;
 
 namespace Game.Conquest.Networking
 {
@@ -59,7 +58,6 @@ namespace Game.Conquest.Networking
 
         private void OnDestroy()
         {
-            if (Instance == this) Instance = null;
             if (NetworkManager.Singleton != null)
             {
                 NetworkManager.Singleton.OnClientConnectedCallback -= HandleClientConnected;
@@ -141,12 +139,12 @@ namespace Game.Conquest.Networking
 
         private void HandleClientConnected(ulong clientId)
         {
-            ConquestLog.Info("ConquestNetworkManager", $"Client {clientId} connected.");
+            Debug.Log($"[ConquestNetworkManager] Client {clientId} connected.");
         }
 
         private void HandleClientDisconnected(ulong clientId)
         {
-            ConquestLog.Info("ConquestNetworkManager", $"Client {clientId} disconnected.");
+            Debug.Log($"[ConquestNetworkManager] Client {clientId} disconnected.");
             m_LateJoiners.Remove(clientId);
         }
 
@@ -188,7 +186,7 @@ namespace Game.Conquest.Networking
                 bool lateJoiner = m_LateJoiners.Remove(player.OwnerClientId);
                 player.ServerHoldForDeploy(spawnPos, spawnRot, lateJoiner);
 
-                ConquestLog.Verbose("ConquestNetworkManager", $"Player {player.OwnerClientId} assigned to {assignedTeam}.");
+                Debug.Log($"[ConquestNetworkManager] Player {player.OwnerClientId} assigned to {assignedTeam}.");
             }
             // Already registered: leave them where they are. Re-placing them on every scene event
             // used to teleport live players back to their base mid-fight.
@@ -246,7 +244,7 @@ namespace Game.Conquest.Networking
 
         public void OnPlayerKilled(ConquestPlayer victim, ulong killerId)
         {
-            ConquestLog.Info("ConquestNetworkManager", $"Player {victim.OwnerClientId} ({victim.playerTeam.Value}) was killed by object {killerId}");
+            Debug.Log($"[ConquestNetworkManager] Player {victim.OwnerClientId} ({victim.playerTeam.Value}) was killed by object {killerId}");
             ConquestMatchManager.Instance?.OnPlayerDied(victim, killerId);
         }
     }

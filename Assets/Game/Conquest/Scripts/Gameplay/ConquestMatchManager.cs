@@ -6,7 +6,6 @@ using UnityEngine;
 using Game.Conquest.Objectives;
 using Game.Conquest.Player;
 using Game.Conquest.Networking;
-using Game.Conquest.Diagnostics;
 
 namespace Game.Conquest.Gameplay
 {
@@ -116,12 +115,6 @@ namespace Game.Conquest.Gameplay
                 return;
             }
             Instance = this;
-        }
-
-        public override void OnDestroy()
-        {
-            if (Instance == this) Instance = null;
-            base.OnDestroy();
         }
 
         [Header("Fall Limit")]
@@ -366,7 +359,7 @@ namespace Game.Conquest.Gameplay
             winningTeam.Value = winner;
             // Bolts still in flight can't change the result (no damage after the match ends).
             Game.Conquest.Combat.ConquestBoltSimulator.ServerClearAll();
-            ConquestLog.Info("ConquestMatchManager", $"MATCH OVER! Winning team: {winner}");
+            Debug.Log($"[ConquestMatchManager] MATCH OVER! Winning team: {winner}");
 
             var session = ConquestSessionManager.Instance;
             session?.SetMatchResults(BuildResults(winner));
