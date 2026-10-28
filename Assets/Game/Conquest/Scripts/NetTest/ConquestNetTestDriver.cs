@@ -5,6 +5,7 @@ using System.Text;
 using Unity.Netcode;
 using Unity.Netcode.Transports.UTP;
 using Unity.Profiling;
+using Unity.Profiling.LowLevel.Unsafe;
 using Unity.Services.Authentication;
 using Unity.Services.Core;
 using Unity.Multiplayer.Tools.NetworkSimulator.Runtime;
@@ -114,6 +115,10 @@ namespace Game.Conquest.NetTest
         private ProfilerRecorder m_BotPerception;
         private ProfilerRecorder m_BoltSim;
         private readonly List<float> m_GcKB = new List<float>(1024);
+        // Frame time minus the frame-rate cap's wait: what the frame actually cost.
+        private ProfilerRecorder m_PlayerLoop;
+        private ProfilerRecorder m_WaitForFps;
+        private readonly List<float> m_BusyMs = new List<float>(1024);
         private double m_BotUpdateMs, m_BotPerceptionMs, m_BoltSimMs;
         private long m_WindowSent, m_WindowReceived;
         private readonly List<float> m_FrameMs = new List<float>(1024);
@@ -141,8 +146,10 @@ namespace Game.Conquest.NetTest
             m_BotUpdate = ProfilerRecorder.StartNew(ProfilerCategory.Scripts, "Conquest.BotUpdate");
             m_BotPerception = ProfilerRecorder.StartNew(ProfilerCategory.Scripts, "Conquest.BotPerception");
             m_BoltSim = ProfilerRecorder.StartNew(ProfilerCategory.Scripts, "Conquest.BoltSim");
+            m_PlayerLoop = StartByName("PlayerLoop");
+            m_WaitForFps = StartByName("WaitForTargetFPS");
             m_WindowStart = Time.realtimeSinceStartup;
-            Log($"recorders sent={m_BytesSent.Valid} received={m_BytesReceived.Valid} mainThread={m_MainThread.Valid}");
+            Log($"recorders sent={m_BytesSent.Valid} received={m_BytesReceived.Valid} mainThread={m_MainThread.Valid} playerLoop={m_PlayerLoop.Valid} waitForFps={m_WaitForFps.Valid}");
         }
 
         private void OnDestroy()
@@ -156,6 +163,8 @@ namespace Game.Conquest.NetTest
             m_BotUpdate.Dispose();
             m_BotPerception.Dispose();
             m_BoltSim.Dispose();
+            m_PlayerLoop.Dispose();
+            m_WaitForFps.Dispose();
         }
 
         // Instances on one PC share the anonymous sign-in cache; a profile per instance gives each its own player id.
@@ -576,6 +585,11 @@ namespace Game.Conquest.NetTest
             if (m_BotUpdate.Valid) m_BotUpdateMs += m_BotUpdate.LastValue / 1e6;
             if (m_BotPerception.Valid) m_BotPerceptionMs += m_BotPerception.LastValue / 1e6;
             if (m_BoltSim.Valid) m_BoltSimMs += m_BoltSim.LastValue / 1e6;
+            if (m_PlayerLoop.Valid)
+            {
+                long wait = m_WaitForFps.Valid ? m_WaitForFps.LastValue : 0;
+                m_BusyMs.Add((m_PlayerLoop.LastValue - wait) / 1_000_000f);
+            }
 
             float now = Time.realtimeSinceStartup;
             float window = now - m_WindowStart;
@@ -608,17 +622,44 @@ namespace Game.Conquest.NetTest
                     UnityEngine.Profiling.Profiler.GetMonoUsedSizeLong() / (1024f * 1024f)));
                 int frames = Mathf.Max(1, m_FrameMs.Count);
                 Log(string.Format(CultureInfo.InvariantCulture,
-                    "PERF gcKBPerFrame p50={0:0.00} p95={1:0.00} max={2:0.00} avgMsPerFrame botUpdate={3:0.000} botPerception={4:0.000} boltSim={5:0.000} frames={6}",
-                    Percentile(m_GcKB, 0.5f), Percentile(m_GcKB, 0.95f), Percentile(m_GcKB, 1f),
-                    m_BotUpdateMs / frames, m_BotPerceptionMs / frames, m_BoltSimMs / frames, frames));
+                    "PERF gcKBPerFrame p50={0:0.00} p95={1:0.00} max={2:0.00} gcKBPerSec={3:0.0} busyMs p50={4:0.00} p95={5:0.00} max={6:0.00} msPerSec botUpdate={7:0.00} botPerception={8:0.000} boltSim={9:0.00} fps={10:0}",
+                    Percentile(m_GcKB, 0.5f), Percentile(m_GcKB, 0.95f), Percentile(m_GcKB, 1f), Sum(m_GcKB) / window,
+                    Percentile(m_BusyMs, 0.5f), Percentile(m_BusyMs, 0.95f), Percentile(m_BusyMs, 1f),
+                    m_BotUpdateMs / window, m_BotPerceptionMs / window, m_BoltSimMs / window, frames / window));
             }
             m_GcKB.Clear();
+            m_BusyMs.Clear();
             m_BotUpdateMs = m_BotPerceptionMs = m_BoltSimMs = 0;
 
             m_WindowSent = m_WindowReceived = 0;
             m_FrameMs.Clear();
             m_MainThreadMs.Clear();
             m_WindowStart = now;
+        }
+
+        private static float Sum(List<float> values)
+        {
+            float total = 0f;
+            for (int i = 0; i < values.Count; i++) total += values[i];
+            return total;
+        }
+
+        // Engine markers live in categories that vary between versions; find them by name.
+        private static ProfilerRecorder StartByName(string markerName)
+        {
+            var handles = new List<ProfilerRecorderHandle>();
+            ProfilerRecorderHandle.GetAvailable(handles);
+            foreach (var handle in handles)
+            {
+                if (ProfilerRecorderHandle.GetDescription(handle).Name == markerName)
+                {
+                    var recorder = new ProfilerRecorder(handle, 1, ProfilerRecorderOptions.Default);
+                    recorder.Start();
+                    return recorder;
+                }
+            }
+            Log($"profiler marker '{markerName}' not found");
+            return default;
         }
 
         private static float Percentile(List<float> values, float p)
