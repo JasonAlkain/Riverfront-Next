@@ -228,7 +228,9 @@ namespace Game.Conquest.Combat
         // Supply droids take damage from any team they don't exclusively serve.
         private static void ApplyHit(in ServerBolt bolt, RaycastHit hit)
         {
-            ConquestHealth targetHealth = hit.collider.GetComponentInParent<ConquestHealth>();
+            if (!ConquestPhysics.TryGetDamageable(hit.collider, out ConquestHealth targetHealth,
+                    out ConquestSupportStation station, out ConquestSupplyDroid droid)) return;
+
             if (targetHealth != null)
             {
                 ConquestPlayer targetPlayer = targetHealth.GetComponent<ConquestPlayer>();
@@ -241,7 +243,6 @@ namespace Game.Conquest.Combat
                 return;
             }
 
-            ConquestSupportStation station = hit.collider.GetComponentInParent<ConquestSupportStation>();
             if (station != null && station.stationTeam.Value != bolt.team)
             {
                 station.TakeDamage(bolt.damage);
@@ -249,7 +250,6 @@ namespace Game.Conquest.Combat
                 return;
             }
 
-            ConquestSupplyDroid droid = hit.collider.GetComponentInParent<ConquestSupplyDroid>();
             if (droid != null && !droid.IsBroken && droid.CanBeDamagedBy(bolt.team))
             {
                 droid.TakeDamage(bolt.damage);
