@@ -9,6 +9,7 @@ using UnityEngine;
 using Game.Conquest.Gameplay;
 using Game.Conquest.Maps;
 using Game.Conquest.Scenes;
+using Game.Conquest.Diagnostics;
 
 namespace Game.Conquest.Networking
 {
@@ -276,7 +277,7 @@ namespace Game.Conquest.Networking
 
         private static void Reject(NetworkManager.ConnectionApprovalResponse response, ulong clientId, string reason)
         {
-            Debug.Log($"[ConquestSessionManager] Rejected client {clientId}: {reason}");
+            ConquestLog.Info("ConquestSessionManager", $"Rejected client {clientId}: {reason}");
             response.Approved = false;
             response.CreatePlayerObject = false;
             response.Reason = reason;
@@ -379,7 +380,7 @@ namespace Game.Conquest.Networking
                 if (success)
                 {
                     m_StatusMessage = $"Hosting on {GetHostAddressSummary(hostPort)}";
-                    Debug.Log($"[ConquestSessionManager] {m_StatusMessage}");
+                    ConquestLog.Info("ConquestSessionManager", m_StatusMessage);
                     OnStatusChanged?.Invoke(m_StatusMessage);
                     return true;
                 }
@@ -452,7 +453,7 @@ namespace Game.Conquest.Networking
             }
 
             SetStatus($"Dedicated server '{sessionName}' on {GetHostAddressSummary(hostPort)} | map {selectedMapId} | max {maxHumanPlayers} players");
-            Debug.Log($"[ConquestSessionManager] {StatusMessage}");
+            ConquestLog.Info("ConquestSessionManager", StatusMessage);
             return true;
         }
 
@@ -580,7 +581,7 @@ namespace Game.Conquest.Networking
             m_OnlineJoinCode = joinCode;
             ListOnline(sessName, maxPlayers, joinCode, mapSceneName, attempt);
             SetStatus($"Hosting online match, join code {joinCode}");
-            Debug.Log($"[ConquestSessionManager] {StatusMessage}");
+            ConquestLog.Info("ConquestSessionManager", StatusMessage);
             done?.Invoke(true, StatusMessage);
         }
 
