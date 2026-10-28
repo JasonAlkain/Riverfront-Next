@@ -13,6 +13,11 @@ on:
     branches: [main]
   workflow_dispatch:
 
+# unity-test-runner posts its results as a check run, which needs checks: write.
+permissions:
+  contents: read
+  checks: write
+
 concurrency:
   group: ci-${{ github.ref }}
   cancel-in-progress: true
