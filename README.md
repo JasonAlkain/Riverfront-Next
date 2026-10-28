@@ -116,3 +116,19 @@ One-time setup:
    Never commit the key.
 3. Create the project page on itch.io (Kind of project: Downloadable) with the URL `riverfront-next`.
    The first push creates the `windows` channel; then mark it as Windows in the page's upload list.
+
+## Continuous integration
+
+Every pull request and every push to `main` runs `.github/workflows/ci.yml` (GameCI):
+
+- the EditMode tests
+- a Windows client build and a Windows dedicated server build, uploaded as artifacts for 7 days
+
+The repository needs three secrets: `UNITY_LICENSE` (a Unity Personal `.ulf`, see
+[game.ci activation](https://game.ci/docs/github/activation)), `UNITY_EMAIL` and `UNITY_PASSWORD`.
+Git LFS objects are cached between runs to save LFS bandwidth.
+
+## Licence
+
+The code is under the [MIT License](LICENSE). Third-party assets keep their own licences; see
+[THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
