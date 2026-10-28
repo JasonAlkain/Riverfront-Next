@@ -1,3 +1,4 @@
+using Unity.Netcode;
 using UnityEngine;
 
 namespace Game.Conquest.Combat
@@ -88,6 +89,21 @@ namespace Game.Conquest.Combat
                 return false;
             }
             return RaycastIgnoring(ignoreRoot, from, delta / distance, distance, layerMask, out nearest);
+        }
+
+        /// <summary>
+        /// What a shot or blast hit, in one hierarchy walk. Players, bots, stations and supply droids keep
+        /// their damage component on the root next to the NetworkObject, so the collider's NetworkObject
+        /// is the only lookup needed; world geometry has none and returns false straight away.
+        /// </summary>
+        public static bool TryGetDamageable(Collider collider, out ConquestHealth health,
+                                            out ConquestSupportStation station, out ConquestSupplyDroid droid)
+        {
+            health = null; station = null; droid = null;
+            if (collider == null) return false;
+            NetworkObject owner = collider.GetComponentInParent<NetworkObject>();
+            if (owner == null) return false;
+            return owner.TryGetComponent(out health) | owner.TryGetComponent(out station) | owner.TryGetComponent(out droid);
         }
     }
 }

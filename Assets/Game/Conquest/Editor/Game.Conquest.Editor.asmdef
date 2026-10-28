@@ -1,7 +1,11 @@
 {
     "name": "Game.Conquest.Editor",
     "rootNamespace": "Game.Conquest.Build",
-    "references": [],
+    "references": [
+        "Game.Conquest",
+        "Unity.AI.Navigation",
+        "Unity.Netcode.Runtime"
+    ],
     "includePlatforms": [
         "Editor"
     ],

@@ -6,6 +6,7 @@ using UnityEngine;
 using UnityEngine.AI;
 using Game.Conquest.Gameplay;
 using Game.Conquest.Player;
+using Game.Conquest.Diagnostics;
 
 namespace Game.Conquest.Objectives
 {
@@ -323,7 +324,7 @@ namespace Game.Conquest.Objectives
                     currentOwner.Value = Team.Neutral;
                     capturingTeam.Value = dominantTeam;
                     CreditCapture(dominantTeam);
-                    Debug.Log($"[CommandPost {PostName}] Post neutralized by {dominantTeam}!");
+                    ConquestLog.Info($"CommandPost {PostName}", $"Post neutralized by {dominantTeam}!");
                 }
             }
             else if (capturingTeam.Value != dominantTeam && captureProgress.Value > 0f)
@@ -347,7 +348,7 @@ namespace Game.Conquest.Objectives
                     captureProgress.Value = 1.0f;
                     currentOwner.Value = dominantTeam;
                     CreditCapture(dominantTeam);
-                    Debug.Log($"[CommandPost {PostName}] Captured by {dominantTeam}!");
+                    ConquestLog.Info($"CommandPost {PostName}", $"Captured by {dominantTeam}!");
                 }
             }
         }
