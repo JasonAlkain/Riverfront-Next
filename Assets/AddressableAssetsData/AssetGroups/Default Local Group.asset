@@ -30,11 +30,6 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: d5370334ebfc741919094c943fa694ee
-    m_Address: Assets/Prefabs/Effects/CustomMuzzleFlash.prefab
-    m_ReadOnly: 0
-    m_SerializedLabels: []
-    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: d66bf1c0cf4a94990815a86b3d55b686
     m_Address: Assets/Prefabs/PlayerGhosts/ArmaturePlayer_Rifle.prefab
     m_ReadOnly: 0
@@ -42,11 +37,6 @@ MonoBehaviour:
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: dc9e63877cb249f448d2b30447761458
     m_Address: Assets/Prefabs/ActorGhosts/VisualEffectManager.prefab
-    m_ReadOnly: 0
-    m_SerializedLabels: []
-    FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: e0aa30b8adee8b44dac442776f34f5e7
-    m_Address: Assets/Shooter/Art/VFX/Prefabs/BulletImpact.prefab
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
