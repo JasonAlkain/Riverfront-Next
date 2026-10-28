@@ -34,13 +34,13 @@ namespace Game.Conquest.Build
 
         private const string DefaultOutputRoot = "Builds";
 
-        [MenuItem("Rivetfront/Build/Windows Client + Server")]
+        [MenuItem("Riverfront Next/Build/Windows Client + Server")]
         private static void MenuBuildAll() => BuildFromMenu(client: true, server: true);
 
-        [MenuItem("Rivetfront/Build/Windows Client")]
+        [MenuItem("Riverfront Next/Build/Windows Client")]
         private static void MenuBuildClient() => BuildFromMenu(client: true, server: false);
 
-        [MenuItem("Rivetfront/Build/Windows Dedicated Server")]
+        [MenuItem("Riverfront Next/Build/Windows Dedicated Server")]
         private static void MenuBuildServer() => BuildFromMenu(client: false, server: true);
 
         /// <summary>Builds into Builds/{version}/ and returns that folder, or null when the build failed.</summary>

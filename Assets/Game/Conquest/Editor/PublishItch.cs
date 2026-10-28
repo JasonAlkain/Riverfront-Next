@@ -7,7 +7,7 @@ using UnityEngine;
 namespace Game.Conquest.Build
 {
     /// <summary>
-    /// Rivetfront > Publish menu: pushes a build from Builds/ to itch.io by running Tools/Build/publish-itch.ps1
+    /// Riverfront Next > Publish menu: pushes a build from Builds/ to itch.io by running Tools/Build/publish-itch.ps1
     /// in its own PowerShell window, so butler's progress (and any login prompt) stays visible and the
     /// Editor is not blocked while it uploads.
     /// </summary>
@@ -18,7 +18,7 @@ namespace Game.Conquest.Build
         private const string ItchPageUrl = "https://allyn-david.itch.io/riverfront-next";
         private const string PublishScript = "Tools/Build/publish-itch.ps1";
 
-        [MenuItem("Rivetfront/Publish/Build Client and Push to itch.io...", priority = 0)]
+        [MenuItem("Riverfront Next/Publish/Build Client and Push to itch.io...", priority = 0)]
         private static void BuildAndPush()
         {
             if (!EditorUtility.DisplayDialog("Build and push to itch.io",
@@ -35,20 +35,20 @@ namespace Game.Conquest.Build
             }
         }
 
-        [MenuItem("Rivetfront/Publish/Push Latest Build to itch.io...", priority = 1)]
+        [MenuItem("Riverfront Next/Publish/Push Latest Build to itch.io...", priority = 1)]
         private static void PushLatest()
         {
             DirectoryInfo latest = FindLatestBuild();
             if (latest == null)
             {
                 EditorUtility.DisplayDialog("Nothing to push",
-                    "No client build found under Builds/. Use Rivetfront > Build > Windows Client first.", "OK");
+                    "No client build found under Builds/. Use Riverfront Next > Build > Windows Client first.", "OK");
                 return;
             }
             Push(latest.Name, askFirst: true);
         }
 
-        [MenuItem("Rivetfront/Publish/Open itch.io Page", priority = 20)]
+        [MenuItem("Riverfront Next/Publish/Open itch.io Page", priority = 20)]
         private static void OpenPage() => Application.OpenURL(ItchPageUrl);
 
         private static void Push(string version, bool askFirst)
