@@ -105,6 +105,12 @@ namespace Game.Conquest.Lobby
             lobbyPlayers = new NetworkList<LobbyPlayerState>();
         }
 
+        public override void OnDestroy()
+        {
+            if (Instance == this) Instance = null;
+            base.OnDestroy();
+        }
+
         public override void OnNetworkSpawn()
         {
             lobbyPlayers.OnListChanged += HandleListChanged;

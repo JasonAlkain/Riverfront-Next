@@ -2,6 +2,7 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using Game.Conquest.Networking;
+using Game.Conquest.Diagnostics;
 
 namespace Game.Conquest.Scenes
 {
@@ -17,7 +18,7 @@ namespace Game.Conquest.Scenes
         private void BeginDedicatedServer()
         {
             var args = ConquestServerLaunchArgs.Parse(System.Environment.GetCommandLineArgs());
-            Debug.Log("[ConquestBootstrap] Dedicated server launch detected.");
+            ConquestLog.Info("ConquestBootstrap", "Dedicated server launch detected.");
 
             // A headless server has nothing to render; don't spin the CPU on frames.
             Application.targetFrameRate = 60;
@@ -63,7 +64,7 @@ namespace Game.Conquest.Scenes
                     return;
                 }
 
-                Debug.Log($"[ConquestBootstrap] Loading {targetMenuScene}...");
+                ConquestLog.Info("ConquestBootstrap", $"Loading {targetMenuScene}...");
                 UnityEngine.SceneManagement.SceneManager.LoadScene(targetMenuScene);
             }
         }

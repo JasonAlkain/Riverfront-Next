@@ -49,6 +49,8 @@ auto-starts once enough players have joined and are all ready.
 | `-name` | Lobby name | session default |
 | `-minPlayers` | Players needed (all ready) before the start countdown | `2` |
 | `-startCountdown` | Seconds from everyone ready to the map loading | `10` |
+| `-logLevel` | `verbose`, `info`, `warning`, `error` or `off`. A server stamps each line with UTC time | `info` (release), `verbose` (development) |
+| `-logFile -` | Write the log to stdout instead of the player log file (Unity's own flag) | player log |
 
 A smaller server-only build comes from the **Windows Dedicated Server** build profile
 (`Assets/Settings/Build Profiles`): open **File → Build Profiles**, pick it, and build. It uses the

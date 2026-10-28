@@ -765,7 +765,7 @@ namespace Game.Conquest.Combat
             lastRepairServerTime.Value = NetworkManager.ServerTime.Time;
             if (!ConquestPhysics.RaycastIgnoring(transform, rayOrigin, rayDirection, maxRange, hitLayers, out RaycastHit hit)) return;
 
-            ConquestSupplyDroid droid = hit.collider.GetComponentInParent<ConquestSupplyDroid>();
+            ConquestPhysics.TryGetDamageable(hit.collider, out _, out _, out ConquestSupplyDroid droid);
             Team team = m_Player != null ? m_Player.CurrentTeam : Team.Neutral;
             if (droid != null && droid.Serves(team)) droid.ServerRepair(m_RepairPerUse);
         }
