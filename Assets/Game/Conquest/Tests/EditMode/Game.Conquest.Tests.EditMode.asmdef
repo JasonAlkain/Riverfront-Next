@@ -3,6 +3,7 @@
     "rootNamespace": "Game.Conquest.Tests",
     "references": [
         "Game.Conquest",
+        "Game.Conquest.Editor",
         "Unity.Netcode.Runtime",
         "UnityEngine.TestRunner",
         "UnityEditor.TestRunner"

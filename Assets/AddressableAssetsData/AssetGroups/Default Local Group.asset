@@ -14,57 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Unity.Addressables.Editor::UnityEditor.AddressableAssets.Settings.AddressableAssetGroup
   m_GroupName: Default Local Group
   m_GUID: 92b6b833b5f846f45bbe32bd85d5ee8d
-  m_SerializeEntries:
-  - m_GUID: 63934da2ab499aa479387455c5ccfd99
-    m_Address: Assets/Prefabs/Effects/MachineGunBulletHit.prefab
-    m_ReadOnly: 0
-    m_SerializedLabels: []
-    FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: 83a79bf5320972c46ae675e08e77534b
-    m_Address: Assets/Prefabs/ActorGhosts/Projectile.prefab
-    m_ReadOnly: 0
-    m_SerializedLabels: []
-    FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: c93af8b935d1da7419ae22251a33748c
-    m_Address: Assets/Prefabs/Effects/PlasmaHit.prefab
-    m_ReadOnly: 0
-    m_SerializedLabels: []
-    FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: d5370334ebfc741919094c943fa694ee
-    m_Address: Assets/Prefabs/Effects/CustomMuzzleFlash.prefab
-    m_ReadOnly: 0
-    m_SerializedLabels: []
-    FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: d66bf1c0cf4a94990815a86b3d55b686
-    m_Address: Assets/Prefabs/PlayerGhosts/ArmaturePlayer_Rifle.prefab
-    m_ReadOnly: 0
-    m_SerializedLabels: []
-    FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: dc9e63877cb249f448d2b30447761458
-    m_Address: Assets/Prefabs/ActorGhosts/VisualEffectManager.prefab
-    m_ReadOnly: 0
-    m_SerializedLabels: []
-    FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: e0aa30b8adee8b44dac442776f34f5e7
-    m_Address: Assets/Shooter/Art/VFX/Prefabs/BulletImpact.prefab
-    m_ReadOnly: 0
-    m_SerializedLabels: []
-    FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: e7dd0b0d73d8167499c6411431b686af
-    m_Address: Assets/Prefabs/Ghosts/Managers/PlayerGhostManager.prefab
-    m_ReadOnly: 0
-    m_SerializedLabels: []
-    FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: ebe8c5575ef1f504fb3711262b7b6467
-    m_Address: Assets/Prefabs/ActorGhosts/Leaderboard.prefab
-    m_ReadOnly: 0
-    m_SerializedLabels: []
-    FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: f4bc4302cb16c4e29aaa203772f1461c
-    m_Address: Assets/Prefabs/PlayerGhosts/ArmaturePlayer_Shotgun.prefab
-    m_ReadOnly: 0
-    m_SerializedLabels: []
-    FlaggedDuringContentUpdateRestriction: 0
+  m_SerializeEntries: []
   m_ReadOnly: 0
   m_Settings: {fileID: 11400000, guid: 34bc09176acb68f409c2a3eb1a4dec67, type: 2}
   m_SchemaSet:
