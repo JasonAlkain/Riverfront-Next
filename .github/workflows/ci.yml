@@ -72,6 +72,16 @@ jobs:
           path: Library
           key: Library-build-${{ matrix.target }}-${{ hashFiles('Packages/packages-lock.json', 'ProjectSettings/ProjectVersion.txt') }}
           restore-keys: Library-build-${{ matrix.target }}-
+      # The Windows client build has been killed for memory (exit 137) on the 16 GB runner; give it 12 GB of swap.
+      - name: More swap
+        run: |
+          sudo swapoff -a
+          sudo rm -f /mnt/swapfile
+          sudo fallocate -l 12G /mnt/swapfile
+          sudo chmod 600 /mnt/swapfile
+          sudo mkswap /mnt/swapfile
+          sudo swapon /mnt/swapfile
+          free -h
       - name: Build
         uses: game-ci/unity-builder@v4
         with:
