@@ -59,9 +59,6 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
-      # One build at a time: both builds share one Unity Personal licence, and parallel
-      # activations look to be killing Unity mid-build (exit 137, "Killed").
-      max-parallel: 1
       matrix:
         target: [client, server]
     steps:
@@ -70,11 +67,8 @@ jobs:
           fetch-depth: 0
       - name: Git LFS (cached)
         uses: ./.github/actions/lfs-cached
-      - uses: actions/cache@v4
-        with:
-          path: Library
-          key: Library-build-${{ matrix.target }}-${{ hashFiles('Packages/packages-lock.json', 'ProjectSettings/ProjectVersion.txt') }}
-          restore-keys: Library-build-${{ matrix.target }}-
+      # No Library cache for builds: Unity was repeatedly killed (exit 137) about a second after
+      # opening the project when it started from a restored build Library. A clean import is slower but steady.
       - name: Build
         uses: game-ci/unity-builder@v4
         with:
