@@ -39,18 +39,6 @@ BlendTree:
   m_UseAutomaticThresholds: 0
   m_NormalizedBlendValues: 0
   m_BlendType: 0
---- !u!114 &-7981900629106130951
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 10b33aa3e9f8e0042b3feeca32eeed4b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::EnterExitShooting
 --- !u!1102 &-6913442515559167751
 AnimatorState:
   serializedVersion: 6
@@ -64,7 +52,6 @@ AnimatorState:
   m_Transitions:
   - {fileID: -5088042847907345485}
   m_StateMachineBehaviours:
-  - {fileID: -6016566446297604569}
   m_Position: {x: 50, y: 50, z: 0}
   m_IKOnFeet: 0
   m_WriteDefaultValues: 1
@@ -79,18 +66,6 @@ AnimatorState:
   m_MirrorParameter: 
   m_CycleOffsetParameter: 
   m_TimeParameter: 
---- !u!114 &-6016566446297604569
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 89aaf34e602fc794490d673f34138798, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::EnterInAir
 --- !u!1101 &-5416219876759922246
 AnimatorStateTransition:
   m_ObjectHideFlags: 1
@@ -287,7 +262,6 @@ AnimatorState:
   m_Transitions:
   - {fileID: -2572839060412723997}
   m_StateMachineBehaviours:
-  - {fileID: -7981900629106130951}
   m_Position: {x: 50, y: 50, z: 0}
   m_IKOnFeet: 0
   m_WriteDefaultValues: 1
@@ -676,18 +650,6 @@ AnimatorController:
     m_IKPass: 0
     m_SyncedLayerAffectsTiming: 0
     m_Controller: {fileID: 9100000}
---- !u!114 &647898693701799490
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: bba0e8c75dc32194fba587bd00aa6424, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::ExitLanding
 --- !u!1107 &779199185577587148
 AnimatorStateMachine:
   serializedVersion: 6
@@ -761,7 +723,6 @@ AnimatorState:
   m_Transitions:
   - {fileID: 8844283611165556264}
   m_StateMachineBehaviours:
-  - {fileID: 647898693701799490}
   m_Position: {x: 50, y: 50, z: 0}
   m_IKOnFeet: 0
   m_WriteDefaultValues: 1
@@ -816,7 +777,6 @@ AnimatorState:
   m_Transitions:
   - {fileID: 4907608300049961806}
   m_StateMachineBehaviours:
-  - {fileID: 7269188160158489574}
   m_Position: {x: 50, y: 50, z: 0}
   m_IKOnFeet: 0
   m_WriteDefaultValues: 1
@@ -831,18 +791,6 @@ AnimatorState:
   m_MirrorParameter: 
   m_CycleOffsetParameter: 
   m_TimeParameter: 
---- !u!114 &2828994684552059763
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 10b33aa3e9f8e0042b3feeca32eeed4b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::EnterExitShooting
 --- !u!206 &3292536373167683125
 BlendTree:
   m_ObjectHideFlags: 1
@@ -995,7 +943,6 @@ AnimatorState:
   m_Transitions:
   - {fileID: -5416219876759922246}
   m_StateMachineBehaviours:
-  - {fileID: 2828994684552059763}
   m_Position: {x: 50, y: 50, z: 0}
   m_IKOnFeet: 0
   m_WriteDefaultValues: 1
@@ -1010,18 +957,6 @@ AnimatorState:
   m_MirrorParameter: 
   m_CycleOffsetParameter: 
   m_TimeParameter: 
---- !u!114 &7269188160158489574
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 89aaf34e602fc794490d673f34138798, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::EnterInAir
 --- !u!1101 &7826887614909140435
 AnimatorStateTransition:
   m_ObjectHideFlags: 1
