@@ -60,6 +60,12 @@ Players join with **Multiplayer → Join by IP** using the address the server lo
 Allow the port through the Windows firewall on the server machine. Clients and server must be the
 same build (the server refuses mismatched versions).
 
+## Testing with several players
+
+`Tools/NetTest/README.md` covers multi-player tests: automated host/join scenarios that run several copies
+of a development build on one PC (`Tools/NetTest/nettest-*.cmd`), Multiplayer Play Mode in the Editor,
+two PCs on a LAN, and a hands-on checklist.
+
 ## Building and publishing to itch.io
 
 **From the Editor:** **Rivetfront → Publish → Build Client and Push to itch.io** builds the client and

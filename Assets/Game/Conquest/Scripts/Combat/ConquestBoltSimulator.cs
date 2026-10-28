@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Unity.Netcode;
+using Unity.Profiling;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using Game.Conquest.Gameplay;
@@ -139,6 +140,9 @@ namespace Game.Conquest.Combat
 
         // Fixed rate rather than every frame: an uncapped listen-server host would otherwise
         // multiply the casts.
+        // Profiler sample name read by the network test driver (Tools/NetTest).
+        private static readonly ProfilerMarker s_StepMarker = new ProfilerMarker("Conquest.BoltSim");
+
         private void FixedUpdate()
         {
             var nm = NetworkManager.Singleton;
@@ -148,6 +152,7 @@ namespace Game.Conquest.Combat
                 return;
             }
             if (m_Bolts.Count == 0) return;
+            using var _ = s_StepMarker.Auto();
 
             EnsureSynced();
             double now = Time.timeAsDouble;

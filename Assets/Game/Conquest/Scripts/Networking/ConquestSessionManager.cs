@@ -254,6 +254,26 @@ namespace Game.Conquest.Networking
             response.Approved = true;
         }
 
+        /// <summary>
+        /// A disconnect reason a player can read. A reason the server sent (server full, version
+        /// mismatch, match ended) is kept; Netcode's own "[Disconnect Event][Client-1]...[ClosedByRemote]"
+        /// text for a transport-level disconnect is replaced by a plain sentence.
+        /// </summary>
+        public static string FriendlyDisconnectReason(string raw, bool wasConnecting)
+        {
+            if (string.IsNullOrEmpty(raw))
+            {
+                return wasConnecting ? "Could not reach the server (timed out or refused)." : "Disconnected from the server.";
+            }
+            if (!raw.StartsWith("[Disconnect Event]", StringComparison.Ordinal)) return raw;
+
+            if (raw.Contains("[MaxConnectionAttempts]")) return "Could not reach the server (timed out or refused).";
+            if (raw.Contains("[ClosedByRemote]")) return wasConnecting ? "The server refused the connection." : "The host ended the match or left.";
+            if (raw.Contains("[ProtocolTimeout]")) return "Lost connection to the server (timed out).";
+            if (raw.Contains("[AuthenticationFailure]")) return "Couldn't connect securely to the server.";
+            return wasConnecting ? "Could not reach the server (timed out or refused)." : "Disconnected from the server.";
+        }
+
         private static void Reject(NetworkManager.ConnectionApprovalResponse response, ulong clientId, string reason)
         {
             Debug.Log($"[ConquestSessionManager] Rejected client {clientId}: {reason}");

@@ -138,9 +138,9 @@ namespace Game.Conquest.Scenes
             bool inMatch = !IsMenuScene(UnityEngine.SceneManagement.SceneManager.GetActiveScene().name);
             if (!m_IsTransitioning && !inMatch) return; // the menu handles lobby/connect failures itself
 
-            string reason = nm.DisconnectReason;
+            string reason = Game.Conquest.Networking.ConquestSessionManager.FriendlyDisconnectReason(nm.DisconnectReason, false);
             // Defer a frame: we're inside NGO's disconnect callback and FailTransition shuts it down.
-            StartCoroutine(FailNextFrame(string.IsNullOrEmpty(reason) ? "Lost connection to the server." : reason));
+            StartCoroutine(FailNextFrame(reason));
         }
 
         private IEnumerator FailNextFrame(string message)

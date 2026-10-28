@@ -41,6 +41,9 @@ namespace Game.Conquest.UI
         private float m_ReturnAt = -1f;
         private bool m_Returning;
         private NetworkSceneManager m_SubscribedSceneManager;
+        // Server: clients already sent the results. A client still loading when this screen starts
+        // would otherwise get them twice (now and on its LoadComplete), and record the match twice.
+        private readonly HashSet<ulong> m_SentResultsTo = new HashSet<ulong>();
 
         // A dedicated server still runs this screen's server side (sending results, returning
         // everyone to the lobby) but skips everything that is only for a player to look at.
@@ -82,7 +85,7 @@ namespace Game.Conquest.UI
                 // Clients that are already here get the results now; the rest when they finish loading.
                 foreach (var clientId in nm.ConnectedClientsIds)
                 {
-                    session?.SendMatchResultsTo(clientId);
+                    SendResultsOnce(clientId);
                 }
                 if (nm.SceneManager != null)
                 {
@@ -109,8 +112,15 @@ namespace Game.Conquest.UI
             if (sceneEvent.SceneEventType == SceneEventType.LoadComplete ||
                 sceneEvent.SceneEventType == SceneEventType.SynchronizeComplete)
             {
-                ConquestSessionManager.Instance?.SendMatchResultsTo(sceneEvent.ClientId);
+                SendResultsOnce(sceneEvent.ClientId);
             }
+        }
+
+        private void SendResultsOnce(ulong clientId)
+        {
+            var session = ConquestSessionManager.Instance;
+            if (session == null || session.LastMatchResults == null || !m_SentResultsTo.Add(clientId)) return;
+            session.SendMatchResultsTo(clientId);
         }
 
         private void Update()

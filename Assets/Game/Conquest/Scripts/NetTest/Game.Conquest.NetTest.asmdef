@@ -1,0 +1,23 @@
+{
+    "name": "Game.Conquest.NetTest",
+    "rootNamespace": "Game.Conquest.NetTest",
+    "references": [
+        "Game.Conquest",
+        "Unity.Netcode.Runtime",
+        "Unity.Collections",
+        "Unity.Services.Core",
+        "Unity.Services.Authentication",
+        "Unity.Multiplayer.Tools.NetworkSimulator.Runtime"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": false,
+    "defineConstraints": [
+        "UNITY_EDITOR || DEVELOPMENT_BUILD"
+    ],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

@@ -897,14 +897,7 @@ namespace Game.Conquest.UI
                 return;
             }
 
-            string reason = nm.DisconnectReason;
-            if (string.IsNullOrEmpty(reason))
-            {
-                reason = wasConnecting
-                    ? "Could not reach the server (timed out or refused)."
-                    : "Disconnected from the server.";
-            }
-            ShowJoinError(reason);
+            ShowJoinError(ConquestSessionManager.FriendlyDisconnectReason(nm.DisconnectReason, wasConnecting));
         }
 
         private void HandleTransportFailure()
