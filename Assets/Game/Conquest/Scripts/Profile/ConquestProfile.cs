@@ -75,10 +75,30 @@ namespace Game.Conquest.Profile
             Changed = null;
         }
 
+        // Earlier builds shipped with Unity's default company name, so their profile lives in
+        // .../DefaultCompany/<product>/. persistentDataPath follows the company name, so look there once.
+        private const string LegacyCompanyName = "DefaultCompany";
+
+        private static string LegacyFilePath()
+        {
+            string productDir = Application.persistentDataPath;
+            string companyDir = Path.GetDirectoryName(productDir);
+            string root = companyDir != null ? Path.GetDirectoryName(companyDir) : null;
+            if (string.IsNullOrEmpty(root) || Path.GetFileName(companyDir) == LegacyCompanyName) return null;
+            return Path.Combine(root, LegacyCompanyName, Path.GetFileName(productDir), FileName);
+        }
+
         private static ConquestProfile Load()
         {
             try
             {
+                string legacy = LegacyFilePath();
+                if (!File.Exists(FilePath) && legacy != null && File.Exists(legacy))
+                {
+                    Directory.CreateDirectory(Path.GetDirectoryName(FilePath));
+                    File.Copy(legacy, FilePath);
+                }
+
                 if (File.Exists(FilePath))
                 {
                     var loaded = JsonUtility.FromJson<ConquestProfile>(File.ReadAllText(FilePath));

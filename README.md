@@ -1,4 +1,4 @@
-# Rivetfront
+# Riverfront Next
 
 Multiplayer team-based Conquest shooter built with Unity 6000.6.5f1 and Netcode for GameObjects.
 
@@ -69,7 +69,7 @@ two PCs on a LAN, and a hands-on checklist.
 
 ## Building and publishing to itch.io
 
-**From the Editor:** **Rivetfront → Publish → Build Client and Push to itch.io** builds the client and
+**From the Editor:** **Riverfront Next → Publish → Build Client and Push to itch.io** builds the client and
 pushes it in one step (the upload runs in its own PowerShell window). **Push Latest Build to itch.io**
 pushes the newest folder in `Builds/` without rebuilding.
 
@@ -96,7 +96,7 @@ The version defaults to `<Player Settings version>+<git commit>` (for example `0
 It becomes `Application.version`, which clients and servers compare when connecting, so the client
 and server from one run always match. Other options: `-Targets client` or `-Targets server`,
 `-Development`, `-UnityPath` (defaults to the Hub install of the version in `ProjectVersion.txt`).
-The same builds are available in the Editor under **Rivetfront → Build**. Editor builds use the active
+The same builds are available in the Editor under **Riverfront Next → Build**. Editor builds use the active
 build profile's Player Settings overrides (such as the Windows Client splash screen) and refuse to run
 if that profile changes the product name.
 

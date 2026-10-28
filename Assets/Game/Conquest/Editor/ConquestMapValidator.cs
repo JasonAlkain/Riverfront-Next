@@ -22,7 +22,7 @@ namespace Game.Conquest.Build
     /// match needs: posts with spawn points, home bases, one of each manager, baked NavMesh stored
     /// outside the scene, spawns on the NavMesh, and map data that matches the scene.
     ///
-    /// Menu: Rivetfront → Validate Maps. Batchmode (exit code 1 on any error):
+    /// Menu: Riverfront Next → Validate Maps. Batchmode (exit code 1 on any error):
     ///     Unity.exe -batchmode -nographics -quit -projectPath . -executeMethod Game.Conquest.Build.ConquestMapValidator.ValidateFromCommandLine
     /// </summary>
     public static class ConquestMapValidator
@@ -42,7 +42,7 @@ namespace Game.Conquest.Build
             public void Warn(string where, string message) => Warnings.Add($"{where}: {message}");
         }
 
-        [MenuItem("Rivetfront/Validate Maps")]
+        [MenuItem("Riverfront Next/Validate Maps")]
         public static void ValidateFromMenu()
         {
             if (!EditorSceneManager.SaveCurrentModifiedScenesIfUserWantsTo()) return;
