@@ -26,9 +26,6 @@ Assets/
 
   Settings/                   Project-wide settings: URP assets, input actions, build profiles, play mode
 
-  Templates/MultiplayerFPS/   Original Multiplayer FPS template (Netcode for Entities). Its code is compiled
-                              out (needs NETCODE_ENTITIES_AVAILABLE) and nothing in the game uses it.
-
   AddressableAssetsData/, DefaultNetworkPrefabs.asset, InputSystem_Actions.inputactions
                               Left at the Assets root because Unity packages expect them there.
 ```
