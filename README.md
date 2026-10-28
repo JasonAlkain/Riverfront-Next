@@ -16,16 +16,15 @@ Assets/
       UI/                    Main menu canvas, player and server cards
     Scenes/                   Bootstrap, MainMenu and the Conquest maps (these are the build scenes)
 
-  Art/, Audio/                Shared art and sound used by the game (characters, environment kits, clips)
-  Settings/                   Project-wide settings: URP assets, input actions, build profiles, play mode
+  Game/Shared/                Art and sound the game took from Unity's templates (see THIRD_PARTY_NOTICES.md)
+    Audio/                    Mixer and clips (footsteps, weapons, UI and HUD)
+    Characters/Armature/      Character rig, materials, animations and the two rifle animator controllers
+    FX/ParticlePack/          Particle materials and textures used by the FX prefabs
+    Logos/                    Project logo and splash images
+    TextMesh Pro/             TMP settings, default font and shaders (Resources/ is loaded by name)
+    Weapons/                  Rifle, handgun and shotgun models
 
-  Templates/                  Unity template/sample content the game builds on. Avoid editing in place.
-    BuildingBlocks/           Unity Multiplayer Building Blocks
-      Core/, Shooter/,        Gameplay blocks (TextMesh Pro resources live in Core/TextMesh Pro)
-      Platformer/
-      Common/, CommonSession/, MultiplayerSession/   Session/lobby blocks
-    MultiplayerFPS/           Original Multiplayer FPS template (Netcode for Entities).
-                              Its code is compiled out (needs NETCODE_ENTITIES_AVAILABLE); kept for reference.
+  Settings/                   Project-wide settings: URP assets, input actions, build profiles, play mode
 
   AddressableAssetsData/, DefaultNetworkPrefabs.asset, InputSystem_Actions.inputactions
                               Left at the Assets root because Unity packages expect them there.

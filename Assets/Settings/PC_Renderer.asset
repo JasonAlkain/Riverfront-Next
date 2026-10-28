@@ -1,71 +1,5 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!114 &-3898429679832653697
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9722d43e21637a041bde962fbd227b70, type: 3}
-  m_Name: DepthNormalsFeature
-  m_EditorClassIdentifier: Unity.RenderPipelines.Universal.Runtime::DepthNormalsFeature
-  m_Active: 1
-  settings:
-    renderPassEvent: 150
-    renderQueueType: 0
-    layerMask:
-      serializedVersion: 2
-      m_Bits: 255
-    setGlobalTextures: 1
-    enableRenderingLayers: 1
-    renderingLayersMaskSize: 0
-    depth:
-      overrideDepth: 0
-      depthTest: 4
-      writeDepth: 1
-    stencil:
-      enabled: 1
-      referenceValue: 0
-      compareFunction: 7
-      passOperation: 0
-      failOperation: 0
-      zFailOperation: 0
---- !u!114 &-2488792307397578820
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9722d43e21637a041bde962fbd227b70, type: 3}
-  m_Name: DepthNormalsFeature
-  m_EditorClassIdentifier: Unity.RenderPipelines.Universal.Runtime::DepthNormalsFeature
-  m_Active: 1
-  settings:
-    renderPassEvent: 150
-    renderQueueType: 0
-    layerMask:
-      serializedVersion: 2
-      m_Bits: 256
-    setGlobalTextures: 1
-    enableRenderingLayers: 1
-    renderingLayersMaskSize: 0
-    depth:
-      overrideDepth: 0
-      depthTest: 2
-      writeDepth: 1
-    stencil:
-      enabled: 1
-      referenceValue: 1
-      compareFunction: 8
-      passOperation: 2
-      failOperation: 0
-      zFailOperation: 0
 --- !u!114 &-2316097416229365301
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -112,13 +46,11 @@ MonoBehaviour:
     probeSamplingDebugTexture: {fileID: 2800000, guid: 24ec0e140fb444a44ab96ee80844e18e, type: 3}
     probeVolumeBlendStatesCS: {fileID: 7200000, guid: b9a23f869c4fd45f19c5ada54dd82176, type: 3}
   m_RendererFeatures:
-  - {fileID: -2488792307397578820}
-  - {fileID: -3898429679832653697}
   - {fileID: 5940745707003540313}
   - {fileID: 2898082860457705461}
   - {fileID: 1131069770322373578}
   - {fileID: -2316097416229365301}
-  m_RendererFeatureMap: bcafd725950876dd7f20bc67dcfee5c95973dfbebec47152f5bf3ac3010f3828ca6b3fa4f65db20fcbd972d0ab91dbdfl
+  m_RendererFeatureMap: 5973dfbebec47152f5bf3ac3010f3828ca6b3fa4f65db20fcbd972d0ab91dbdfl
   xrSystemData: {fileID: 0}
   postProcessData: {fileID: 11400000, guid: 41439944d30ece34e96484bdb6645b55, type: 2}
   m_AssetVersion: 3
